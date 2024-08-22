@@ -6,7 +6,7 @@
 
 ### Linting, Vulnerability Scanning and Building
 
-CI bedzie sie triggerowac gdy bedzie pull request(merge request) do 'dev' z branch 'feature/*'
+CI bedzie sie triggerowac gdy bedzie pull request(merge request) do `dev` z branch `feature/*`
 
 Jest tam Spotbugs(szuka bugow) oraz owasp dependency checker(sprawdza dependencies).
 Po wejsciu w actions i wybraniu konkretnego runu mozna pobrac artefakty:
