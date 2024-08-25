@@ -1,16 +1,14 @@
-name: Pull request to dev branch CI
+name: Cache Dependencies
 
 on:
-  pull_request:
+  push:
     branches:
       - 'develop'
-
+      
 jobs:
-  lint-scan-build:
-    if: startsWith(github.head_ref, 'feature/')
-    name: Linting, Vulnerability Scanning and Building
+  build-cache:
+    name: Make Cache
     runs-on: ubuntu-latest
-
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -31,11 +29,3 @@ jobs:
 
     - name: Install Dependencies, Build, Trigger Spotbugs and Dependency Check
       run: mvn clean install -DskipTests -DNVD_API_KEY=${{ secrets.NVD_API_KEY }} -B
-
-    - name: Upload SpotBugs and Dependency Check Reports
-      uses: actions/upload-artifact@v4
-      with:
-        name: reports
-        path: |
-          target/spotbugs.html
-          target/dependency-check-report.html
