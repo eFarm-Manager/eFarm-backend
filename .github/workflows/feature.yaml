@@ -3,7 +3,7 @@ name: Pull request to dev branch CI
 on:
   pull_request:
     branches:
-      - 'dev'
+      - 'develop'
 
 jobs:
   lint-scan-build:
@@ -35,11 +35,7 @@ jobs:
     - name: Upload SpotBugs Report
       uses: actions/upload-artifact@v4
       with:
-        name: spotbugs-report
-        path: target/spotbugs.html
-
-    - name: Upload OWASP Dependency Check Report
-      uses: actions/upload-artifact@v4
-      with:
-        name: owasp-dependency-check-report
-        path: target/dependency-check-report.html
+        name: reports
+        path: |
+          target/spotbugs.html
+          target/dependency-check-report.html
