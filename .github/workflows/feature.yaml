@@ -3,7 +3,7 @@ name: Pull request to dev branch CI
 on:
   pull_request:
     branches:
-      - 'dev'
+      - 'develop'
 
 jobs:
   lint-scan-build:
