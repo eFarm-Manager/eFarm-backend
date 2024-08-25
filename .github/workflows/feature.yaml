@@ -32,7 +32,7 @@ jobs:
     - name: Install Dependencies, Build, Trigger Spotbugs and Dependency Check
       run: mvn clean install -DskipTests -DNVD_API_KEY=${{ secrets.NVD_API_KEY }} -B
 
-    - name: Upload SpotBugs Report
+    - name: Upload SpotBugs and Dependency Check Reports
       uses: actions/upload-artifact@v4
       with:
         name: reports
