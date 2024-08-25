@@ -1,0 +1,41 @@
+name: Pull request to dev branch CI
+
+on:
+  pull_request:
+    branches:
+      - 'develop'
+
+jobs:
+  lint-scan-build:
+    if: startsWith(github.head_ref, 'feature/')
+    name: Linting, Vulnerability Scanning and Building
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup JDK
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: 21
+
+    - name: Cache Maven dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+        restore-keys: |
+            ${{ runner.os }}-maven-
+
+    - name: Install Dependencies, Build, Trigger Spotbugs and Dependency Check
+      run: mvn clean install -DskipTests -DNVD_API_KEY=${{ secrets.NVD_API_KEY }} -B
+
+    - name: Upload SpotBugs Report
+      uses: actions/upload-artifact@v4
+      with:
+        name: reports
+        path: |
+          target/spotbugs.html
+          target/dependency-check-report.html
