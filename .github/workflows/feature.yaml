@@ -6,14 +6,19 @@ on:
       - 'develop'
 
 jobs:
-  lint-scan-build:
-    if: startsWith(github.head_ref, 'feature/')
-    name: Linting, Vulnerability Scanning and Building
+  lint-scan-unit:
+    if: |
+      startsWith(github.head_ref || github.ref_name, 'feature/') || 
+      startsWith(github.head_ref || github.ref_name, 'bugfix/')
+    name: Lint, Scan and Unit Test
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
+
+    - name: Secret Scanning
+      uses: secret-scanner/action@0.0.2
 
     - name: Setup JDK
       uses: actions/setup-java@v4
@@ -31,6 +36,14 @@ jobs:
 
     - name: Install Dependencies, Build, Trigger Spotbugs and Dependency Check
       run: mvn clean install -DskipTests -DNVD_API_KEY=${{ secrets.NVD_API_KEY }} -B
+    
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: 'java'
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
 
     - name: Upload SpotBugs and Dependency Check Reports
       uses: actions/upload-artifact@v4
