@@ -1,0 +1,17 @@
+name: Main Branch Protection Rule
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  check_source_branch:
+    name: Check Source Branch
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check source branch
+        if: github.event.pull_request.head.ref != 'develop'
+        run: |
+          echo "Pull requests to main must come from develop."
+          exit 1
