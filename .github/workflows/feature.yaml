@@ -33,14 +33,14 @@ jobs:
         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
         restore-keys: |
             ${{ runner.os }}-maven-
-
-    - name: Install Dependencies, Build, Trigger Spotbugs and Dependency Check
-      run: mvn clean install -DskipTests -DNVD_API_KEY=${{ secrets.NVD_API_KEY }} -B
-    
+            
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v3
       with:
         languages: 'java'
+        
+    - name: Install Dependencies, Build, Trigger Spotbugs and Dependency Check
+      run: mvn clean install -DskipTests -DNVD_API_KEY=${{ secrets.NVD_API_KEY }} -B
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
