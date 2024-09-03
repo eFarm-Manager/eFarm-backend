@@ -25,7 +25,6 @@ public class User {
     @Column(name = "imie")
     private String firstName;
 
-//    @MapsId
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "UprawnieniaUzytkownikow_idUprawnieniaUzytkownikow", nullable = false)
     private Role role;
@@ -59,5 +58,6 @@ public class User {
         this.username = username;
         this.email = email;
         this.password = password;
+        this.phoneNumber = "";
     }
 }
