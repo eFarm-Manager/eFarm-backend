@@ -2,6 +2,7 @@ package com.efarm.efarmbackend.security.jwt;
 
 import java.io.IOException;
 
+import io.micrometer.common.lang.NonNullApi;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,6 +19,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.efarm.efarmbackend.security.services.UserDetailsServiceImpl;
 
+@NonNullApi
 public class AuthTokenFilter extends OncePerRequestFilter {
     @Autowired
     private JwtUtils jwtUtils;
@@ -32,7 +34,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         try {
             String jwt = parseJwt(request);
-            if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
+            if (jwtUtils.validateJwtToken(jwt)) {
                 logger.info("JWT token found: {}", jwt);
                 String username = jwtUtils.getUserNameFromJwtToken(jwt);
 
@@ -49,7 +51,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         } catch (Exception e) {
-            logger.error("Cannot set user authentication: {}", e);
+            logger.error("Cannot set user authentication: {}", e.getMessage());
         }
 
         filterChain.doFilter(request, response);
@@ -57,7 +59,6 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
     private String parseJwt(HttpServletRequest request) {
         logger.info("Parsing JWT from request cookies.");
-        String jwt = jwtUtils.getJwtFromCookies(request);
-        return jwt;
+        return jwtUtils.getJwtFromCookies(request);
     }
 }

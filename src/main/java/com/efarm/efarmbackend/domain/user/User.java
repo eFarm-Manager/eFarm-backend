@@ -51,7 +51,7 @@ public class User {
     private String email;
 
     @Column(name = "numerTelefonu")
-    private Integer phoneNumber;
+    private String phoneNumber;
 
     public User(String username, String email, String password) {
         this.firstName = "No name";
