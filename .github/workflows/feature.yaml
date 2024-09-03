@@ -6,9 +6,29 @@ on:
       - 'develop'
 
 jobs:
-  lint-scan-build:
-    if: startsWith(github.head_ref, 'feature/')
-    name: Linting, Vulnerability Scanning and Building
+  secret-scanning:
+    if: |
+      startsWith(github.head_ref, 'feature/') || 
+      startsWith(github.head_ref, 'bugfix/')
+    name: Secret Scanning
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10' 
+      
+      - name: Secret Scanning
+        uses: secret-scanner/action@0.0.2
+
+  lint-scan-unit:
+    if: |
+      startsWith(github.head_ref, 'feature/') || 
+      startsWith(github.head_ref, 'bugfix/')
+    name: Lint, Scan and Unit Test
     runs-on: ubuntu-latest
 
     steps:
@@ -28,11 +48,12 @@ jobs:
         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
         restore-keys: |
             ${{ runner.os }}-maven-
-
+                 
     - name: Install Dependencies, Build, Trigger Spotbugs and Dependency Check
       run: mvn clean install -DskipTests -DNVD_API_KEY=${{ secrets.NVD_API_KEY }} -B
 
     - name: Upload SpotBugs and Dependency Check Reports
+      if: always()
       uses: actions/upload-artifact@v4
       with:
         name: reports
