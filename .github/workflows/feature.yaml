@@ -6,6 +6,24 @@ on:
       - 'develop'
 
 jobs:
+  secret-scanning:
+    if: |
+      startsWith(github.head_ref, 'feature/') || 
+      startsWith(github.head_ref, 'bugfix/')
+    name: Secret Scanning
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10' 
+      
+      - name: Secret Scanning
+        uses: secret-scanner/action@0.0.2
+
   lint-scan-unit:
     if: |
       startsWith(github.head_ref, 'feature/') || 
@@ -16,9 +34,6 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-
-    - name: Secret Scanning
-      uses: secret-scanner/action@0.0.2
 
     - name: Setup JDK
       uses: actions/setup-java@v4
@@ -33,17 +48,9 @@ jobs:
         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
         restore-keys: |
             ${{ runner.os }}-maven-
-            
-    - name: Initialize CodeQL
-      uses: github/codeql-action/init@v3
-      with:
-        languages: 'java'
-        
+                 
     - name: Install Dependencies, Build, Trigger Spotbugs and Dependency Check
       run: mvn clean install -DskipTests -DNVD_API_KEY=${{ secrets.NVD_API_KEY }} -B
-
-    - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v3
 
     - name: Upload SpotBugs and Dependency Check Reports
       if: always()
