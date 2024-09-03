@@ -1,15 +1,12 @@
 package com.efarm.efarmbackend.domain.user;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -53,15 +50,8 @@ public class User {
     @Column(name = "email", nullable = false, length = 80)
     private String email;
 
-    @Column(name = "numerTelelfonu")
+    @Column(name = "numerTelefonu")
     private Integer phoneNumber;
-
-    @Size(max = 25)
-    @Column(name = "plec", length = 25)
-    private String gender;
-
-    @Column(name = "dataUrodzenia")
-    private LocalDate birthDate;
 
     public User(String username, String email, String password) {
         this.firstName = "No name";
