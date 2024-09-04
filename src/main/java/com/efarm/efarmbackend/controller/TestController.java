@@ -16,7 +16,7 @@ public class TestController {
     }
 
     @GetMapping("/user")
-    @PreAuthorize("hasRole('ROLE_FARM_EQUIPMENT_OPERATOR') or hasRole('ROLE_FARM_MANAGER')")
+    @PreAuthorize("hasRole('ROLE_FARM_EQUIPMENT_OPERATOR')")
     public String userAccess() {
         return "User Content.";
     }
