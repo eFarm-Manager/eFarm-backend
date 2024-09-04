@@ -84,6 +84,8 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
+
+        //Check user data
         logger.info("Received signup request: {}", signUpRequest);
         if (userRepository.existsByUsername(signUpRequest.getUsername())) {
             return ResponseEntity.badRequest().body(new MessageResponse("Error: Username is already taken!"));
@@ -95,14 +97,25 @@ public class AuthController {
 
         // Create new user's account
         User user = new User(
+                signUpRequest.getFirstName(),
+                signUpRequest.getLastName(),
                 signUpRequest.getUsername(),
                 signUpRequest.getEmail(),
-                encoder.encode(signUpRequest.getPassword()));
+                encoder.encode(signUpRequest.getPassword()),
+                signUpRequest.getPhoneNumber());
 
+        //Set role for new User
+        String strRole = signUpRequest.getRole();
         Set<Role> roles = new HashSet<>();
+        Role managerRole;
 
-        Role managerRole = roleRepository.findByName(ERole.ROLE_FARM_MANAGER)
-                .orElseThrow(() -> new RuntimeException("Error: Role ROLE_FARM_MANAGER is not found."));
+        if (strRole.equals("ROLE_FARM_MANAGER")) {
+            managerRole = roleRepository.findByName(ERole.ROLE_FARM_MANAGER)
+                    .orElseThrow(() -> new RuntimeException("Error: Role ROLE_FARM_MANAGER is not found."));
+        } else {
+            managerRole = roleRepository.findByName(ERole.ROLE_FARM_EQUIPMENT_OPERATOR)
+                    .orElseThrow(() -> new RuntimeException("Error: Role ROLE_FARM_EQUIPMENT_OPERATOR is not found."));
+        }
 
         roles.add(managerRole);
         user.setRole(roles.iterator().next());
