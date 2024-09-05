@@ -1,5 +1,6 @@
 package com.efarm.efarmbackend.payload.response;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,6 +17,8 @@ public class UserInfoResponse {
 
     private String email;
 
+    @Getter(AccessLevel.NONE)
+    @Setter(AccessLevel.NONE)
     private List<String> roles;
 
     public UserInfoResponse(Integer id, String username, String email, List<String> roles) {
