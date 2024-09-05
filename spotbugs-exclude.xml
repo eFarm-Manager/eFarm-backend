@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+    <Match>
+        <Class name="com.efarm.efarmbackend.domain.user.User" />
+        <Bug code="EI,EI2" />
+    </Match>
+</FindBugsFilter>
