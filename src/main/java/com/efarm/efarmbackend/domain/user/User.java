@@ -52,15 +52,6 @@ public class User {
     @Column(name = "numerTelefonu")
     private String phoneNumber;
 
-//    public User(String username, String email, String password) {
-//        this.firstName = "No name";
-//        this.lastName = "No last name";
-//        this.username = username;
-//        this.email = email;
-//        this.password = password;
-//        this.phoneNumber = "";
-//    }
-
     public User(String firstName, String lastName, String username, String email, String password, String phoneNumber) {
         this.firstName = firstName;
         this.lastName = lastName;

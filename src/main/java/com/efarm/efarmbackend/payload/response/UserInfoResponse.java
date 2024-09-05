@@ -3,6 +3,7 @@ package com.efarm.efarmbackend.payload.response;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -21,7 +22,20 @@ public class UserInfoResponse {
         this.id = id;
         this.username = username;
         this.email = email;
-        this.roles = roles;
+        this.roles = new ArrayList<>(roles);
     }
+
+    public List<String> getRoles() {
+        return new ArrayList<>(this.roles);
+    }
+
+    public void setRoles(List<String> roles) {
+        if (roles != null) {
+            this.roles = new ArrayList<>(roles);
+        } else {
+            this.roles = new ArrayList<>();
+        }
+    }
+
 
 }
