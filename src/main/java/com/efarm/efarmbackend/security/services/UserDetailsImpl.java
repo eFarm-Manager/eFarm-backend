@@ -1,7 +1,9 @@
 package com.efarm.efarmbackend.security.services;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 
@@ -36,7 +38,8 @@ public class UserDetailsImpl implements UserDetails {
         this.username = username;
         this.email = email;
         this.password = password;
-        this.authorities = authorities;
+        //ensure that once the authorities are set, they cannot be modified
+        this.authorities = authorities != null ? Collections.unmodifiableCollection(new HashSet<>(authorities)) : Collections.emptySet();
     }
 
     public static UserDetailsImpl build(User user) {
@@ -51,9 +54,10 @@ public class UserDetailsImpl implements UserDetails {
                 authorities);
     }
 
+    //ensure that the returned collection cannot be modified by external code
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return authorities;
+        return Collections.unmodifiableList(new ArrayList<>(authorities));
     }
 
     @Override
