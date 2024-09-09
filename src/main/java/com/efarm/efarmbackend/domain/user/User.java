@@ -1,5 +1,6 @@
 package com.efarm.efarmbackend.domain.user;
 
+import com.efarm.efarmbackend.domain.farm.Farm;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -28,6 +29,10 @@ public class User {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "UprawnieniaUzytkownikow_idUprawnieniaUzytkownikow", nullable = false)
     private Role role;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "Gospodarstwo_idGospodarstwo", nullable = false, referencedColumnName = "idGospodarstwo")
+    private Farm farm;
 
     @Size(max = 45)
     @NotNull
