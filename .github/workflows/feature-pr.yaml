@@ -1,0 +1,35 @@
+name: Pull request with Unit Testing to develop
+
+on:
+  pull_request:
+    branches:
+      - 'develop'
+
+jobs:
+  unit-test:
+    if: |
+      startsWith(github.head_ref, 'feature/') || 
+      startsWith(github.head_ref, 'bugfix/')
+    name: Unit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup JDK
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: 21
+
+    - name: Cache Maven dependencies
+      uses: actions/cache/restore@v4
+      with:
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+        restore-keys: |
+            ${{ runner.os }}-maven-
+                 
+    - name: Start Unit Tests
+      run: mvn clean test -Punit-test -B
