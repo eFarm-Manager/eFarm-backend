@@ -5,6 +5,9 @@ on:
     branches:
       - 'develop'
 
+env:
+  VERSION: ${{ github.ref_name }}-${{ github.sha }}
+
 jobs:
   integration:
     name: Integration Tests
@@ -46,17 +49,22 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Convert repository name to lowercase and set Docker image
+        run: |
+          REPO_NAME=$(echo "${{ github.event.repository.name }}" | tr '[:upper:]' '[:lower:]')
+          echo "DOCKER_IMAGE=${{ secrets.DOCKER_USERNAME }}/$REPO_NAME" >> $GITHUB_ENV
+
       - name: Build Docker image
         run: |
           docker buildx build --platform linux/amd64 --tag  \
-            ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name  }}:${{ github.ref_name }}-${{ github.sha }}  \
+            ${{ env.DOCKER_IMAGE }}:${{ env.VERSION }}  \
             --cache-to type=gha,mode=max,compression=zstd \
             --cache-from type=gha,mode=max,compression=zstd .
 
       - name: Scan Docker image for vulnerabilities
         uses: aquasecurity/trivy-action@0.20.0
         with:
-          image-ref: ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:${{ github.ref_name }}-${{ github.sha }}
+          image-ref: ${{ env.DOCKER_IMAGE }}:${{ env.VERSION }}
           format: 'table'
           exit-code: '1'
           ignore-unfixed: true
@@ -78,6 +86,8 @@ jobs:
 
       - name: Push Docker image
         run: |
-          docker push ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:${{ github.ref_name }}-${{ github.sha }} .
+          docker push ${{ env.DOCKER_IMAGE }}:${{ env.VERSION }} .
 
-      
+      - name: Echo Docker image
+        run: |
+          echo ${{ env.DOCKER_IMAGE }}:${{ env.VERSION }} .
