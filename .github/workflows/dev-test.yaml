@@ -71,7 +71,7 @@ jobs:
         uses: aquasecurity/trivy-action@0.20.0
         with:
           image-ref: ${{ env.DOCKER_IMAGE }}:${{ env.VERSION }}
-          format: 'table'
+          format: 'sarif'
           exit-code: '1'
           ignore-unfixed: true
           vuln-type: 'os,library'
