@@ -1,4 +1,4 @@
-name: Cache Dependencies And CodeQL
+name: CodeQL on develop branch
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
       
 jobs:
   cache-codeql:
-    name: Make Cache and Scan with CodeQL
+    name: Scan with CodeQL
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
@@ -20,7 +20,7 @@ jobs:
         java-version: 21
 
     - name: Cache Maven dependencies
-      uses: actions/cache@v4
+      uses: actions/cache/restore@v4
       with:
         path: ~/.m2/repository
         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -32,8 +32,8 @@ jobs:
       with:
         languages: 'java'
 
-    - name: Install Dependencies, Build, Trigger Spotbugs and Dependency Check
-      run: mvn clean install -DskipTests -DNVD_API_KEY=${{ secrets.NVD_API_KEY }} -B
+    - name: Install Dependencies, Build
+      run: mvn clean install -B
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3  
