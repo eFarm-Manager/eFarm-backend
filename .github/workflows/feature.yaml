@@ -1,34 +1,24 @@
-name: Pull request to dev branch CI
+name: Seret Scanning, Spotbugs and OWASP 
 
 on:
-  pull_request:
+  push:
     branches:
-      - 'develop'
+      - 'feature/*'
+      - 'bugfix/*'
 
 jobs:
   secret-scanning:
-    if: |
-      startsWith(github.head_ref, 'feature/') || 
-      startsWith(github.head_ref, 'bugfix/')
     name: Secret Scanning
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10' 
       
       - name: Secret Scanning
         uses: secret-scanner/action@0.0.2
 
-  lint-scan-unit:
-    if: |
-      startsWith(github.head_ref, 'feature/') || 
-      startsWith(github.head_ref, 'bugfix/')
-    name: Lint, Scan and Unit Test
+  lint-scan:
+    name: Lint and Scan
     runs-on: ubuntu-latest
 
     steps:
@@ -42,7 +32,7 @@ jobs:
         java-version: 21
 
     - name: Cache Maven dependencies
-      uses: actions/cache@v4
+      uses: actions/cache/restore@v4
       with:
         path: ~/.m2/repository
         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -50,7 +40,7 @@ jobs:
             ${{ runner.os }}-maven-
                  
     - name: Install Dependencies, Build, Trigger Spotbugs and Dependency Check
-      run: mvn clean install -DskipTests -DNVD_API_KEY=${{ secrets.NVD_API_KEY }} -B
+      run: mvn clean verify -Pspotbugs-and-owasp -DNVD_API_KEY=${{ secrets.NVD_API_KEY }} -B
 
     - name: Upload SpotBugs and Dependency Check Reports
       if: always()
