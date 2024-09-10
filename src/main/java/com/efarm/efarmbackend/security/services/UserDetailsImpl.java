@@ -12,7 +12,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.efarm.efarmbackend.domain.user.User;
+import com.efarm.efarmbackend.model.user.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 

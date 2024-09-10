@@ -1,4 +1,4 @@
-package com.efarm.efarmbackend.domain.user;
+package com.efarm.efarmbackend.model.user;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;

@@ -1,11 +1,11 @@
 package com.efarm.efarmbackend.service;
 
-import com.efarm.efarmbackend.domain.farm.ActivationCode;
-import com.efarm.efarmbackend.domain.farm.Address;
-import com.efarm.efarmbackend.domain.farm.Farm;
-import com.efarm.efarmbackend.domain.user.ERole;
-import com.efarm.efarmbackend.domain.user.Role;
-import com.efarm.efarmbackend.domain.user.User;
+import com.efarm.efarmbackend.model.farm.ActivationCode;
+import com.efarm.efarmbackend.model.farm.Address;
+import com.efarm.efarmbackend.model.farm.Farm;
+import com.efarm.efarmbackend.model.user.ERole;
+import com.efarm.efarmbackend.model.user.Role;
+import com.efarm.efarmbackend.model.user.User;
 import com.efarm.efarmbackend.payload.request.SignupFarmRequest;
 import com.efarm.efarmbackend.payload.request.SignupRequest;
 import com.efarm.efarmbackend.payload.response.MessageResponse;
@@ -64,10 +64,6 @@ public class AuthService {
             return ResponseEntity.badRequest().body(new MessageResponse("Error: Username is already taken!"));
         }
 
-        if (userRepository.existsByEmail(signUpRequest.getEmail())) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Email is already in use!"));
-        }
-
         // Create new user's account
         User user = new User(
                 signUpRequest.getFirstName(),
@@ -123,10 +119,6 @@ public class AuthService {
         //Check user and farm data
         if (userRepository.existsByUsername(signUpFarmRequest.getUsername())) {
             return ResponseEntity.badRequest().body(new MessageResponse("Error: Username is already taken!"));
-        }
-
-        if (userRepository.existsByEmail(signUpFarmRequest.getEmail())) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Email is already in use!"));
         }
 
         if (farmRepository.existsByFarmName(signUpFarmRequest.getFarmName())) {

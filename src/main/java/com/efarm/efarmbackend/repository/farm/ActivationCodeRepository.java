@@ -1,6 +1,6 @@
 package com.efarm.efarmbackend.repository.farm;
 
-import com.efarm.efarmbackend.domain.farm.ActivationCode;
+import com.efarm.efarmbackend.model.farm.ActivationCode;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

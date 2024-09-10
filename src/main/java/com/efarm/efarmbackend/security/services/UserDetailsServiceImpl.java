@@ -8,7 +8,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.efarm.efarmbackend.domain.user.User;
+import com.efarm.efarmbackend.model.user.User;
 import com.efarm.efarmbackend.repository.user.UserRepository;
 
 @Service

@@ -1,4 +1,4 @@
-package com.efarm.efarmbackend.domain.user;
+package com.efarm.efarmbackend.model.user;
 
 public enum ERole {
     ROLE_FARM_EQUIPMENT_OPERATOR,

@@ -1,6 +1,6 @@
 package com.efarm.efarmbackend.repository.user;
 
-import com.efarm.efarmbackend.domain.user.User;
+import com.efarm.efarmbackend.model.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

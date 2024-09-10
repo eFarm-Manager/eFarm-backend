@@ -1,6 +1,6 @@
-package com.efarm.efarmbackend.domain.user;
+package com.efarm.efarmbackend.model.user;
 
-import com.efarm.efarmbackend.domain.farm.Farm;
+import com.efarm.efarmbackend.model.farm.Farm;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;

@@ -1,7 +1,7 @@
 package com.efarm.efarmbackend.repository.user;
 
-import com.efarm.efarmbackend.domain.user.ERole;
-import com.efarm.efarmbackend.domain.user.Role;
+import com.efarm.efarmbackend.model.user.ERole;
+import com.efarm.efarmbackend.model.user.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
