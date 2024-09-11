@@ -35,3 +35,5 @@ build/
 # Sensitive config files
 env.properties
 
+#Detect secrets run file
+run-detect-secret.sh
