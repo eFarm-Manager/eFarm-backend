@@ -60,7 +60,7 @@ public class AuthController {
     AddressRepository addressRepository;
 
     @Autowired
-    ActivationCodeRepository activationcodeRepository;
+    ActivationCodeRepository activationCodeRepository;
 
     @Autowired
     private AuthService authService;
