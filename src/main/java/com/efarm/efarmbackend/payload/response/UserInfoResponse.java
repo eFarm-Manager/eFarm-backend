@@ -39,6 +39,4 @@ public class UserInfoResponse {
             this.roles = new ArrayList<>();
         }
     }
-
-
 }
