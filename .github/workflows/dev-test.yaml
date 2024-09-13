@@ -41,6 +41,7 @@ jobs:
       run: |
         cd efarm-db
         docker compose up -d --build --wait
+        cd ..
 
     - name: 'Create env.properties file'
       run: |
@@ -49,6 +50,13 @@ jobs:
 
     - name: Integration Tests
       run: mvn clean verify -Pintegrationtest -B
+
+    - name: Clean up docker compose
+      run: |
+        cd efarm-db
+        docker compose down -v
+        cd ..
+        rm -rf efarm-db
 
   docker:
     runs-on: ubuntu-latest
