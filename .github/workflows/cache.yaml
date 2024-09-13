@@ -6,7 +6,7 @@ on:
       - 'main'
       
 jobs:
-  cache-codeql:
+  cache-main:
     name: Cache
     runs-on: ubuntu-latest
     steps:
@@ -26,6 +26,15 @@ jobs:
         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
         restore-keys: |
             ${{ runner.os }}-maven-
-                
-    - name: Install Dependencies, Build
-      run: mvn clean install -B    
+
+    - name: Install Profile Spotbugs and owasp
+      run: mvn clean install -Pspotbugs-and-owasp -DNVD_API_KEY=${{ secrets.NVD_API_KEY }} -B 
+    
+    - name: Install Profile unit-test
+      run: mvn clean install -Punit-test -DskipTests -B         
+      
+    - name: Install Profile integrationtest
+      run: mvn clean install -Punit-test -DskipTests -B    
+
+    - name: Install Profile default
+      run: mvn clean install -B  

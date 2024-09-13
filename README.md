@@ -103,3 +103,61 @@ mvn clean test -Punit-test
 - jezeli manager robiacy konto nie istnieje RuntimeException
 - testowany signup dla nowego gospodarstwa(czy login zajety, czy nazwa farmy zajeta, poprawny signupFarm)
 - testowanie roznych przypadkow z kodem aktywacyjnym(kod nie istnieje, expired, uzyty, poprawny signupFarm)
+
+### Integration Tests
+
+Zeby przetestowac integration testy mozna to zrobic za pomoca komendy:
+```sh
+mvn clean verify -Pintegrationtest
+```
+
+#### Controller
+
+##### AuthController
+- poprawny signin dla istniejacego uzytkownika z rola operatora
+- poprawny signin dla istniejacego uzytkownika z rola managera
+- niepoprawny signin przez niepoprawne haslo
+- poprawny signout
+- poprwany signup przez managera
+- sprawdza signup przez operatora
+- poprawny signupFarm 
+
+#### Repository
+
+##### farm/ActivationCodeRepository
+- poprawnie znajduje kod
+- nie znajduje nieistniejacego kodu
+
+##### farm/FarmRepository
+- sprawdza czy farma istnieje
+- farma czy nie istniejaca farma istnieje
+
+##### user/RoleRepository
+- sprawdza ze rola operatora istnieje
+- sprawdza ze rola managera istnieje
+- sprawdza ze nie istniejaca rola nie istnieje
+
+##### user/UserRepository
+- wyszukuje istniejacego user po username
+- dodaje nowego user i wyszkuje po username
+- sprawdza ze imie 1 user nie jest te same co innego
+- sprawdza ze istniejacy user istnieje
+- dodanie nowego user i sprawdzenie czy istnieje
+- sprawdza ze nieistniejacy user nieistnieje
+
+#### Security/UserDetailsService
+- laduje UserDetails przez username
+- dodaje nowego user i laduje UserDetails przez username
+- jezeli user nie istnieje to UsernameNotFoundException
+
+#### Service
+
+##### AuthService
+- poprwany signup przez managera
+- niepoprawny signup bo username juz istnieje
+- poprawny signupFarm 
+- niepoprawny signupFarm bo username juz istnieje
+- niepoprawny signupFarm bo farmName juz istnieje
+- niepoprawny signupFarm bo activation code jest pusty
+- niepoprawny signupFarm bo activation code jest niewazny
+- niepoprawny signupFarm bo activation code jest zuzyty
