@@ -1,0 +1,49 @@
+name: Integration Tests to see if working
+
+on:
+  push:
+    branches:
+      - 'feature/*'
+
+
+jobs:
+  integration:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup JDK
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: 21
+
+    - name: Cache Maven dependencies
+      uses: actions/cache/restore@v4
+      with:
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+        restore-keys: |
+            ${{ runner.os }}-maven-
+
+    - name: Checkout database repo
+      uses: actions/checkout@v4
+      with:
+        repository: eFarm-Manager/eFarm-database
+        path: efarm-db
+
+    - name: Start docker compose
+      run: |
+        cd efarm-db
+        docker compose up -d --build --wait
+
+    - name: 'Create env.properties file'
+      run: |
+          touch .env
+          echo "${{secrets.BACKEND_ENV_TEST }}" > env.properties
+
+    - name: Integration Tests
+      run: mvn clean verify -Pintegrationtest -B

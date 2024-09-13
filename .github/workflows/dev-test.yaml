@@ -31,6 +31,17 @@ jobs:
         restore-keys: |
             ${{ runner.os }}-maven-
 
+    - name: Checkout database repo
+      uses: actions/checkout@v4
+      with:
+        repository: eFarm-Manager/eFarm-database
+        path: efarm-db
+
+    - name: Start docker compose
+      run: |
+        cd efarm-db
+        docker compose up -d --build --wait
+
     - name: 'Create env.properties file'
       run: |
           touch .env
