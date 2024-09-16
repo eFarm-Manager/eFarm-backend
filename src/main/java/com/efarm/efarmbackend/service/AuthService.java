@@ -78,7 +78,10 @@ public class AuthService {
         Set<Role> roles = new HashSet<>();
         Role managerRole;
 
-        if (strRole.equals("ROLE_FARM_MANAGER")) {
+        if (strRole.equals("ROLE_FARM_OWNER")) {
+            managerRole = roleRepository.findByName(ERole.ROLE_FARM_OWNER)
+                    .orElseThrow(() -> new RuntimeException("Error: Role ROLE_FARM_OWNER is not found."));
+        } else if (strRole.equals("ROLE_FARM_MANAGER")) {
             managerRole = roleRepository.findByName(ERole.ROLE_FARM_MANAGER)
                     .orElseThrow(() -> new RuntimeException("Error: Role ROLE_FARM_MANAGER is not found."));
         } else {
@@ -135,8 +138,8 @@ public class AuthService {
                 signUpFarmRequest.getPhoneNumber());
 
         // Set role for new User
-        Role managerRole = roleRepository.findByName(ERole.ROLE_FARM_MANAGER)
-                .orElseThrow(() -> new RuntimeException("Error: Role ROLE_FARM_MANAGER is not found."));
+        Role managerRole = roleRepository.findByName(ERole.ROLE_FARM_OWNER)
+                .orElseThrow(() -> new RuntimeException("Error: Role ROLE_FARM_OWNER is not found."));
         user.setRole(managerRole);
 
         // Check activation code
@@ -160,6 +163,7 @@ public class AuthService {
         Farm farm = new Farm(signUpFarmRequest.getFarmName());
         farm.setIdAddress(address.getId());
         farm.setIdActivationCode(activationCodeOpt.get().getId());
+        farm.setIsActive(true);
         farmRepository.save(farm);
 
         user.setFarm(farm);

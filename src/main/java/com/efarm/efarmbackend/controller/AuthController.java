@@ -95,7 +95,7 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
-    @PreAuthorize("hasRole('ROLE_FARM_MANAGER')")
+    @PreAuthorize("hasRole('ROLE_FARM_MANAGER') or hasRole('ROLE_FARM_OWNER')")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
         return authService.registerUser(signUpRequest);
     }

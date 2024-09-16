@@ -44,6 +44,10 @@ public class Farm {
     @Column(name = "nrRejestruSanitarnego", length = 30)
     private String sanitaryRegisterNumber;
 
+    @NotNull
+    @Column(name = "czyAktywne", nullable = false)
+    private Boolean isActive;
+
     public Farm(String farmName) {
         this.farmName = farmName;
     }
