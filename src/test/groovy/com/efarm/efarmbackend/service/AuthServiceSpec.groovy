@@ -190,7 +190,7 @@ class AuthServiceSpec extends Specification {
 
 
         when:
-        ResponseEntity result = authService.registerFarmUser(signUpFarmRequest)
+        ResponseEntity result = authService.registerFarmAndFarmOwner(signUpFarmRequest)
 
         then:
         result.statusCode == expectedResponse.statusCode
@@ -236,7 +236,7 @@ class AuthServiceSpec extends Specification {
         farmRepository.save(_ as Farm) >> new Farm(id: 1, farmName: signUpFarmRequest.farmName)
 
         when:
-        ResponseEntity result = authService.registerFarmUser(signUpFarmRequest)
+        ResponseEntity result = authService.registerFarmAndFarmOwner(signUpFarmRequest)
 
         then:
         result.statusCode == expectedResponse.statusCode

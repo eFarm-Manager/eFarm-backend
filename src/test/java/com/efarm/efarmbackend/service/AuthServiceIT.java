@@ -180,7 +180,7 @@ public class AuthServiceIT {
         signUpFarmRequest.setActivationCode(activationCode.getCode());
 
         //When
-        ResponseEntity<?> result = authService.registerFarmUser(signUpFarmRequest);
+        ResponseEntity<?> result = authService.registerFarmAndFarmOwner(signUpFarmRequest);
 
         //Then
         assertThat(result.getStatusCode(), is(HttpStatus.OK));
@@ -223,7 +223,7 @@ public class AuthServiceIT {
         signUpFarmRequest.setActivationCode(activationCode.getCode());
 
         //When
-        ResponseEntity<?> result = authService.registerFarmUser(signUpFarmRequest);
+        ResponseEntity<?> result = authService.registerFarmAndFarmOwner(signUpFarmRequest);
 
         //Then
         assertThat(result.getStatusCode(), is(HttpStatus.BAD_REQUEST));
@@ -254,7 +254,7 @@ public class AuthServiceIT {
         signUpFarmRequest.setActivationCode(activationCode.getCode());
 
         //When
-        ResponseEntity<?> result = authService.registerFarmUser(signUpFarmRequest);
+        ResponseEntity<?> result = authService.registerFarmAndFarmOwner(signUpFarmRequest);
 
         //Then
         assertThat(result.getStatusCode(), is(HttpStatus.BAD_REQUEST));
@@ -278,7 +278,7 @@ public class AuthServiceIT {
         signUpFarmRequest.setActivationCode("");
 
         //When
-        ResponseEntity<?> result = authService.registerFarmUser(signUpFarmRequest);
+        ResponseEntity<?> result = authService.registerFarmAndFarmOwner(signUpFarmRequest);
 
         //Then
         assertThat(result.getStatusCode(), is(HttpStatus.BAD_REQUEST));
@@ -310,7 +310,7 @@ public class AuthServiceIT {
         signUpFarmRequest.setActivationCode(expiredCode.getCode());
 
         //When
-        ResponseEntity<?> result = authService.registerFarmUser(signUpFarmRequest);
+        ResponseEntity<?> result = authService.registerFarmAndFarmOwner(signUpFarmRequest);
 
         //Then
         assertThat(result.getStatusCode(), is(HttpStatus.BAD_REQUEST));
@@ -342,7 +342,7 @@ public class AuthServiceIT {
         signUpFarmRequest.setActivationCode(expiredCode.getCode());
 
         //When
-        ResponseEntity<?> result = authService.registerFarmUser(signUpFarmRequest);
+        ResponseEntity<?> result = authService.registerFarmAndFarmOwner(signUpFarmRequest);
 
         //Then
         assertThat(result.getStatusCode(), is(HttpStatus.BAD_REQUEST));

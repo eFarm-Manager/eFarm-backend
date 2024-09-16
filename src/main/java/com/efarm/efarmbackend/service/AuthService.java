@@ -19,6 +19,7 @@ import com.efarm.efarmbackend.security.services.UserDetailsImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,7 +27,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
-import java.time.LocalDate;
+
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -51,6 +52,15 @@ public class AuthService {
 
     @Autowired
     private PasswordEncoder encoder;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private ActivationCodeService activationCodeService;
+
+    @Autowired
+    private FarmService farmService;
 
     private static final Logger logger = LoggerFactory.getLogger(AuthEntryPointJwt.class);
 
@@ -116,7 +126,7 @@ public class AuthService {
 
 
     @Transactional
-    public ResponseEntity<?> registerFarmUser(SignupFarmRequest signUpFarmRequest) {
+    public ResponseEntity<?> registerFarmAndFarmOwner(SignupFarmRequest signUpFarmRequest) {
 
         logger.info("Received signup Farm request: {}", signUpFarmRequest);
         //Check user and farm data
@@ -128,51 +138,27 @@ public class AuthService {
             return ResponseEntity.badRequest().body(new MessageResponse("Error: Farm Name is already taken!"));
         }
 
-        // Create new user's account
-        User user = new User(
-                signUpFarmRequest.getFirstName(),
-                signUpFarmRequest.getLastName(),
-                signUpFarmRequest.getUsername(),
-                signUpFarmRequest.getEmail(),
-                encoder.encode(signUpFarmRequest.getPassword()),
-                signUpFarmRequest.getPhoneNumber());
-
-        // Set role for new User
-        Role managerRole = roleRepository.findByName(ERole.ROLE_FARM_OWNER)
-                .orElseThrow(() -> new RuntimeException("Error: Role ROLE_FARM_OWNER is not found."));
-        user.setRole(managerRole);
+        // Create new owner's account
+        User user = userService.createFarmOwner(signUpFarmRequest);
 
         // Check activation code
         Optional<ActivationCode> activationCodeOpt = activationCodeRepository.findByCode(signUpFarmRequest.getActivationCode());
-        if (activationCodeOpt.isEmpty()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Activation code does not exist."));
-        }
-
-        if (activationCodeOpt.get().getExpireDate().isBefore(LocalDate.now())) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Activation code has expired."));
-        }
-
-        if (activationCodeOpt.get().getIsUsed()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Activation code has already been used."));
+        ResponseEntity<MessageResponse> validationResponse = activationCodeService.checkActivationCode(signUpFarmRequest.getActivationCode());
+        if (validationResponse.getStatusCode() != HttpStatus.OK) {
+            return validationResponse;
         }
 
         // Create farm
         Address address = new Address();
         addressRepository.save(address);
 
-        Farm farm = new Farm(signUpFarmRequest.getFarmName());
-        farm.setIdAddress(address.getId());
-        farm.setIdActivationCode(activationCodeOpt.get().getId());
-        farm.setIsActive(true);
-        farmRepository.save(farm);
+        Farm farm = farmService.createFarm(signUpFarmRequest.getFarmName(), address.getId(), activationCodeOpt.get().getId());
 
         user.setFarm(farm);
         userRepository.save(user);
 
         // Update ActivationCode Properties
-        ActivationCode activationCode = activationCodeOpt.get();
-        activationCode.setIsUsed(true);
-        activationCodeRepository.save(activationCode);
+        activationCodeService.markActivationCodeAsUsed(signUpFarmRequest.getActivationCode());
 
         return ResponseEntity.ok(new MessageResponse("Farm registered successfully!"));
     }

@@ -102,7 +102,7 @@ public class AuthController {
 
     @PostMapping("/signupfarm")
     public ResponseEntity<?> registerFarmUser(@Valid @RequestBody SignupFarmRequest signUpRequest) {
-        return authService.registerFarmUser(signUpRequest);
+        return authService.registerFarmAndFarmOwner(signUpRequest);
     }
 
     @PostMapping("/signout")
