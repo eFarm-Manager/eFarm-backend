@@ -110,7 +110,13 @@ public class AuthService {
         userRepository.save(user);
 
         // Update ActivationCode Properties
-        activationCodeService.markActivationCodeAsUsed(signUpFarmRequest.getActivationCode());
+        try {
+            activationCodeService.markActivationCodeAsUsed(signUpFarmRequest.getActivationCode());
+        } catch (RuntimeException e) {
+            logger.error("Can not use activation code: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
+        }
+
 
         return ResponseEntity.ok(new MessageResponse("Farm registered successfully!"));
     }
