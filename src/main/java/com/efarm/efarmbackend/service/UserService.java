@@ -9,6 +9,8 @@ import com.efarm.efarmbackend.payload.request.SignupRequest;
 import com.efarm.efarmbackend.repository.user.RoleRepository;
 import com.efarm.efarmbackend.repository.user.UserRepository;
 import com.efarm.efarmbackend.security.services.UserDetailsImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -27,6 +29,7 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
     public User createFarmOwner(SignupFarmRequest signUpFarmRequest) {
         User user = new User(
@@ -64,6 +67,12 @@ public class UserService {
 
     public Farm getLoggedUserFarm() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null) {
+            logger.error("Authentication object is null. No user is authenticated.");
+            throw new RuntimeException("No authentication found. User may not be logged in.");
+        }
+
         Object principal = authentication.getPrincipal();
 
         if (principal instanceof UserDetailsImpl currentUserDetails) {
