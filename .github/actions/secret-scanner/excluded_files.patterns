@@ -1,2 +1,3 @@
 \src/test/groovy/
 \src/test/java/
+\helm/templates/sealed-secret.yaml
