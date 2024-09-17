@@ -2,6 +2,8 @@
 
 ## Dokumentacja Backend
 
+Dokumentacja poszczególnych ednpointów znajduje się w dedykowanym repozytorium
+
 ## Dokumentacja Testow
 
 ### Unit Tests

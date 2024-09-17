@@ -15,15 +15,21 @@ public class TestController {
         return "Public Content.";
     }
 
-    @GetMapping("/user")
+    @GetMapping("/operator")
     @PreAuthorize("hasRole('ROLE_FARM_EQUIPMENT_OPERATOR')")
     public String userAccess() {
-        return "User Content.";
+        return "Operator Board.";
     }
 
-    @GetMapping("/admin")
+    @GetMapping("/manager")
     @PreAuthorize("hasRole('ROLE_FARM_MANAGER')")
     public String adminAccess() {
-        return "Admin Board.";
+        return "Manager Board.";
+    }
+
+    @GetMapping("/owner")
+    @PreAuthorize("hasRole('ROLE_FARM_OWNER')")
+    public String wonerAccess() {
+        return "Owner Board.";
     }
 }

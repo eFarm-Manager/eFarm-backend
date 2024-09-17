@@ -65,6 +65,7 @@ public class UserRepositoryIT {
 		testUser.setPassword("password");
 		testUser.setRole(role);
 		testUser.setFarm(farm);
+		testUser.setIsActive(true);
 
 		entityManager.persist(testUser);
         entityManager.flush();
@@ -139,6 +140,7 @@ public class UserRepositoryIT {
 		testUser.setPassword("password");
 		testUser.setRole(role);
 		testUser.setFarm(farm);
+		testUser.setIsActive(true);
 
 		entityManager.persist(testUser);
         entityManager.flush();

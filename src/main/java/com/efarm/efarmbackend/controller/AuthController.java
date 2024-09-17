@@ -95,14 +95,14 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
-    @PreAuthorize("hasRole('ROLE_FARM_MANAGER')")
+    @PreAuthorize("hasRole('ROLE_FARM_MANAGER') or hasRole('ROLE_FARM_OWNER')")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
         return authService.registerUser(signUpRequest);
     }
 
     @PostMapping("/signupfarm")
     public ResponseEntity<?> registerFarmUser(@Valid @RequestBody SignupFarmRequest signUpRequest) {
-        return authService.registerFarmUser(signUpRequest);
+        return authService.registerFarmAndFarmOwner(signUpRequest);
     }
 
     @PostMapping("/signout")

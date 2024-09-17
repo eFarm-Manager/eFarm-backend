@@ -57,6 +57,10 @@ public class User {
     @Column(name = "numerTelefonu")
     private String phoneNumber;
 
+    @NotNull
+    @Column(name = "czyAktywny", nullable = false)
+    private Boolean isActive;
+
     public User(String firstName, String lastName, String username, String email, String password, String phoneNumber) {
         this.firstName = firstName;
         this.lastName = lastName;
@@ -64,5 +68,6 @@ public class User {
         this.email = email;
         this.password = password;
         this.phoneNumber = phoneNumber;
+        this.isActive = true;
     }
 }

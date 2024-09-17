@@ -71,6 +71,7 @@ public class AuthControllerIT {
 		testUser.setPassword(passwordEncoder.encode(passwordTest));
 		testUser.setRole(role);
 		testUser.setFarm(farm);
+        testUser.setIsActive(true);
 
         entityManager.merge(testUser);
         entityManager.flush();
@@ -109,6 +110,7 @@ public class AuthControllerIT {
 		testUser.setPassword(passwordEncoder.encode(passwordTest));
 		testUser.setRole(role);
 		testUser.setFarm(farm);
+        testUser.setIsActive(true);
 
         entityManager.merge(testUser);
         entityManager.flush();
@@ -148,7 +150,7 @@ public class AuthControllerIT {
 		testUser.setPassword(passwordEncoder.encode(passwordTest));
 		testUser.setRole(role);
 		testUser.setFarm(farm);
-
+        testUser.setIsActive(true);
         entityManager.merge(testUser);
         entityManager.flush();
 
