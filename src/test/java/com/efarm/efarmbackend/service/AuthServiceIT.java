@@ -7,6 +7,8 @@ import com.efarm.efarmbackend.model.user.User;
 import com.efarm.efarmbackend.payload.request.SignupFarmRequest;
 import com.efarm.efarmbackend.payload.request.SignupRequest;
 import com.efarm.efarmbackend.payload.response.MessageResponse;
+import com.efarm.efarmbackend.repository.farm.ActivationCodeRepository;
+import com.efarm.efarmbackend.repository.farm.AddressRepository;
 import com.efarm.efarmbackend.repository.farm.FarmRepository;
 import com.efarm.efarmbackend.repository.user.UserRepository;
 import com.efarm.efarmbackend.security.services.UserDetailsImpl;
@@ -18,6 +20,7 @@ import jakarta.transaction.Transactional;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 
 import java.time.LocalDate;
 
@@ -26,6 +29,7 @@ import static org.hamcrest.Matchers.instanceOf;
 
 import org.junit.jupiter.api.*;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -49,6 +53,21 @@ public class AuthServiceIT {
 
     @Autowired
     private FarmRepository farmRepository;
+
+    @Autowired
+    private AddressRepository addressRepository;
+
+    @Autowired
+    private ActivationCodeRepository activationCodeRepository;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private ActivationCodeService activationCodeService;
+
+    @Autowired
+    private FarmService farmService;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -132,7 +151,7 @@ public class AuthServiceIT {
         assertThat(responseBody.getMessage(), is("Error: Username is already taken!"));
     }
 
-    /* 
+     
     @Test
     @DisplayName("Tests that new user can not be created sucessfuly if current user has no authentication")
     void testNoAuthentication() throws Exception {
@@ -151,13 +170,10 @@ public class AuthServiceIT {
         //When
         ResponseEntity<?> result = authService.registerUser(signUpRequest);
 
-
         //Then
         assertThat(result.getStatusCode(), is(HttpStatus.BAD_REQUEST));
         assertThat(result.getBody(), instanceOf(MessageResponse.class));
-        MessageResponse responseBody = (MessageResponse) result.getBody();
-        assertThat(responseBody.getMessage(), is("Error: Unexpected principal type."));
-    }*/
+    }
     
     @Test
     @DisplayName("Tests that new user and farm can be created sucessfuly")
@@ -193,7 +209,7 @@ public class AuthServiceIT {
         assertThat(registeredFarmUser, notNullValue());
         assertThat(registeredFarmUser.getEmail(), is(signUpFarmRequest.getEmail()));
         assertThat(registeredFarmUser.getUsername(), is(signUpFarmRequest.getUsername()));
-        assertThat(registeredFarmUser.getRole().getName(), is(ERole.ROLE_FARM_MANAGER));
+        assertThat(registeredFarmUser.getRole().getName(), is(ERole.ROLE_FARM_OWNER));
         //Verify the farm was saved in the repository
         farmRepository.existsByFarmName(signUpFarmRequest.getFarmName());
         assertThat(farmRepository.existsByFarmName(signUpFarmRequest.getFarmName()), is(true));

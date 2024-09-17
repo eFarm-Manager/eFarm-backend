@@ -67,7 +67,8 @@ public class UserDetailsServiceImplIT {
 		testUser.setPassword("password");
 		testUser.setRole(role);
 		testUser.setFarm(farm);
-
+        testUser.setIsActive(true);
+        
 		entityManager.persist(testUser);
         entityManager.flush();
 
