@@ -6,7 +6,12 @@ import org.junit.jupiter.api.*;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.hasProperty;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.everyItem;
+import static org.hamcrest.Matchers.not;
 
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -51,4 +56,21 @@ public class FarmRepositoryIT {
         // Then
         assertThat(existsFarmByName,is(false));
     }
+
+    @Test
+	@DisplayName("Tests that all active farms are collected")
+    public void testFindActiveFarms() {
+        //given
+        Long countActive = entityManager.getEntityManager()
+        .createQuery("SELECT COUNT(f) FROM Farm f WHERE f.isActive = true", Long.class)
+        .getSingleResult();
+
+        // when
+        List<Farm> activeFarms = farmRepository.findByIsActiveTrue();
+
+        // then
+        assertThat(activeFarms, not(empty()));
+        assertThat(countActive.intValue(), is(activeFarms.size()));
+        assertThat(activeFarms, everyItem(hasProperty("isActive", is(true))));
+	}
 }
