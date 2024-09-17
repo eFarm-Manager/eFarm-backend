@@ -98,12 +98,20 @@ jobs:
           severity: 'CRITICAL,HIGH'
           output: 'trivy-results.sarif'
 
+      - name: Modify Helm image tag
+        run: |
+          sed -i "s/tag:.*/tag: ${{ env.VERSION }}/" helm/values.yaml
+
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "github-actions@github.com"
+          git config --local user.name "GitHub Actions"
+          git add helm/values.yaml          
+          git commit -m "Update imageTag to ${{ env.VERSION }}"
+          git push origin ${{ github.ref }}
+
       - name: Upload Trivy scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v3
         if: always()
         with:
           sarif_file: 'trivy-results.sarif'
-
-      - name: Echo Docker image
-        run: |
-          echo ${{ env.DOCKER_IMAGE }}:${{ env.VERSION }} .
