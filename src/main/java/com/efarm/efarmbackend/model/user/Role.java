@@ -21,4 +21,13 @@ public class Role {
     @NotNull
     @Column(name = "nazwaUprawnien", nullable = false, length = 45)
     private ERole name;
+
+    @Override
+    public String toString() {
+        return switch (name) {
+            case ROLE_FARM_OWNER -> "Owner";
+            case ROLE_FARM_MANAGER -> "Manager";
+            default -> "Operator";
+        };
+    }
 }
