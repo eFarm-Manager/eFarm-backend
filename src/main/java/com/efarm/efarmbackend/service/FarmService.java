@@ -2,8 +2,10 @@ package com.efarm.efarmbackend.service;
 
 import com.efarm.efarmbackend.model.farm.ActivationCode;
 import com.efarm.efarmbackend.model.farm.Farm;
+import com.efarm.efarmbackend.model.user.User;
 import com.efarm.efarmbackend.repository.farm.ActivationCodeRepository;
 import com.efarm.efarmbackend.repository.farm.FarmRepository;
+import com.efarm.efarmbackend.repository.user.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,9 @@ public class FarmService {
 
     @Autowired
     private ActivationCodeRepository activationCodeRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     private static final Logger logger = LoggerFactory.getLogger(FarmService.class);
 
@@ -46,6 +51,10 @@ public class FarmService {
                 farmRepository.save(farm);
             }
         }
+    }
+
+    public List<User> getUsersByFarmId(Integer farmId) {
+        return userRepository.findByFarmId(farmId);
     }
 }
 
