@@ -84,6 +84,13 @@ public class UserService {
         }
     }
 
+    public Farm getUserFarmById(Long userId) {
+        User currentUser = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Error: User with ID " + userId + " not found."));
+
+        return currentUser.getFarm();
+    }
+
     private Role assignUserRole(String strRole) {
         return switch (strRole) {
             case "ROLE_FARM_OWNER" -> roleRepository.findByName(ERole.ROLE_FARM_OWNER)

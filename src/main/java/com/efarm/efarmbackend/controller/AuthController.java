@@ -1,21 +1,32 @@
 package com.efarm.efarmbackend.controller;
 
 
+import java.net.URI;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.efarm.efarmbackend.model.farm.ActivationCode;
+import com.efarm.efarmbackend.model.farm.Farm;
+import com.efarm.efarmbackend.model.user.User;
 import com.efarm.efarmbackend.payload.request.SignupFarmRequest;
 import com.efarm.efarmbackend.repository.farm.ActivationCodeRepository;
 import com.efarm.efarmbackend.repository.farm.AddressRepository;
 import com.efarm.efarmbackend.repository.farm.FarmRepository;
 import com.efarm.efarmbackend.security.jwt.AuthEntryPointJwt;
+import com.efarm.efarmbackend.service.ActivationCodeService;
 import com.efarm.efarmbackend.service.AuthService;
+import com.efarm.efarmbackend.service.FarmService;
+import com.efarm.efarmbackend.service.UserService;
 import jakarta.validation.Valid;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -66,33 +77,105 @@ public class AuthController {
     private AuthService authService;
 
     @Autowired
+    private FarmService farmService;
+
+    @Autowired
+    private ActivationCodeService activationCodeService;
+
+    @Autowired
     PasswordEncoder encoder;
 
     @Autowired
     JwtUtils jwtUtils;
 
     private static final Logger logger = LoggerFactory.getLogger(AuthEntryPointJwt.class);
+    @Autowired
+    private UserService userService;
 
+//    @PostMapping("/signin")
+//    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+//
+//        logger.info("Get signing request from user: {}", loginRequest.getUsername());
+//        Authentication authentication = authenticationManager
+//                .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+//
+//        SecurityContextHolder.getContext().setAuthentication(authentication);
+//        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+//        ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(userDetails);
+//        List<String> roles = userDetails.getAuthorities().stream()
+//                .map(GrantedAuthority::getAuthority)
+//                .collect(Collectors.toList());
+//
+//        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
+//                .body(new UserInfoResponse(userDetails.getId(),
+//                        userDetails.getUsername(),
+//                        userDetails.getEmail(),
+//                        roles));
+//    }
+
+    //TODO uporządkować poniższą funkcję
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
 
         logger.info("Get signing request from user: {}", loginRequest.getUsername());
-        Authentication authentication = authenticationManager
-                .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+
+        // Uwierzytelnianie użytkownika
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(userDetails);
+
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
 
+        // Sprawdzenie, czy użytkownik jest aktywny
+
+        Integer userId = userDetails.getId();
+        Optional<User> loggingUser = userRepository.findById(Long.valueOf(userId));
+
+        if (loggingUser.isPresent() && !loggingUser.get().getIsActive()) {
+            return ResponseEntity.badRequest().body(new MessageResponse("User is inactive."));
+        }
+
+        // Sprawdzenie powiązanego gospodarstwa
+        Farm userFarm = userService.getUserFarmById(Long.valueOf(userDetails.getId()));
+
+        if (userFarm != null) {
+            ActivationCode activationCode = activationCodeService.findActivationCodeByFarmId(userFarm.getId());
+
+            // Sprawdzenie, czy gospodarstwo jest aktywne
+            if (!userFarm.getIsActive()) {
+                if (roles.contains("ROLE_FARM_EQUIPMENT_OPERATOR")) {
+                    return ResponseEntity.badRequest().body(new MessageResponse("Gospodarstwo jest nieaktywne."));
+                }
+
+                if (roles.contains("ROLE_FARM_OWNER") || roles.contains("ROLE_FARM_MANAGER")) {
+                    // Zwracamy odpowiedź, która informuje o konieczności podania nowego kodu aktywacyjnego
+                    return ResponseEntity.status(HttpStatus.FOUND)
+                            .location(URI.create("/api/auth/enter-activation-code"))
+                            .body(new MessageResponse("Gospodarstwo jest nieaktywne. Podaj nowy kod aktywacyjny."));
+                }
+            }
+
+            // Sprawdzenie, czy kod aktywacyjny wygasa w ciągu 14 dni
+            long daysToExpiration = ChronoUnit.DAYS.between(LocalDate.now(), activationCode.getExpireDate());
+            if (daysToExpiration <= 14) {
+                return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, jwtUtils.generateJwtCookie(userDetails).toString())
+                        .body(new UserInfoResponse(userDetails.getId(), userDetails.getUsername(),
+                                userDetails.getEmail(), roles, "Kod aktywacyjny wygasa za " + daysToExpiration + " dni."));
+            }
+        }
+
+        // Generowanie tokenu JWT i zwracanie standardowej odpowiedzi
+        ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(userDetails);
+
         return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
-                .body(new UserInfoResponse(userDetails.getId(),
-                        userDetails.getUsername(),
-                        userDetails.getEmail(),
-                        roles));
+                .body(new UserInfoResponse(userDetails.getId(), userDetails.getUsername(),
+                        userDetails.getEmail(), roles));
     }
+
 
     @PostMapping("/signup")
     @PreAuthorize("hasRole('ROLE_FARM_MANAGER') or hasRole('ROLE_FARM_OWNER')")
