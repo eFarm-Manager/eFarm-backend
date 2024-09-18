@@ -1,7 +1,6 @@
 package com.efarm.efarmbackend.service
 
 import com.efarm.efarmbackend.model.farm.ActivationCode
-import com.efarm.efarmbackend.model.farm.Address
 import com.efarm.efarmbackend.model.farm.Farm
 import com.efarm.efarmbackend.model.user.ERole
 import com.efarm.efarmbackend.model.user.Role
@@ -12,7 +11,6 @@ import com.efarm.efarmbackend.payload.response.MessageResponse
 import com.efarm.efarmbackend.repository.farm.ActivationCodeRepository
 import com.efarm.efarmbackend.repository.farm.AddressRepository
 import com.efarm.efarmbackend.repository.farm.FarmRepository
-import com.efarm.efarmbackend.repository.user.RoleRepository
 import com.efarm.efarmbackend.repository.user.UserRepository
 import com.efarm.efarmbackend.security.services.UserDetailsImpl
 import org.springframework.http.ResponseEntity
@@ -22,13 +20,8 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import spock.lang.Specification
 import spock.lang.Subject
 import spock.lang.Unroll
-import org.springframework.http.HttpStatus
 
-import jakarta.transaction.Transactional
 import java.time.LocalDate
-import java.util.HashSet
-import java.util.Optional
-import java.util.Set
 
 class AuthServiceSpec extends Specification {
 
@@ -49,7 +42,6 @@ class AuthServiceSpec extends Specification {
             userService: userService,
             activationCodeService: activationCodeService,
             farmService: farmService
-
     )
 
     def setup() {
@@ -85,14 +77,14 @@ class AuthServiceSpec extends Specification {
                 password: "password",
                 phoneNumber: "123456789",
                 role: roleName
-        )        
+        )
         User mockUser = Mock(User)
         //Mock currentUser (manager)
         Farm currentFarm = Mock(Farm)
         currentFarm.getId() >> 1
         currentFarm.getFarmName() >> "uniqueFarmName"
 
-        User currentUser = Mock(User)    
+        User currentUser = Mock(User)
         currentUser.getUsername() >> "currentUser"
         currentUser.getId() >> 1
         currentUser.getFarm() >> currentFarm
@@ -111,7 +103,7 @@ class AuthServiceSpec extends Specification {
         userService.getLoggedUserFarm() >> currentFarm
         userRepository.findById(currentUserDetails.id.toLong()) >> Optional.of(currentUser)
         userService.createFarmUser(signUpRequest) >> mockUser
-        
+
         userRepository.save(_ as User) >> { User user -> user }
 
         when:
@@ -122,14 +114,14 @@ class AuthServiceSpec extends Specification {
         result.body.message == expectedResponse.body.message
 
         where:
-        roleName                         | usernameExists  | expectedResponse
-        "ROLE_FARM_MANAGER"              | false           | ResponseEntity.ok(new MessageResponse("User registered successfully!"))
-        "ROLE_FARM_EQUIPMENT_OPERATOR"   | false           | ResponseEntity.ok(new MessageResponse("User registered successfully!"))
-        "ROLE_FARM_OWNER"                | false           | ResponseEntity.ok(new MessageResponse("User registered successfully!"))  
-        "ROLE_FARM_EQUIPMENT_OPERATOR"   | true            | ResponseEntity.badRequest().body(new MessageResponse("Error: Username is already taken!"))
+        roleName                       | usernameExists | expectedResponse
+        "ROLE_FARM_MANAGER"            | false          | ResponseEntity.ok(new MessageResponse("User registered successfully!"))
+        "ROLE_FARM_EQUIPMENT_OPERATOR" | false          | ResponseEntity.ok(new MessageResponse("User registered successfully!"))
+        "ROLE_FARM_OWNER"              | false          | ResponseEntity.ok(new MessageResponse("User registered successfully!"))
+        "ROLE_FARM_EQUIPMENT_OPERATOR" | true           | ResponseEntity.badRequest().body(new MessageResponse("Error: Username is already taken!"))
     }
 
-        @Unroll
+    @Unroll
     def "should handle registration for user without current account"() {
         given:
         //Mock Role
@@ -157,7 +149,7 @@ class AuthServiceSpec extends Specification {
                 password: "password",
                 phoneNumber: "123456789",
                 role: "ROLE_FARM_MANAGER"
-        )        
+        )
         User mockUser = Mock(User)
         Authentication authentication = Mock(Authentication) {
             getPrincipal() >> null
@@ -168,7 +160,7 @@ class AuthServiceSpec extends Specification {
         encoder.encode(signUpRequest.getPassword()) >> "encodedPassword"
         userService.createFarmUser(signUpRequest) >> mockUser
         userService.getLoggedUserFarm() >> { throw new RuntimeException() }
-        
+
         when:
         ResponseEntity<?> response = authService.registerUser(signUpRequest)
 
@@ -198,20 +190,19 @@ class AuthServiceSpec extends Specification {
 
         userService.createFarmOwner(signUpFarmRequest) >> user
         activationCodeRepository.findByCode(signUpFarmRequest.activationCode) >> Optional.of(new ActivationCode(
-            code: "activation-code",
-            expireDate: LocalDate.now().plusDays(1),
-            isUsed: false))
+                code: "activation-code",
+                expireDate: LocalDate.now().plusDays(1),
+                isUsed: false))
         activationCodeService.checkActivationCode(signUpFarmRequest.activationCode) >> ResponseEntity.ok().build()
-        
+
 
         when:
         ResponseEntity result = authService.registerFarmAndFarmOwner(signUpFarmRequest)
 
         then:
-        if(!(usernameExists || farmExists)){
-        1 * activationCodeService.markActivationCodeAsUsed(signUpFarmRequest.getActivationCode())
-        }
-        else {
+        if (!(usernameExists || farmExists)) {
+            1 * activationCodeService.markActivationCodeAsUsed(signUpFarmRequest.getActivationCode())
+        } else {
             0 * activationCodeService.markActivationCodeAsUsed(signUpFarmRequest.getActivationCode())
         }
 
@@ -219,27 +210,27 @@ class AuthServiceSpec extends Specification {
         result.body.message == expectedResponse.body.message
 
         where:
-        usernameExists  | farmExists | expectedResponse
-        true            | false      | ResponseEntity.badRequest().body(new MessageResponse("Error: Username is already taken!"))
-        false           | true       | ResponseEntity.badRequest().body(new MessageResponse("Error: Farm Name is already taken!"))
-        false           | false      | ResponseEntity.ok(new MessageResponse("Farm registered successfully!"))
+        usernameExists | farmExists | expectedResponse
+        true           | false      | ResponseEntity.badRequest().body(new MessageResponse("Error: Username is already taken!"))
+        false          | true       | ResponseEntity.badRequest().body(new MessageResponse("Error: Farm Name is already taken!"))
+        false          | false      | ResponseEntity.ok(new MessageResponse("Farm registered successfully!"))
     }
 
     @Unroll
     def "should handle activation code validation scenarios during farm registration - #scenario"() {
         given:
         SignupFarmRequest signUpFarmRequest = new SignupFarmRequest(
-            firstName: "John",
-            lastName: "Doe",
-            username: "newUser",
-            email: "newuser@example.com",
-            password: "password",
-            phoneNumber: "123456789",
-            farmName: "NewFarm",
-            activationCode: "activation-code"
+                firstName: "John",
+                lastName: "Doe",
+                username: "newUser",
+                email: "newuser@example.com",
+                password: "password",
+                phoneNumber: "123456789",
+                farmName: "NewFarm",
+                activationCode: "activation-code"
         )
         User user = Mock(User)
-    
+
         userRepository.existsByUsername(signUpFarmRequest.username) >> false
         farmRepository.existsByFarmName(signUpFarmRequest.farmName) >> false
 
@@ -265,12 +256,10 @@ class AuthServiceSpec extends Specification {
         result.body.message == expectedResponse.body.message
 
         where:
-        scenario                                | activationCodeExists | activationCodeExpiryDate           | activationCodeUsed | expectedResponse
-        "Activation code does not exist"        | false                | null                               | false              | ResponseEntity.badRequest().body(new MessageResponse("Activation code does not exist."))
-        "Activation code has expired"           | true                 | LocalDate.now().minusDays(1)       | false              | ResponseEntity.badRequest().body(new MessageResponse("Activation code has expired."))
-        "Activation code has already been used" | true                 | LocalDate.now().plusDays(1)        | true               | ResponseEntity.badRequest().body(new MessageResponse("Activation code has already been used."))
-        "Successful registration"               | true                 | LocalDate.now().plusDays(1)        | false              | ResponseEntity.ok(new MessageResponse("Farm registered successfully!"))
-    }    
-
-
+        scenario                                | activationCodeExists | activationCodeExpiryDate     | activationCodeUsed | expectedResponse
+        "Activation code does not exist"        | false                | null                         | false              | ResponseEntity.badRequest().body(new MessageResponse("Activation code does not exist."))
+        "Activation code has expired"           | true                 | LocalDate.now().minusDays(1) | false              | ResponseEntity.badRequest().body(new MessageResponse("Activation code has expired."))
+        "Activation code has already been used" | true                 | LocalDate.now().plusDays(1)  | true               | ResponseEntity.badRequest().body(new MessageResponse("Activation code has already been used."))
+        "Successful registration"               | true                 | LocalDate.now().plusDays(1)  | false              | ResponseEntity.ok(new MessageResponse("Farm registered successfully!"))
+    }
 }

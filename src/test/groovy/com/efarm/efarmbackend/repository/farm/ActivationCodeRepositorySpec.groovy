@@ -3,9 +3,9 @@ package com.efarm.efarmbackend.repository.farm
 import com.efarm.efarmbackend.model.farm.ActivationCode
 import spock.lang.Specification
 
-class ActivationCodeRepositorySpec extends Specification{
+class ActivationCodeRepositorySpec extends Specification {
 
-     // returns activation code by code string
+    // returns activation code by code string
     def "should correctly return Activation Code - findByCode"() {
         given:
         ActivationCodeRepository activationCodeRepository = Mock(ActivationCodeRepository)
@@ -19,10 +19,10 @@ class ActivationCodeRepositorySpec extends Specification{
 
         then:
         foundActivationCode.isPresent()
-        foundActivationCode.get() == activationCode 
+        foundActivationCode.get() == activationCode
     }
 
-    def "should not find not existing code - findByCode" () {
+    def "should not find not existing code - findByCode"() {
         given:
         ActivationCodeRepository activationCodeRepository = Mock(ActivationCodeRepository)
         String codeString = "nawbfhawuin"
@@ -33,6 +33,5 @@ class ActivationCodeRepositorySpec extends Specification{
 
         then:
         !foundActivationCode.isPresent()
-
     }
 }
