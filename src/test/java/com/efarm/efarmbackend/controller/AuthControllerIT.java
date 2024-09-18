@@ -37,7 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-@Transactional	
+@Transactional
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("integrationtest")
 public class AuthControllerIT {
@@ -57,20 +57,20 @@ public class AuthControllerIT {
     @DisplayName("Test successful signin of a existing user with role operator")
     void testSigninInSucessfulOperator() throws Exception {
         // Given
-        String usernameTest="user1";
-        String passwordTest="StrongPassword123";
-        String emailTest="john.doe@gmail.com";
-		Role role = entityManager.find(Role.class, 1);
-		Farm farm = entityManager.find(Farm.class, 5);
+        String usernameTest = "user1";
+        String passwordTest = "StrongPassword123";
+        String emailTest = "john.doe@gmail.com";
+        Role role = entityManager.find(Role.class, 1);
+        Farm farm = entityManager.find(Farm.class, 5);
 
-		User testUser = new User();	
-		testUser.setUsername(usernameTest);
-		testUser.setFirstName("John");
-		testUser.setLastName("Doe");
-		testUser.setEmail(emailTest);
-		testUser.setPassword(passwordEncoder.encode(passwordTest));
-		testUser.setRole(role);
-		testUser.setFarm(farm);
+        User testUser = new User();
+        testUser.setUsername(usernameTest);
+        testUser.setFirstName("John");
+        testUser.setLastName("Doe");
+        testUser.setEmail(emailTest);
+        testUser.setPassword(passwordEncoder.encode(passwordTest));
+        testUser.setRole(role);
+        testUser.setFarm(farm);
         testUser.setIsActive(true);
 
         entityManager.merge(testUser);
@@ -82,11 +82,11 @@ public class AuthControllerIT {
 
         // When
         mockMvc.perform(post("/api/auth/signin")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(loginRequest))
-                .with(SecurityMockMvcRequestPostProcessors.csrf()))
-        // Then
-                .andExpect(status().isOk()) 
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginRequest))
+                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                // Then
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.username").value(usernameTest))
                 .andExpect(jsonPath("$.email").value(emailTest))
                 .andExpect(jsonPath("$.roles[0]").value("ROLE_FARM_EQUIPMENT_OPERATOR"));
@@ -96,20 +96,20 @@ public class AuthControllerIT {
     @DisplayName("Test successful signin of a existing user with role manager")
     void testSigninInSucessfulManager() throws Exception {
         // Given
-        String usernameTest="user1";
-        String passwordTest="StrongPassword123";
-        String emailTest="john.doe@gmail.com";
-		Role role = entityManager.find(Role.class, 2);
-		Farm farm = entityManager.find(Farm.class, 5);
+        String usernameTest = "user1";
+        String passwordTest = "StrongPassword123";
+        String emailTest = "john.doe@gmail.com";
+        Role role = entityManager.find(Role.class, 2);
+        Farm farm = entityManager.find(Farm.class, 5);
 
-		User testUser = new User();	
-		testUser.setUsername(usernameTest);
-		testUser.setFirstName("John");
-		testUser.setLastName("Doe");
-		testUser.setEmail(emailTest);
-		testUser.setPassword(passwordEncoder.encode(passwordTest));
-		testUser.setRole(role);
-		testUser.setFarm(farm);
+        User testUser = new User();
+        testUser.setUsername(usernameTest);
+        testUser.setFirstName("John");
+        testUser.setLastName("Doe");
+        testUser.setEmail(emailTest);
+        testUser.setPassword(passwordEncoder.encode(passwordTest));
+        testUser.setRole(role);
+        testUser.setFarm(farm);
         testUser.setIsActive(true);
 
         entityManager.merge(testUser);
@@ -121,11 +121,11 @@ public class AuthControllerIT {
 
         // When
         mockMvc.perform(post("/api/auth/signin")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(loginRequest))
-                .with(SecurityMockMvcRequestPostProcessors.csrf()))
-        // Then
-                .andExpect(status().isOk()) 
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginRequest))
+                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                // Then
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.username").value(usernameTest))
                 .andExpect(jsonPath("$.email").value(emailTest))
                 .andExpect(jsonPath("$.roles[0]").value("ROLE_FARM_MANAGER"));
@@ -136,20 +136,20 @@ public class AuthControllerIT {
     @DisplayName("Test bad credentials of signin")
     void testBadCredentialsSignIn() throws Exception {
         // Given
-        String usernameTest="user1";
-        String passwordTest="StrongPassword123";
-        String emailTest="john.doe@gmail.com";
-		Role role = entityManager.find(Role.class, 1);
-		Farm farm = entityManager.find(Farm.class, 5);
+        String usernameTest = "user1";
+        String passwordTest = "StrongPassword123";
+        String emailTest = "john.doe@gmail.com";
+        Role role = entityManager.find(Role.class, 1);
+        Farm farm = entityManager.find(Farm.class, 5);
 
-		User testUser = new User();	
-		testUser.setUsername(usernameTest);
-		testUser.setFirstName("John");
-		testUser.setLastName("Doe");
-		testUser.setEmail(emailTest);
-		testUser.setPassword(passwordEncoder.encode(passwordTest));
-		testUser.setRole(role);
-		testUser.setFarm(farm);
+        User testUser = new User();
+        testUser.setUsername(usernameTest);
+        testUser.setFirstName("John");
+        testUser.setLastName("Doe");
+        testUser.setEmail(emailTest);
+        testUser.setPassword(passwordEncoder.encode(passwordTest));
+        testUser.setRole(role);
+        testUser.setFarm(farm);
         testUser.setIsActive(true);
         entityManager.merge(testUser);
         entityManager.flush();
@@ -160,12 +160,13 @@ public class AuthControllerIT {
 
         // When
         mockMvc.perform(post("/api/auth/signin")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(loginRequest))
-                .with(SecurityMockMvcRequestPostProcessors.csrf()))
-        // Then
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginRequest))
+                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                // Then
                 .andExpect(status().isUnauthorized());
     }
+
     @Test
     @DisplayName("Test for correct signout")
     void testGoodSignout() throws Exception {
@@ -177,12 +178,11 @@ public class AuthControllerIT {
         SecurityContextHolder.getContext().setAuthentication(authToken);
 
         mockMvc.perform(post("/api/auth/signout")
-                .with(SecurityMockMvcRequestPostProcessors.csrf()))
-            // Then
+                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                // Then
                 .andExpect(status().isOk())
                 .andExpect(header().string(HttpHeaders.SET_COOKIE, "jwtToken=; Path=/api"))
                 .andExpect(content().json("{\"message\":\"You've been signed out!\"}"));
-
 
 
     }
@@ -202,11 +202,11 @@ public class AuthControllerIT {
         signUpRequest.setRole("ROLE_FARM_MANAGER");
 
         User currentUser = entityManager.createQuery(
-            "SELECT u FROM User u JOIN u.role r WHERE r.name = :roleName", User.class)
-            .setParameter("roleName", ERole.ROLE_FARM_MANAGER)
-            .setMaxResults(1)  // Ensures only one result is returned
-            .getSingleResult();
-        
+                        "SELECT u FROM User u JOIN u.role r WHERE r.name = :roleName", User.class)
+                .setParameter("roleName", ERole.ROLE_FARM_MANAGER)
+                .setMaxResults(1)  // Ensures only one result is returned
+                .getSingleResult();
+
         UserDetailsImpl userDetails = UserDetailsImpl.build(currentUser);
         UsernamePasswordAuthenticationToken authToken =
                 new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
@@ -214,10 +214,10 @@ public class AuthControllerIT {
 
         // When
         mockMvc.perform(post("/api/auth/signup")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(signUpRequest))
-                .with(SecurityMockMvcRequestPostProcessors.csrf()))
-        // Then
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(signUpRequest))
+                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                // Then
                 .andExpect(status().isOk())
                 .andExpect(content().json("{\"message\":\"User registered successfully!\"}"));
     }
@@ -236,11 +236,11 @@ public class AuthControllerIT {
         signUpRequest.setRole("ROLE_FARM_MANAGER");
 
         User currentUser = entityManager.createQuery(
-            "SELECT u FROM User u JOIN u.role r WHERE r.name = :roleName", User.class)
-            .setParameter("roleName", ERole.ROLE_FARM_EQUIPMENT_OPERATOR)
-            .setMaxResults(1)  // Ensures only one result is returned
-            .getSingleResult();
-        
+                        "SELECT u FROM User u JOIN u.role r WHERE r.name = :roleName", User.class)
+                .setParameter("roleName", ERole.ROLE_FARM_EQUIPMENT_OPERATOR)
+                .setMaxResults(1)  // Ensures only one result is returned
+                .getSingleResult();
+
         UserDetailsImpl userDetails = UserDetailsImpl.build(currentUser);
         UsernamePasswordAuthenticationToken authToken =
                 new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
@@ -248,10 +248,10 @@ public class AuthControllerIT {
 
         // When
         mockMvc.perform(post("/api/auth/signup")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(signUpRequest))
-                .with(SecurityMockMvcRequestPostProcessors.csrf()))
-        // Then
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(signUpRequest))
+                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                // Then
                 .andExpect(status().isForbidden());
     }
 
@@ -260,10 +260,10 @@ public class AuthControllerIT {
     void testUserFarmRegistration() throws Exception {
         // Given
         ActivationCode activationCode = entityManager.createQuery(
-            "SELECT a FROM ActivationCode a WHERE a.isUsed = :used", ActivationCode.class)
-            .setParameter("used", false)
-            .setMaxResults(1)  // Ensures only one result is returned
-            .getSingleResult();
+                        "SELECT a FROM ActivationCode a WHERE a.isUsed = :used", ActivationCode.class)
+                .setParameter("used", false)
+                .setMaxResults(1)  // Ensures only one result is returned
+                .getSingleResult();
 
         SignupFarmRequest signUpFarmRequest = new SignupFarmRequest();
         signUpFarmRequest.setFirstName("John");
@@ -277,13 +277,13 @@ public class AuthControllerIT {
 
         // When
         mockMvc.perform(post("/api/auth/signupfarm")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(signUpFarmRequest))
-                .with(SecurityMockMvcRequestPostProcessors.csrf()))
-        // Then
-        .andExpect(status().isOk())
-        .andExpect(content().json("{\"message\":\"Farm registered successfully!\"}"));
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(signUpFarmRequest))
+                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                // Then
+                .andExpect(status().isOk())
+                .andExpect(content().json("{\"message\":\"Farm registered successfully!\"}"));
     }
 
-    
+
 }

@@ -2,7 +2,9 @@ package com.efarm.efarmbackend.repository.user;
 
 import com.efarm.efarmbackend.model.user.ERole;
 import com.efarm.efarmbackend.model.user.Role;
+
 import java.util.Optional;
+
 import org.junit.jupiter.api.*;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -16,50 +18,50 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 @DataJpaTest
-@Transactional	
+@Transactional
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("integrationtest")
 public class RoleRepositoryIT {
-	@Autowired
-	private RoleRepository roleRepository;
+    @Autowired
+    private RoleRepository roleRepository;
 
-	@Test
-	@DisplayName("Tests that operator role is present")
-	public void testFindsOperatorRoleByName() {
-		//given
-		ERole nameTest=ERole.ROLE_FARM_EQUIPMENT_OPERATOR;
-		
-		//when
-		Optional<Role> foundRole = roleRepository.findByName(nameTest);
+    @Test
+    @DisplayName("Tests that operator role is present")
+    public void testFindsOperatorRoleByName() {
+        //given
+        ERole nameTest = ERole.ROLE_FARM_EQUIPMENT_OPERATOR;
 
-		//then
-		assertThat(foundRole.isPresent(),is(true));
-		assertThat(foundRole.get(), notNullValue());
-		assertThat(foundRole.get().getName(), is(nameTest));
-	}
+        //when
+        Optional<Role> foundRole = roleRepository.findByName(nameTest);
 
-	@Test
-	@DisplayName("Tests that manager role is present")
-	public void testFindsManagerRoleByName() {
-		//given
-		ERole nameTest=ERole.ROLE_FARM_MANAGER;
-		
-		//when
-		Optional<Role> foundRole = roleRepository.findByName(nameTest);
+        //then
+        assertThat(foundRole.isPresent(), is(true));
+        assertThat(foundRole.get(), notNullValue());
+        assertThat(foundRole.get().getName(), is(nameTest));
+    }
 
-		//then
-		assertThat(foundRole.isPresent(),is(true));
-		assertThat(foundRole.get(), notNullValue());
-		assertThat(foundRole.get().getName(), is(nameTest));
-	}
+    @Test
+    @DisplayName("Tests that manager role is present")
+    public void testFindsManagerRoleByName() {
+        //given
+        ERole nameTest = ERole.ROLE_FARM_MANAGER;
 
-	@Test
-	@DisplayName("Tests that non existing role does not exist")
-	public void testDoesNotFindNonExistingRoleByName() {
-		//when
-		Optional<Role> foundRole = roleRepository.findByName(null);
+        //when
+        Optional<Role> foundRole = roleRepository.findByName(nameTest);
 
-		//then
-		assertThat(foundRole.isPresent(),is(false));
-	}
+        //then
+        assertThat(foundRole.isPresent(), is(true));
+        assertThat(foundRole.get(), notNullValue());
+        assertThat(foundRole.get().getName(), is(nameTest));
+    }
+
+    @Test
+    @DisplayName("Tests that non existing role does not exist")
+    public void testDoesNotFindNonExistingRoleByName() {
+        //when
+        Optional<Role> foundRole = roleRepository.findByName(null);
+
+        //then
+        assertThat(foundRole.isPresent(), is(false));
+    }
 }
