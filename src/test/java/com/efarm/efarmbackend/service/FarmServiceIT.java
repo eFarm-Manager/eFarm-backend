@@ -23,7 +23,7 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Transactional	
+@Transactional
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("integrationtest")
 public class FarmServiceIT {
@@ -45,7 +45,7 @@ public class FarmServiceIT {
     @DisplayName("Tests that all farms with expired activation codes will be not active")
     void testDeactivateFarmsWithExpiredActivationCodes() throws Exception {
         //given
-        ActivationCode expiredCode = new ActivationCode();	
+        ActivationCode expiredCode = new ActivationCode();
         expiredCode.setCode("thisCodeIsExpired");
         expiredCode.setExpireDate(LocalDate.now().minusDays(1));
         expiredCode.setIsUsed(false);
@@ -74,7 +74,7 @@ public class FarmServiceIT {
         Farm updatedFarm = entityManager.find(Farm.class, managedFarm.getId());
         assertThat(farm.getIsActive(), is(true));
         assertThat(updatedFarm.getIsActive(), is(false));
-        assertThat(updatedFarm.getFarmName(),is(farm.getFarmName()));
+        assertThat(updatedFarm.getFarmName(), is(farm.getFarmName()));
     }
-    
+
 }

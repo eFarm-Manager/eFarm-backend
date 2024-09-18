@@ -8,8 +8,6 @@ import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import spock.lang.Specification
 
-import spock.lang.Subject
-
 class UserDetailsServiceImplSpec extends Specification {
 
     UserRepository userRepository = Mock(UserRepository)
@@ -27,7 +25,7 @@ class UserDetailsServiceImplSpec extends Specification {
         Role role = Mock(Role)
         String roleName = "ROLE_FARM_MANAGER"
         mockUser.getUsername() >> usernameTest
-        role.getName() >> ERole.valueOf(roleName) 
+        role.getName() >> ERole.valueOf(roleName)
         mockUser.getRole() >> role
 
         userRepository.findByUsername(usernameTest) >> Optional.of(mockUser)
@@ -51,5 +49,4 @@ class UserDetailsServiceImplSpec extends Specification {
         then:
         thrown(UsernameNotFoundException)
     }
-
 }

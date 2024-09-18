@@ -40,12 +40,12 @@ import org.springframework.http.ResponseEntity;
 
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Transactional	
+@Transactional
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("integrationtest")
 public class AuthServiceIT {
     @Autowired
-	private AuthService authService;
+    private AuthService authService;
 
     @Autowired
     private UserRepository userRepository;
@@ -85,11 +85,11 @@ public class AuthServiceIT {
         signUpRequest.setRole("ROLE_FARM_MANAGER");
 
         User currentUser = entityManager.createQuery(
-            "SELECT u FROM User u JOIN u.role r WHERE r.name = :roleName", User.class)
-            .setParameter("roleName", ERole.ROLE_FARM_MANAGER)
-            .setMaxResults(1)  // Ensures only one result is returned
-            .getSingleResult();
-        
+                        "SELECT u FROM User u JOIN u.role r WHERE r.name = :roleName", User.class)
+                .setParameter("roleName", ERole.ROLE_FARM_MANAGER)
+                .setMaxResults(1)  // Ensures only one result is returned
+                .getSingleResult();
+
         //System.out.println(currentUser.getRole().getName());
         //System.out.println(currentUser.getUsername());
         //System.out.println(currentUser.getId());
@@ -129,10 +129,10 @@ public class AuthServiceIT {
         signUpRequest.setRole("ROLE_FARM_MANAGER");
 
         User currentUser = entityManager.createQuery(
-            "SELECT u FROM User u JOIN u.role r WHERE r.name = :roleName", User.class)
-            .setParameter("roleName", ERole.ROLE_FARM_MANAGER)
-            .setMaxResults(1)  // Ensures only one result is returned
-            .getSingleResult();
+                        "SELECT u FROM User u JOIN u.role r WHERE r.name = :roleName", User.class)
+                .setParameter("roleName", ERole.ROLE_FARM_MANAGER)
+                .setMaxResults(1)  // Ensures only one result is returned
+                .getSingleResult();
 
         UserDetailsImpl userDetails = UserDetailsImpl.build(currentUser);
         UsernamePasswordAuthenticationToken authToken =
@@ -150,7 +150,7 @@ public class AuthServiceIT {
         assertThat(responseBody.getMessage(), is("Error: Username is already taken!"));
     }
 
-     
+
     @Test
     @DisplayName("Tests that new user can not be created sucessfuly if current user has no authentication")
     void testNoAuthentication() throws Exception {
@@ -173,16 +173,16 @@ public class AuthServiceIT {
         assertThat(result.getStatusCode(), is(HttpStatus.BAD_REQUEST));
         assertThat(result.getBody(), instanceOf(MessageResponse.class));
     }
-    
+
     @Test
     @DisplayName("Tests that new user and farm can be created sucessfuly")
     void testSucessfulRegisterUserAndFarm() throws Exception {
         //Given
         ActivationCode activationCode = entityManager.createQuery(
-            "SELECT a FROM ActivationCode a WHERE a.isUsed = :used", ActivationCode.class)
-            .setParameter("used", false)
-            .setMaxResults(1)  // Ensures only one result is returned
-            .getSingleResult();
+                        "SELECT a FROM ActivationCode a WHERE a.isUsed = :used", ActivationCode.class)
+                .setParameter("used", false)
+                .setMaxResults(1)  // Ensures only one result is returned
+                .getSingleResult();
 
         SignupFarmRequest signUpFarmRequest = new SignupFarmRequest();
         signUpFarmRequest.setFirstName("John");
@@ -221,10 +221,10 @@ public class AuthServiceIT {
     void testUsernameTakenFarmSignup() throws Exception {
         //Given
         ActivationCode activationCode = entityManager.createQuery(
-            "SELECT a FROM ActivationCode a WHERE a.isUsed = :used", ActivationCode.class)
-            .setParameter("used", false)
-            .setMaxResults(1)  // Ensures only one result is returned
-            .getSingleResult();
+                        "SELECT a FROM ActivationCode a WHERE a.isUsed = :used", ActivationCode.class)
+                .setParameter("used", false)
+                .setMaxResults(1)  // Ensures only one result is returned
+                .getSingleResult();
 
         User user1 = entityManager.find(User.class, 1);
         SignupFarmRequest signUpFarmRequest = new SignupFarmRequest();
@@ -252,10 +252,10 @@ public class AuthServiceIT {
     void testFarmNameTakenFarmSignup() throws Exception {
         //Given
         ActivationCode activationCode = entityManager.createQuery(
-            "SELECT a FROM ActivationCode a WHERE a.isUsed = :used", ActivationCode.class)
-            .setParameter("used", false)
-            .setMaxResults(1)  // Ensures only one result is returned
-            .getSingleResult();
+                        "SELECT a FROM ActivationCode a WHERE a.isUsed = :used", ActivationCode.class)
+                .setParameter("used", false)
+                .setMaxResults(1)  // Ensures only one result is returned
+                .getSingleResult();
 
         Farm farm = entityManager.find(Farm.class, 1);
         SignupFarmRequest signUpFarmRequest = new SignupFarmRequest();
@@ -306,7 +306,7 @@ public class AuthServiceIT {
     @DisplayName("Tests that new user and farm can not be created when activation code is expired")
     void testCodeExpiredFarmSignup() throws Exception {
         //Given
-        ActivationCode expiredCode = new ActivationCode();	
+        ActivationCode expiredCode = new ActivationCode();
         expiredCode.setCode("thisCodeIsExpired");
         expiredCode.setExpireDate(LocalDate.now().minusDays(1));
         expiredCode.setIsUsed(false);
@@ -338,7 +338,7 @@ public class AuthServiceIT {
     @DisplayName("Tests that new user and farm can not be created when activation code is used")
     void testCodeUsedFarmSignup() throws Exception {
         //Given
-        ActivationCode expiredCode = new ActivationCode();	
+        ActivationCode expiredCode = new ActivationCode();
         expiredCode.setCode("thisCodeIsUsed");
         expiredCode.setExpireDate(LocalDate.now().plusDays(1));
         expiredCode.setIsUsed(true);
