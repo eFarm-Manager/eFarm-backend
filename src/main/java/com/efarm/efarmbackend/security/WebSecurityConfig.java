@@ -66,6 +66,7 @@ public class WebSecurityConfig {
                         auth.requestMatchers("/api/auth/**").permitAll()
                                 .requestMatchers("/api/test/**").permitAll()
                                 .requestMatchers("/actuator/health/**").permitAll()
+                                .requestMatchers("api/farm/**").permitAll()
                                 .anyRequest().authenticated()
                 );
 
