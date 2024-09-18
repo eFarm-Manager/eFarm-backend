@@ -2,8 +2,10 @@ package com.efarm.efarmbackend.service
 
 import com.efarm.efarmbackend.model.farm.ActivationCode
 import com.efarm.efarmbackend.model.farm.Farm
+import com.efarm.efarmbackend.model.user.User
 import com.efarm.efarmbackend.repository.farm.ActivationCodeRepository
 import com.efarm.efarmbackend.repository.farm.FarmRepository
+import com.efarm.efarmbackend.repository.user.UserRepository
 import org.springframework.security.core.context.SecurityContextHolder
 import spock.lang.Specification
 import spock.lang.Subject
