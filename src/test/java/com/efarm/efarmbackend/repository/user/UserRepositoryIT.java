@@ -4,11 +4,15 @@ import com.efarm.efarmbackend.model.farm.Farm;
 import com.efarm.efarmbackend.model.user.Role;
 import com.efarm.efarmbackend.model.user.User;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.*;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.everyItem;
+import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
@@ -164,6 +168,21 @@ public class UserRepositoryIT {
 
 		//then
 		assertThat(existsByUsername,is(false));
+	}
+
+	@Test
+	@DisplayName("Tests that all users are found by farm id")
+	public void testFindAllUsersByFarmId()
+	{
+    	// Given
+    	Integer farmId = 1; 
+
+	    // When
+    	List<User> users = userRepository.findByFarmId(farmId);
+
+    	// Then
+	    assertThat(users, is(not(empty()))); 
+    	assertThat(users, everyItem(hasProperty("farm", hasProperty("id", is(farmId)))));
 	}
 
 }
