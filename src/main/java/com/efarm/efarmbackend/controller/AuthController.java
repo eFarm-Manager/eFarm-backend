@@ -25,6 +25,7 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
@@ -89,8 +90,12 @@ public class AuthController {
     JwtUtils jwtUtils;
 
     private static final Logger logger = LoggerFactory.getLogger(AuthEntryPointJwt.class);
+
     @Autowired
     private UserService userService;
+
+    @Value("${efarm.app.notification.daysToShowExpireActivationCode}")
+    private int daysToShowExpireActivationCodeNotification;
 
 //    @PostMapping("/signin")
 //    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
@@ -151,17 +156,18 @@ public class AuthController {
                     return ResponseEntity.badRequest().body(new MessageResponse("Gospodarstwo jest nieaktywne."));
                 }
 
+                //TODO Naprawić, nie działa przekierowanie dla ownera, DODAC LOGGERY, OBSLUZYC WYJATKI
                 if (roles.contains("ROLE_FARM_OWNER") || roles.contains("ROLE_FARM_MANAGER")) {
                     // Zwracamy odpowiedź, która informuje o konieczności podania nowego kodu aktywacyjnego
                     return ResponseEntity.status(HttpStatus.FOUND)
-                            .location(URI.create("/api/auth/enter-activation-code"))
+                            .location(URI.create("/api/auth/enter-activation-code")) //CZY TU POWINNO BYC AUTH
                             .body(new MessageResponse("Gospodarstwo jest nieaktywne. Podaj nowy kod aktywacyjny."));
                 }
             }
 
             // Sprawdzenie, czy kod aktywacyjny wygasa w ciągu 14 dni
             long daysToExpiration = ChronoUnit.DAYS.between(LocalDate.now(), activationCode.getExpireDate());
-            if (daysToExpiration <= 14) {
+            if (daysToExpiration <= daysToShowExpireActivationCodeNotification && daysToExpiration >= 0) {
                 return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, jwtUtils.generateJwtCookie(userDetails).toString())
                         .body(new UserInfoResponse(userDetails.getId(), userDetails.getUsername(),
                                 userDetails.getEmail(), roles, "Kod aktywacyjny wygasa za " + daysToExpiration + " dni."));
