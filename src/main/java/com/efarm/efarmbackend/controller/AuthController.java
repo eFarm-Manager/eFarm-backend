@@ -19,10 +19,7 @@ import com.efarm.efarmbackend.repository.farm.FarmRepository;
 import com.efarm.efarmbackend.security.jwt.AuthEntryPointJwt;
 import com.efarm.efarmbackend.service.ActivationCodeService;
 import com.efarm.efarmbackend.service.AuthService;
-import com.efarm.efarmbackend.service.FarmService;
 import com.efarm.efarmbackend.service.UserService;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 
 import org.slf4j.Logger;
@@ -77,9 +74,6 @@ public class AuthController {
     private AuthService authService;
 
     @Autowired
-    private FarmService farmService;
-
-    @Autowired
     private ActivationCodeService activationCodeService;
 
     @Autowired
@@ -88,37 +82,16 @@ public class AuthController {
     @Autowired
     JwtUtils jwtUtils;
 
-    private static final Logger logger = LoggerFactory.getLogger(AuthEntryPointJwt.class);
-
     @Autowired
     private UserService userService;
+
+    private static final Logger logger = LoggerFactory.getLogger(AuthEntryPointJwt.class);
 
     @Value("${efarm.app.notification.daysToShowExpireActivationCode}")
     private int daysToShowExpireActivationCodeNotification;
 
     @Value("${efarm.app.frontend.updateActivationCodeUri}")
     private String frontendUriToUpdateActivationCode;
-
-//    @PostMapping("/signin")
-//    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
-//
-//        logger.info("Get signing request from user: {}", loginRequest.getUsername());
-//        Authentication authentication = authenticationManager
-//                .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
-//
-//        SecurityContextHolder.getContext().setAuthentication(authentication);
-//        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-//        ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(userDetails);
-//        List<String> roles = userDetails.getAuthorities().stream()
-//                .map(GrantedAuthority::getAuthority)
-//                .collect(Collectors.toList());
-//
-//        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
-//                .body(new UserInfoResponse(userDetails.getId(),
-//                        userDetails.getUsername(),
-//                        userDetails.getEmail(),
-//                        roles));
-//    }
 
     //TODO uporządkować poniższą funkcję
     @PostMapping("/signin")

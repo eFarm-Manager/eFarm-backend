@@ -116,8 +116,6 @@ public class AuthService {
             return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
         }
 
-
         return ResponseEntity.ok(new MessageResponse("Farm registered successfully!"));
     }
-
 }

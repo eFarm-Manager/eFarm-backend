@@ -3,16 +3,11 @@ package com.efarm.efarmbackend.controller;
 import com.efarm.efarmbackend.model.farm.Farm;
 import com.efarm.efarmbackend.model.user.User;
 import com.efarm.efarmbackend.model.user.UserDTO;
-import com.efarm.efarmbackend.payload.response.MessageResponse;
-import com.efarm.efarmbackend.security.services.UserDetailsImpl;
-import com.efarm.efarmbackend.service.ActivationCodeService;
 import com.efarm.efarmbackend.service.FarmService;
 import com.efarm.efarmbackend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,9 +23,6 @@ public class FarmController {
 
     @Autowired
     private UserService userService;
-
-    @Autowired
-    private ActivationCodeService activationCodeService;
 
     @GetMapping("/users")
     @PreAuthorize("hasRole('ROLE_FARM_MANAGER') or hasRole('ROLE_FARM_OWNER')")
