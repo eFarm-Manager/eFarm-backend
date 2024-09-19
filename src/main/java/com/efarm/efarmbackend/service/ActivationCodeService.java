@@ -6,9 +6,12 @@ import com.efarm.efarmbackend.payload.response.MessageResponse;
 import com.efarm.efarmbackend.repository.farm.ActivationCodeRepository;
 import com.efarm.efarmbackend.repository.farm.FarmRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.net.URI;
 import java.time.LocalDate;
 import java.util.Optional;
 
@@ -63,6 +66,7 @@ public class ActivationCodeService {
     }
 
     // Nowa metoda do wprowadzania nowego kodu aktywacyjnego
+    @Transactional
     public ResponseEntity<MessageResponse> updateActivationCodeForFarm(String newActivationCode, Integer farmId) {
         // Sprawdzenie, czy nowy kod aktywacyjny istnieje
         Optional<ActivationCode> activationCodeOpt = activationCodeRepository.findByCode(newActivationCode);
@@ -86,6 +90,16 @@ public class ActivationCodeService {
         Farm farm = farmRepository.findById(farmId)
                 .orElseThrow(() -> new RuntimeException("Farm not found for id: " + farmId));
 
+        // Pobranie aktualnego kodu aktywacyjnego
+        Integer currentActivationCodeId = farm.getIdActivationCode();
+
+        Optional<ActivationCode> currentActivationCodeOpt = activationCodeRepository.findById(currentActivationCodeId);
+        if (currentActivationCodeOpt.isPresent()) {
+            ActivationCode currentActivationCodeEntity = currentActivationCodeOpt.get();
+            activationCodeRepository.delete(currentActivationCodeEntity);
+        }
+
+
         // Przypisanie nowego kodu aktywacyjnego do farmy
         farm.setIdActivationCode(newActivationCodeEntity.getId());
         farm.setIsActive(true);  // Aktywowanie farmy po wprowadzeniu nowego kodu
@@ -97,7 +111,10 @@ public class ActivationCodeService {
         newActivationCodeEntity.setIsUsed(true);
         activationCodeRepository.save(newActivationCodeEntity);
 
-        return ResponseEntity.ok(new MessageResponse("Activation code updated successfully for the farm."));
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .location(URI.create("/"))
+                .body(new MessageResponse("Activation code updated successfully for the farm."));
     }
 }
 

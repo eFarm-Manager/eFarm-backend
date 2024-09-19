@@ -3,12 +3,16 @@ package com.efarm.efarmbackend.controller;
 import com.efarm.efarmbackend.model.farm.Farm;
 import com.efarm.efarmbackend.model.user.User;
 import com.efarm.efarmbackend.model.user.UserDTO;
+import com.efarm.efarmbackend.payload.response.MessageResponse;
+import com.efarm.efarmbackend.security.services.UserDetailsImpl;
 import com.efarm.efarmbackend.service.ActivationCodeService;
 import com.efarm.efarmbackend.service.FarmService;
 import com.efarm.efarmbackend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -44,12 +48,5 @@ public class FarmController {
                         user.getIsActive()))
                 .collect(Collectors.toList());
         return ResponseEntity.ok(userDTOs);
-    }
-
-    @PostMapping("/update-activation-code")
-    @PreAuthorize("hasRole('ROLE_FARM_OWNER') or hasRole('ROLE_FARM_MANAGER')")
-    public ResponseEntity<?> updateActivationCode(@RequestParam String newActivationCode, @RequestParam Integer farmId) {
-        //TODO farmId powinno być pobierane automatycznie
-        return activationCodeService.updateActivationCodeForFarm(newActivationCode, farmId);
     }
 }

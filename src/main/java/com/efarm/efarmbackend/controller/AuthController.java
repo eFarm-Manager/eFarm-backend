@@ -12,6 +12,7 @@ import com.efarm.efarmbackend.model.farm.ActivationCode;
 import com.efarm.efarmbackend.model.farm.Farm;
 import com.efarm.efarmbackend.model.user.User;
 import com.efarm.efarmbackend.payload.request.SignupFarmRequest;
+import com.efarm.efarmbackend.payload.request.UpdateActivationCodeRequest;
 import com.efarm.efarmbackend.repository.farm.ActivationCodeRepository;
 import com.efarm.efarmbackend.repository.farm.AddressRepository;
 import com.efarm.efarmbackend.repository.farm.FarmRepository;
@@ -20,6 +21,8 @@ import com.efarm.efarmbackend.service.ActivationCodeService;
 import com.efarm.efarmbackend.service.AuthService;
 import com.efarm.efarmbackend.service.FarmService;
 import com.efarm.efarmbackend.service.UserService;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 
 import org.slf4j.Logger;
@@ -37,11 +40,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.efarm.efarmbackend.payload.request.LoginRequest;
 import com.efarm.efarmbackend.payload.request.SignupRequest;
@@ -96,6 +95,9 @@ public class AuthController {
 
     @Value("${efarm.app.notification.daysToShowExpireActivationCode}")
     private int daysToShowExpireActivationCodeNotification;
+
+    @Value("${efarm.app.frontend.updateActivationCodeUri}")
+    private String frontendUriToUpdateActivationCode;
 
 //    @PostMapping("/signin")
 //    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
@@ -152,15 +154,19 @@ public class AuthController {
 
             // Sprawdzenie, czy gospodarstwo jest aktywne
             if (!userFarm.getIsActive()) {
-                if (roles.contains("ROLE_FARM_EQUIPMENT_OPERATOR")) {
-                    return ResponseEntity.badRequest().body(new MessageResponse("Gospodarstwo jest nieaktywne."));
+                if (roles.contains("ROLE_FARM_EQUIPMENT_OPERATOR") || roles.contains("ROLE_FARM_MANAGER")) {
+                    return ResponseEntity
+                            .status(HttpStatus.FORBIDDEN)
+                            .body(new MessageResponse("Gospodarstwo jest nieaktywne."));
                 }
 
-                //TODO Naprawić, nie działa przekierowanie dla ownera, DODAC LOGGERY, OBSLUZYC WYJATKI
-                if (roles.contains("ROLE_FARM_OWNER") || roles.contains("ROLE_FARM_MANAGER")) {
-                    // Zwracamy odpowiedź, która informuje o konieczności podania nowego kodu aktywacyjnego
-                    return ResponseEntity.status(HttpStatus.FOUND)
-                            .location(URI.create("/api/auth/enter-activation-code")) //CZY TU POWINNO BYC AUTH
+                // Przypadek: właściciel farmy lub menedżer
+                if (roles.contains("ROLE_FARM_OWNER")) {
+
+                    // Logujemy użytkownika, ale przekierowujemy go do strony zmiany kodu aktywacyjnego
+                    return ResponseEntity
+                            .status(HttpStatus.FORBIDDEN)
+                            .location(URI.create(frontendUriToUpdateActivationCode))
                             .body(new MessageResponse("Gospodarstwo jest nieaktywne. Podaj nowy kod aktywacyjny."));
                 }
             }
@@ -192,6 +198,34 @@ public class AuthController {
     @PostMapping("/signupfarm")
     public ResponseEntity<?> registerFarmUser(@Valid @RequestBody SignupFarmRequest signUpRequest) {
         return authService.registerFarmAndFarmOwner(signUpRequest);
+    }
+
+    @PostMapping("/update-activation-code")
+    public ResponseEntity<?> updateActivationCode(@Valid @RequestBody UpdateActivationCodeRequest updateActivationCodeRequest) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(updateActivationCodeRequest.getUsername(), updateActivationCodeRequest.getPassword()));
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+
+        List<String> roles = userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .toList();
+
+        if (roles.contains("ROLE_FARM_OWNER")) {
+            Farm userFarm = userService.getUserFarmById(Long.valueOf(userDetails.getId()));
+
+            if (userFarm == null) {
+                return ResponseEntity.badRequest().body(new MessageResponse("Farm not found for the current user."));
+            }
+
+            // Aktualizacja kodu aktywacyjnego
+            return activationCodeService.updateActivationCodeForFarm(updateActivationCodeRequest.getNewActivationCode(), userFarm.getId());
+        } else {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(new MessageResponse("Brak uprawnień"));
+        }
     }
 
     @PostMapping("/signout")
