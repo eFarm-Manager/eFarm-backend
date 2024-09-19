@@ -70,5 +70,4 @@ class RoleRepositorySpec extends Specification {
         then:
         !foundRole.isPresent()
     }
-
 }

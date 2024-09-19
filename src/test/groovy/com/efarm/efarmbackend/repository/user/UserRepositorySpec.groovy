@@ -1,12 +1,11 @@
 package com.efarm.efarmbackend.repository.user
 
-import com.efarm.efarmbackend.model.user.Role
 import com.efarm.efarmbackend.model.user.User
 import com.efarm.efarmbackend.model.user.ERole
 import com.efarm.efarmbackend.model.farm.Farm
 import spock.lang.Specification
 
-class UserRepositorySpec extends Specification{
+class UserRepositorySpec extends Specification {
 
     UserRepository userRepository = Mock(UserRepository)
 
@@ -15,7 +14,7 @@ class UserRepositorySpec extends Specification{
         given:
         User user = Mock(User)
 
-        String username="user1"
+        String username = "user1"
         user.getUsername() >> username
 
         userRepository.findByUsername(username) >> Optional.of(user)
@@ -25,13 +24,13 @@ class UserRepositorySpec extends Specification{
 
         then:
         foundUser.isPresent()
-        foundUser.get() == user 
+        foundUser.get() == user
     }
 
     // checks that if user with certain username doesnt exist then findByUsername returns null
     def "should not return user with username that does not exist - findByUsername"() {
         given:
-        String usernameTest="user2"
+        String usernameTest = "user2"
 
         userRepository.findByUsername(usernameTest) >> Optional.empty()
 
@@ -47,7 +46,7 @@ class UserRepositorySpec extends Specification{
         given:
         User user = Mock(User)
 
-        String username="user1"
+        String username = "user1"
         user.getUsername() >> username
 
         userRepository.existsByUsername(username) >> true
@@ -62,7 +61,7 @@ class UserRepositorySpec extends Specification{
     // checks if non existing user with certain username does not exists with function existsByUsername
     def "should return false for non existing user - existsByUsername"() {
         given:
-        String usernameTest="user2"
+        String usernameTest = "user2"
 
         userRepository.existsByUsername(usernameTest) >> false
 
@@ -98,6 +97,4 @@ class UserRepositorySpec extends Specification{
         !usersInFarm1.contains(user3)
         usersInFarm1.every { it.getFarm() == farm1 }
     }
-
-    
 }
