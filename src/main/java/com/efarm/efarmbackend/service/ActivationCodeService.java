@@ -96,7 +96,6 @@ public class ActivationCodeService {
                 .orElseThrow(() -> new RuntimeException("Activation code with ID " + activationCodeId + " not found."));
     }
 
-    @Transactional
     public ResponseEntity<MessageResponse> updateActivationCodeForFarm(String newActivationCode, Integer farmId) {
 
         ResponseEntity<MessageResponse> validationResponse = validateActivationCode(newActivationCode);

@@ -5,7 +5,6 @@ import com.efarm.efarmbackend.model.farm.Farm;
 import com.efarm.efarmbackend.model.user.ERole;
 import com.efarm.efarmbackend.model.user.Role;
 import com.efarm.efarmbackend.model.user.User;
-import com.efarm.efarmbackend.model.user.UserDTO;
 import com.efarm.efarmbackend.payload.response.MessageResponse;
 import com.efarm.efarmbackend.repository.farm.ActivationCodeRepository;
 import com.efarm.efarmbackend.repository.farm.FarmRepository;
@@ -21,7 +20,6 @@ import org.springframework.stereotype.Service;
 import java.net.URI;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 @Service
@@ -32,9 +30,6 @@ public class FarmService {
 
     @Autowired
     private ActivationCodeRepository activationCodeRepository;
-
-    @Autowired
-    private UserService userService;
 
     @Autowired
     private UserRepository userRepository;
@@ -66,22 +61,6 @@ public class FarmService {
                 farmRepository.save(farm);
             }
         }
-    }
-
-    public ResponseEntity<List<UserDTO>> getFarmUsersByFarmId() {
-        Farm loggedUserFarm = userService.getLoggedUserFarm();
-        List<User> users = getUsersByFarmId(loggedUserFarm.getId());
-        List<UserDTO> userDTOs = users.stream()
-                .map(user -> new UserDTO(
-                        user.getUsername(),
-                        user.getRole().toString(),
-                        user.getEmail(),
-                        user.getFirstName(),
-                        user.getLastName(),
-                        user.getPhoneNumber(),
-                        user.getIsActive()))
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(userDTOs);
     }
 
     public ResponseEntity<?> checkFarmDeactivation(Farm userFarm, Role role) {
