@@ -103,7 +103,6 @@ public class FarmService {
         return null;
     }
 
-
     public List<User> getUsersByFarmId(Integer farmId) {
         return userRepository.findByFarmId(farmId);
     }

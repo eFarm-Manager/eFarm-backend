@@ -19,7 +19,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -63,7 +62,6 @@ public class UserService {
                 encoder.encode(signUpRequest.getPassword()),
                 signUpRequest.getPhoneNumber());
 
-        //Set role for new User
         Role assignedRole = assignUserRole(signUpRequest.getRole());
         user.setRole(assignedRole);
 
@@ -112,6 +110,5 @@ public class UserService {
                     .orElseThrow(() -> new RuntimeException("Error: Role ROLE_FARM_EQUIPMENT_OPERATOR is not found."));
         };
     }
-
 }
 

@@ -8,6 +8,8 @@ import com.efarm.efarmbackend.repository.farm.ActivationCodeRepository;
 import com.efarm.efarmbackend.repository.farm.FarmRepository;
 import com.efarm.efarmbackend.security.jwt.JwtUtils;
 import com.efarm.efarmbackend.security.services.UserDetailsImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -37,7 +39,9 @@ public class ActivationCodeService {
     @Value("${efarm.app.notification.daysToShowExpireActivationCode}")
     private int daysToShowExpireActivationCodeNotification;
 
-    public ResponseEntity<MessageResponse> checkActivationCode(String activationCode) {
+    private static final Logger logger = LoggerFactory.getLogger(ActivationCodeService.class);
+
+    public ResponseEntity<MessageResponse> validateActivationCode(String activationCode) {
         Optional<ActivationCode> activationCodeOpt = activationCodeRepository.findByCode(activationCode);
         if (activationCodeOpt.isEmpty()) {
             return ResponseEntity.badRequest().body(new MessageResponse("Activation code does not exist."));
@@ -65,7 +69,13 @@ public class ActivationCodeService {
     }
 
     public ResponseEntity<?> signinWithExpireCodeInfo(UserDetailsImpl userDetails, Farm userFarm, List<String> roles) {
-        ActivationCode activationCode = findActivationCodeByFarmId(userFarm.getId());
+        ActivationCode activationCode;
+        try {
+            activationCode = findActivationCodeByFarmId(userFarm.getId());
+        } catch (RuntimeException e) {
+            logger.error("Can not find activation code : {}", e.getMessage());
+            return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
+        }
         long daysToExpiration = ChronoUnit.DAYS.between(LocalDate.now(), activationCode.getExpireDate());
 
         if (daysToExpiration <= daysToShowExpireActivationCodeNotification && daysToExpiration >= 0) {
@@ -76,63 +86,41 @@ public class ActivationCodeService {
         return null;
     }
 
-    //TODO uporządkować od tego miejsca
     public ActivationCode findActivationCodeByFarmId(Integer farmId) {
-        // Znajdujemy farmę na podstawie ID
         Farm farm = farmRepository.findById(farmId)
                 .orElseThrow(() -> new RuntimeException("Farm with ID " + farmId + " not found."));
 
-        // Pobieramy ID kodu aktywacyjnego z farmy
         Integer activationCodeId = farm.getIdActivationCode();
 
-        // Szukamy kodu aktywacyjnego na podstawie ID
         return activationCodeRepository.findById(activationCodeId)
                 .orElseThrow(() -> new RuntimeException("Activation code with ID " + activationCodeId + " not found."));
     }
 
-    // Nowa metoda do wprowadzania nowego kodu aktywacyjnego
     @Transactional
     public ResponseEntity<MessageResponse> updateActivationCodeForFarm(String newActivationCode, Integer farmId) {
-        // Sprawdzenie, czy nowy kod aktywacyjny istnieje
-        Optional<ActivationCode> activationCodeOpt = activationCodeRepository.findByCode(newActivationCode);
-        if (activationCodeOpt.isEmpty()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("New activation code does not exist."));
+
+        ResponseEntity<MessageResponse> validationResponse = validateActivationCode(newActivationCode);
+        if (validationResponse.getStatusCode() != HttpStatus.OK) {
+            return validationResponse;
         }
 
+        Optional<ActivationCode> activationCodeOpt = activationCodeRepository.findByCode(newActivationCode);
         ActivationCode newActivationCodeEntity = activationCodeOpt.get();
 
-        // Sprawdzenie, czy nowy kod aktywacyjny nie został już użyty
-        if (newActivationCodeEntity.getIsUsed()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Activation code has already been used."));
-        }
-
-        // Sprawdzenie, czy nowy kod aktywacyjny nie wygasł
-        if (newActivationCodeEntity.getExpireDate().isBefore(LocalDate.now())) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Activation code has expired."));
-        }
-
-        // Pobranie powiązanej farmy
         Farm farm = farmRepository.findById(farmId)
                 .orElseThrow(() -> new RuntimeException("Farm not found for id: " + farmId));
 
-        // Pobranie aktualnego kodu aktywacyjnego
-        Integer currentActivationCodeId = farm.getIdActivationCode();
-
-        Optional<ActivationCode> currentActivationCodeOpt = activationCodeRepository.findById(currentActivationCodeId);
+        Optional<ActivationCode> currentActivationCodeOpt = activationCodeRepository.findById(farm.getIdActivationCode());
         if (currentActivationCodeOpt.isPresent()) {
             ActivationCode currentActivationCodeEntity = currentActivationCodeOpt.get();
             activationCodeRepository.delete(currentActivationCodeEntity);
         }
 
-
-        // Przypisanie nowego kodu aktywacyjnego do farmy
         farm.setIdActivationCode(newActivationCodeEntity.getId());
-        farm.setIsActive(true);  // Aktywowanie farmy po wprowadzeniu nowego kodu
+        farm.setIsActive(true);
 
-        // Zaktualizowanie stanu farmy w bazie danych
         farmRepository.save(farm);
 
-        // Oznaczenie nowego kodu jako użyty
         newActivationCodeEntity.setIsUsed(true);
         activationCodeRepository.save(newActivationCodeEntity);
 

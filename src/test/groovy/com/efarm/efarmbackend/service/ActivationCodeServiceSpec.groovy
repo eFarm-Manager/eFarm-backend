@@ -36,7 +36,7 @@ class ActivationCodeServiceSpec extends Specification {
         activationCodeRepository.findByCode(activationCodeName) >> Optional.of(activationCode)
 
         when:
-        ResponseEntity<MessageResponse> response = activationCodeService.checkActivationCode(activationCodeName)
+        ResponseEntity<MessageResponse> response = activationCodeService.validateActivationCode(activationCodeName)
 
         then:
         response == ResponseEntity.ok().build()
@@ -50,7 +50,7 @@ class ActivationCodeServiceSpec extends Specification {
         activationCodeRepository.findByCode(activationCodeName) >> Optional.empty()
 
         when:
-        ResponseEntity<MessageResponse> response = activationCodeService.checkActivationCode(activationCodeName)
+        ResponseEntity<MessageResponse> response = activationCodeService.validateActivationCode(activationCodeName)
 
         then:
         response.statusCodeValue == 400
@@ -69,7 +69,7 @@ class ActivationCodeServiceSpec extends Specification {
         activationCodeRepository.findByCode(activationCodeName) >> Optional.of(activationCode)
 
         when:
-        ResponseEntity<MessageResponse> response = activationCodeService.checkActivationCode(activationCodeName)
+        ResponseEntity<MessageResponse> response = activationCodeService.validateActivationCode(activationCodeName)
 
         then:
         response.statusCodeValue == 400
@@ -88,7 +88,7 @@ class ActivationCodeServiceSpec extends Specification {
         activationCodeRepository.findByCode(activationCodeName) >> Optional.of(activationCode)
 
         when:
-        ResponseEntity<MessageResponse> response = activationCodeService.checkActivationCode(activationCodeName)
+        ResponseEntity<MessageResponse> response = activationCodeService.validateActivationCode(activationCodeName)
 
         then:
         response.statusCodeValue == 400

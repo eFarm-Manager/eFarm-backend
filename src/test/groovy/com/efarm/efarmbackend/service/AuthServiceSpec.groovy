@@ -193,7 +193,7 @@ class AuthServiceSpec extends Specification {
                 code: "activation-code",
                 expireDate: LocalDate.now().plusDays(1),
                 isUsed: false))
-        activationCodeService.checkActivationCode(signUpFarmRequest.activationCode) >> ResponseEntity.ok().build()
+        activationCodeService.validateActivationCode(signUpFarmRequest.activationCode) >> ResponseEntity.ok().build()
 
 
         when:
@@ -246,7 +246,7 @@ class AuthServiceSpec extends Specification {
         }
         userService.createFarmOwner(signUpFarmRequest) >> user
 
-        activationCodeService.checkActivationCode(signUpFarmRequest.activationCode) >> expectedResponse
+        activationCodeService.validateActivationCode(signUpFarmRequest.activationCode) >> expectedResponse
 
         when:
         ResponseEntity result = authService.registerFarmAndFarmOwner(signUpFarmRequest)

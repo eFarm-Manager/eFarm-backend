@@ -71,13 +71,10 @@ public class AuthService {
     public ResponseEntity<?> registerUser(SignupRequest signUpRequest) {
 
         logger.info("Received signup User request: {}", signUpRequest);
-
-        //Check user data
         if (userRepository.existsByUsername(signUpRequest.getUsername())) {
             return ResponseEntity.badRequest().body(new MessageResponse("Error: Username is already taken!"));
         }
 
-        // Create new user's account
         User user = userService.createFarmUser(signUpRequest);
 
         // Set the same farmId as currently logged user
@@ -98,7 +95,6 @@ public class AuthService {
     public ResponseEntity<?> registerFarmAndFarmOwner(SignupFarmRequest signUpFarmRequest) {
 
         logger.info("Received signup Farm request: {}", signUpFarmRequest);
-        //Check user and farm data
         if (userRepository.existsByUsername(signUpFarmRequest.getUsername())) {
             return ResponseEntity.badRequest().body(new MessageResponse("Error: Username is already taken!"));
         }
@@ -107,12 +103,10 @@ public class AuthService {
             return ResponseEntity.badRequest().body(new MessageResponse("Error: Farm Name is already taken!"));
         }
 
-        // Create new owner's account
         User user = userService.createFarmOwner(signUpFarmRequest);
 
-        // Check activation code
         Optional<ActivationCode> activationCodeOpt = activationCodeRepository.findByCode(signUpFarmRequest.getActivationCode());
-        ResponseEntity<MessageResponse> validationResponse = activationCodeService.checkActivationCode(signUpFarmRequest.getActivationCode());
+        ResponseEntity<MessageResponse> validationResponse = activationCodeService.validateActivationCode(signUpFarmRequest.getActivationCode());
         if (validationResponse.getStatusCode() != HttpStatus.OK) {
             return validationResponse;
         }
@@ -139,33 +133,30 @@ public class AuthService {
     public ResponseEntity<?> authenticateUser(LoginRequest loginRequest) {
         logger.info("Received signin request from user: {}", loginRequest.getUsername());
 
-        // Uwierzytelnianie użytkownika
         UserDetailsImpl userDetails = authenticateUserByLoginRequest(loginRequest);
         List<String> roles = userService.getLoggedUserRoles(userDetails);
 
-        // Sprawdzenie, czy użytkownik jest aktywny
         Optional<User> loggingUser = userRepository.findById(Long.valueOf(userDetails.getId()));
-
         if (loggingUser.isPresent() && !loggingUser.get().getIsActive()) {
             return ResponseEntity.badRequest().body(new MessageResponse("User is inactive."));
         }
 
-        // Sprawdzenie powiązanego gospodarstwa
         Farm userFarm = userService.getUserFarmById(Long.valueOf(userDetails.getId()));
         Role role = loggingUser.get().getRole();
 
+        //Check farm deactivation status
         ResponseEntity<?> checkFarmDeactivationResponse = farmService.checkFarmDeactivation(userFarm, role);
         if (checkFarmDeactivationResponse != null) {
             return checkFarmDeactivationResponse;
         }
 
-        // Sprawdzenie, czy kod aktywacyjny wygasa w ciągu 14 dni
+        //Send resposne with expireCodeInfo
         ResponseEntity<?> signinWithExpireCodeInfo = activationCodeService.signinWithExpireCodeInfo(userDetails, userFarm, roles);
         if (signinWithExpireCodeInfo != null) {
             return signinWithExpireCodeInfo;
         }
 
-        // Zwracanie standardowej odpowiedzi
+        // Standard response
         return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, jwtUtils.generateJwtCookie(userDetails).toString())
                 .body(new UserInfoResponse(userDetails.getId(), userDetails.getUsername(),
                         userDetails.getEmail(), roles));
@@ -184,7 +175,6 @@ public class AuthService {
                     .body(new MessageResponse("Brak uprawnień"));
         }
     }
-
 
     public UserDetailsImpl authenticateUserByLoginRequest(LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
