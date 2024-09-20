@@ -19,8 +19,6 @@ import com.efarm.efarmbackend.model.user.ERole;
 import com.efarm.efarmbackend.model.user.User;
 import com.efarm.efarmbackend.model.user.UserDTO;
 import com.efarm.efarmbackend.security.services.UserDetailsImpl;
-import com.efarm.efarmbackend.service.FarmService;
-import com.efarm.efarmbackend.service.UserService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -44,12 +42,6 @@ public class FarmControllerIT {
 
     @PersistenceContext
     private EntityManager entityManager;
-
-    @Autowired
-    private FarmService farmService;
-
-    @Autowired
-    private UserService userService;
 
     @Test
     @DisplayName("Test return all users from same farm")

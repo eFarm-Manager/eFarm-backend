@@ -15,8 +15,6 @@ import org.springframework.test.context.ActiveProfiles;
 import com.efarm.efarmbackend.model.farm.Address;
 import com.efarm.efarmbackend.model.farm.Farm;
 import com.efarm.efarmbackend.model.farm.ActivationCode;
-import com.efarm.efarmbackend.repository.farm.ActivationCodeRepository;
-import com.efarm.efarmbackend.repository.farm.FarmRepository;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -30,12 +28,6 @@ public class FarmServiceIT {
 
     @Autowired
     private FarmService farmService;
-
-    @Autowired
-    private FarmRepository farmRepository;
-
-    @Autowired
-    private ActivationCodeRepository activationCodeRepository;
 
     @PersistenceContext
     private EntityManager entityManager;

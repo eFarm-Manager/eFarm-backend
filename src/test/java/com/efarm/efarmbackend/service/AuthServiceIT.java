@@ -7,8 +7,6 @@ import com.efarm.efarmbackend.model.user.User;
 import com.efarm.efarmbackend.payload.request.SignupFarmRequest;
 import com.efarm.efarmbackend.payload.request.SignupRequest;
 import com.efarm.efarmbackend.payload.response.MessageResponse;
-import com.efarm.efarmbackend.repository.farm.ActivationCodeRepository;
-import com.efarm.efarmbackend.repository.farm.AddressRepository;
 import com.efarm.efarmbackend.repository.farm.FarmRepository;
 import com.efarm.efarmbackend.repository.user.UserRepository;
 import com.efarm.efarmbackend.security.services.UserDetailsImpl;
@@ -52,21 +50,6 @@ public class AuthServiceIT {
 
     @Autowired
     private FarmRepository farmRepository;
-
-    @Autowired
-    private AddressRepository addressRepository;
-
-    @Autowired
-    private ActivationCodeRepository activationCodeRepository;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private ActivationCodeService activationCodeService;
-
-    @Autowired
-    private FarmService farmService;
 
     @PersistenceContext
     private EntityManager entityManager;
