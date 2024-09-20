@@ -3,9 +3,14 @@ package com.efarm.efarmbackend.service;
 import com.efarm.efarmbackend.model.farm.ActivationCode;
 import com.efarm.efarmbackend.model.farm.Farm;
 import com.efarm.efarmbackend.payload.response.MessageResponse;
+import com.efarm.efarmbackend.payload.response.UserInfoResponse;
 import com.efarm.efarmbackend.repository.farm.ActivationCodeRepository;
 import com.efarm.efarmbackend.repository.farm.FarmRepository;
+import com.efarm.efarmbackend.security.jwt.JwtUtils;
+import com.efarm.efarmbackend.security.services.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -13,6 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.net.URI;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -23,6 +30,12 @@ public class ActivationCodeService {
 
     @Autowired
     private FarmRepository farmRepository;
+
+    @Autowired
+    private JwtUtils jwtUtils;
+
+    @Value("${efarm.app.notification.daysToShowExpireActivationCode}")
+    private int daysToShowExpireActivationCodeNotification;
 
     public ResponseEntity<MessageResponse> checkActivationCode(String activationCode) {
         Optional<ActivationCode> activationCodeOpt = activationCodeRepository.findByCode(activationCode);
@@ -49,6 +62,18 @@ public class ActivationCodeService {
         } else {
             throw new RuntimeException("Activation code not found");
         }
+    }
+
+    public ResponseEntity<?> signinWithExpireCodeInfo(UserDetailsImpl userDetails, Farm userFarm, List<String> roles) {
+        ActivationCode activationCode = findActivationCodeByFarmId(userFarm.getId());
+        long daysToExpiration = ChronoUnit.DAYS.between(LocalDate.now(), activationCode.getExpireDate());
+
+        if (daysToExpiration <= daysToShowExpireActivationCodeNotification && daysToExpiration >= 0) {
+            return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, jwtUtils.generateJwtCookie(userDetails).toString())
+                    .body(new UserInfoResponse(userDetails.getId(), userDetails.getUsername(),
+                            userDetails.getEmail(), roles, "Kod aktywacyjny wygasa za " + daysToExpiration + " dni."));
+        }
+        return null;
     }
 
     //TODO uporządkować od tego miejsca

@@ -90,7 +90,7 @@ class FarmControllerSpec extends Specification {
         farmService.getUsersByFarmId(farm.getId()) >> [user1,user2]
 
         when:
-        ResponseEntity<List<UserDTO>> response = farmController.getUsersByFarmId()
+        ResponseEntity<List<UserDTO>> response = farmController.getFarmUsersByFarmId()
 
         then:
         response.getBody().size() == 2
