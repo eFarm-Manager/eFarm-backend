@@ -69,19 +69,21 @@ public class ActivationCodeService {
     }
 
     public ResponseEntity<?> signinWithExpireCodeInfo(UserDetailsImpl userDetails, Farm userFarm, List<String> roles) {
-        ActivationCode activationCode;
-        try {
-            activationCode = findActivationCodeByFarmId(userFarm.getId());
-        } catch (RuntimeException e) {
-            logger.error("Can not find activation code : {}", e.getMessage());
-            return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
-        }
-        long daysToExpiration = ChronoUnit.DAYS.between(LocalDate.now(), activationCode.getExpireDate());
+        if(roles.contains("ROLE_FARM_OWNER")) {
+            ActivationCode activationCode;
+            try {
+                activationCode = findActivationCodeByFarmId(userFarm.getId());
+            } catch (RuntimeException e) {
+                logger.error("Can not find activation code : {}", e.getMessage());
+                return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
+            }
+            long daysToExpiration = ChronoUnit.DAYS.between(LocalDate.now(), activationCode.getExpireDate());
 
-        if (daysToExpiration <= daysToShowExpireActivationCodeNotification && daysToExpiration >= 0) {
-            return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, jwtUtils.generateJwtCookie(userDetails).toString())
-                    .body(new UserInfoResponse(userDetails.getId(), userDetails.getUsername(),
-                            userDetails.getEmail(), roles, "Kod aktywacyjny wygasa za " + daysToExpiration + " dni."));
+            if (daysToExpiration <= daysToShowExpireActivationCodeNotification && daysToExpiration >= 0) {
+                return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, jwtUtils.generateJwtCookie(userDetails).toString())
+                        .body(new UserInfoResponse(userDetails.getId(), userDetails.getUsername(),
+                                userDetails.getEmail(), roles, "Kod aktywacyjny wygasa za " + daysToExpiration + " dni."));
+            }
         }
         return null;
     }

@@ -69,7 +69,7 @@ public class FarmService {
                     role.getName() == ERole.ROLE_FARM_MANAGER) {
                 return ResponseEntity
                         .status(HttpStatus.FORBIDDEN)
-                        .body(new MessageResponse("Gospodarstwo jest nieaktywne."));
+                        .body(new MessageResponse("Gospodarstwo jest nieaktywne. Kod aktywacyjny wygasł."));
             }
 
             if (role.getName() == ERole.ROLE_FARM_OWNER) {
