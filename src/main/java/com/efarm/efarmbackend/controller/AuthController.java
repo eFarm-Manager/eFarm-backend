@@ -11,6 +11,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import com.efarm.efarmbackend.payload.request.LoginRequest;
@@ -35,13 +36,13 @@ public class AuthController {
 
     @PostMapping("/signup")
     @PreAuthorize("hasRole('ROLE_FARM_MANAGER') or hasRole('ROLE_FARM_OWNER')")
-    public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
-        return authFacade.registerUser(signUpRequest);
+    public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest, BindingResult bindingResult) {
+        return authFacade.registerUser(signUpRequest, bindingResult);
     }
 
     @PostMapping("/signupfarm")
-    public ResponseEntity<?> registerFarmAndFarmOwner(@Valid @RequestBody SignupFarmRequest signUpRequest) {
-        return authFacade.registerFarmAndFarmOwner(signUpRequest);
+    public ResponseEntity<?> registerFarmAndFarmOwner(@Valid @RequestBody SignupFarmRequest signUpRequest, BindingResult bindingResult) {
+        return authFacade.registerFarmAndFarmOwner(signUpRequest, bindingResult);
     }
 
     @PostMapping("/update-activation-code")

@@ -16,7 +16,7 @@ public class SignupFarmRequest {
     private String lastName;
 
     @NotBlank
-    @Size(min = 3, max = 20)
+    @Size(min = 6, max = 30)
     private String username;
 
     @NotBlank
@@ -28,7 +28,7 @@ public class SignupFarmRequest {
     @Size(min = 6, max = 40)
     private String password;
 
-    @Size(min = 6, max = 20)
+    @Size(max = 12)
     private String phoneNumber;
 
     @NotBlank
@@ -36,7 +36,6 @@ public class SignupFarmRequest {
     private String farmName;
 
     @NotBlank
-    @Size(min = 6, max = 45)
     private String activationCode;
 
 }

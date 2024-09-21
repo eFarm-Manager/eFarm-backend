@@ -30,9 +30,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BindingResult;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class AuthFacade {
@@ -104,7 +106,14 @@ public class AuthFacade {
     }
 
     @Transactional
-    public ResponseEntity<?> registerUser(SignupRequest signUpRequest) {
+    public ResponseEntity<?> registerUser(SignupRequest signUpRequest, BindingResult bindingResult) {
+
+        if (bindingResult.hasErrors()) {
+            List<String> errorMessages = bindingResult.getFieldErrors().stream()
+                    .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                    .collect(Collectors.toList());
+            return ResponseEntity.badRequest().body(new MessageResponse(String.join(", ", errorMessages)));
+        }
 
         logger.info("Received signup User request: {}", signUpRequest);
         if (userRepository.existsByUsername(signUpRequest.getUsername())) {
@@ -127,7 +136,14 @@ public class AuthFacade {
     }
 
     @Transactional
-    public ResponseEntity<?> registerFarmAndFarmOwner(SignupFarmRequest signUpFarmRequest) {
+    public ResponseEntity<?> registerFarmAndFarmOwner(SignupFarmRequest signUpFarmRequest, BindingResult bindingResult) {
+
+        if (bindingResult.hasErrors()) {
+            List<String> errorMessages = bindingResult.getFieldErrors().stream()
+                    .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                    .collect(Collectors.toList());
+            return ResponseEntity.badRequest().body(new MessageResponse(String.join(", ", errorMessages)));
+        }
 
         logger.info("Received signup Farm request: {}", signUpFarmRequest);
         if (userRepository.existsByUsername(signUpFarmRequest.getUsername())) {
