@@ -8,7 +8,7 @@ image:
   repository: sprysio/efarm-backend
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: develop-4882e3bb60d649d70e9ac6d467dc85cd8b335901
+  tag: develop-0034a057e963c2f70c4b861bdddb239e837849e9
 
 service:
   type: ClusterIP
