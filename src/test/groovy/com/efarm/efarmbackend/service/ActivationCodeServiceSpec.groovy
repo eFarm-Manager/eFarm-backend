@@ -1,126 +1,117 @@
 package com.efarm.efarmbackend.service
 
-import com.efarm.efarmbackend.model.farm.ActivationCode
-import com.efarm.efarmbackend.model.farm.Address
-import com.efarm.efarmbackend.model.farm.Farm
-import com.efarm.efarmbackend.model.user.ERole
-import com.efarm.efarmbackend.model.user.Role
 import com.efarm.efarmbackend.model.user.User
-import com.efarm.efarmbackend.payload.request.SignupFarmRequest
-import com.efarm.efarmbackend.payload.request.SignupRequest
+import com.efarm.efarmbackend.model.user.Role
+import com.efarm.efarmbackend.model.user.ERole
+import com.efarm.efarmbackend.model.farm.ActivationCode
+import com.efarm.efarmbackend.model.farm.Farm
 import com.efarm.efarmbackend.payload.response.MessageResponse
 import com.efarm.efarmbackend.repository.farm.ActivationCodeRepository
-import com.efarm.efarmbackend.repository.farm.AddressRepository
 import com.efarm.efarmbackend.repository.farm.FarmRepository
-import com.efarm.efarmbackend.repository.user.RoleRepository
-import com.efarm.efarmbackend.repository.user.UserRepository
+import com.efarm.efarmbackend.security.jwt.JwtUtils
 import com.efarm.efarmbackend.security.services.UserDetailsImpl
 import org.springframework.http.ResponseEntity
-import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.security.crypto.password.PasswordEncoder
+import org.springframework.http.HttpStatus
 import spock.lang.Specification
 import spock.lang.Subject
 import spock.lang.Unroll
+import org.springframework.http.ResponseCookie
+import org.springframework.http.HttpHeaders
 
-import jakarta.transaction.Transactional
 import java.time.LocalDate
-import java.util.HashSet
-import java.util.Optional
-import java.util.Set
-import com.efarm.efarmbackend.service.UserServiceSpec
 
 class ActivationCodeServiceSpec extends Specification {
 
     def activationCodeRepository = Mock(ActivationCodeRepository)
+    def farmRepository = Mock(FarmRepository)
+    def jwtUtils = Mock(JwtUtils)
 
     @Subject
     ActivationCodeService activationCodeService = new ActivationCodeService(
-        activationCodeRepository: activationCodeRepository
+            activationCodeRepository: activationCodeRepository,
+            farmRepository: farmRepository,
+            jwtUtils: jwtUtils,
+            daysToShowExpireActivationCodeNotification: 14,
     )
 
     def setup() {
         SecurityContextHolder.clearContext()
     }
 
-    @Unroll
-    def "should handle correct code" () {
+    def "should handle correct code"() {
         given:
         String activationCodeName = "validCode"
 
         ActivationCode activationCode = Mock(ActivationCode)
-        activationCode.getCodeName() >> activationCodeName
+        activationCode.getCode() >> activationCodeName
         activationCode.getExpireDate() >> LocalDate.now().plusDays(1)
         activationCode.getIsUsed() >> false
         activationCodeRepository.findByCode(activationCodeName) >> Optional.of(activationCode)
 
         when:
-        ResponseEntity<MessageResponse> response = activationCodeService.checkActivationCode(activationCodeName)
+        ResponseEntity<MessageResponse> response = activationCodeService.validateActivationCode(activationCodeName)
 
         then:
         response == ResponseEntity.ok().build()
     }
 
-    @Unroll
-    def "should handle invalid code" () {
+    def "should handle invalid code"() {
         given:
         String activationCodeName = "validCode"
 
         activationCodeRepository.findByCode(activationCodeName) >> Optional.empty()
 
         when:
-        ResponseEntity<MessageResponse> response = activationCodeService.checkActivationCode(activationCodeName)
+        ResponseEntity<MessageResponse> response = activationCodeService.validateActivationCode(activationCodeName)
 
         then:
         response.statusCodeValue == 400
         response.body.message == "Activation code does not exist."
     }
 
-    @Unroll
-    def "should handle expired code" () {
+    def "should handle expired code"() {
         given:
         String activationCodeName = "validCode"
 
         ActivationCode activationCode = Mock(ActivationCode)
-        activationCode.getCodeName() >> activationCodeName
+        activationCode.getCode() >> activationCodeName
         activationCode.getExpireDate() >> LocalDate.now().minusDays(1)
         activationCode.getIsUsed() >> false
         activationCodeRepository.findByCode(activationCodeName) >> Optional.of(activationCode)
 
         when:
-        ResponseEntity<MessageResponse> response = activationCodeService.checkActivationCode(activationCodeName)
+        ResponseEntity<MessageResponse> response = activationCodeService.validateActivationCode(activationCodeName)
 
         then:
         response.statusCodeValue == 400
         response.body.message == "Activation code has expired."
     }
 
-    @Unroll
-    def "should handle used code" () {
+    def "should handle used code"() {
         given:
         String activationCodeName = "validCode"
 
         ActivationCode activationCode = Mock(ActivationCode)
-        activationCode.getCodeName() >> activationCodeName
+        activationCode.getCode() >> activationCodeName
         activationCode.getExpireDate() >> LocalDate.now().plusDays(1)
         activationCode.getIsUsed() >> true
         activationCodeRepository.findByCode(activationCodeName) >> Optional.of(activationCode)
 
         when:
-        ResponseEntity<MessageResponse> response = activationCodeService.checkActivationCode(activationCodeName)
+        ResponseEntity<MessageResponse> response = activationCodeService.validateActivationCode(activationCodeName)
 
         then:
         response.statusCodeValue == 400
         response.body.message == "Activation code has already been used."
-    }
+    }   
 
-    @Unroll
-    def "should handle using code correctly" () {
+    def "should handle using code correctly"() {
         given:
         String activationCodeName = "validCode"
 
         ActivationCode activationCode = Mock(ActivationCode)
-        activationCode.getCodeName() >> activationCodeName
+        activationCode.getCode() >> activationCodeName
         activationCode.getExpireDate() >> LocalDate.now().plusDays(1)
         activationCode.getIsUsed() >> false
         activationCodeRepository.findByCode(activationCodeName) >> Optional.of(activationCode)
@@ -133,8 +124,7 @@ class ActivationCodeServiceSpec extends Specification {
         1 * activationCodeRepository.save(activationCode)
     }
 
-        @Unroll
-    def "should handle using code when not found" () {
+    def "should handle using code when not found"() {
         given:
         String activationCodeName = "validCode"
 
@@ -145,6 +135,188 @@ class ActivationCodeServiceSpec extends Specification {
 
         then:
         thrown(RuntimeException)
+    }
+
+    def "should sign in with expire code info for owner"() {
+        given:
+        ActivationCode activationCode = Mock(ActivationCode)
+        activationCode.getExpireDate() >> LocalDate.now().plusDays(1)
+        Role role_owner = Mock(Role)
+        role_owner.getName() >> ERole.ROLE_FARM_OWNER
+        Farm farm = Mock(Farm)
+        farm.getId() >> 1
+        farm.getIdActivationCode() >> activationCode.getId()
+        User currentUser = Mock(User)
+        currentUser.getUsername() >> "currentUser"
+        currentUser.getId() >> 1
+        currentUser.getRole() >> role_owner
+        currentUser.getFarm() >> farm
+
+        UserDetailsImpl currentUserDetails = UserDetailsImpl.build(currentUser)
+        farmRepository.findById(farm.getId()) >> Optional.of(farm)
+        activationCodeRepository.findById(farm.getIdActivationCode()) >> Optional.of(activationCode)
+        ResponseCookie mockCookie = ResponseCookie.from("jwtToken", "mockTokenValue")
+                .path("/api")
+                .httpOnly(true)
+                .build()
+
+        jwtUtils.generateJwtCookie(currentUserDetails) >> mockCookie
+
+        when:
+        ResponseEntity<?> response = activationCodeService.signinWithExpireCodeInfo(currentUserDetails, farm, ["ROLE_FARM_OWNER"])
+
+        then:
+        response.getStatusCode() == HttpStatus.OK
+        response.getHeaders().get(HttpHeaders.SET_COOKIE).contains(mockCookie.toString())
+        response.getBody().expireCodeInfo.contains("Kod aktywacyjny wygasa za 1 dni.")
+    }
+
+    def "should no info during sign in with expire code for owner when its more than 14 to expire"() {
+        given:
+        ActivationCode activationCode = Mock(ActivationCode)
+        activationCode.getExpireDate() >> LocalDate.now().plusDays(19)
+        Role role_owner = Mock(Role)
+        role_owner.getName() >> ERole.ROLE_FARM_OWNER
+        Farm farm = Mock(Farm)
+        farm.getId() >> 1
+        farm.getIdActivationCode() >> activationCode.getId()
+        User currentUser = Mock(User)
+        currentUser.getUsername() >> "currentUser"
+        currentUser.getId() >> 1
+        currentUser.getRole() >> role_owner
+        currentUser.getFarm() >> farm
+
+        UserDetailsImpl currentUserDetails = UserDetailsImpl.build(currentUser)
+        farmRepository.findById(farm.getId()) >> Optional.of(farm)
+        activationCodeRepository.findById(farm.getIdActivationCode()) >> Optional.of(activationCode)
+        ResponseCookie mockCookie = ResponseCookie.from("jwtToken", "mockTokenValue")
+                .path("/api")
+                .httpOnly(true)
+                .build()
+
+        jwtUtils.generateJwtCookie(currentUserDetails) >> mockCookie
+
+        when:
+        ResponseEntity<?> response = activationCodeService.signinWithExpireCodeInfo(currentUserDetails, farm, ["ROLE_FARM_OWNER"])
+
+        then:
+        response == null
+    }
+    
+    def "should no info during sign in with expire code info for manager"() {
+        given:
+        ActivationCode activationCode = Mock(ActivationCode)
+        activationCode.getExpireDate() >> LocalDate.now().plusDays(1)
+        Role role_manager = Mock(Role)
+        role_manager.getName() >> ERole.ROLE_FARM_MANAGER
+        Farm farm = Mock(Farm)
+        farm.getId() >> 1
+        farm.getIdActivationCode() >> activationCode.getId()
+        User currentUser = Mock(User)
+        currentUser.getUsername() >> "currentUser"
+        currentUser.getId() >> 1
+        currentUser.getRole() >> role_manager
+        currentUser.getFarm() >> farm
+        UserDetailsImpl currentUserDetails = UserDetailsImpl.build(currentUser)
+
+
+        when:
+        ResponseEntity<?> response = activationCodeService.signinWithExpireCodeInfo(currentUserDetails, farm, ["ROLE_FARM_MANAGER"])
+
+        then:
+        response == null
+    }
+
+    def "find activation code by farm id"() {
+        given:
+        String activationCodeName = "validCode"
+        ActivationCode activationCode = Mock(ActivationCode)
+        activationCode.getCode() >> activationCodeName
+        activationCode.getExpireDate() >> LocalDate.now().plusDays(1)
+        Farm farm = Mock(Farm)
+        farm.getId() >> 1
+        farm.getIdActivationCode() >> activationCode.getId()
+
+        farmRepository.findById(farm.getId()) >> Optional.of(farm)
+        activationCodeRepository.findById(farm.getIdActivationCode()) >> Optional.of(activationCode)
+
+        
+        when:
+        ActivationCode farmCode = activationCodeService.findActivationCodeByFarmId(farm.getId())
+
+        then:
+        farmCode.getCode() == activationCodeName
+        farmCode.getExpireDate() == LocalDate.now().plusDays(1)
+    }
+
+    def "find activation code by farm id not found activation code"() {
+        given:
+        String activationCodeName = "validCode"
+        ActivationCode activationCode = Mock(ActivationCode)
+        activationCode.getCode() >> activationCodeName
+        activationCode.getExpireDate() >> LocalDate.now().plusDays(1)
+        Farm farm = Mock(Farm)
+        farm.getId() >> 1
+        farm.getIdActivationCode() >> activationCode.getId()
+
+        farmRepository.findById(farm.getId()) >> Optional.of(farm)
+        activationCodeRepository.findById(farm.getIdActivationCode()) >> Optional.empty()
+
+        
+        when:
+        ActivationCode farmCode = activationCodeService.findActivationCodeByFarmId(farm.getId())
+
+        then:
+        thrown(RuntimeException)
+    }
+
+    def "should update activation code for farm"() {
+        given:
+        String newActivationCode = "newCode"
+        ActivationCode newActivationCodeEntity = Mock(ActivationCode)
+        newActivationCodeEntity.getCode() >> newActivationCode
+        newActivationCodeEntity.getExpireDate() >> LocalDate.now().plusDays(1)
+        newActivationCodeEntity.getIsUsed() >> false
+        ActivationCode currentCode = Mock(ActivationCode)
+        currentCode.getCode() >> "oldCode"
+        currentCode.getExpireDate() >> LocalDate.now().plusDays(1)
+        currentCode.getIsUsed() >> true
+        Farm farm = Mock(Farm)
+        farm.getId() >> 1
+        farm.getIdActivationCode() >> currentCode.getId()
+
+        activationCodeRepository.findByCode(newActivationCode) >> Optional.of(newActivationCodeEntity)
+        farmRepository.findById(farm.getId()) >> Optional.of(farm)
+        activationCodeRepository.findById(farm.getIdActivationCode()) >> Optional.of(currentCode)
+
+        when:
+        ResponseEntity<MessageResponse> response = activationCodeService.updateActivationCodeForFarm(newActivationCode,farm.getId())
+
+        then:
+        1 * activationCodeRepository.delete(currentCode)
+        1 * farmRepository.save(farm)
+        1 * activationCodeRepository.save(newActivationCodeEntity)
+        response.getStatusCode() == HttpStatus.OK
+        response.getBody().message.contains("Activation code updated successfully for the farm.")
+    }
+
+    def "should catch new code as not ok in here used"() {
+        given:
+        String newActivationCode = "newCode"
+        ActivationCode newActivationCodeEntity = Mock(ActivationCode)
+        newActivationCodeEntity.getCode() >> newActivationCode
+        newActivationCodeEntity.getExpireDate() >> LocalDate.now().plusDays(1)
+        newActivationCodeEntity.getIsUsed() >> true
+        
+
+        activationCodeRepository.findByCode(newActivationCode) >> Optional.of(newActivationCodeEntity)
+
+        when:
+        ResponseEntity<MessageResponse> response = activationCodeService.updateActivationCodeForFarm(newActivationCode,1)
+
+        then:
+        response.getStatusCode() == HttpStatus.BAD_REQUEST
+        response.getBody().message.contains("Activation code has already been used.")
     }
 
 }

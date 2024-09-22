@@ -20,7 +20,7 @@ import com.efarm.efarmbackend.model.farm.ActivationCode;
 import jakarta.transaction.Transactional;
 
 @DataJpaTest
-@Transactional	
+@Transactional
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("integrationtest")
 public class ActivationCodeRepositoryIT {
@@ -34,28 +34,28 @@ public class ActivationCodeRepositoryIT {
     @DisplayName("Tests finding activation code by code name")
     public void testFindByCode() {
         // Given
-        ActivationCode activationCode = entityManager.find(ActivationCode.class, 1); 
-		String codeTest = activationCode.getCode();
+        ActivationCode activationCode = entityManager.find(ActivationCode.class, 1);
+        String codeTest = activationCode.getCode();
 
         // When
         Optional<ActivationCode> foundCode = activationCodeRepository.findByCode(codeTest);
 
         // Then
-        assertThat(foundCode.isPresent(),is(true));
-		assertThat(foundCode.get(), notNullValue());
-		assertThat(foundCode.get().getCode(), is(codeTest));
+        assertThat(foundCode.isPresent(), is(true));
+        assertThat(foundCode.get(), notNullValue());
+        assertThat(foundCode.get().getCode(), is(codeTest));
     }
 
     @Test
     @DisplayName("Tests finding not existing code")
     public void testDoesntFindNotExistingCode() {
         // Given
-		String codeTest = "upsieNonExistingCode";
+        String codeTest = "upsieNonExistingCode";
 
         // When
         Optional<ActivationCode> foundCode = activationCodeRepository.findByCode(codeTest);
 
         // Then
-        assertThat(foundCode.isPresent(),is(false));
+        assertThat(foundCode.isPresent(), is(false));
     }
 }

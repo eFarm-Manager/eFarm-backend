@@ -24,7 +24,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Transactional	
+@Transactional
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("integrationtest")
 public class UserDetailsServiceImplIT {
@@ -34,7 +34,7 @@ public class UserDetailsServiceImplIT {
 
     @PersistenceContext
     private EntityManager entityManager;
- 
+
     @Test
     @DisplayName("Test that takes user from db and loads its details by username")
     void testLoadUserByUsernameCorrectly() throws Exception {
@@ -46,38 +46,38 @@ public class UserDetailsServiceImplIT {
         UserDetails foundUser = userDetailsService.loadUserByUsername(usernameTest);
 
         // Then
-		assertThat(foundUser, notNullValue());
-		assertThat(foundUser.getUsername(), is(usernameTest));
+        assertThat(foundUser, notNullValue());
+        assertThat(foundUser.getUsername(), is(usernameTest));
     }
 
     @Test
     @DisplayName("Test that creates new user and finds his details by username")
     void testLoadCreatedUserByUsernameCorrectly() throws Exception {
         // Given
-        String usernameTest="user1";
+        String usernameTest = "user1";
 
-		Role role = entityManager.find(Role.class, 2);
-		Farm farm = entityManager.find(Farm.class, 5);
+        Role role = entityManager.find(Role.class, 2);
+        Farm farm = entityManager.find(Farm.class, 5);
 
-		User testUser = new User();	
-		testUser.setUsername(usernameTest);
-		testUser.setFirstName("John");
-		testUser.setLastName("Doe");
-		testUser.setEmail("john.doe@example.com");
-		testUser.setPassword("password");
-		testUser.setRole(role);
-		testUser.setFarm(farm);
+        User testUser = new User();
+        testUser.setUsername(usernameTest);
+        testUser.setFirstName("John");
+        testUser.setLastName("Doe");
+        testUser.setEmail("john.doe@example.com");
+        testUser.setPassword("password");
+        testUser.setRole(role);
+        testUser.setFarm(farm);
         testUser.setIsActive(true);
-        
-		entityManager.persist(testUser);
+
+        entityManager.persist(testUser);
         entityManager.flush();
 
         // When
         UserDetails foundUser = userDetailsService.loadUserByUsername(usernameTest);
 
         // Then
-		assertThat(foundUser, notNullValue());
-		assertThat(foundUser.getUsername(), is(usernameTest));
+        assertThat(foundUser, notNullValue());
+        assertThat(foundUser.getUsername(), is(usernameTest));
     }
 
     @Test
@@ -85,7 +85,7 @@ public class UserDetailsServiceImplIT {
     void testNotFindNonExistingUser() throws Exception {
         // Given
         String usernameTest = "user1";
-        
+
         //Then
         assertThrows(UsernameNotFoundException.class, () -> {
             userDetailsService.loadUserByUsername(usernameTest);

@@ -10,8 +10,8 @@ class JwtUtilsSpec extends Specification {
 
     String jwtCookie = 'jwtToken'
     String jwtSecret = '123hbfaegi32qgf7r6gh87wefawoyrg763ihr79g37hfo8a73riau'
-    
-    
+
+
     //checking that if cookie is present then the jwt is returned correctly
     def "should return JWT from cookies when cookie is present - getJwtFromCookies"() {
         given:
@@ -136,13 +136,13 @@ class JwtUtilsSpec extends Specification {
         java.lang.reflect.Field fieldCookie = JwtUtils.class.getDeclaredField('jwtCookie')
         fieldCookie.setAccessible(true)
         fieldCookie.set(jwtUtils, jwtCookie)
-        
+
         when:
         ResponseCookie cookie = jwtUtils.getCleanJwtCookie()
-        
+
         then:
         cookie.getName() == jwtCookie
-        cookie.getValue()==""
+        cookie.getValue() == ""
         cookie.getPath() == '/api'
     }
 
@@ -168,6 +168,7 @@ class JwtUtilsSpec extends Specification {
         then:
         result == username
     }
+
     //checks that expired token makes it so that there is ExpiredJwt Exception
     def "should handle expired JWT token - getUserNameFromJwtToken"() {
         given:
@@ -205,9 +206,9 @@ class JwtUtilsSpec extends Specification {
         String result = jwtUtils.getUserNameFromJwtToken(malformedToken)
 
         then:
-        thrown(io.jsonwebtoken.MalformedJwtException) 
+        thrown(io.jsonwebtoken.MalformedJwtException)
     }
-    
+
     //checks that empty jwt token makes it so that there is IllegalArgument Exception
     def "should handle empty JWT token - getUserNameFromJwtToken"() {
         given:
@@ -222,14 +223,14 @@ class JwtUtilsSpec extends Specification {
         String result = jwtUtils.getUserNameFromJwtToken(emptyToken)
 
         then:
-        thrown(IllegalArgumentException) 
+        thrown(IllegalArgumentException)
     }
 
     //checks validation of valid token
     def "should return true for valid JWT token - validateJwtToken"() {
         given:
         int jwtExpiration = 10000
-        String username = 'user1' 
+        String username = 'user1'
 
         JwtUtils jwtUtils = new JwtUtils()
         java.lang.reflect.Field fieldSecret = JwtUtils.class.getDeclaredField('jwtSecret')
@@ -252,7 +253,7 @@ class JwtUtilsSpec extends Specification {
     def "should return false for expired JWT token - validateJwtToken"() {
         given:
         int jwtExpiration = 1
-        String username = 'user1' 
+        String username = 'user1'
 
         JwtUtils jwtUtils = new JwtUtils()
         java.lang.reflect.Field fieldSecret = JwtUtils.class.getDeclaredField('jwtSecret')
@@ -321,5 +322,4 @@ class JwtUtilsSpec extends Specification {
         then:
         isValid == false
     }
-
 }

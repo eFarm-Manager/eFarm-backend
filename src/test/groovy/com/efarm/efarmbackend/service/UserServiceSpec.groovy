@@ -1,34 +1,21 @@
 package com.efarm.efarmbackend.service
 
-import com.efarm.efarmbackend.model.farm.ActivationCode
-import com.efarm.efarmbackend.model.farm.Address
 import com.efarm.efarmbackend.model.farm.Farm
 import com.efarm.efarmbackend.model.user.ERole
 import com.efarm.efarmbackend.model.user.Role
 import com.efarm.efarmbackend.model.user.User
 import com.efarm.efarmbackend.payload.request.SignupFarmRequest
 import com.efarm.efarmbackend.payload.request.SignupRequest
-import com.efarm.efarmbackend.payload.response.MessageResponse
-import com.efarm.efarmbackend.repository.farm.ActivationCodeRepository
-import com.efarm.efarmbackend.repository.farm.AddressRepository
-import com.efarm.efarmbackend.repository.farm.FarmRepository
 import com.efarm.efarmbackend.repository.user.RoleRepository
 import com.efarm.efarmbackend.repository.user.UserRepository
 import com.efarm.efarmbackend.security.services.UserDetailsImpl
-import org.springframework.http.ResponseEntity
+import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.crypto.password.PasswordEncoder
 import spock.lang.Specification
 import spock.lang.Subject
 import spock.lang.Unroll
-
-import jakarta.transaction.Transactional
-import java.time.LocalDate
-import java.util.HashSet
-import java.util.Optional
-import java.util.Set
-import com.efarm.efarmbackend.service.UserServiceSpec
 
 class UserServiceSpec extends Specification {
 
@@ -50,7 +37,7 @@ class UserServiceSpec extends Specification {
 
     def setup() {
         SecurityContextHolder.clearContext()
-                //Mock Role
+        //Mock Role
         String roleNameManager = 'ROLE_FARM_MANAGER'
         String roleOperator = 'ROLE_FARM_EQUIPMENT_OPERATOR'
         String roleOwner = 'ROLE_FARM_OWNER'
@@ -67,8 +54,8 @@ class UserServiceSpec extends Specification {
             getName() >> ERole.valueOf(roleOwner)
         }
     }
-    @Unroll
-    def "should handle creation of farm owner" () {
+
+    def "should handle creation of farm owner"() {
         given:
         def signUpFarmRequest = new SignupFarmRequest(
                 firstName: "John",
@@ -76,7 +63,7 @@ class UserServiceSpec extends Specification {
                 username: "user",
                 email: "user@example.com",
                 password: "password",
-                phoneNumber: "123456789",
+                phoneNumber: "",
                 farmName: "FarmName",
                 activationCode: "activation-code"
         )
@@ -95,9 +82,7 @@ class UserServiceSpec extends Specification {
         newFarmOwner.getPassword() == "encodedPassword"
     }
 
-
-    @Unroll
-    def "should handle create farm user" () {
+    def "should handle create farm user"() {
         given:
         SignupRequest signUpRequest = new SignupRequest(
                 firstName: "John",
@@ -105,7 +90,7 @@ class UserServiceSpec extends Specification {
                 username: "newUser",
                 email: "newuser@example.com",
                 password: "password",
-                phoneNumber: "123456789",
+                phoneNumber: "",
                 role: "ROLE_FARM_OWNER"
         )
         roleRepository.findByName(ERole.ROLE_FARM_OWNER) >> Optional.of(class_role_owner)
@@ -124,14 +109,13 @@ class UserServiceSpec extends Specification {
         newUser.getPassword() == "encodedPassword"
     }
 
-    @Unroll
-    def "should handle returning current users farm" () {
+    def "should handle returning current users farm"() {
         given:
         Farm currentFarm = Mock(Farm)
         currentFarm.getId() >> 1
         currentFarm.getFarmName() >> "uniqueFarmName"
 
-        User currentUser = Mock(User)    
+        User currentUser = Mock(User)
         currentUser.getUsername() >> "currentUser"
         currentUser.getId() >> 1
         currentUser.getFarm() >> currentFarm
@@ -148,16 +132,15 @@ class UserServiceSpec extends Specification {
         userRepository.findById(Long.valueOf(currentUserDetails.getId())) >> Optional.of(currentUser)
 
         when:
-        Farm currentFarmReturned = userService.getLoggedUserFarm() 
+        Farm currentFarmReturned = userService.getLoggedUserFarm()
 
         then:
         currentFarmReturned.getFarmName() == currentFarm.getFarmName()
     }
 
-    @Unroll
-    def "should handle no current user details" (){
+    def "should handle no current user details"() {
         given:
-            Authentication authentication = Mock(Authentication) {
+        Authentication authentication = Mock(Authentication) {
             getPrincipal() >> null
         }
         UserDetailsImpl currentUserDetails = Mock(UserDetailsImpl)
@@ -171,11 +154,40 @@ class UserServiceSpec extends Specification {
         thrown(RuntimeException)
     }
 
-    def "should correctly return farm owner" () {
+    def "should get user farm by id"() {
+        given:
+        Farm farm = Mock(Farm)
+        User user = Mock(User)
+        user.getId() >> 1
+        user.getFarm() >> farm
+        userRepository.findById(Long.valueOf(user.getId())) >> Optional.of(user)
+
+        when:
+        Farm userFarmById = userService.getUserFarmById(Long.valueOf(user.getId()))
+
+        then:
+        userFarmById == farm
+    }
+
+    def "should get logged user roles"() {
+        given:
+        GrantedAuthority authority = Mock(GrantedAuthority)
+        authority.getAuthority() >> "ROLE_FARM_MANAGER"
+        UserDetailsImpl userDetails = Mock(UserDetailsImpl)
+        userDetails.getAuthorities() >> [authority]
+
+        when:
+        List<String> roles = userService.getLoggedUserRoles(userDetails)
+
+        then:
+        roles == ["ROLE_FARM_MANAGER"]
+    }
+
+    def "should correctly return farm owner"() {
         given:
         String role = "ROLE_FARM_OWNER"
         roleRepository.findByName(ERole.ROLE_FARM_OWNER) >> Optional.of(class_role_owner)
-        
+
         when:
         Role assignRole = userService.assignUserRole(role)
 
@@ -183,11 +195,11 @@ class UserServiceSpec extends Specification {
         assignRole.getName() == ERole.ROLE_FARM_OWNER
     }
 
-    def "should correctly return farm manager" () {
+    def "should correctly return farm manager"() {
         given:
         String role = "ROLE_FARM_MANAGER"
         roleRepository.findByName(ERole.ROLE_FARM_MANAGER) >> Optional.of(class_role_manager)
-        
+
         when:
         Role assignRole = userService.assignUserRole(role)
 
@@ -195,15 +207,14 @@ class UserServiceSpec extends Specification {
         assignRole.getName() == ERole.ROLE_FARM_MANAGER
     }
 
-    def "should correctly return farm operator when string not owner or manager" () {
+    def "should correctly return farm operator when string not owner or manager"() {
         given:
         roleRepository.findByName(ERole.ROLE_FARM_EQUIPMENT_OPERATOR) >> Optional.of(class_role_operator)
-        
+
         when:
         Role assignRole = userService.assignUserRole("")
 
         then:
         assignRole.getName() == ERole.ROLE_FARM_EQUIPMENT_OPERATOR
-    }    
-
+    }
 }

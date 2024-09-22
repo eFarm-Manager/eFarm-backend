@@ -21,49 +21,50 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 @DataJpaTest
-@Transactional	
+@Transactional
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("integrationtest")
 public class FarmRepositoryIT {
-	@Autowired
-	private FarmRepository farmRepository;
+    @Autowired
+    private FarmRepository farmRepository;
 
-	@Autowired
+    @Autowired
     private TestEntityManager entityManager;
 
     @Test
-	@DisplayName("Tests if existing farm does exist by name")
+    @DisplayName("Tests if existing farm does exist by name")
     public void testExistsByFarmName() {
         // Given
-		Farm farm = entityManager.find(Farm.class, 1);
-		String farmNameTest = farm.getFarmName();
+        Farm farm = entityManager.find(Farm.class, 1);
+        String farmNameTest = farm.getFarmName();
 
         // When
         Boolean existsFarmByName = farmRepository.existsByFarmName(farmNameTest);
 
         // Then
-		assertThat(existsFarmByName,is(true));
-	}
-	@Test
-    @DisplayName("Tests if non existing farm exists by name")
-    public void testDoesntFindNotExistingCode() {
-        // Given
-		String farmNameTest = "nonExistingFarmName";
-
-        // When
-        Boolean existsFarmByName = farmRepository.existsByFarmName(farmNameTest);
-
-        // Then
-        assertThat(existsFarmByName,is(false));
+        assertThat(existsFarmByName, is(true));
     }
 
     @Test
-	@DisplayName("Tests that all active farms are collected")
+    @DisplayName("Tests if non existing farm exists by name")
+    public void testDoesntFindNotExistingCode() {
+        // Given
+        String farmNameTest = "nonExistingFarmName";
+
+        // When
+        Boolean existsFarmByName = farmRepository.existsByFarmName(farmNameTest);
+
+        // Then
+        assertThat(existsFarmByName, is(false));
+    }
+
+    @Test
+    @DisplayName("Tests that all active farms are collected")
     public void testFindActiveFarms() {
         //given
         Long countActive = entityManager.getEntityManager()
-        .createQuery("SELECT COUNT(f) FROM Farm f WHERE f.isActive = true", Long.class)
-        .getSingleResult();
+                .createQuery("SELECT COUNT(f) FROM Farm f WHERE f.isActive = true", Long.class)
+                .getSingleResult();
 
         // when
         List<Farm> activeFarms = farmRepository.findByIsActiveTrue();
@@ -72,5 +73,5 @@ public class FarmRepositoryIT {
         assertThat(activeFarms, not(empty()));
         assertThat(countActive.intValue(), is(activeFarms.size()));
         assertThat(activeFarms, everyItem(hasProperty("isActive", is(true))));
-	}
+    }
 }
