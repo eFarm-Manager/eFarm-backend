@@ -3,13 +3,17 @@ package com.efarm.efarmbackend.service
 import com.efarm.efarmbackend.model.farm.ActivationCode
 import com.efarm.efarmbackend.model.farm.Farm
 import com.efarm.efarmbackend.model.user.User
+import com.efarm.efarmbackend.model.user.Role
+import com.efarm.efarmbackend.model.user.ERole
 import com.efarm.efarmbackend.repository.farm.ActivationCodeRepository
 import com.efarm.efarmbackend.repository.farm.FarmRepository
 import com.efarm.efarmbackend.repository.user.UserRepository
 import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.http.ResponseEntity
 import spock.lang.Specification
 import spock.lang.Subject
 import spock.lang.Unroll
+import java.net.URI;
 
 import java.time.LocalDate
 
@@ -23,14 +27,14 @@ class FarmServiceSpec extends Specification {
     FarmService farmService = new FarmService(
             farmRepository: farmRepository,
             activationCodeRepository: activationCodeRepository,
-            userRepository: userRepository
+            userRepository: userRepository,
+            frontendUriToUpdateActivationCode: "/updateActivationCode"
     )
 
     def setup() {
         SecurityContextHolder.clearContext()
     }
 
-    @Unroll
     def "should handle creation of farm owner"() {
         given:
         String farmName = "uniqueName"
@@ -46,7 +50,6 @@ class FarmServiceSpec extends Specification {
         newFarm.getIdActivationCode() == activationCodeId
     }
 
-    @Unroll
     def "should handle deactivation of expired activation codes"() {
         given:
         ActivationCode activationCode1 = Mock(ActivationCode)
@@ -84,7 +87,70 @@ class FarmServiceSpec extends Specification {
         farm2.getIsActive() >>> [true, false]
     }
 
-        def "should return users from farm" () {
+    def "should show that farm not active for owner"() {
+        given:
+        Role role_owner = Mock(Role)
+        role_owner.getName() >> ERole.ROLE_FARM_OWNER
+        Farm userFarm = Mock(Farm)
+        userFarm.getId() >> 1
+        userFarm.getIsActive() >>false
+
+        when:
+        ResponseEntity<?> response = farmService.checkFarmDeactivation(userFarm,role_owner)
+
+        then:
+        response.statusCodeValue == 403
+        response.getHeaders().getLocation() ==  URI.create("/updateActivationCode")
+        response.getBody().message == "Gospodarstwo jest nieaktywne. Podaj nowy kod aktywacyjny."
+    }
+
+    def "should show that farm not active for manager"() {
+        given:
+        Role role_manager = Mock(Role)
+        role_manager.getName() >> ERole.ROLE_FARM_MANAGER
+        Farm userFarm = Mock(Farm)
+        userFarm.getId() >> 1
+        userFarm.getIsActive() >>false
+
+        when:
+        ResponseEntity<?> response = farmService.checkFarmDeactivation(userFarm,role_manager)
+
+        then:
+        response.statusCodeValue == 403
+        response.getBody().message == "Gospodarstwo jest nieaktywne. Kod aktywacyjny wygasł."
+    }
+
+    def "should show that farm not active for operator"() {
+        given:
+        Role role_operator = Mock(Role)
+        role_operator.getName() >> ERole.ROLE_FARM_EQUIPMENT_OPERATOR
+        Farm userFarm = Mock(Farm)
+        userFarm.getId() >> 1
+        userFarm.getIsActive() >>false
+
+        when:
+        ResponseEntity<?> response = farmService.checkFarmDeactivation(userFarm,role_operator)
+
+        then:
+        response.statusCodeValue == 403
+        response.getBody().message == "Gospodarstwo jest nieaktywne. Kod aktywacyjny wygasł."
+    }
+    def "should not show inactive message because farm is active"() {
+        given:
+        Role role_owner = Mock(Role)
+        role_owner.getName() >> ERole.ROLE_FARM_OWNER
+        Farm userFarm = Mock(Farm)
+        userFarm.getId() >> 1
+        userFarm.getIsActive() >>true
+
+        when:
+        ResponseEntity<?> response = farmService.checkFarmDeactivation(userFarm,role_owner)
+
+        then:
+        response == null
+    }
+
+    def "should return users from farm" () {
         given:
         Farm farm1 = Mock(Farm)
         farm1.getId() >> 1

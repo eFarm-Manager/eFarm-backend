@@ -16,7 +16,7 @@ public class SignupRequest {
     private String lastName;
 
     @NotBlank
-    @Size(min = 3, max = 20)
+    @Size(min = 6, max = 30)
     private String username;
 
     @NotBlank
@@ -32,7 +32,7 @@ public class SignupRequest {
     @Size(min = 6, max = 40)
     private String password;
 
-    @Size(min = 6, max = 20)
+    @Size(max = 12)
     private String phoneNumber;
 
 }

@@ -13,9 +13,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -58,7 +62,6 @@ public class UserService {
                 encoder.encode(signUpRequest.getPassword()),
                 signUpRequest.getPhoneNumber());
 
-        //Set role for new User
         Role assignedRole = assignUserRole(signUpRequest.getRole());
         user.setRole(assignedRole);
 
@@ -84,6 +87,19 @@ public class UserService {
         }
     }
 
+    public Farm getUserFarmById(Long userId) {
+        User currentUser = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Error: User with ID " + userId + " not found."));
+
+        return currentUser.getFarm();
+    }
+
+    public List<String> getLoggedUserRoles(UserDetailsImpl userDetails) {
+        return userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
+    }
+
     private Role assignUserRole(String strRole) {
         return switch (strRole) {
             case "ROLE_FARM_OWNER" -> roleRepository.findByName(ERole.ROLE_FARM_OWNER)
@@ -94,6 +110,5 @@ public class UserService {
                     .orElseThrow(() -> new RuntimeException("Error: Role ROLE_FARM_EQUIPMENT_OPERATOR is not found."));
         };
     }
-
 }
 
