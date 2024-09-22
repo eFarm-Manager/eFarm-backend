@@ -21,11 +21,21 @@ public class UserInfoResponse {
     @Setter(AccessLevel.NONE)
     private List<String> roles;
 
+    private String expireCodeInfo;
+
     public UserInfoResponse(Integer id, String username, String email, List<String> roles) {
         this.id = id;
         this.username = username;
         this.email = email;
         this.roles = new ArrayList<>(roles);
+    }
+
+    public UserInfoResponse(Integer id, String username, String email, List<String> roles, String expireCodeInfo) {
+        this.id = id;
+        this.username = username;
+        this.email = email;
+        this.roles = new ArrayList<>(roles);
+        this.expireCodeInfo = expireCodeInfo;
     }
 
     public List<String> getRoles() {
