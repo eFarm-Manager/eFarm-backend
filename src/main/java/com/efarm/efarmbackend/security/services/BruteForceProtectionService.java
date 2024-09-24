@@ -13,7 +13,6 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class BruteForceProtectionService {
 
-    private final int MAX_ATTEMPTS = 5;
     private final long BLOCK_TIME = TimeUnit.MINUTES.toMillis(15);
 
     private static final Logger logger = LoggerFactory.getLogger(BruteForceProtectionService.class);
@@ -23,6 +22,7 @@ public class BruteForceProtectionService {
     public void loginFailed(String username) {
         LoginAttempt attempt = attempts.getOrDefault(username, new LoginAttempt());
         attempt.incrementAttempts();
+        int MAX_ATTEMPTS = 5;
         if (attempt.getAttempts() >= MAX_ATTEMPTS) {
             attempt.setBlocked(true);
             attempt.setBlockTime(System.currentTimeMillis());
