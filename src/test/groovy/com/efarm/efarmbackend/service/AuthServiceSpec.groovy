@@ -8,6 +8,7 @@ import com.efarm.efarmbackend.model.user.Role
 import com.efarm.efarmbackend.model.user.User
 import com.efarm.efarmbackend.payload.request.SignupFarmRequest
 import com.efarm.efarmbackend.payload.request.UpdateActivationCodeRequest
+import com.efarm.efarmbackend.security.services.BruteForceProtectionService;
 import com.efarm.efarmbackend.payload.request.SignupRequest
 import com.efarm.efarmbackend.payload.response.MessageResponse
 import com.efarm.efarmbackend.repository.farm.ActivationCodeRepository
@@ -33,9 +34,12 @@ import java.time.LocalDate
 class AuthServiceSpec extends Specification {
 
     def authenticationManager = Mock(AuthenticationManager)
+    def bruteForceProtectionService = Mock(BruteForceProtectionService)
+
     @Subject
     AuthService authService = new AuthService(
-            authenticationManager: authenticationManager
+            authenticationManager: authenticationManager,
+            bruteForceProtectionService: bruteForceProtectionService
     )
 
     def setup() {
@@ -48,6 +52,7 @@ class AuthServiceSpec extends Specification {
         UserDetailsImpl userDetails = Mock(UserDetailsImpl)
         userDetails.getAuthorities() >> [new SimpleGrantedAuthority("ROLE_FARM_MANAGER")]
         
+        bruteForceProtectionService.isBlocked(loginRequest.getUsername()) >> false
         UsernamePasswordAuthenticationToken authToken =
                 new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword());
 
@@ -72,21 +77,38 @@ class AuthServiceSpec extends Specification {
         Authentication authentication = Mock(Authentication)
         UserDetailsImpl userDetails = Mock(UserDetailsImpl)
 
+        bruteForceProtectionService.isBlocked(loginRequest.getUsername()) >> false
         authenticationManager.authenticate(_ as UsernamePasswordAuthenticationToken) >> { throw new BadCredentialsException("Bad credentials") }
 
         when:
         authService.authenticateUserByLoginRequest(loginRequest)
 
         then:
-        thrown(BadCredentialsException)
+        thrown(RuntimeException)
     }
-    //same function as login so idc really about anything here
+
+    def "should get too many attempts and block user"() {
+        given:
+        LoginRequest loginRequest = new LoginRequest(
+            username: "user",
+            password: "password"
+        )
+        bruteForceProtectionService.isBlocked(loginRequest.getUsername()) >> true
+
+        when:
+        authService.authenticateUserByLoginRequest(loginRequest)
+
+        then:
+        thrown(RuntimeException)
+    }
+
     def "authenticate user by update code request"() {
         given:
         UpdateActivationCodeRequest updateActivationCodeRequest = new UpdateActivationCodeRequest(username: "user", password: "password",newActivationCode: "newActivationCode")
         UserDetailsImpl userDetails = Mock(UserDetailsImpl)
         userDetails.getAuthorities() >> [new SimpleGrantedAuthority("ROLE_FARM_MANAGER")]
         
+        bruteForceProtectionService.isBlocked(updateActivationCodeRequest.getUsername()) >> false
         UsernamePasswordAuthenticationToken authToken =
                 new UsernamePasswordAuthenticationToken(updateActivationCodeRequest.getUsername(), updateActivationCodeRequest.getPassword());
 
@@ -99,5 +121,35 @@ class AuthServiceSpec extends Specification {
         then:
         result == userDetails
         SecurityContextHolder.getContext().getAuthentication() == authentication
+    }
+
+    def "wrong credentials when update code"() {
+        given:
+        UpdateActivationCodeRequest updateActivationCodeRequest = new UpdateActivationCodeRequest(username: "user", password: "password",newActivationCode: "newActivationCode")
+
+        Authentication authentication = Mock(Authentication)
+        UserDetailsImpl userDetails = Mock(UserDetailsImpl)
+
+        bruteForceProtectionService.isBlocked(updateActivationCodeRequest.getUsername()) >> false
+        authenticationManager.authenticate(_ as UsernamePasswordAuthenticationToken) >> { throw new BadCredentialsException("Bad credentials") }
+
+        when:
+        authService.authenticateUserByLoginRequest(updateActivationCodeRequest)
+
+        then:
+        thrown(RuntimeException)
+    }
+
+    def "should get too many attempts when update code and block user"() {
+        given:
+        UpdateActivationCodeRequest updateActivationCodeRequest = new UpdateActivationCodeRequest(username: "user", password: "password",newActivationCode: "newActivationCode")
+
+        bruteForceProtectionService.isBlocked(updateActivationCodeRequest.getUsername()) >> true
+
+        when:
+        authService.authenticateUserByLoginRequest(updateActivationCodeRequest)
+
+        then:
+        thrown(RuntimeException)
     }
 }
