@@ -167,7 +167,53 @@ public class AuthControllerIT {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
         // Then
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isUnauthorized())                
+                .andExpect(jsonPath("$.message").value("Nieprawidłowe dane logowania"));
+
+    }
+
+    @Test
+    @DisplayName("Test sign in too many attempts")
+    void testSigninInTooManyAttempts() throws Exception {
+        // Given
+        String usernameTest = "user2";
+        String passwordTest = "StrongPassword123";
+        String emailTest = "john.doe@gmail.com";
+        Role role = entityManager.find(Role.class, 2);
+        Farm farm = entityManager.find(Farm.class, 5);
+
+        User testUser = new User();
+        testUser.setUsername(usernameTest);
+        testUser.setFirstName("John");
+        testUser.setLastName("Doe");
+        testUser.setEmail(emailTest);
+        testUser.setPassword(passwordEncoder.encode("differentPass"));
+        testUser.setRole(role);
+        testUser.setPhoneNumber("123465798");
+        testUser.setFarm(farm);
+        testUser.setIsActive(true);
+
+        entityManager.merge(testUser);
+        entityManager.flush();
+
+        LoginRequest loginRequest = new LoginRequest();
+        loginRequest.setUsername(usernameTest);
+        loginRequest.setPassword(passwordTest);
+
+        for (int i = 0; i < 5; i++) {
+                mockMvc.perform(post("/api/auth/signin")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginRequest)))
+                        .andExpect(status().isUnauthorized());
+            }
+
+        // When
+        mockMvc.perform(post("/api/auth/signin")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginRequest)))
+        // Then
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message").value("Zbyt wiele nieudanych prób logowania. Spróbuj ponownie później."));
     }
 
     @Test
@@ -522,7 +568,7 @@ public class AuthControllerIT {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updateActivationCodeRequest)))
         // Then
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isBadRequest());
     }
     
     @Test
@@ -604,5 +650,55 @@ public class AuthControllerIT {
         // Then
                 .andExpect(status().isBadRequest())
                 .andExpect(content().json("{\"message\":\"Activation code does not exist.\"}"));
+    }
+
+    @Test
+    @DisplayName("Test code update too many attempts")
+    void testCodeUpdateInTooManyAttempts() throws Exception {
+        // Given
+        String usernameTest = "user3";
+        String passwordTest = "StrongPassword123";
+        String emailTest = "john.doe@gmail.com";
+        Role role = entityManager.find(Role.class, 2);
+        Farm farm = entityManager.find(Farm.class, 5);
+        ActivationCode activationCode = entityManager.createQuery(
+                "SELECT a FROM ActivationCode a WHERE a.isUsed = :used", ActivationCode.class)
+        .setParameter("used", false)
+        .setMaxResults(1)  // Ensures only one result is returned
+        .getSingleResult();
+
+        User testUser = new User();
+        testUser.setUsername(usernameTest);
+        testUser.setFirstName("John");
+        testUser.setLastName("Doe");
+        testUser.setEmail(emailTest);
+        testUser.setPassword(passwordEncoder.encode("differentPass"));
+        testUser.setRole(role);
+        testUser.setPhoneNumber("123465798");
+        testUser.setFarm(farm);
+        testUser.setIsActive(true);
+
+        entityManager.merge(testUser);
+        entityManager.flush();
+
+        UpdateActivationCodeRequest updateActivationCodeRequest = new UpdateActivationCodeRequest();
+        updateActivationCodeRequest.setUsername(usernameTest);
+        updateActivationCodeRequest.setPassword(passwordTest);
+        updateActivationCodeRequest.setNewActivationCode(activationCode.getCode());
+
+        for (int i = 0; i < 5; i++) {
+                mockMvc.perform(post("/api/auth/update-activation-code")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateActivationCodeRequest)))
+                        .andExpect(status().isBadRequest());
+            }
+
+        // When
+        mockMvc.perform(post("/api/auth/update-activation-code")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateActivationCodeRequest)))
+        // Then
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Zbyt wiele nieudanych prób. Spróbuj ponownie później."));
     }
 }
