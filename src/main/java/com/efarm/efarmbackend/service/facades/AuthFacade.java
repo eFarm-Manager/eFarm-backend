@@ -16,6 +16,7 @@ import com.efarm.efarmbackend.repository.farm.AddressRepository;
 import com.efarm.efarmbackend.repository.farm.FarmRepository;
 import com.efarm.efarmbackend.repository.user.UserRepository;
 import com.efarm.efarmbackend.security.jwt.JwtUtils;
+import com.efarm.efarmbackend.security.services.BruteForceProtectionService;
 import com.efarm.efarmbackend.security.services.UserDetailsImpl;
 import com.efarm.efarmbackend.service.ActivationCodeService;
 import com.efarm.efarmbackend.service.AuthService;
@@ -75,34 +76,37 @@ public class AuthFacade {
     public ResponseEntity<?> authenticateUser(LoginRequest loginRequest) {
 
         logger.info("Received signin request from user: {}", loginRequest.getUsername());
+        try {
+            UserDetailsImpl userDetails = authService.authenticateUserByLoginRequest(loginRequest);
+            List<String> roles = userService.getLoggedUserRoles(userDetails);
 
-        UserDetailsImpl userDetails = authService.authenticateUserByLoginRequest(loginRequest);
-        List<String> roles = userService.getLoggedUserRoles(userDetails);
+            Optional<User> loggingUser = userRepository.findById(Long.valueOf(userDetails.getId()));
+            if (loggingUser.isPresent() && !loggingUser.get().getIsActive()) {
+                return ResponseEntity.badRequest().body(new MessageResponse("User is inactive."));
+            }
 
-        Optional<User> loggingUser = userRepository.findById(Long.valueOf(userDetails.getId()));
-        if (loggingUser.isPresent() && !loggingUser.get().getIsActive()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("User is inactive."));
+            Farm userFarm = userService.getUserFarmById(Long.valueOf(userDetails.getId()));
+            Role role = loggingUser.get().getRole();
+
+            //Check farm deactivation status
+            ResponseEntity<?> checkFarmDeactivationResponse = farmService.checkFarmDeactivation(userFarm, role);
+            if (checkFarmDeactivationResponse != null) {
+                return checkFarmDeactivationResponse;
+            }
+
+            //Send resposne with expireCodeInfo
+            ResponseEntity<?> signinWithExpireCodeInfo = activationCodeService.signinWithExpireCodeInfo(userDetails, userFarm, roles);
+            if (signinWithExpireCodeInfo != null) {
+                return signinWithExpireCodeInfo;
+            }
+
+            // Standard response
+            return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, jwtUtils.generateJwtCookie(userDetails).toString())
+                    .body(new UserInfoResponse(userDetails.getId(), userDetails.getUsername(),
+                            userDetails.getEmail(), roles));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new MessageResponse(e.getMessage()));
         }
-
-        Farm userFarm = userService.getUserFarmById(Long.valueOf(userDetails.getId()));
-        Role role = loggingUser.get().getRole();
-
-        //Check farm deactivation status
-        ResponseEntity<?> checkFarmDeactivationResponse = farmService.checkFarmDeactivation(userFarm, role);
-        if (checkFarmDeactivationResponse != null) {
-            return checkFarmDeactivationResponse;
-        }
-
-        //Send resposne with expireCodeInfo
-        ResponseEntity<?> signinWithExpireCodeInfo = activationCodeService.signinWithExpireCodeInfo(userDetails, userFarm, roles);
-        if (signinWithExpireCodeInfo != null) {
-            return signinWithExpireCodeInfo;
-        }
-
-        // Standard response
-        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, jwtUtils.generateJwtCookie(userDetails).toString())
-                .body(new UserInfoResponse(userDetails.getId(), userDetails.getUsername(),
-                        userDetails.getEmail(), roles));
     }
 
     @Transactional
@@ -183,16 +187,20 @@ public class AuthFacade {
 
     @Transactional
     public ResponseEntity<?> updateActivationCode(UpdateActivationCodeRequest updateActivationCodeRequest) {
-        UserDetailsImpl userDetails = authService.authenticateUserByUpdateCodeRequest(updateActivationCodeRequest);
-        List<String> roles = userService.getLoggedUserRoles(userDetails);
+        try {
+            UserDetailsImpl userDetails = authService.authenticateUserByUpdateCodeRequest(updateActivationCodeRequest);
+            List<String> roles = userService.getLoggedUserRoles(userDetails);
 
-        if (roles.contains("ROLE_FARM_OWNER")) {
-            Farm userFarm = userService.getUserFarmById(Long.valueOf(userDetails.getId()));
-            return activationCodeService.updateActivationCodeForFarm(updateActivationCodeRequest.getNewActivationCode(), userFarm.getId());
-        } else {
-            return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body(new MessageResponse("Brak uprawnień"));
+            if (roles.contains("ROLE_FARM_OWNER")) {
+                Farm userFarm = userService.getUserFarmById(Long.valueOf(userDetails.getId()));
+                return activationCodeService.updateActivationCodeForFarm(updateActivationCodeRequest.getNewActivationCode(), userFarm.getId(), userDetails.getUsername());
+            } else {
+                return ResponseEntity
+                        .status(HttpStatus.UNAUTHORIZED)
+                        .body(new MessageResponse("Brak uprawnień"));
+            }
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
         }
     }
 }

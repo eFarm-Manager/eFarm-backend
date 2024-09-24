@@ -7,6 +7,7 @@ import com.efarm.efarmbackend.payload.response.UserInfoResponse;
 import com.efarm.efarmbackend.repository.farm.ActivationCodeRepository;
 import com.efarm.efarmbackend.repository.farm.FarmRepository;
 import com.efarm.efarmbackend.security.jwt.JwtUtils;
+import com.efarm.efarmbackend.security.services.BruteForceProtectionService;
 import com.efarm.efarmbackend.security.services.UserDetailsImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +36,9 @@ public class ActivationCodeService {
 
     @Autowired
     private JwtUtils jwtUtils;
+
+    @Autowired
+    private BruteForceProtectionService bruteForceProtectionService;
 
     @Value("${efarm.app.notification.daysToShowExpireActivationCode}")
     private int daysToShowExpireActivationCodeNotification;
@@ -98,13 +102,20 @@ public class ActivationCodeService {
                 .orElseThrow(() -> new RuntimeException("Activation code with ID " + activationCodeId + " not found."));
     }
 
-    public ResponseEntity<MessageResponse> updateActivationCodeForFarm(String newActivationCode, Integer farmId) {
+    public ResponseEntity<MessageResponse> updateActivationCodeForFarm(String newActivationCode, Integer farmId, String username) {
+
+        if (bruteForceProtectionService.isBlocked(username)) {
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                    .body(new MessageResponse("Too many failed attempts. Please try again later."));
+        }
 
         ResponseEntity<MessageResponse> validationResponse = validateActivationCode(newActivationCode);
         if (validationResponse.getStatusCode() != HttpStatus.OK) {
+            bruteForceProtectionService.loginFailed(username);
             return validationResponse;
         }
 
+        bruteForceProtectionService.loginSucceeded(username);
         Optional<ActivationCode> activationCodeOpt = activationCodeRepository.findByCode(newActivationCode);
         ActivationCode newActivationCodeEntity = activationCodeOpt.get();
 
