@@ -16,7 +16,6 @@ import com.efarm.efarmbackend.repository.farm.AddressRepository;
 import com.efarm.efarmbackend.repository.farm.FarmRepository;
 import com.efarm.efarmbackend.repository.user.UserRepository;
 import com.efarm.efarmbackend.security.jwt.JwtUtils;
-import com.efarm.efarmbackend.security.services.BruteForceProtectionService;
 import com.efarm.efarmbackend.security.services.UserDetailsImpl;
 import com.efarm.efarmbackend.service.ActivationCodeService;
 import com.efarm.efarmbackend.service.AuthService;
