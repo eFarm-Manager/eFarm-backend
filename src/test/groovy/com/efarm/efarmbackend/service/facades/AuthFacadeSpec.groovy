@@ -166,13 +166,15 @@ class AuthFacadeSpec extends Specification {
         given:
         LoginRequest loginRequest = new LoginRequest(username: "wrongUser", password: "wrongPassword")
         
-        authService.authenticateUserByLoginRequest(loginRequest) >> { throw new BadCredentialsException("Invalid credentials") }
+        authService.authenticateUserByLoginRequest(loginRequest) >> { throw new RuntimeException("Nieprawidłowe dane logowania") }
 
         when:
-        authFacade.authenticateUser(loginRequest)
+        ResponseEntity<?> response = authFacade.authenticateUser(loginRequest)
 
         then:
-        thrown(BadCredentialsException)
+        response.statusCodeValue == 401
+        response.body.message == "Nieprawidłowe dane logowania"
+        
     }
 
     def "should return FORBIDDEN if farm is inactive"() {
@@ -532,7 +534,6 @@ class AuthFacadeSpec extends Specification {
         response.body.message == "Activation code does not exist."
     }
 
-
     def "should return bad request when activation code is used"() {
         given:
         SignupFarmRequest signUpFarmRequest = new SignupFarmRequest(
@@ -616,6 +617,7 @@ class AuthFacadeSpec extends Specification {
         List<String> roles = ["ROLE_FARM_OWNER"]
         UserDetailsImpl userDetails = Mock(UserDetailsImpl)
         userDetails.getId() >> 1
+        userDetails.getUsername() >> updateActivationCodeRequest.getUsername()
         Farm farm = Mock(Farm)
         farm.getId() >> 1
 
@@ -623,7 +625,7 @@ class AuthFacadeSpec extends Specification {
         authService.authenticateUserByUpdateCodeRequest(updateActivationCodeRequest) >> userDetails
         userService.getLoggedUserRoles(userDetails) >> roles
         userService.getUserFarmById(Long.valueOf(userDetails.getId())) >> farm
-        activationCodeService.updateActivationCodeForFarm(updateActivationCodeRequest.getNewActivationCode(), farm.getId()) >> ResponseEntity
+        activationCodeService.updateActivationCodeForFarm(updateActivationCodeRequest.getNewActivationCode(), farm.getId(),userDetails.getUsername()) >> ResponseEntity
                 .status(HttpStatus.OK)
                 .location(URI.create("/"))
                 .body(new MessageResponse("Activation code updated successfully for the farm."))
@@ -669,22 +671,23 @@ class AuthFacadeSpec extends Specification {
         List<String> roles = ["ROLE_FARM_OWNER"]
         UserDetailsImpl userDetails = Mock(UserDetailsImpl)
         userDetails.getId() >> 1
+        userDetails.getUsername() >> updateActivationCodeRequest.getUsername()
         Farm farm = Mock(Farm)
         farm.getId() >> 1
 
         authService.authenticateUserByUpdateCodeRequest(updateActivationCodeRequest) >> userDetails
         userService.getLoggedUserRoles(userDetails) >> roles
         userService.getUserFarmById(Long.valueOf(userDetails.getId())) >> farm
-        activationCodeService.updateActivationCodeForFarm(updateActivationCodeRequest.getNewActivationCode(), farm.getId()) >> ResponseEntity
+        activationCodeService.updateActivationCodeForFarm(updateActivationCodeRequest.getNewActivationCode(), farm.getId(),userDetails.getUsername()) >> ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(new MessageResponse("Invalid activation code."))
+                .body(new MessageResponse("Activation code does not exist."))
 
         when:
         ResponseEntity<?> response = authFacade.updateActivationCode(updateActivationCodeRequest)
 
         then:
         response.statusCodeValue == 400
-        response.getBody().message == "Invalid activation code."
+        response.getBody().message == "Activation code does not exist."
     }
 
 
