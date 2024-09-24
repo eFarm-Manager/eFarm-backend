@@ -4,4 +4,14 @@
         <Class name="com.efarm.efarmbackend.model.user.User" />
         <Bug code="EI,EI2" />
     </Match>
+    <Match>
+        <Class name="com.efarm.efarmbackend.service.AuthService"/>
+        <Method name="authenticateUserByLoginRequest"/>
+        <Bug pattern="REC"/>
+    </Match>
+    <Match>
+        <Class name="com.efarm.efarmbackend.service.AuthService"/>
+        <Method name="authenticateUserByUpdateCodeRequest"/>
+        <Bug pattern="REC"/>
+    </Match>
 </FindBugsFilter>
