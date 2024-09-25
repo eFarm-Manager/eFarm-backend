@@ -34,4 +34,14 @@ public class AuthService {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         return (UserDetailsImpl) authentication.getPrincipal();
     }
+
+    public boolean hasCurrentUserRole(String roleName) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || authentication.getAuthorities() == null) {
+            return false;
+        }
+
+        return authentication.getAuthorities().stream()
+                .anyMatch(role -> role.getAuthority().equals(roleName));
+    }
 }
