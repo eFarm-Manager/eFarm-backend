@@ -5,6 +5,7 @@ import com.efarm.efarmbackend.model.farm.Farm;
 import com.efarm.efarmbackend.model.user.ERole;
 import com.efarm.efarmbackend.model.user.Role;
 import com.efarm.efarmbackend.model.user.User;
+import com.efarm.efarmbackend.payload.request.UpdateFarmDetailsRequest;
 import com.efarm.efarmbackend.payload.response.MessageResponse;
 import com.efarm.efarmbackend.repository.farm.ActivationCodeRepository;
 import com.efarm.efarmbackend.repository.farm.FarmRepository;
@@ -80,6 +81,23 @@ public class FarmService {
             }
         }
         return null;
+    }
+
+    public void updateFarmDetails(Farm loggedUserFarm , UpdateFarmDetailsRequest updateFarmDetailsRequest) {
+        if (updateFarmDetailsRequest.getFarmName() != null) {
+            loggedUserFarm.setFarmName(updateFarmDetailsRequest.getFarmName());
+        }
+        if (updateFarmDetailsRequest.getFarmNumber() != null) {
+            loggedUserFarm.setFarmNumber(updateFarmDetailsRequest.getFarmNumber());
+        }
+        if (updateFarmDetailsRequest.getFeedNumber() != null) {
+            loggedUserFarm.setFeedNumber(updateFarmDetailsRequest.getFeedNumber());
+        }
+        if (updateFarmDetailsRequest.getSanitaryRegisterNumber() != null) {
+            loggedUserFarm.setSanitaryRegisterNumber(updateFarmDetailsRequest.getSanitaryRegisterNumber());
+        }
+
+        farmRepository.save(loggedUserFarm);
     }
 
     public List<User> getUsersByFarmId(Integer farmId) {

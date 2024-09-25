@@ -6,10 +6,14 @@ import com.efarm.efarmbackend.model.farm.Farm;
 import com.efarm.efarmbackend.model.farm.FarmDTO;
 import com.efarm.efarmbackend.model.user.User;
 import com.efarm.efarmbackend.model.user.UserDTO;
+import com.efarm.efarmbackend.payload.request.UpdateFarmDetailsRequest;
+import com.efarm.efarmbackend.payload.response.MessageResponse;
 import com.efarm.efarmbackend.service.*;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BindingResult;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -68,5 +72,24 @@ public class FarmFacade {
                 expireDate);
 
         return ResponseEntity.ok(farmDetails);
+    }
+
+    @Transactional
+    public ResponseEntity<?> updateFarmDetails(UpdateFarmDetailsRequest updateFarmDetailsRequest, BindingResult bindingResult) {
+
+        if (bindingResult.hasErrors()) {
+            List<String> errorMessages = bindingResult.getFieldErrors().stream()
+                    .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                    .collect(Collectors.toList());
+            return ResponseEntity.badRequest().body(new MessageResponse(String.join(", ", errorMessages)));
+        }
+
+        Farm loggedUserFarm = userService.getLoggedUserFarm();
+        farmService.updateFarmDetails(loggedUserFarm, updateFarmDetailsRequest);
+
+        Address address = addressService.findAddressById(loggedUserFarm.getIdAddress());
+        addressService.updateFarmAddress(address, updateFarmDetailsRequest);
+
+        return ResponseEntity.ok(new MessageResponse("Poprawnie zaktualizowamo dane gospodarstwa"));
     }
 }
