@@ -61,4 +61,14 @@ public class AuthService {
             throw new RuntimeException("Nieprawidłowe dane logowania");
         }
     }
+
+    public boolean hasCurrentUserRole(String roleName) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || authentication.getAuthorities() == null) {
+            return false;
+        }
+
+        return authentication.getAuthorities().stream()
+                .anyMatch(role -> role.getAuthority().equals(roleName));
+    }
 }
