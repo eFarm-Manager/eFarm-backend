@@ -6,6 +6,7 @@ import com.efarm.efarmbackend.model.user.User
 import com.efarm.efarmbackend.model.user.Role
 import com.efarm.efarmbackend.model.user.ERole
 import com.efarm.efarmbackend.repository.farm.ActivationCodeRepository
+import com.efarm.efarmbackend.payload.request.UpdateFarmDetailsRequest;
 import com.efarm.efarmbackend.repository.farm.FarmRepository
 import com.efarm.efarmbackend.repository.user.UserRepository
 import org.springframework.security.core.context.SecurityContextHolder
@@ -148,6 +149,32 @@ class FarmServiceSpec extends Specification {
 
         then:
         response == null
+    }
+
+    def "should update farm details - name, farm number and sanitary register number"() {
+        given:
+        Farm farm = new Farm()
+        farm.setId(1)
+        farm.setFarmName("Old Farm") 
+        farm.setFarmNumber("123") 
+        farm.setFeedNumber("456") 
+        farm.setSanitaryRegisterNumber("987") 
+        UpdateFarmDetailsRequest updateFarmDetailsRequest = new UpdateFarmDetailsRequest(
+            farmName: "New Farm", 
+            farmNumber: "202", 
+            feedNumber: "456", 
+            sanitaryRegisterNumber: "101"
+        )
+
+        when:
+        farmService.updateFarmDetails(farm,updateFarmDetailsRequest)
+
+        then:
+        1 * farmRepository.save(farm)
+        farm.getFarmName() == "New Farm"
+        farm.getFarmNumber() == "202"
+        farm.getFeedNumber() == "456"
+        farm.getSanitaryRegisterNumber() == "101"
     }
 
     def "should return users from farm" () {

@@ -273,6 +273,32 @@ class ActivationCodeServiceSpec extends Specification {
         thrown(RuntimeException)
     }
 
+    def "shpuld find activation code by id"() {
+        given:
+        ActivationCode activationCode = Mock(ActivationCode)
+        activationCode.getId() >> 1
+
+        activationCodeRepository.findById(1) >> Optional.of(activationCode)
+
+        when:
+        ActivationCode foundActCode = activationCodeService.findActivationCodeById(1)
+
+        then:
+        foundActCode == activationCode
+
+    }
+
+    def "should not find activation code with runtime exception"() {
+        given:
+        activationCodeRepository.findById(1) >> Optional.empty()
+
+        when:
+        ActivationCode foundActCode = activationCodeService.findActivationCodeById(1)
+
+        then:
+        thrown(RuntimeException)
+    }
+
     def "should update activation code for farm"() {
         given:
         String newActivationCode = "newCode"
