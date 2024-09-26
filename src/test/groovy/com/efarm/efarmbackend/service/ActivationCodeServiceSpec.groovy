@@ -10,6 +10,7 @@ import com.efarm.efarmbackend.repository.farm.ActivationCodeRepository
 import com.efarm.efarmbackend.repository.farm.FarmRepository
 import com.efarm.efarmbackend.security.jwt.JwtUtils
 import com.efarm.efarmbackend.security.services.UserDetailsImpl
+import com.efarm.efarmbackend.security.services.BruteForceProtectionService;
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.http.HttpStatus
@@ -26,12 +27,14 @@ class ActivationCodeServiceSpec extends Specification {
     def activationCodeRepository = Mock(ActivationCodeRepository)
     def farmRepository = Mock(FarmRepository)
     def jwtUtils = Mock(JwtUtils)
+    def bruteForceProtectionService = Mock(BruteForceProtectionService)
 
     @Subject
     ActivationCodeService activationCodeService = new ActivationCodeService(
             activationCodeRepository: activationCodeRepository,
             farmRepository: farmRepository,
             jwtUtils: jwtUtils,
+            bruteForceProtectionService: bruteForceProtectionService,
             daysToShowExpireActivationCodeNotification: 14,
     )
 
@@ -284,13 +287,16 @@ class ActivationCodeServiceSpec extends Specification {
         Farm farm = Mock(Farm)
         farm.getId() >> 1
         farm.getIdActivationCode() >> currentCode.getId()
+        String username = "testUsername"
 
+        bruteForceProtectionService.isBlocked(username) >> false
         activationCodeRepository.findByCode(newActivationCode) >> Optional.of(newActivationCodeEntity)
+        bruteForceProtectionService.loginSucceeded(username) >> {}
         farmRepository.findById(farm.getId()) >> Optional.of(farm)
         activationCodeRepository.findById(farm.getIdActivationCode()) >> Optional.of(currentCode)
 
         when:
-        ResponseEntity<MessageResponse> response = activationCodeService.updateActivationCodeForFarm(newActivationCode,farm.getId())
+        ResponseEntity<MessageResponse> response = activationCodeService.updateActivationCodeForFarm(newActivationCode,farm.getId(),username)
 
         then:
         1 * activationCodeRepository.delete(currentCode)
@@ -307,16 +313,32 @@ class ActivationCodeServiceSpec extends Specification {
         newActivationCodeEntity.getCode() >> newActivationCode
         newActivationCodeEntity.getExpireDate() >> LocalDate.now().plusDays(1)
         newActivationCodeEntity.getIsUsed() >> true
-        
+        String username = "testUsername"
 
+        bruteForceProtectionService.isBlocked(username) >> false
         activationCodeRepository.findByCode(newActivationCode) >> Optional.of(newActivationCodeEntity)
 
         when:
-        ResponseEntity<MessageResponse> response = activationCodeService.updateActivationCodeForFarm(newActivationCode,1)
+        ResponseEntity<MessageResponse> response = activationCodeService.updateActivationCodeForFarm(newActivationCode,1,username)
 
         then:
         response.getStatusCode() == HttpStatus.BAD_REQUEST
         response.getBody().message.contains("Activation code has already been used.")
+    }
+
+    def "should block user for too many attempts"() {
+        given:
+        String newActivationCode = "newCode"
+        String username = "testUsername"
+
+        bruteForceProtectionService.isBlocked(username) >> true
+
+        when:
+        ResponseEntity<MessageResponse> response = activationCodeService.updateActivationCodeForFarm(newActivationCode,1,username)
+
+        then:
+        response.statusCodeValue == 429
+        response.body.message == "Too many failed attempts. Please try again later."
     }
 
 }
