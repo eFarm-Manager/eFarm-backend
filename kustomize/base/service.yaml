@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: efarm-backend-svc
+  namespace: backend
+  labels:
+    app: efarm-backend
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: 8080
+  selector:
+    app: efarm-backend

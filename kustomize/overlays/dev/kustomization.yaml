@@ -1,0 +1,13 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - sealed-secret.yaml
+  - ../../base 
+
+namespace: backend
+
+images:
+  - name: sprysio/efarm-backend
+    newName: sprysio/efarm-backend
+    newTag: develop-664c1aa7dc3d7121bc003b2720176c156156f505
