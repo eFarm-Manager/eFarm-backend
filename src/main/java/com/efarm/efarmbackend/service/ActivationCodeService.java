@@ -101,6 +101,11 @@ public class ActivationCodeService {
                 .orElseThrow(() -> new RuntimeException("Activation code with ID " + activationCodeId + " not found."));
     }
 
+    public ActivationCode findActivationCodeById(Integer codeId) {
+        return activationCodeRepository.findById(codeId)
+                .orElseThrow(() -> new RuntimeException("Activation code not found for id: " + codeId));
+    }
+
     public ResponseEntity<MessageResponse> updateActivationCodeForFarm(String newActivationCode, Integer farmId, String username) {
 
         if (bruteForceProtectionService.isBlocked(username)) {
