@@ -152,4 +152,77 @@ class AuthServiceSpec extends Specification {
         then:
         thrown(RuntimeException)
     }
+
+    def "should correctly assume owner role"() {
+        given:
+        UserDetailsImpl userDetails = Mock(UserDetailsImpl)
+        userDetails.getAuthorities() >> [new SimpleGrantedAuthority("ROLE_FARM_OWNER")]
+        
+        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication) 
+
+        when:
+        boolean result = authService.hasCurrentUserRole("ROLE_FARM_OWNER")
+
+        then:
+        result == true
+    }    
+
+    def "should correctly assume manager role"() {
+        given:
+        UserDetailsImpl userDetails = Mock(UserDetailsImpl)
+        userDetails.getAuthorities() >> [new SimpleGrantedAuthority("ROLE_FARM_MANAGER")]
+        
+        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication) 
+
+        when:
+        boolean result = authService.hasCurrentUserRole("ROLE_FARM_MANAGER")
+
+        then:
+        result == true
+    }
+
+    def "should correctly assume operator role"() {
+        given:
+        UserDetailsImpl userDetails = Mock(UserDetailsImpl)
+        userDetails.getAuthorities() >> [new SimpleGrantedAuthority("ROLE_FARM_EQUIPMENT_OPERATOR")]
+        
+        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication) 
+
+        when:
+        boolean result = authService.hasCurrentUserRole("ROLE_FARM_EQUIPMENT_OPERATOR")
+
+        then:
+        result == true
+    }
+
+    def "should correctly assume not same role"() {
+        given:
+        UserDetailsImpl userDetails = Mock(UserDetailsImpl)
+        userDetails.getAuthorities() >> [new SimpleGrantedAuthority("ROLE_FARM_MANAGER")]
+        
+        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication) 
+
+        when:
+        boolean result = authService.hasCurrentUserRole("ROLE_FARM_OWNER")
+
+        then:
+        result == false
+    }
+
+    def "should correctly assume role with null authentication"() {
+        given:
+        SecurityContextHolder.getContext().setAuthentication(null) 
+
+        when:
+        boolean result = authService.hasCurrentUserRole("ROLE_FARM_OWNER")
+
+        then:
+        result == false
+    }
+
+
 }
