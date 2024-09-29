@@ -57,4 +57,13 @@ public class FarmEquipment {
 
     @Column(name = "dataWaznosciPrzegladu")
     private LocalDate inspectionExpireDate;
+
+    public FarmEquipmentId getId() {
+        return new FarmEquipmentId(id.getId(), id.getFarmId());
+    }
+
+    public void setFarmIdFarm(Farm farm) {
+        this.farmIdFarm = farm;
+        this.id.setFarmId(farm != null ? farm.getId() : null);
+    }
 }
