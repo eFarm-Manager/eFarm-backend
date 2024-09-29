@@ -19,10 +19,19 @@ public class FarmEquipmentFacade {
     @Autowired
     private UserService userService;
 
-    public List<FarmEquipmentDTO> getFarmEquipment() {
+    public List<FarmEquipmentDTO> getFarmEquipment(String searchQuery, Boolean onlyAvailable) {
+        boolean filterOnlyAvailable = (onlyAvailable != null && onlyAvailable);
         List<FarmEquipment> equipmentList = farmEquipmentRepository.findByFarmIdFarm_Id(userService.getLoggedUserFarm().getId());
 
         return equipmentList.stream()
+                .filter(equipment ->
+                        (searchQuery == null || searchQuery.isBlank() ||
+                                equipment.getEquipmentName().toLowerCase().contains(searchQuery.toLowerCase()) ||
+                                equipment.getBrand().toLowerCase().contains(searchQuery.toLowerCase()) ||
+                                equipment.getCategory().getCategoryName().toLowerCase().contains(searchQuery.toLowerCase())
+                        ) &&
+                                (!filterOnlyAvailable || equipment.getIsAvailable())
+                )
                 .map(equipment -> new FarmEquipmentDTO(
                         equipment.getEquipmentName(),
                         equipment.getCategory().getCategoryName(),

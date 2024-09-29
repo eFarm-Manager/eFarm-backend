@@ -38,7 +38,7 @@ public class FarmEquipment {
 
     @Size(max = 45)
     @Column(name = "marka", length = 45)
-    private String Brand;
+    private String brand;
 
     @Column(name = "moc")
     private Integer power;
