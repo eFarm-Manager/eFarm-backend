@@ -12,6 +12,8 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FarmEquipmentDTO {
+    private Integer equipmentId;
+    private Integer farmId;
     private String equipmentName;
     private String category;
     private Boolean isAvailable;

@@ -25,8 +25,7 @@ public class FarmEquipmentFacade {
         List<FarmEquipment> equipmentList = farmEquipmentRepository.findByFarmIdFarm_Id(userService.getLoggedUserFarm().getId());
 
         return equipmentList.stream()
-                .filter(equipment ->
-                        (searchQuery == null || searchQuery.isBlank() ||
+                .filter(equipment -> (searchQuery == null || searchQuery.isBlank() ||
                                 equipment.getEquipmentName().toLowerCase(Locale.ROOT).contains(searchQuery.toLowerCase(Locale.ROOT)) ||
                                 equipment.getBrand().toLowerCase(Locale.ROOT).contains(searchQuery.toLowerCase(Locale.ROOT)) ||
                                 equipment.getCategory().getCategoryName().toLowerCase(Locale.ROOT).contains(searchQuery.toLowerCase(Locale.ROOT))
@@ -34,6 +33,8 @@ public class FarmEquipmentFacade {
                                 (!filterOnlyAvailable || equipment.getIsAvailable())
                 )
                 .map(equipment -> new FarmEquipmentDTO(
+                        equipment.getId().getId(),
+                        equipment.getId().getFarmId(),
                         equipment.getEquipmentName(),
                         equipment.getCategory().getCategoryName(),
                         equipment.getIsAvailable(),
@@ -43,7 +44,8 @@ public class FarmEquipmentFacade {
                         equipment.getWorkingWidth(),
                         equipment.getInsurancePolicyNumber(),
                         equipment.getInsuranceExpirationDate(),
-                        equipment.getInspectionExpireDate()))
+                        equipment.getInspectionExpireDate()
+                ))
                 .collect(Collectors.toList());
     }
 }
