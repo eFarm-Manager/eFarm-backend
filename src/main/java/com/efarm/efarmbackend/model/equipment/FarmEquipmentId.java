@@ -26,9 +26,9 @@ public class FarmEquipmentId implements java.io.Serializable {
     @Column(name = "Gospodarstwo_idGospodarstwo", nullable = false)
     private Integer farmId;
 
-    public FarmEquipmentId(Integer id, Integer farmId) {
-        this.id = id;
-        this.farmId = farmId;
+    public FarmEquipmentId(FarmEquipmentId other) {
+        this.id = other.id;
+        this.farmId = other.farmId;
     }
 
     @Override
@@ -43,5 +43,4 @@ public class FarmEquipmentId implements java.io.Serializable {
     public int hashCode() {
         return Objects.hash(id, farmId);
     }
-
 }

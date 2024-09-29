@@ -59,11 +59,18 @@ public class FarmEquipment {
     private LocalDate inspectionExpireDate;
 
     public FarmEquipmentId getId() {
-        return new FarmEquipmentId(id.getId(), id.getFarmId());
+        return id != null ? new FarmEquipmentId(id) : null;
     }
 
-    public void setFarmIdFarm(Farm farm) {
-        this.farmIdFarm = farm;
-        this.id.setFarmId(farm != null ? farm.getId() : null);
+    public void setId(FarmEquipmentId id) {
+        this.id = id != null ? new FarmEquipmentId(id) : null;
+    }
+
+    public Farm getFarmIdFarm() {
+        return farmIdFarm != null ? new Farm(farmIdFarm) : null;
+    }
+
+    public void setFarmIdFarm(Farm farmIdFarm) {
+        this.farmIdFarm = farmIdFarm != null ? new Farm(farmIdFarm) : null;
     }
 }

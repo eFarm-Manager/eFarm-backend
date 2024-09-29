@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,9 +27,9 @@ public class FarmEquipmentFacade {
         return equipmentList.stream()
                 .filter(equipment ->
                         (searchQuery == null || searchQuery.isBlank() ||
-                                equipment.getEquipmentName().toLowerCase().contains(searchQuery.toLowerCase()) ||
-                                equipment.getBrand().toLowerCase().contains(searchQuery.toLowerCase()) ||
-                                equipment.getCategory().getCategoryName().toLowerCase().contains(searchQuery.toLowerCase())
+                                equipment.getEquipmentName().toLowerCase(Locale.ROOT).contains(searchQuery.toLowerCase(Locale.ROOT)) ||
+                                equipment.getBrand().toLowerCase(Locale.ROOT).contains(searchQuery.toLowerCase(Locale.ROOT)) ||
+                                equipment.getCategory().getCategoryName().toLowerCase(Locale.ROOT).contains(searchQuery.toLowerCase(Locale.ROOT))
                         ) &&
                                 (!filterOnlyAvailable || equipment.getIsAvailable())
                 )
