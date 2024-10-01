@@ -31,6 +31,11 @@ public class FarmEquipmentId implements java.io.Serializable {
         this.farmId = other.farmId;
     }
 
+    public FarmEquipmentId(Integer id, Integer farmId) {
+        this.id = id;
+        this.farmId = farmId;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

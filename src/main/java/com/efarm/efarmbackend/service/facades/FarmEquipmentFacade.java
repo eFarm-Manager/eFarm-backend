@@ -2,9 +2,17 @@ package com.efarm.efarmbackend.service.facades;
 
 import com.efarm.efarmbackend.model.equipment.FarmEquipment;
 import com.efarm.efarmbackend.model.equipment.FarmEquipmentDTO;
+import com.efarm.efarmbackend.model.equipment.FarmEquipmentId;
+import com.efarm.efarmbackend.model.farm.Farm;
+import com.efarm.efarmbackend.payload.response.MessageResponse;
 import com.efarm.efarmbackend.repository.equipment.FarmEquipmentRepository;
+import com.efarm.efarmbackend.service.FarmEquipmentDataService;
+import com.efarm.efarmbackend.service.FarmEquipmentService;
 import com.efarm.efarmbackend.service.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,32 +28,51 @@ public class FarmEquipmentFacade {
     @Autowired
     private UserService userService;
 
-    public List<FarmEquipmentDTO> getFarmEquipment(String searchQuery, Boolean onlyAvailable) {
-        boolean filterOnlyAvailable = (onlyAvailable != null && onlyAvailable);
+    @Autowired
+    private FarmEquipmentDataService farmEquipmentDataService;
+
+    @Autowired
+    FarmEquipmentService farmEquipmentService;
+
+    private static final Logger logger = LoggerFactory.getLogger(FarmEquipmentFacade.class);
+
+    public ResponseEntity<List<FarmEquipmentDTO>> getFarmEquipment(String searchQuery) {
         List<FarmEquipment> equipmentList = farmEquipmentRepository.findByFarmIdFarm_Id(userService.getLoggedUserFarm().getId());
 
-        return equipmentList.stream()
+        return ResponseEntity.ok(equipmentList.stream()
                 .filter(equipment -> (searchQuery == null || searchQuery.isBlank() ||
                                 equipment.getEquipmentName().toLowerCase(Locale.ROOT).contains(searchQuery.toLowerCase(Locale.ROOT)) ||
                                 equipment.getBrand().toLowerCase(Locale.ROOT).contains(searchQuery.toLowerCase(Locale.ROOT)) ||
                                 equipment.getCategory().getCategoryName().toLowerCase(Locale.ROOT).contains(searchQuery.toLowerCase(Locale.ROOT))
-                        ) &&
-                                (!filterOnlyAvailable || equipment.getIsAvailable())
+                        ) && (equipment.getIsAvailable())
                 )
                 .map(equipment -> new FarmEquipmentDTO(
                         equipment.getId().getId(),
-                        equipment.getId().getFarmId(),
                         equipment.getEquipmentName(),
                         equipment.getCategory().getCategoryName(),
-                        equipment.getIsAvailable(),
                         equipment.getBrand(),
-                        equipment.getPower(),
-                        equipment.getCapacity(),
-                        equipment.getWorkingWidth(),
-                        equipment.getInsurancePolicyNumber(),
-                        equipment.getInsuranceExpirationDate(),
-                        equipment.getInspectionExpireDate()
+                        equipment.getModel()
                 ))
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()));
     }
+
+    public ResponseEntity<?> getEquipmentDetails(Integer equipmentId) {
+        Farm currentUserFarm = userService.getLoggedUserFarm();
+        FarmEquipmentId farmEquipmentId = new FarmEquipmentId(equipmentId, currentUserFarm.getId());
+        try {
+            FarmEquipment equipment = farmEquipmentRepository.findById(farmEquipmentId)
+                    .orElseThrow(() -> new RuntimeException("Nie znaleziono maszyny o id: " + farmEquipmentId.getId()));
+
+            List<String> fieldsToDisplay = farmEquipmentDataService.getFieldsForCategory(equipment.getCategory().getCategoryName());
+            FarmEquipmentDTO equipmentDetailDTO = FarmEquipmentService.createFarmEquipmentDTOtoDisplay(equipment, fieldsToDisplay);
+
+            return ResponseEntity.ok(equipmentDetailDTO);
+        } catch (RuntimeException e) {
+            logger.info("Equipment with id: {}, not found for farm with id: {}",equipmentId, farmEquipmentId.getFarmId());
+            return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
+        }
+    }
+
+
 }
+

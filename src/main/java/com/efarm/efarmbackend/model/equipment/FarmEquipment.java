@@ -40,6 +40,10 @@ public class FarmEquipment {
     @Column(name = "marka", length = 45)
     private String brand;
 
+    @Size(max = 45)
+    @Column(name = "model", length = 45)
+    private String model;
+
     @Column(name = "moc")
     private Integer power;
 
