@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Service
-public class FarmEquipmentDataService {
+public class EquipmentDisplayDataService {
 
     public List<String> getFieldsForCategory(String categoryName) {
         return switch (categoryName) {

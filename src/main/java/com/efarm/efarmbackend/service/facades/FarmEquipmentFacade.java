@@ -6,7 +6,7 @@ import com.efarm.efarmbackend.model.equipment.FarmEquipmentId;
 import com.efarm.efarmbackend.model.farm.Farm;
 import com.efarm.efarmbackend.payload.response.MessageResponse;
 import com.efarm.efarmbackend.repository.equipment.FarmEquipmentRepository;
-import com.efarm.efarmbackend.service.FarmEquipmentDataService;
+import com.efarm.efarmbackend.service.EquipmentDisplayDataService;
 import com.efarm.efarmbackend.service.FarmEquipmentService;
 import com.efarm.efarmbackend.service.UserService;
 import org.slf4j.Logger;
@@ -29,7 +29,7 @@ public class FarmEquipmentFacade {
     private UserService userService;
 
     @Autowired
-    private FarmEquipmentDataService farmEquipmentDataService;
+    private EquipmentDisplayDataService equipmentDisplayDataService;
 
     @Autowired
     FarmEquipmentService farmEquipmentService;
@@ -63,7 +63,7 @@ public class FarmEquipmentFacade {
             FarmEquipment equipment = farmEquipmentRepository.findById(farmEquipmentId)
                     .orElseThrow(() -> new RuntimeException("Nie znaleziono maszyny o id: " + farmEquipmentId.getId()));
 
-            List<String> fieldsToDisplay = farmEquipmentDataService.getFieldsForCategory(equipment.getCategory().getCategoryName());
+            List<String> fieldsToDisplay = equipmentDisplayDataService.getFieldsForCategory(equipment.getCategory().getCategoryName());
             FarmEquipmentDTO equipmentDetailDTO = FarmEquipmentService.createFarmEquipmentDTOtoDisplay(equipment, fieldsToDisplay);
 
             return ResponseEntity.ok(equipmentDetailDTO);
