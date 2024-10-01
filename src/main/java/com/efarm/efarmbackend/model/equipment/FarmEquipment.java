@@ -53,8 +53,8 @@ public class FarmEquipment {
     @Column(name = "szerokoscRobocza")
     private Double workingWidth;
 
-    @Column(name = "numerPolisy", columnDefinition = "int UNSIGNED")
-    private Long insurancePolicyNumber;
+    @Column(name = "numerPolisy")
+    private String insurancePolicyNumber;
 
     @Column(name = "dataWygasnieciaPolisy")
     private LocalDate insuranceExpirationDate;

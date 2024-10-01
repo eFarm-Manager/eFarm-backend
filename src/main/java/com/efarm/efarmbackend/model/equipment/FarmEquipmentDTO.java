@@ -20,7 +20,7 @@ public class FarmEquipmentDTO {
     private Integer power;
     private Double capacity;
     private Double workingWidth;
-    private Long insurancePolicyNumber;
+    private String insurancePolicyNumber;
     private LocalDate insuranceExpirationDate;
     private LocalDate inspectionExpireDate;
 
