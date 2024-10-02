@@ -27,8 +27,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class AuthFacade {
@@ -210,6 +210,26 @@ public class AuthFacade {
             return ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)
                     .body(new MessageResponse("Nieprawidłowe hasło"));
+        }
+    }
+
+    @Transactional
+    public ResponseEntity<?> changePassword(ChangePasswordRequest changePasswordRequest, BindingResult bindingResult) {
+        ResponseEntity<?> validationErrorResponse = validationRequestService.validateRequest(bindingResult);
+        if (validationErrorResponse != null) {
+            return validationErrorResponse;
+        }
+
+        boolean isPasswordValid = userService.isPasswordValidForLoggedUser(changePasswordRequest.getCurrentPassword());
+        if (!isPasswordValid) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new MessageResponse("Podano nieprawidłowe aktualne hasło"));
+        }
+        if (!Objects.equals(changePasswordRequest.getCurrentPassword(), changePasswordRequest.getNewPassword())) {
+            userService.updatePasswordForLoggedUser(changePasswordRequest.getNewPassword());
+            return ResponseEntity.ok(new MessageResponse("Hasło zostało pomyślnie zmienione"));
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Nowe hasło nie może być takie samo jak poprzednie"));
         }
     }
 }

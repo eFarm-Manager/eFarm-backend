@@ -53,6 +53,12 @@ public class AuthController {
         return authFacade.updateActivationCodeByLoggedOwner(updateActivationCodeByLoggedOwnerRequest, bindingResult);
     }
 
+    @PutMapping("/change-password")
+    @PreAuthorize("hasRole('ROLE_FARM_OWNER') or hasRole('ROLE_FARM_MANAGER' or hasRole('ROLE_FARM_EQUIPMENT_OPERATOR'))")
+    public ResponseEntity<?> changePassword(@Valid @RequestBody ChangePasswordRequest changePasswordRequest, BindingResult bindingResult) {
+        return authFacade.changePassword(changePasswordRequest, bindingResult);
+    }
+
     @PostMapping("/signout")
     public ResponseEntity<?> logoutUser() {
         ResponseCookie cookie = jwtUtils.getCleanJwtCookie();

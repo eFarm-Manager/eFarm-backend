@@ -106,6 +106,12 @@ public class UserService {
         return encoder.matches(providedPassword, getLoggedUser().getPassword());
     }
 
+    public void updatePasswordForLoggedUser(String newPassword) {
+        User loggedUser = getLoggedUser();
+        loggedUser.setPassword(encoder.encode(newPassword));
+        userRepository.save(loggedUser);
+    }
+
     private Role assignUserRole(String strRole) {
         return switch (strRole) {
             case "ROLE_FARM_OWNER" -> roleRepository.findByName(ERole.ROLE_FARM_OWNER)
