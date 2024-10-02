@@ -68,7 +68,7 @@ public class UserService {
         return user;
     }
 
-    public Farm getLoggedUserFarm() {
+    public User getLoggedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null) {
@@ -77,14 +77,16 @@ public class UserService {
         }
 
         Object principal = authentication.getPrincipal();
-
         if (principal instanceof UserDetailsImpl currentUserDetails) {
-            User currentUser = userRepository.findById(Long.valueOf(currentUserDetails.getId()))
+            return userRepository.findById(Long.valueOf(currentUserDetails.getId()))
                     .orElseThrow(() -> new RuntimeException("Error: Current user not found."));
-            return currentUser.getFarm();
         } else {
             throw new RuntimeException("Error: Unexpected principal type.");
         }
+    }
+
+    public Farm getLoggedUserFarm() {
+        return getLoggedUser().getFarm();
     }
 
     public Farm getUserFarmById(Long userId) {
@@ -98,6 +100,10 @@ public class UserService {
         return userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
+    }
+
+    public Boolean isPasswordValidForLoggedUser(String providedPassword) {
+        return encoder.matches(providedPassword, getLoggedUser().getPassword());
     }
 
     private Role assignUserRole(String strRole) {
