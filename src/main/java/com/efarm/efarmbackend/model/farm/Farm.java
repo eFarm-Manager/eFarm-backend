@@ -51,4 +51,16 @@ public class Farm {
     public Farm(String farmName) {
         this.farmName = farmName;
     }
+
+    public Farm(Farm other) {
+        this.id = other.id;
+        this.idAddress = other.idAddress;
+        this.idActivationCode = other.idActivationCode;
+        this.farmName = other.farmName;
+        this.farmNumber = other.farmNumber;
+        this.feedNumber = other.feedNumber;
+        this.sanitaryRegisterNumber = other.sanitaryRegisterNumber;
+        this.isActive = other.isActive;
+    }
+
 }
