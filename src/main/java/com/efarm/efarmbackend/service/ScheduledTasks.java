@@ -1,5 +1,6 @@
 package com.efarm.efarmbackend.service;
 
+import com.efarm.efarmbackend.service.farm.FarmService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

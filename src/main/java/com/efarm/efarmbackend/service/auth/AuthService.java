@@ -1,4 +1,4 @@
-package com.efarm.efarmbackend.service;
+package com.efarm.efarmbackend.service.auth;
 
 import com.efarm.efarmbackend.payload.request.LoginRequest;
 import com.efarm.efarmbackend.payload.request.UpdateActivationCodeRequest;

@@ -1,4 +1,4 @@
-package com.efarm.efarmbackend.service.facades;
+package com.efarm.efarmbackend.service.equipment;
 
 import com.efarm.efarmbackend.model.equipment.FarmEquipment;
 import com.efarm.efarmbackend.model.equipment.FarmEquipmentDTO;
@@ -6,9 +6,7 @@ import com.efarm.efarmbackend.model.equipment.FarmEquipmentId;
 import com.efarm.efarmbackend.model.farm.Farm;
 import com.efarm.efarmbackend.payload.response.MessageResponse;
 import com.efarm.efarmbackend.repository.equipment.FarmEquipmentRepository;
-import com.efarm.efarmbackend.service.EquipmentDisplayDataService;
-import com.efarm.efarmbackend.service.FarmEquipmentService;
-import com.efarm.efarmbackend.service.UserService;
+import com.efarm.efarmbackend.service.user.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

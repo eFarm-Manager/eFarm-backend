@@ -1,4 +1,4 @@
-package com.efarm.efarmbackend.service;
+package com.efarm.efarmbackend.service.equipment;
 
 import org.springframework.stereotype.Service;
 

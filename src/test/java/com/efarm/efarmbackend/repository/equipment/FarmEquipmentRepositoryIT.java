@@ -38,17 +38,17 @@ public class FarmEquipmentRepositoryIT {
         Integer farmId = 3;
 
         Long countActive = entityManager.getEntityManager()
-            .createQuery("SELECT COUNT(*) FROM FarmEquipment e WHERE e.id.farmId = 3", Long.class)
-            .getSingleResult();
+                .createQuery("SELECT COUNT(*) FROM FarmEquipment e WHERE e.id.farmId = 3", Long.class)
+                .getSingleResult();
 
         //when
         List<FarmEquipment> farmEquipmentsList = farmEquipmentRepository.findByFarmIdFarm_Id(farmId);
-        
+
         //then
         System.out.println(farmEquipmentsList);
-        assertThat(farmEquipmentsList,not(empty()));
+        assertThat(farmEquipmentsList, not(empty()));
         assertThat(countActive.intValue(), is(farmEquipmentsList.size()));
-        assertThat(farmEquipmentsList, everyItem(hasProperty("id",hasProperty("farmId", is(farmId)))));
+        assertThat(farmEquipmentsList, everyItem(hasProperty("id", hasProperty("farmId", is(farmId)))));
 
     }
 }

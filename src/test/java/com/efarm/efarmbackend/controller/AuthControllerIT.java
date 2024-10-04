@@ -10,7 +10,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -33,8 +32,6 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 
 import static org.hamcrest.Matchers.containsString;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -97,7 +94,7 @@ public class AuthControllerIT {
         mockMvc.perform(post("/api/auth/signin")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
-        // Then
+                // Then
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.username").value(usernameTest))
                 .andExpect(jsonPath("$.email").value(emailTest))
@@ -136,7 +133,7 @@ public class AuthControllerIT {
         mockMvc.perform(post("/api/auth/signin")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
-        // Then
+                // Then
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.username").value(usernameTest))
                 .andExpect(jsonPath("$.email").value(emailTest))
@@ -174,8 +171,8 @@ public class AuthControllerIT {
         mockMvc.perform(post("/api/auth/signin")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
-        // Then
-                .andExpect(status().isUnauthorized())                
+                // Then
+                .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.message").value("Nieprawidłowe dane logowania"));
 
     }
@@ -209,17 +206,17 @@ public class AuthControllerIT {
         loginRequest.setPassword(passwordTest);
 
         for (int i = 0; i < 5; i++) {
-                mockMvc.perform(post("/api/auth/signin")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(loginRequest)))
-                        .andExpect(status().isUnauthorized());
-            }
+            mockMvc.perform(post("/api/auth/signin")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(loginRequest)))
+                    .andExpect(status().isUnauthorized());
+        }
 
         // When
         mockMvc.perform(post("/api/auth/signin")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
-        // Then
+                // Then
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.message").value("Zbyt wiele nieudanych prób logowania. Spróbuj ponownie później."));
     }
@@ -236,7 +233,7 @@ public class AuthControllerIT {
 
         //When
         mockMvc.perform(post("/api/auth/signout"))
-        // Then
+                // Then
                 .andExpect(status().isOk())
                 .andExpect(header().string(HttpHeaders.SET_COOKIE, "jwtToken=; Path=/api"))
                 .andExpect(content().json("{\"message\":\"You've been signed out!\"}"));
@@ -274,7 +271,7 @@ public class AuthControllerIT {
         mockMvc.perform(post("/api/auth/signup")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(signUpRequest)))
-        // Then
+                // Then
                 .andExpect(status().isOk())
                 .andExpect(content().json("{\"message\":\"User registered successfully!\"}"));
     }
@@ -307,7 +304,7 @@ public class AuthControllerIT {
         mockMvc.perform(post("/api/auth/signup")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(signUpRequest)))
-        // Then
+                // Then
                 .andExpect(status().isForbidden());
     }
 
@@ -323,63 +320,62 @@ public class AuthControllerIT {
         signUpRequest.setPassword("pass");  // Too short to meet validation
         signUpRequest.setPhoneNumber("");
         signUpRequest.setRole("ROLE_FARM_MANAGER");
-    
+
         User currentUser = entityManager.createQuery(
                         "SELECT u FROM User u JOIN u.role r WHERE r.name = :roleName", User.class)
                 .setParameter("roleName", ERole.ROLE_FARM_MANAGER)
                 .setMaxResults(1)
                 .getSingleResult();
-    
+
         UserDetailsImpl userDetails = UserDetailsImpl.build(currentUser);
         UsernamePasswordAuthenticationToken authToken =
                 new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authToken);
-    
+
         // When
         mockMvc.perform(post("/api/auth/signup")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(signUpRequest)))
-        // Then
+                // Then
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string(containsString("password: size must be between 6 and 40")))
                 .andExpect(content().string(containsString("email: must be a well-formed email address")))
                 .andExpect(content().string(containsString("firstName: size must be between 3 and 30")))
                 .andExpect(content().string(containsString("lastName: size must be between 3 and 40")));
-    
-        }
-    
+
+    }
+
     @Test
     @DisplayName("Test registration failure when username is already taken")
     void testUserRegistrationUsernameTaken() throws Exception {
         // Given
         SignupRequest signUpRequest = new SignupRequest();
         signUpRequest.setFirstName("John");
-        signUpRequest.setLastName("Doe"); 
+        signUpRequest.setLastName("Doe");
         signUpRequest.setEmail("newuser@example.com");
         signUpRequest.setPassword("password");
         signUpRequest.setPhoneNumber("");
-        signUpRequest.setRole("ROLE_FARM_MANAGER");    
+        signUpRequest.setRole("ROLE_FARM_MANAGER");
         User currentUser = entityManager.createQuery(
                         "SELECT u FROM User u JOIN u.role r WHERE r.name = :roleName", User.class)
                 .setParameter("roleName", ERole.ROLE_FARM_MANAGER)
                 .setMaxResults(1)
-                .getSingleResult();    
+                .getSingleResult();
         UserDetailsImpl userDetails = UserDetailsImpl.build(currentUser);
         UsernamePasswordAuthenticationToken authToken =
                 new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authToken);
-                
-        signUpRequest.setUsername(userDetails.getUsername()); 
+
+        signUpRequest.setUsername(userDetails.getUsername());
         // When
         mockMvc.perform(post("/api/auth/signup")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(signUpRequest)))
-        // Then
+                // Then
                 .andExpect(status().isBadRequest())
                 .andExpect(content().json("{\"message\":\"Error: Username is already taken!\"}"));
     }
 
-    
 
     // Signup farm
     @Test
@@ -422,7 +418,7 @@ public class AuthControllerIT {
         signUpFarmRequest.setEmail("invalid-email"); // Invalid: wrong email format
         signUpFarmRequest.setPassword("short"); // Invalid: too short
         signUpFarmRequest.setFarmName("farmName");
-        signUpFarmRequest.setActivationCode("someActivationCode"); 
+        signUpFarmRequest.setActivationCode("someActivationCode");
         // When
         mockMvc.perform(post("/api/auth/signupfarm")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -434,15 +430,16 @@ public class AuthControllerIT {
                 .andExpect(content().string(containsString("firstName: size must be between 3 and 30")))
                 .andExpect(content().string(containsString("lastName: size must be between 3 and 40")));
     }
+
     @Test
     @DisplayName("Test registration fails due to taken username")
     void testUserFarmRegistrationWithTakenUsername() throws Exception {
         // Given
         ActivationCode activationCode = entityManager.createQuery(
-                "SELECT a FROM ActivationCode a WHERE a.isUsed = :used", ActivationCode.class)
-        .setParameter("used", false)
-        .setMaxResults(1)  // Ensures only one result is returned
-        .getSingleResult();
+                        "SELECT a FROM ActivationCode a WHERE a.isUsed = :used", ActivationCode.class)
+                .setParameter("used", false)
+                .setMaxResults(1)  // Ensures only one result is returned
+                .getSingleResult();
 
         SignupFarmRequest signUpFarmRequest = new SignupFarmRequest();
         signUpFarmRequest.setFirstName("John");
@@ -454,8 +451,8 @@ public class AuthControllerIT {
         signUpFarmRequest.setActivationCode(activationCode.getCode());
 
         User user = entityManager.find(User.class, 1);
-        signUpFarmRequest.setUsername(user.getUsername()); 
-    
+        signUpFarmRequest.setUsername(user.getUsername());
+
         // When
         mockMvc.perform(post("/api/auth/signupfarm")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -464,15 +461,16 @@ public class AuthControllerIT {
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string(containsString("Error: Username is already taken!")));
     }
+
     @Test
     @DisplayName("Test registration fails due to taken farm name")
     void testUserFarmRegistrationWithTakenFarmName() throws Exception {
         // Given
         ActivationCode activationCode = entityManager.createQuery(
-                "SELECT a FROM ActivationCode a WHERE a.isUsed = :used", ActivationCode.class)
-        .setParameter("used", false)
-        .setMaxResults(1)  // Ensures only one result is returned
-        .getSingleResult();
+                        "SELECT a FROM ActivationCode a WHERE a.isUsed = :used", ActivationCode.class)
+                .setParameter("used", false)
+                .setMaxResults(1)  // Ensures only one result is returned
+                .getSingleResult();
 
         SignupFarmRequest signUpFarmRequest = new SignupFarmRequest();
         signUpFarmRequest.setFirstName("John");
@@ -484,12 +482,12 @@ public class AuthControllerIT {
         signUpFarmRequest.setActivationCode(activationCode.getCode());
 
         Farm farm = entityManager.find(Farm.class, 1);
-        signUpFarmRequest.setFarmName(farm.getFarmName()); 
+        signUpFarmRequest.setFarmName(farm.getFarmName());
         // When
         mockMvc.perform(post("/api/auth/signupfarm")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(signUpFarmRequest)))
-        // Then
+                // Then
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string(containsString("Error: Farm Name is already taken!")));
     }
@@ -506,18 +504,18 @@ public class AuthControllerIT {
         signUpFarmRequest.setPassword("password");
         signUpFarmRequest.setPhoneNumber("");
         signUpFarmRequest.setFarmName("farmName");
-        signUpFarmRequest.setActivationCode("invalidActivationCode"); 
-    
+        signUpFarmRequest.setActivationCode("invalidActivationCode");
+
         // When
         mockMvc.perform(post("/api/auth/signupfarm")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(signUpFarmRequest)))
-        // Then
+                // Then
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string(containsString("Activation code does not exist.")));
     }
 
-        // updateActivationCode
+    // updateActivationCode
 
     @Test
     @DisplayName("Test updating activation code by owner")
@@ -529,10 +527,10 @@ public class AuthControllerIT {
         Role role = entityManager.find(Role.class, 3);
         Farm farm = entityManager.find(Farm.class, 5);
         ActivationCode activationCode = entityManager.createQuery(
-                "SELECT a FROM ActivationCode a WHERE a.isUsed = :used", ActivationCode.class)
-        .setParameter("used", false)
-        .setMaxResults(1)  // Ensures only one result is returned
-        .getSingleResult();
+                        "SELECT a FROM ActivationCode a WHERE a.isUsed = :used", ActivationCode.class)
+                .setParameter("used", false)
+                .setMaxResults(1)  // Ensures only one result is returned
+                .getSingleResult();
 
         User testUser = new User();
         testUser.setUsername(usernameTest);
@@ -555,9 +553,9 @@ public class AuthControllerIT {
 
         //when
         mockMvc.perform(post("/api/auth/update-activation-code")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(updateActivationCodeRequest)))
-        // Then
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateActivationCodeRequest)))
+                // Then
                 .andExpect(status().isOk())
                 .andExpect(content().json("{\"message\":\"Activation code updated successfully for the farm.\"}"));
     }
@@ -570,15 +568,15 @@ public class AuthControllerIT {
         updateActivationCodeRequest.setUsername("invalidUser");
         updateActivationCodeRequest.setPassword("wrongPassword");
         updateActivationCodeRequest.setNewActivationCode("someActivationCode");
-    
+
         // When
         mockMvc.perform(post("/api/auth/update-activation-code")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(updateActivationCodeRequest)))
-        // Then
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateActivationCodeRequest)))
+                // Then
                 .andExpect(status().isBadRequest());
     }
-    
+
     @Test
     @DisplayName("Test updating activation code fails due to insufficient permissions")
     void testUpdateActivationCodeWithoutPermissions() throws Exception {
@@ -589,10 +587,10 @@ public class AuthControllerIT {
         Role role = entityManager.find(Role.class, 2);
         Farm farm = entityManager.find(Farm.class, 5);
         ActivationCode activationCode = entityManager.createQuery(
-                "SELECT a FROM ActivationCode a WHERE a.isUsed = :used", ActivationCode.class)
-        .setParameter("used", false)
-        .setMaxResults(1)  // Ensures only one result is returned
-        .getSingleResult();
+                        "SELECT a FROM ActivationCode a WHERE a.isUsed = :used", ActivationCode.class)
+                .setParameter("used", false)
+                .setMaxResults(1)  // Ensures only one result is returned
+                .getSingleResult();
 
         User testUser = new User();
         testUser.setUsername(usernameTest);
@@ -607,17 +605,17 @@ public class AuthControllerIT {
 
         entityManager.merge(testUser);
         entityManager.flush();
-    
+
         UpdateActivationCodeRequest updateActivationCodeRequest = new UpdateActivationCodeRequest();
         updateActivationCodeRequest.setUsername(usernameTest);
         updateActivationCodeRequest.setPassword(passwordTest);
         updateActivationCodeRequest.setNewActivationCode(activationCode.getCode());
-    
+
         // When
         mockMvc.perform(post("/api/auth/update-activation-code")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(updateActivationCodeRequest)))
-        // Then
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateActivationCodeRequest)))
+                // Then
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().json("{\"message\":\"Brak uprawnień\"}"));
     }
@@ -645,17 +643,17 @@ public class AuthControllerIT {
 
         entityManager.merge(testUser);
         entityManager.flush();
-    
+
         UpdateActivationCodeRequest updateActivationCodeRequest = new UpdateActivationCodeRequest();
         updateActivationCodeRequest.setUsername(usernameTest);
         updateActivationCodeRequest.setPassword(passwordTest);
         updateActivationCodeRequest.setNewActivationCode("invalidActivationCode");
-    
+
         // When
         mockMvc.perform(post("/api/auth/update-activation-code")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(updateActivationCodeRequest)))
-        // Then
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateActivationCodeRequest)))
+                // Then
                 .andExpect(status().isBadRequest())
                 .andExpect(content().json("{\"message\":\"Activation code does not exist.\"}"));
     }
@@ -670,10 +668,10 @@ public class AuthControllerIT {
         Role role = entityManager.find(Role.class, 2);
         Farm farm = entityManager.find(Farm.class, 5);
         ActivationCode activationCode = entityManager.createQuery(
-                "SELECT a FROM ActivationCode a WHERE a.isUsed = :used", ActivationCode.class)
-        .setParameter("used", false)
-        .setMaxResults(1)  // Ensures only one result is returned
-        .getSingleResult();
+                        "SELECT a FROM ActivationCode a WHERE a.isUsed = :used", ActivationCode.class)
+                .setParameter("used", false)
+                .setMaxResults(1)  // Ensures only one result is returned
+                .getSingleResult();
 
         User testUser = new User();
         testUser.setUsername(usernameTest);
@@ -695,17 +693,17 @@ public class AuthControllerIT {
         updateActivationCodeRequest.setNewActivationCode(activationCode.getCode());
 
         for (int i = 0; i < 5; i++) {
-                mockMvc.perform(post("/api/auth/update-activation-code")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updateActivationCodeRequest)))
-                        .andExpect(status().isBadRequest());
-            }
+            mockMvc.perform(post("/api/auth/update-activation-code")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(updateActivationCodeRequest)))
+                    .andExpect(status().isBadRequest());
+        }
 
         // When
         mockMvc.perform(post("/api/auth/update-activation-code")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateActivationCodeRequest)))
-        // Then
+                // Then
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Zbyt wiele nieudanych prób. Spróbuj ponownie później."));
     }
@@ -727,13 +725,13 @@ public class AuthControllerIT {
         newUser.setFarm(farm);
         newUser.setIsActive(true);
         entityManager.merge(newUser);
-        entityManager.flush(); 
+        entityManager.flush();
 
         User currentUser = entityManager.createQuery(
-                "SELECT u FROM User u WHERE u.username = :username", User.class)
-        .setParameter("username", "username")
-        .setMaxResults(1)  // Ensures only one result is returned
-        .getSingleResult();
+                        "SELECT u FROM User u WHERE u.username = :username", User.class)
+                .setParameter("username", "username")
+                .setMaxResults(1)  // Ensures only one result is returned
+                .getSingleResult();
 
         UserDetailsImpl userDetails = UserDetailsImpl.build(currentUser);
         UsernamePasswordAuthenticationToken authToken =
@@ -748,11 +746,11 @@ public class AuthControllerIT {
 
         //when
         mockMvc.perform(put("/api/auth/update-activation-code")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(updateActivationCodeByLoggedOwnerRequest)))
-        // Then
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.message").value("Activation code updated successfully for the farm."));
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateActivationCodeByLoggedOwnerRequest)))
+                // Then
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Activation code updated successfully for the farm."));
     }
 
     @Test
@@ -773,29 +771,29 @@ public class AuthControllerIT {
         newUser.setIsActive(true);
         entityManager.merge(newUser);
         entityManager.flush();
-    
+
         User currentUser = entityManager.createQuery(
-                "SELECT u FROM User u WHERE u.username = :username", User.class)
-        .setParameter("username", "username")
-        .setMaxResults(1)
-        .getSingleResult();
-    
+                        "SELECT u FROM User u WHERE u.username = :username", User.class)
+                .setParameter("username", "username")
+                .setMaxResults(1)
+                .getSingleResult();
+
         UserDetailsImpl userDetails = UserDetailsImpl.build(currentUser);
         UsernamePasswordAuthenticationToken authToken =
                 new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authToken);
-    
+
         UpdateActivationCodeByLoggedOwnerRequest updateActivationCodeByLoggedOwnerRequest = new UpdateActivationCodeByLoggedOwnerRequest();
         updateActivationCodeByLoggedOwnerRequest.setPassword("wrongPassword"); // Incorrect password
         updateActivationCodeByLoggedOwnerRequest.setNewActivationCode("doesntMatterHere");
-    
+
         //when
         mockMvc.perform(put("/api/auth/update-activation-code")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(updateActivationCodeByLoggedOwnerRequest)))
-        // Then
-        .andExpect(status().isUnauthorized())
-        .andExpect(jsonPath("$.message").value("Nieprawidłowe hasło"));
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateActivationCodeByLoggedOwnerRequest)))
+                // Then
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message").value("Nieprawidłowe hasło"));
     }
 
     @Test
@@ -816,31 +814,31 @@ public class AuthControllerIT {
         newUser.setIsActive(true);
         entityManager.merge(newUser);
         entityManager.flush();
-    
+
         User currentUser = entityManager.createQuery(
-                "SELECT u FROM User u WHERE u.username = :username", User.class)
-        .setParameter("username", "username")
-        .setMaxResults(1)
-        .getSingleResult();
-    
+                        "SELECT u FROM User u WHERE u.username = :username", User.class)
+                .setParameter("username", "username")
+                .setMaxResults(1)
+                .getSingleResult();
+
         UserDetailsImpl userDetails = UserDetailsImpl.build(currentUser);
         UsernamePasswordAuthenticationToken authToken =
                 new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authToken);
-    
+
         ActivationCode activationCode = entityManager.find(ActivationCode.class, 13);
-    
+
         UpdateActivationCodeByLoggedOwnerRequest updateActivationCodeByLoggedOwnerRequest = new UpdateActivationCodeByLoggedOwnerRequest();
         updateActivationCodeByLoggedOwnerRequest.setPassword("password123");
-        updateActivationCodeByLoggedOwnerRequest.setNewActivationCode(activationCode.getCode()); 
-    
+        updateActivationCodeByLoggedOwnerRequest.setNewActivationCode(activationCode.getCode());
+
         //when
         mockMvc.perform(put("/api/auth/update-activation-code")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(updateActivationCodeByLoggedOwnerRequest)))
-        // Then
-        .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.message").value("Activation code has already been used.")); 
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateActivationCodeByLoggedOwnerRequest)))
+                // Then
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Activation code has already been used."));
     }
 
     @Test
@@ -860,13 +858,13 @@ public class AuthControllerIT {
         newUser.setFarm(farm);
         newUser.setIsActive(true);
         entityManager.merge(newUser);
-        entityManager.flush(); 
+        entityManager.flush();
 
         User currentUser = entityManager.createQuery(
-                "SELECT u FROM User u WHERE u.username = :username", User.class)
-        .setParameter("username", "username")
-        .setMaxResults(1)  
-        .getSingleResult();
+                        "SELECT u FROM User u WHERE u.username = :username", User.class)
+                .setParameter("username", "username")
+                .setMaxResults(1)
+                .getSingleResult();
 
         UserDetailsImpl userDetails = UserDetailsImpl.build(currentUser);
         UsernamePasswordAuthenticationToken authToken =
@@ -879,11 +877,11 @@ public class AuthControllerIT {
 
         //when
         mockMvc.perform(put("/api/auth/change-password")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(changePasswordRequest)))
-        // Then
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.message").value("Hasło zostało pomyślnie zmienione"));
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(changePasswordRequest)))
+                // Then
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Hasło zostało pomyślnie zmienione"));
     }
 
     @Test
@@ -903,30 +901,30 @@ public class AuthControllerIT {
         newUser.setFarm(farm);
         newUser.setIsActive(true);
         entityManager.merge(newUser);
-        entityManager.flush(); 
-    
+        entityManager.flush();
+
         User currentUser = entityManager.createQuery(
-                "SELECT u FROM User u WHERE u.username = :username", User.class)
-        .setParameter("username", "username")
-        .setMaxResults(1)  
-        .getSingleResult();
-    
+                        "SELECT u FROM User u WHERE u.username = :username", User.class)
+                .setParameter("username", "username")
+                .setMaxResults(1)
+                .getSingleResult();
+
         UserDetailsImpl userDetails = UserDetailsImpl.build(currentUser);
         UsernamePasswordAuthenticationToken authToken =
                 new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authToken);
-    
+
         ChangePasswordRequest changePasswordRequest = new ChangePasswordRequest();
         changePasswordRequest.setCurrentPassword("wrongPassword"); // Invalid password
         changePasswordRequest.setNewPassword("321drowssap");
-    
+
         // When
         mockMvc.perform(put("/api/auth/change-password")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(changePasswordRequest)))
-        // Then
-        .andExpect(status().isUnauthorized())
-        .andExpect(jsonPath("$.message").value("Podano nieprawidłowe aktualne hasło"));
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(changePasswordRequest)))
+                // Then
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message").value("Podano nieprawidłowe aktualne hasło"));
     }
 
     @Test
@@ -946,29 +944,29 @@ public class AuthControllerIT {
         newUser.setFarm(farm);
         newUser.setIsActive(true);
         entityManager.merge(newUser);
-        entityManager.flush(); 
-    
+        entityManager.flush();
+
         User currentUser = entityManager.createQuery(
-                "SELECT u FROM User u WHERE u.username = :username", User.class)
-        .setParameter("username", "username")
-        .setMaxResults(1)  
-        .getSingleResult();
-    
+                        "SELECT u FROM User u WHERE u.username = :username", User.class)
+                .setParameter("username", "username")
+                .setMaxResults(1)
+                .getSingleResult();
+
         UserDetailsImpl userDetails = UserDetailsImpl.build(currentUser);
         UsernamePasswordAuthenticationToken authToken =
                 new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authToken);
-    
+
         ChangePasswordRequest changePasswordRequest = new ChangePasswordRequest();
         changePasswordRequest.setCurrentPassword("password123");
         changePasswordRequest.setNewPassword("password123"); // Same as current password
-    
+
         // When
         mockMvc.perform(put("/api/auth/change-password")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(changePasswordRequest)))
-        // Then
-        .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.message").value("Nowe hasło nie może być takie samo jak poprzednie"));
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(changePasswordRequest)))
+                // Then
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Nowe hasło nie może być takie samo jak poprzednie"));
     }
 }
