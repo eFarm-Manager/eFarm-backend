@@ -1,30 +1,28 @@
 package com.efarm.efarmbackend.service.facades
 
-import com.efarm.efarmbackend.model.farm.ActivationCode;
-import com.efarm.efarmbackend.model.farm.Address;
-import com.efarm.efarmbackend.model.farm.Farm;
-import com.efarm.efarmbackend.model.farm.FarmDTO;
-import com.efarm.efarmbackend.model.user.User;
+import com.efarm.efarmbackend.model.farm.ActivationCode
+import com.efarm.efarmbackend.model.farm.Address
+import com.efarm.efarmbackend.model.farm.Farm
+import com.efarm.efarmbackend.model.farm.FarmDTO
+import com.efarm.efarmbackend.model.user.User
 import com.efarm.efarmbackend.model.user.Role
-import com.efarm.efarmbackend.model.user.ERole
-import com.efarm.efarmbackend.model.user.UserDTO;
-import com.efarm.efarmbackend.payload.request.UpdateFarmDetailsRequest;
+import com.efarm.efarmbackend.model.user.UserDTO
+import com.efarm.efarmbackend.payload.request.UpdateFarmDetailsRequest
 import com.efarm.efarmbackend.repository.farm.FarmRepository
 import com.efarm.efarmbackend.repository.farm.AddressRepository
-import com.efarm.efarmbackend.payload.response.MessageResponse;
-import com.efarm.efarmbackend.service.*;
-import org.springframework.http.HttpStatus;
-import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-import org.springframework.validation.BindingResult;
+import com.efarm.efarmbackend.service.*
+import com.efarm.efarmbackend.service.auth.AuthService
+import com.efarm.efarmbackend.service.farm.ActivationCodeService
+import com.efarm.efarmbackend.service.farm.AddressService
+import com.efarm.efarmbackend.service.farm.FarmFacade
+import com.efarm.efarmbackend.service.farm.FarmService
+import com.efarm.efarmbackend.service.user.UserService
+import org.springframework.http.HttpStatus
+import org.springframework.validation.BindingResult
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.http.ResponseEntity
 import spock.lang.Specification
 import spock.lang.Subject
-import spock.lang.Unroll
-import java.net.URI;
 
 import java.time.LocalDate
 
@@ -78,13 +76,13 @@ class FarmFacadeSpec extends Specification {
         user2.getIsActive() >> false
         user2.getRole() >> Mock(Role) {
             toString() >> "ROLE_FARM_EQUIPMENT_OPERATOR"
-        }    
+        }
         user2.getFarm() >> farm1
         User user3 = Mock(User)
         user3.getFarm() >> farm2
 
         userService.getLoggedUserFarm() >> farm1
-        farmService.getUsersByFarmId(farm1.getId()) >> [user1,user2]
+        farmService.getUsersByFarmId(farm1.getId()) >> [user1, user2]
 
         when:
         ResponseEntity<List<UserDTO>> response = farmFacade.getFarmUsersByFarmId()
@@ -128,31 +126,31 @@ class FarmFacadeSpec extends Specification {
         response.body.activationCodeExpireDate == date
     }
 
-    def "should update farm details correctly" () {
+    def "should update farm details correctly"() {
         given:
         UpdateFarmDetailsRequest updateFarmDetailsRequest = new UpdateFarmDetailsRequest(
-            farmName: "New Farm", 
-            farmNumber: "202", 
-            feedNumber: "456", 
-            sanitaryRegisterNumber: "101",
-            street: "ulica", 
-            buildingNumber: "20", 
-            zipCode: "05-132", 
-            city: "Miasto"
+                farmName: "New Farm",
+                farmNumber: "202",
+                feedNumber: "456",
+                sanitaryRegisterNumber: "101",
+                street: "ulica",
+                buildingNumber: "20",
+                zipCode: "05-132",
+                city: "Miasto"
         )
         Farm farm = new Farm()
         farm.setId(1)
         farm.setIdAddress(1)
-        farm.setFarmName("Old Farm") 
-        farm.setFarmNumber("123") 
-        farm.setFeedNumber("456") 
-        farm.setSanitaryRegisterNumber("987") 
+        farm.setFarmName("Old Farm")
+        farm.setFarmNumber("123")
+        farm.setFeedNumber("456")
+        farm.setSanitaryRegisterNumber("987")
         Address address = new Address()
         address.setId(1)
-        address.setStreet("nie ulica") 
-        address.setBuildingNumber("1") 
-        address.setZipCode("05-132") 
-        address.setCity("nie miasto")  
+        address.setStreet("nie ulica")
+        address.setBuildingNumber("1")
+        address.setZipCode("05-132")
+        address.setCity("nie miasto")
         BindingResult bindingResult = Mock(BindingResult)
         FarmRepository farmRepository = Mock(FarmRepository)
         AddressRepository addressRepository = Mock(AddressRepository)
@@ -171,7 +169,7 @@ class FarmFacadeSpec extends Specification {
         addressRepository.save(address) >> address
 
         when:
-        ResponseEntity<?> response = farmFacade.updateFarmDetails(updateFarmDetailsRequest,bindingResult)
+        ResponseEntity<?> response = farmFacade.updateFarmDetails(updateFarmDetailsRequest, bindingResult)
 
         then:
         response.getStatusCode() == HttpStatus.OK
@@ -179,5 +177,5 @@ class FarmFacadeSpec extends Specification {
         farm.getFarmName() == "New Farm"
         address.getStreet() == "ulica"
     }
-    
+
 }

@@ -1,4 +1,4 @@
-package com.efarm.efarmbackend.service.facades;
+package com.efarm.efarmbackend.service.auth;
 
 import com.efarm.efarmbackend.model.farm.ActivationCode;
 import com.efarm.efarmbackend.model.farm.Address;
@@ -15,6 +15,9 @@ import com.efarm.efarmbackend.repository.user.UserRepository;
 import com.efarm.efarmbackend.security.jwt.JwtUtils;
 import com.efarm.efarmbackend.security.services.UserDetailsImpl;
 import com.efarm.efarmbackend.service.*;
+import com.efarm.efarmbackend.service.farm.ActivationCodeService;
+import com.efarm.efarmbackend.service.farm.FarmService;
+import com.efarm.efarmbackend.service.user.UserService;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

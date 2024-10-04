@@ -2,7 +2,7 @@ package com.efarm.efarmbackend.controller;
 
 
 import com.efarm.efarmbackend.payload.request.*;
-import com.efarm.efarmbackend.service.facades.AuthFacade;
+import com.efarm.efarmbackend.service.auth.AuthFacade;
 import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,55 +1,48 @@
 package com.efarm.efarmbackend.service.facades
 
-import com.efarm.efarmbackend.model.farm.ActivationCode;
-import com.efarm.efarmbackend.model.farm.Address;
-import com.efarm.efarmbackend.model.farm.Farm;
-import com.efarm.efarmbackend.model.user.Role;
-import com.efarm.efarmbackend.model.user.ERole;
-import com.efarm.efarmbackend.model.user.User;
-import com.efarm.efarmbackend.payload.request.LoginRequest;
-import com.efarm.efarmbackend.payload.request.SignupFarmRequest;
-import com.efarm.efarmbackend.payload.request.SignupRequest;
-import com.efarm.efarmbackend.payload.request.UpdateActivationCodeRequest;
+import com.efarm.efarmbackend.model.farm.ActivationCode
+import com.efarm.efarmbackend.model.farm.Address
+import com.efarm.efarmbackend.model.farm.Farm
+import com.efarm.efarmbackend.model.user.Role
+import com.efarm.efarmbackend.model.user.ERole
+import com.efarm.efarmbackend.model.user.User
+import com.efarm.efarmbackend.payload.request.LoginRequest
+import com.efarm.efarmbackend.payload.request.SignupFarmRequest
+import com.efarm.efarmbackend.payload.request.SignupRequest
+import com.efarm.efarmbackend.payload.request.UpdateActivationCodeRequest
 import com.efarm.efarmbackend.payload.request.UpdateActivationCodeByLoggedOwnerRequest
 import com.efarm.efarmbackend.payload.request.ChangePasswordRequest
-import com.efarm.efarmbackend.payload.response.MessageResponse;
-import com.efarm.efarmbackend.payload.response.UserInfoResponse;
-import com.efarm.efarmbackend.repository.farm.ActivationCodeRepository;
-import com.efarm.efarmbackend.repository.farm.AddressRepository;
-import com.efarm.efarmbackend.repository.farm.FarmRepository;
-import com.efarm.efarmbackend.repository.user.UserRepository;
-import com.efarm.efarmbackend.security.jwt.JwtUtils;
-import com.efarm.efarmbackend.security.services.UserDetailsImpl;
-import com.efarm.efarmbackend.service.ActivationCodeService;
+import com.efarm.efarmbackend.payload.response.MessageResponse
+import com.efarm.efarmbackend.payload.response.UserInfoResponse
+import com.efarm.efarmbackend.repository.farm.ActivationCodeRepository
+import com.efarm.efarmbackend.repository.farm.AddressRepository
+import com.efarm.efarmbackend.repository.farm.FarmRepository
+import com.efarm.efarmbackend.repository.user.UserRepository
+import com.efarm.efarmbackend.security.jwt.JwtUtils
+import com.efarm.efarmbackend.security.services.UserDetailsImpl
+import com.efarm.efarmbackend.service.auth.AuthFacade
+import com.efarm.efarmbackend.service.farm.ActivationCodeService
 import org.springframework.security.core.authority.SimpleGrantedAuthority
-import com.efarm.efarmbackend.service.AuthService;
-import com.efarm.efarmbackend.service.FarmService;
-import com.efarm.efarmbackend.service.UserService;
-import com.efarm.efarmbackend.service.ValidationRequestService;
-import jakarta.transaction.Transactional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import com.efarm.efarmbackend.service.auth.AuthService
+import com.efarm.efarmbackend.service.farm.FarmService
+import com.efarm.efarmbackend.service.user.UserService
+import com.efarm.efarmbackend.service.ValidationRequestService
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.http.ResponseCookie
-import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.core.Authentication
-import org.springframework.stereotype.Service;
 import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.validation.BindingResult;
+import org.springframework.validation.BindingResult
 import spock.lang.Specification
 import spock.lang.Subject
-import spock.lang.Unroll
 import java.time.LocalDate
 import org.springframework.validation.FieldError
-import java.net.URI;
 
-import java.time.temporal.ChronoUnit;
+import java.time.temporal.ChronoUnit
 import java.time.Duration
-import org.springframework.security.authentication.BadCredentialsException
 
 
 class AuthFacadeSpec extends Specification {
@@ -74,8 +67,8 @@ class AuthFacadeSpec extends Specification {
             activationCodeRepository: activationCodeRepository,
             authService: authService,
             userService: userService,
-            activationCodeService:activationCodeService,
-            farmService:farmService,
+            activationCodeService: activationCodeService,
+            farmService: farmService,
             validationRequestService: validationRequestService,
             authenticationManager: authenticationManager,
             jwtUtils: jwtUtils
@@ -87,6 +80,7 @@ class AuthFacadeSpec extends Specification {
     /*
             authenticateUser
     */
+
     def "should authenticate user properly"() {
         given:
         LoginRequest loginRequest = new LoginRequest(
@@ -97,7 +91,7 @@ class AuthFacadeSpec extends Specification {
 
         Role role = Mock(Role)
         role.getName() >> ERole.ROLE_FARM_OWNER
-        
+
         UserDetailsImpl userDetails = Mock(UserDetailsImpl)
         userDetails.getId() >> 1
         userDetails.getUsername() >> "user"
@@ -109,15 +103,15 @@ class AuthFacadeSpec extends Specification {
         user.getFarm() >> farm
         user.getRole() >> role
         List<String> roles = ["ROLE_FARM_OWNER"]
-        
-        
+
+
         authService.authenticateUserByLoginRequest(loginRequest) >> userDetails
-        Authentication auth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(auth);
+        Authentication auth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities())
+        SecurityContextHolder.getContext().setAuthentication(auth)
         userService.getLoggedUserRoles(userDetails) >> roles
         userRepository.findById(Long.valueOf(userDetails.getId())) >> Optional.of(user)
         userService.getUserFarmById(Long.valueOf(userDetails.getId())) >> farm
-        
+
         farmService.checkFarmDeactivation(farm, role) >> null
         activationCodeService.signinWithExpireCodeInfo(userDetails, farm, roles) >> null
 
@@ -153,7 +147,7 @@ class AuthFacadeSpec extends Specification {
 
         User user = Mock(User)
         user.getId() >> 2
-        user.getIsActive() >> false 
+        user.getIsActive() >> false
         user.getFarm() >> Mock(Farm)
 
         authService.authenticateUserByLoginRequest(loginRequest) >> userDetails
@@ -170,7 +164,7 @@ class AuthFacadeSpec extends Specification {
     def "should return 401 for wrong credentials"() {
         given:
         LoginRequest loginRequest = new LoginRequest(username: "wrongUser", password: "wrongPassword")
-        
+
         authService.authenticateUserByLoginRequest(loginRequest) >> { throw new RuntimeException("Nieprawidłowe dane logowania") }
 
         when:
@@ -179,7 +173,7 @@ class AuthFacadeSpec extends Specification {
         then:
         response.getStatusCode() == HttpStatus.UNAUTHORIZED
         response.body.message == "Nieprawidłowe dane logowania"
-        
+
     }
 
     def "should return FORBIDDEN if farm is inactive"() {
@@ -196,7 +190,7 @@ class AuthFacadeSpec extends Specification {
 
         Role role = Mock(Role)
         role.getName() >> ERole.ROLE_FARM_MANAGER
-        
+
         User user = Mock(User)
         user.getId() >> 1
         user.getIsActive() >> true
@@ -212,7 +206,7 @@ class AuthFacadeSpec extends Specification {
         userService.getUserFarmById(Long.valueOf(userDetails.getId())) >> farm
 
         farmService.checkFarmDeactivation(farm, role) >> ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(new MessageResponse("Gospodarstwo jest nieaktywne. Kod aktywacyjny wygasł."))
+                .body(new MessageResponse("Gospodarstwo jest nieaktywne. Kod aktywacyjny wygasł."))
 
         when:
         ResponseEntity<?> response = authFacade.authenticateUser(loginRequest)
@@ -255,7 +249,7 @@ class AuthFacadeSpec extends Specification {
         userRepository.findById(Long.valueOf(userDetails.getId())) >> Optional.of(user)
         userService.getUserFarmById(Long.valueOf(userDetails.getId())) >> farm
         farmService.checkFarmDeactivation(farm, role) >> null
-        
+
         ResponseCookie jwtCookie = ResponseCookie.from("jwtTokenName", "jwtTokenString")
                 .path("/api")
                 .httpOnly(true)
@@ -263,9 +257,9 @@ class AuthFacadeSpec extends Specification {
                 .build()
         jwtUtils.generateJwtCookie(userDetails) >> jwtCookie
 
-        long daysToExpiration = ChronoUnit.DAYS.between(LocalDate.now(), activationCode.getExpireDate());
+        long daysToExpiration = ChronoUnit.DAYS.between(LocalDate.now(), activationCode.getExpireDate())
         activationCodeService.signinWithExpireCodeInfo(userDetails, farm, roles) >> ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, jwtUtils.generateJwtCookie(userDetails).toString())
-                            .body(new UserInfoResponse(userDetails.getId(), userDetails.getUsername(), userDetails.getEmail(), roles, "Kod aktywacyjny wygasa za " + daysToExpiration + " dni."));
+                .body(new UserInfoResponse(userDetails.getId(), userDetails.getUsername(), userDetails.getEmail(), roles, "Kod aktywacyjny wygasa za " + daysToExpiration + " dni."))
 
 
         when:
@@ -310,7 +304,7 @@ class AuthFacadeSpec extends Specification {
         userService.getLoggedUserFarm() >> farm
 
         when:
-        ResponseEntity<?> response = authFacade.registerUser(signUpRequest,bindingResult)
+        ResponseEntity<?> response = authFacade.registerUser(signUpRequest, bindingResult)
 
         then:
         1 * userRepository.save(user)
@@ -331,8 +325,8 @@ class AuthFacadeSpec extends Specification {
         BindingResult bindingResult = Mock(BindingResult)
         bindingResult.hasErrors() >> true
         bindingResult.getFieldErrors() >> [
-            new FieldError("signupRequest", "firstName", "first name is required"),
-            new FieldError("signupRequest", "email", "Email is invalid")
+                new FieldError("signupRequest", "firstName", "first name is required"),
+                new FieldError("signupRequest", "email", "Email is invalid")
         ]
         ResponseEntity<?> validationErrorResponse = ResponseEntity.badRequest().body(new MessageResponse("Validation error"))
         validationRequestService.validateRequest(bindingResult) >> validationErrorResponse
@@ -428,10 +422,10 @@ class AuthFacadeSpec extends Specification {
         activationCodeRepository.findByCode(signUpFarmRequest.getActivationCode()) >> Optional.of(activationCode)
         activationCodeService.validateActivationCode(signUpFarmRequest.getActivationCode()) >> ResponseEntity.ok().build()
         farmService.createFarm(signUpFarmRequest.getFarmName(), address.getId(), activationCode.getId()) >> farm
-        activationCodeService.markActivationCodeAsUsed(signUpFarmRequest.getActivationCode()) >> { }
+        activationCodeService.markActivationCodeAsUsed(signUpFarmRequest.getActivationCode()) >> {}
 
         when:
-        ResponseEntity<?> response = authFacade.registerFarmAndFarmOwner(signUpFarmRequest,bindingResult)
+        ResponseEntity<?> response = authFacade.registerFarmAndFarmOwner(signUpFarmRequest, bindingResult)
 
         then:
         1 * addressRepository.save(_)
@@ -537,7 +531,7 @@ class AuthFacadeSpec extends Specification {
         userRepository.existsByUsername(signUpFarmRequest.getUsername()) >> false
         farmRepository.existsByFarmName(signUpFarmRequest.getFarmName()) >> false
         activationCodeRepository.findByCode(signUpFarmRequest.getActivationCode()) >> Optional.empty()
-    
+
         activationCodeService.validateActivationCode(signUpFarmRequest.getActivationCode()) >> ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Activation code does not exist."))
 
         when:
@@ -626,9 +620,9 @@ class AuthFacadeSpec extends Specification {
     def "should update activation code by owner"() {
         given:
         UpdateActivationCodeRequest updateActivationCodeRequest = new UpdateActivationCodeRequest(
-            username: "user", 
-            password: "password",
-            newActivationCode: "newActivationCode"
+                username: "user",
+                password: "password",
+                newActivationCode: "newActivationCode"
         )
         List<String> roles = ["ROLE_FARM_OWNER"]
         UserDetailsImpl userDetails = Mock(UserDetailsImpl)
@@ -641,7 +635,7 @@ class AuthFacadeSpec extends Specification {
         authService.authenticateUserByUpdateCodeRequest(updateActivationCodeRequest) >> userDetails
         userService.getLoggedUserRoles(userDetails) >> roles
         userService.getUserFarmById(Long.valueOf(userDetails.getId())) >> farm
-        activationCodeService.updateActivationCodeForFarm(updateActivationCodeRequest.getNewActivationCode(), farm.getId(),userDetails.getUsername()) >> ResponseEntity
+        activationCodeService.updateActivationCodeForFarm(updateActivationCodeRequest.getNewActivationCode(), farm.getId(), userDetails.getUsername()) >> ResponseEntity
                 .status(HttpStatus.OK)
                 .location(URI.create("/"))
                 .body(new MessageResponse("Activation code updated successfully for the farm."))
@@ -652,17 +646,17 @@ class AuthFacadeSpec extends Specification {
         then:
         response.getStatusCode() == HttpStatus.OK
         response.getBody().message.contains("Activation code updated successfully for the farm.")
-        response.getHeaders().getLocation() ==  URI.create("/")
+        response.getHeaders().getLocation() == URI.create("/")
     }
 
     def "should return UNAUTHORIZED if user is not a farm owner"() {
         given:
         UpdateActivationCodeRequest updateActivationCodeRequest = new UpdateActivationCodeRequest(
-            username: "user", 
-            password: "password",
-            newActivationCode: "newActivationCode"
+                username: "user",
+                password: "password",
+                newActivationCode: "newActivationCode"
         )
-        List<String> roles = ["ROLE_FARM_MANAGER"] 
+        List<String> roles = ["ROLE_FARM_MANAGER"]
         UserDetailsImpl userDetails = Mock(UserDetailsImpl)
         userDetails.getId() >> 1
 
@@ -680,9 +674,9 @@ class AuthFacadeSpec extends Specification {
     def "should return BAD_REQUEST if activation code update fails"() {
         given:
         UpdateActivationCodeRequest updateActivationCodeRequest = new UpdateActivationCodeRequest(
-            username: "user", 
-            password: "password",
-            newActivationCode: "invalidActivationCode"
+                username: "user",
+                password: "password",
+                newActivationCode: "invalidActivationCode"
         )
         List<String> roles = ["ROLE_FARM_OWNER"]
         UserDetailsImpl userDetails = Mock(UserDetailsImpl)
@@ -694,7 +688,7 @@ class AuthFacadeSpec extends Specification {
         authService.authenticateUserByUpdateCodeRequest(updateActivationCodeRequest) >> userDetails
         userService.getLoggedUserRoles(userDetails) >> roles
         userService.getUserFarmById(Long.valueOf(userDetails.getId())) >> farm
-        activationCodeService.updateActivationCodeForFarm(updateActivationCodeRequest.getNewActivationCode(), farm.getId(),userDetails.getUsername()) >> ResponseEntity
+        activationCodeService.updateActivationCodeForFarm(updateActivationCodeRequest.getNewActivationCode(), farm.getId(), userDetails.getUsername()) >> ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(new MessageResponse("Activation code does not exist."))
 
@@ -708,6 +702,7 @@ class AuthFacadeSpec extends Specification {
     /*
         updateActivationCodeByLoggedOwner
     */
+
     def "should update activation code when password is valid and no validation errors"() {
         given:
         UpdateActivationCodeByLoggedOwnerRequest request = Mock(UpdateActivationCodeByLoggedOwnerRequest) {
@@ -725,7 +720,7 @@ class AuthFacadeSpec extends Specification {
         userService.isPasswordValidForLoggedUser(request.getPassword()) >> true
         userService.getLoggedUserFarm() >> farm
         userService.getLoggedUser() >> Mock(User) { getUsername() >> username }
-        
+
         activationCodeService.updateActivationCodeForFarm(request.getNewActivationCode(), farmId, username) >> ResponseEntity.ok(new MessageResponse("Activation code updated successfully for the farm."))
 
         when:
@@ -785,7 +780,7 @@ class AuthFacadeSpec extends Specification {
         String currentPassword = "password123"
         String newPassword = "newPassword123"
         BindingResult bindingResult = Mock(BindingResult)
-        ChangePasswordRequest request = Mock(ChangePasswordRequest){
+        ChangePasswordRequest request = Mock(ChangePasswordRequest) {
             getCurrentPassword() >> currentPassword
             getNewPassword() >> newPassword
         }
@@ -806,7 +801,7 @@ class AuthFacadeSpec extends Specification {
         String currentPassword = "wrongPassword"
         String newPassword = "newPassword123"
         BindingResult bindingResult = Mock(BindingResult)
-        ChangePasswordRequest request = Mock(ChangePasswordRequest){
+        ChangePasswordRequest request = Mock(ChangePasswordRequest) {
             getCurrentPassword() >> currentPassword
             getNewPassword() >> newPassword
         }
@@ -826,7 +821,7 @@ class AuthFacadeSpec extends Specification {
         String currentPassword = "password123"
         String newPassword = "newPassword123"
         BindingResult bindingResult = Mock(BindingResult)
-        ChangePasswordRequest request = Mock(ChangePasswordRequest){
+        ChangePasswordRequest request = Mock(ChangePasswordRequest) {
             getCurrentPassword() >> currentPassword
             getNewPassword() >> newPassword
         }

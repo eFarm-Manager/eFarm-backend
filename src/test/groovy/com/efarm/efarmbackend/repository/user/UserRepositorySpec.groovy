@@ -1,7 +1,6 @@
 package com.efarm.efarmbackend.repository.user
 
 import com.efarm.efarmbackend.model.user.User
-import com.efarm.efarmbackend.model.user.ERole
 import com.efarm.efarmbackend.model.farm.Farm
 import spock.lang.Specification
 

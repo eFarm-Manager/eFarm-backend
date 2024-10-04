@@ -1,7 +1,7 @@
 package com.efarm.efarmbackend.controller;
 
 import com.efarm.efarmbackend.model.equipment.FarmEquipmentDTO;
-import com.efarm.efarmbackend.service.facades.FarmEquipmentFacade;
+import com.efarm.efarmbackend.service.equipment.FarmEquipmentFacade;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;

@@ -1,17 +1,11 @@
 package com.efarm.efarmbackend.service;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
-import com.efarm.efarmbackend.payload.response.MessageResponse;
 import spock.lang.Specification
 import spock.lang.Subject
-import spock.lang.Unroll
 import org.springframework.validation.FieldError
 import org.springframework.http.HttpStatus
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 class ValidationRequestServiceSpec extends Specification {
     @Subject
@@ -21,7 +15,7 @@ class ValidationRequestServiceSpec extends Specification {
         given:
         BindingResult bindingResult = Mock(BindingResult) {
             hasErrors() >> true
-            getFieldErrors() >>  [Mock(FieldError) {
+            getFieldErrors() >> [Mock(FieldError) {
                 getField() >> "username"
                 getDefaultMessage() >> "Username cannot be empty"
             }]

@@ -6,16 +6,15 @@ import com.efarm.efarmbackend.model.user.User
 import com.efarm.efarmbackend.model.user.Role
 import com.efarm.efarmbackend.model.user.ERole
 import com.efarm.efarmbackend.repository.farm.ActivationCodeRepository
-import com.efarm.efarmbackend.payload.request.UpdateFarmDetailsRequest;
+import com.efarm.efarmbackend.payload.request.UpdateFarmDetailsRequest
 import com.efarm.efarmbackend.repository.farm.FarmRepository
 import com.efarm.efarmbackend.repository.user.UserRepository
+import com.efarm.efarmbackend.service.farm.FarmService
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.http.ResponseEntity
 import org.springframework.http.HttpStatus
 import spock.lang.Specification
 import spock.lang.Subject
-import spock.lang.Unroll
-import java.net.URI;
 
 import java.time.LocalDate
 
@@ -93,14 +92,14 @@ class FarmServiceSpec extends Specification {
         role_owner.getName() >> ERole.ROLE_FARM_OWNER
         Farm userFarm = Mock(Farm)
         userFarm.getId() >> 1
-        userFarm.getIsActive() >>false
+        userFarm.getIsActive() >> false
 
         when:
-        ResponseEntity<?> response = farmService.checkFarmDeactivation(userFarm,role_owner)
+        ResponseEntity<?> response = farmService.checkFarmDeactivation(userFarm, role_owner)
 
         then:
         response.getStatusCode() == HttpStatus.FORBIDDEN
-        response.getHeaders().getLocation() ==  URI.create("/updateActivationCode")
+        response.getHeaders().getLocation() == URI.create("/updateActivationCode")
         response.getBody().message == "Gospodarstwo jest nieaktywne. Podaj nowy kod aktywacyjny."
     }
 
@@ -110,10 +109,10 @@ class FarmServiceSpec extends Specification {
         role_manager.getName() >> ERole.ROLE_FARM_MANAGER
         Farm userFarm = Mock(Farm)
         userFarm.getId() >> 1
-        userFarm.getIsActive() >>false
+        userFarm.getIsActive() >> false
 
         when:
-        ResponseEntity<?> response = farmService.checkFarmDeactivation(userFarm,role_manager)
+        ResponseEntity<?> response = farmService.checkFarmDeactivation(userFarm, role_manager)
 
         then:
         response.getStatusCode() == HttpStatus.FORBIDDEN
@@ -126,25 +125,26 @@ class FarmServiceSpec extends Specification {
         role_operator.getName() >> ERole.ROLE_FARM_EQUIPMENT_OPERATOR
         Farm userFarm = Mock(Farm)
         userFarm.getId() >> 1
-        userFarm.getIsActive() >>false
+        userFarm.getIsActive() >> false
 
         when:
-        ResponseEntity<?> response = farmService.checkFarmDeactivation(userFarm,role_operator)
+        ResponseEntity<?> response = farmService.checkFarmDeactivation(userFarm, role_operator)
 
         then:
         response.getStatusCode() == HttpStatus.FORBIDDEN
         response.getBody().message == "Gospodarstwo jest nieaktywne. Kod aktywacyjny wygasł."
     }
+
     def "should not show inactive message because farm is active"() {
         given:
         Role role_owner = Mock(Role)
         role_owner.getName() >> ERole.ROLE_FARM_OWNER
         Farm userFarm = Mock(Farm)
         userFarm.getId() >> 1
-        userFarm.getIsActive() >>true
+        userFarm.getIsActive() >> true
 
         when:
-        ResponseEntity<?> response = farmService.checkFarmDeactivation(userFarm,role_owner)
+        ResponseEntity<?> response = farmService.checkFarmDeactivation(userFarm, role_owner)
 
         then:
         response == null
@@ -154,19 +154,19 @@ class FarmServiceSpec extends Specification {
         given:
         Farm farm = new Farm()
         farm.setId(1)
-        farm.setFarmName("Old Farm") 
-        farm.setFarmNumber("123") 
-        farm.setFeedNumber("456") 
-        farm.setSanitaryRegisterNumber("987") 
+        farm.setFarmName("Old Farm")
+        farm.setFarmNumber("123")
+        farm.setFeedNumber("456")
+        farm.setSanitaryRegisterNumber("987")
         UpdateFarmDetailsRequest updateFarmDetailsRequest = new UpdateFarmDetailsRequest(
-            farmName: "New Farm", 
-            farmNumber: "202", 
-            feedNumber: "456", 
-            sanitaryRegisterNumber: "101"
+                farmName: "New Farm",
+                farmNumber: "202",
+                feedNumber: "456",
+                sanitaryRegisterNumber: "101"
         )
 
         when:
-        farmService.updateFarmDetails(farm,updateFarmDetailsRequest)
+        farmService.updateFarmDetails(farm, updateFarmDetailsRequest)
 
         then:
         1 * farmRepository.save(farm)
@@ -176,7 +176,7 @@ class FarmServiceSpec extends Specification {
         farm.getSanitaryRegisterNumber() == "101"
     }
 
-    def "should return users from farm" () {
+    def "should return users from farm"() {
         given:
         Farm farm1 = Mock(Farm)
         farm1.getId() >> 1
@@ -190,7 +190,7 @@ class FarmServiceSpec extends Specification {
         User user3 = Mock(User)
         user3.getFarm() >> farm2
 
-        userRepository.findByFarmId(1) >> [user1,user2]
+        userRepository.findByFarmId(1) >> [user1, user2]
         when:
         List<User> usersInFarm1 = farmService.getUsersByFarmId(1)
 
