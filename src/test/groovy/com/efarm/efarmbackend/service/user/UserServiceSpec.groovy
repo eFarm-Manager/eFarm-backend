@@ -9,13 +9,13 @@ import com.efarm.efarmbackend.payload.request.SignupRequest
 import com.efarm.efarmbackend.repository.user.RoleRepository
 import com.efarm.efarmbackend.repository.user.UserRepository
 import com.efarm.efarmbackend.security.services.UserDetailsImpl
+import com.efarm.efarmbackend.service.user.UserService
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.crypto.password.PasswordEncoder
 import spock.lang.Specification
 import spock.lang.Subject
-import spock.lang.Unroll
 
 class UserServiceSpec extends Specification {
 
@@ -108,7 +108,7 @@ class UserServiceSpec extends Specification {
         newUser.getPassword() == "encodedPassword"
     }
 
-    def "should handle returning current logged user" () {
+    def "should handle returning current logged user"() {
         given:
         User currentUser = Mock(User)
         currentUser.getUsername() >> "currentUser"

@@ -170,19 +170,18 @@ public class UserRepositoryIT {
         assertThat(existsByUsername, is(false));
     }
 
-	@Test
-	@DisplayName("Tests that all users are found by farm id")
-	public void testFindAllUsersByFarmId()
-	{
-    	// Given
-    	Integer farmId = 1; 
+    @Test
+    @DisplayName("Tests that all users are found by farm id")
+    public void testFindAllUsersByFarmId() {
+        // Given
+        Integer farmId = 1;
 
-	    // When
-    	List<User> users = userRepository.findByFarmId(farmId);
+        // When
+        List<User> users = userRepository.findByFarmId(farmId);
 
-    	// Then
-	    assertThat(users, is(not(empty()))); 
-    	assertThat(users, everyItem(hasProperty("farm", hasProperty("id", is(farmId)))));
-	}
+        // Then
+        assertThat(users, is(not(empty())));
+        assertThat(users, everyItem(hasProperty("farm", hasProperty("id", is(farmId)))));
+    }
 
 }

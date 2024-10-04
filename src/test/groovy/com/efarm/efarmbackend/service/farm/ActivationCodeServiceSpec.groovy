@@ -10,13 +10,13 @@ import com.efarm.efarmbackend.repository.farm.ActivationCodeRepository
 import com.efarm.efarmbackend.repository.farm.FarmRepository
 import com.efarm.efarmbackend.security.jwt.JwtUtils
 import com.efarm.efarmbackend.security.services.UserDetailsImpl
-import com.efarm.efarmbackend.security.services.BruteForceProtectionService;
+import com.efarm.efarmbackend.security.services.BruteForceProtectionService
+import com.efarm.efarmbackend.service.farm.ActivationCodeService
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.http.HttpStatus
 import spock.lang.Specification
 import spock.lang.Subject
-import spock.lang.Unroll
 import org.springframework.http.ResponseCookie
 import org.springframework.http.HttpHeaders
 
@@ -107,7 +107,7 @@ class ActivationCodeServiceSpec extends Specification {
         then:
         response.getStatusCode() == HttpStatus.BAD_REQUEST
         response.body.message == "Activation code has already been used."
-    }   
+    }
 
     def "should handle using code correctly"() {
         given:
@@ -205,7 +205,7 @@ class ActivationCodeServiceSpec extends Specification {
         then:
         response == null
     }
-    
+
     def "should no info during sign in with expire code info for manager"() {
         given:
         ActivationCode activationCode = Mock(ActivationCode)
@@ -243,7 +243,7 @@ class ActivationCodeServiceSpec extends Specification {
         farmRepository.findById(farm.getId()) >> Optional.of(farm)
         activationCodeRepository.findById(farm.getIdActivationCode()) >> Optional.of(activationCode)
 
-        
+
         when:
         ActivationCode farmCode = activationCodeService.findActivationCodeByFarmId(farm.getId())
 
@@ -265,7 +265,7 @@ class ActivationCodeServiceSpec extends Specification {
         farmRepository.findById(farm.getId()) >> Optional.of(farm)
         activationCodeRepository.findById(farm.getIdActivationCode()) >> Optional.empty()
 
-        
+
         when:
         ActivationCode farmCode = activationCodeService.findActivationCodeByFarmId(farm.getId())
 
@@ -322,7 +322,7 @@ class ActivationCodeServiceSpec extends Specification {
         activationCodeRepository.findById(farm.getIdActivationCode()) >> Optional.of(currentCode)
 
         when:
-        ResponseEntity<MessageResponse> response = activationCodeService.updateActivationCodeForFarm(newActivationCode,farm.getId(),username)
+        ResponseEntity<MessageResponse> response = activationCodeService.updateActivationCodeForFarm(newActivationCode, farm.getId(), username)
 
         then:
         1 * activationCodeRepository.delete(currentCode)
@@ -345,7 +345,7 @@ class ActivationCodeServiceSpec extends Specification {
         activationCodeRepository.findByCode(newActivationCode) >> Optional.of(newActivationCodeEntity)
 
         when:
-        ResponseEntity<MessageResponse> response = activationCodeService.updateActivationCodeForFarm(newActivationCode,1,username)
+        ResponseEntity<MessageResponse> response = activationCodeService.updateActivationCodeForFarm(newActivationCode, 1, username)
 
         then:
         response.getStatusCode() == HttpStatus.BAD_REQUEST
@@ -360,7 +360,7 @@ class ActivationCodeServiceSpec extends Specification {
         bruteForceProtectionService.isBlocked(username) >> true
 
         when:
-        ResponseEntity<MessageResponse> response = activationCodeService.updateActivationCodeForFarm(newActivationCode,1,username)
+        ResponseEntity<MessageResponse> response = activationCodeService.updateActivationCodeForFarm(newActivationCode, 1, username)
 
         then:
         response.getStatusCode() == HttpStatus.TOO_MANY_REQUESTS

@@ -1,4 +1,4 @@
-package com.efarm.efarmbackend.service;
+package com.efarm.efarmbackend.service.farm;
 
 import com.efarm.efarmbackend.model.farm.ActivationCode;
 import com.efarm.efarmbackend.model.farm.Farm;

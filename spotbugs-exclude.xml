@@ -12,11 +12,11 @@
         <Bug pattern="REC_CATCH_EXCEPTION"/>
         <Or>
             <And>
-                <Class name="com.efarm.efarmbackend.service.AuthService"/>
+                <Class name="com.efarm.efarmbackend.service.auth.AuthService"/>
                 <Method name="authenticateUserByLoginRequest"/>
             </And>
             <And>
-                <Class name="com.efarm.efarmbackend.service.AuthService"/>
+                <Class name="com.efarm.efarmbackend.service.auth.AuthService"/>
                 <Method name="authenticateUserByUpdateCodeRequest"/>
             </And>
         </Or>

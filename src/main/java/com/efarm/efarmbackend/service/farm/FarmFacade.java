@@ -1,4 +1,4 @@
-package com.efarm.efarmbackend.service.facades;
+package com.efarm.efarmbackend.service.farm;
 
 import com.efarm.efarmbackend.model.farm.ActivationCode;
 import com.efarm.efarmbackend.model.farm.Address;
@@ -9,6 +9,8 @@ import com.efarm.efarmbackend.model.user.UserDTO;
 import com.efarm.efarmbackend.payload.request.UpdateFarmDetailsRequest;
 import com.efarm.efarmbackend.payload.response.MessageResponse;
 import com.efarm.efarmbackend.service.*;
+import com.efarm.efarmbackend.service.auth.AuthService;
+import com.efarm.efarmbackend.service.user.UserService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
