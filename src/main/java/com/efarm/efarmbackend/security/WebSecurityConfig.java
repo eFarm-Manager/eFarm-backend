@@ -20,11 +20,7 @@ import com.efarm.efarmbackend.security.jwt.AuthTokenFilter;
 import com.efarm.efarmbackend.security.services.UserDetailsServiceImpl;
 
 @Configuration
-//@EnableWebSecurity
 @EnableMethodSecurity
-//(securedEnabled = true,
-//jsr250Enabled = true,
-//prePostEnabled = true) // by default
 public class WebSecurityConfig {
     @Autowired
     UserDetailsServiceImpl userDetailsService;
@@ -65,7 +61,7 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(auth ->
                         auth.requestMatchers("/api/auth/**").permitAll()
                                 .requestMatchers("/api/test/**").permitAll()
-                                .requestMatchers("api/farm/**").permitAll()
+                                .requestMatchers("/actuator/**").permitAll()
                                 .anyRequest().authenticated()
                 );
 

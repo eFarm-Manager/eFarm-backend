@@ -51,15 +51,15 @@ spec:
             limits:
               cpu: 500m
               memory: 750Mi
-#          livenessProbe:
-#            httpGet:
-#              path: /actuator/health
-#              port: 8080
-#            initialDelaySeconds: 60
-#            periodSeconds: 60
-#          readinessProbe:
-#            httpGet:
-#              path: /actuator/health
-#              port: 8080
-#            initialDelaySeconds: 60
-#            periodSeconds: 60
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 60
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 60
