@@ -9,6 +9,7 @@ import com.efarm.efarmbackend.payload.request.SignupRequest
 import com.efarm.efarmbackend.repository.user.RoleRepository
 import com.efarm.efarmbackend.repository.user.UserRepository
 import com.efarm.efarmbackend.security.services.UserDetailsImpl
+import com.efarm.efarmbackend.service.user.UserService
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder

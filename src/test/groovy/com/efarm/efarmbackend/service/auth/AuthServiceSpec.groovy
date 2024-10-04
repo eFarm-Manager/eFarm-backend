@@ -4,6 +4,7 @@ import com.efarm.efarmbackend.payload.request.LoginRequest
 import com.efarm.efarmbackend.payload.request.UpdateActivationCodeRequest
 import com.efarm.efarmbackend.security.services.BruteForceProtectionService
 import com.efarm.efarmbackend.security.services.UserDetailsImpl
+import com.efarm.efarmbackend.service.auth.AuthService
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder

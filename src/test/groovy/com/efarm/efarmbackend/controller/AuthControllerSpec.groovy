@@ -1,7 +1,7 @@
 package com.efarm.efarmbackend.controller
 
 import com.efarm.efarmbackend.security.jwt.JwtUtils
-import com.efarm.efarmbackend.service.facades.AuthFacade
+import com.efarm.efarmbackend.service.auth.AuthFacade
 import org.springframework.http.HttpHeaders
 import org.springframework.http.ResponseCookie
 import org.springframework.http.ResponseEntity

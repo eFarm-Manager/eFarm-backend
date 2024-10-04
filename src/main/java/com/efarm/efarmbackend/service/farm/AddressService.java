@@ -1,4 +1,4 @@
-package com.efarm.efarmbackend.service;
+package com.efarm.efarmbackend.service.farm;
 
 import com.efarm.efarmbackend.model.farm.Address;
 import com.efarm.efarmbackend.payload.request.UpdateFarmDetailsRequest;

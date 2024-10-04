@@ -20,11 +20,12 @@ import com.efarm.efarmbackend.repository.farm.FarmRepository
 import com.efarm.efarmbackend.repository.user.UserRepository
 import com.efarm.efarmbackend.security.jwt.JwtUtils
 import com.efarm.efarmbackend.security.services.UserDetailsImpl
-import com.efarm.efarmbackend.service.ActivationCodeService
+import com.efarm.efarmbackend.service.auth.AuthFacade
+import com.efarm.efarmbackend.service.farm.ActivationCodeService
 import org.springframework.security.core.authority.SimpleGrantedAuthority
-import com.efarm.efarmbackend.service.AuthService
-import com.efarm.efarmbackend.service.FarmService
-import com.efarm.efarmbackend.service.UserService
+import com.efarm.efarmbackend.service.auth.AuthService
+import com.efarm.efarmbackend.service.farm.FarmService
+import com.efarm.efarmbackend.service.user.UserService
 import com.efarm.efarmbackend.service.ValidationRequestService
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus

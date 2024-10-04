@@ -11,6 +11,7 @@ import com.efarm.efarmbackend.repository.farm.FarmRepository
 import com.efarm.efarmbackend.security.jwt.JwtUtils
 import com.efarm.efarmbackend.security.services.UserDetailsImpl
 import com.efarm.efarmbackend.security.services.BruteForceProtectionService
+import com.efarm.efarmbackend.service.farm.ActivationCodeService
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.http.HttpStatus

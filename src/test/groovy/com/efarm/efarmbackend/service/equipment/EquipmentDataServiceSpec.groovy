@@ -1,5 +1,6 @@
-package com.efarm.efarmbackend.service;
+package com.efarm.efarmbackend.service
 
+import com.efarm.efarmbackend.service.equipment.EquipmentDisplayDataService;
 import spock.lang.Specification
 import spock.lang.Subject
 

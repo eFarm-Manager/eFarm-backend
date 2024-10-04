@@ -9,6 +9,7 @@ import com.efarm.efarmbackend.repository.farm.ActivationCodeRepository
 import com.efarm.efarmbackend.payload.request.UpdateFarmDetailsRequest
 import com.efarm.efarmbackend.repository.farm.FarmRepository
 import com.efarm.efarmbackend.repository.user.UserRepository
+import com.efarm.efarmbackend.service.farm.FarmService
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.http.ResponseEntity
 import org.springframework.http.HttpStatus

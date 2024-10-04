@@ -3,7 +3,8 @@ package com.efarm.efarmbackend.service;
 import com.efarm.efarmbackend.model.equipment.FarmEquipment;
 import com.efarm.efarmbackend.model.equipment.FarmEquipmentId;
 import com.efarm.efarmbackend.model.equipment.EquipmentCategory;
-import com.efarm.efarmbackend.model.equipment.FarmEquipmentDTO;
+import com.efarm.efarmbackend.model.equipment.FarmEquipmentDTO
+import com.efarm.efarmbackend.service.equipment.FarmEquipmentService;
 import spock.lang.Specification
 import spock.lang.Subject
 import java.time.LocalDate

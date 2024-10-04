@@ -1,4 +1,4 @@
-package com.efarm.efarmbackend.service;
+package com.efarm.efarmbackend.service.user;
 
 import com.efarm.efarmbackend.model.farm.Farm;
 import com.efarm.efarmbackend.model.user.ERole;

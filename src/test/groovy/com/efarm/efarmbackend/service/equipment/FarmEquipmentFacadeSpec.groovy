@@ -5,11 +5,12 @@ import com.efarm.efarmbackend.model.equipment.FarmEquipmentDTO
 import com.efarm.efarmbackend.model.equipment.FarmEquipmentId
 import com.efarm.efarmbackend.model.equipment.EquipmentCategory
 import com.efarm.efarmbackend.model.farm.Farm
+import com.efarm.efarmbackend.service.equipment.FarmEquipmentFacade
 import org.springframework.http.HttpStatus
 import com.efarm.efarmbackend.repository.equipment.FarmEquipmentRepository
-import com.efarm.efarmbackend.service.EquipmentDisplayDataService
-import com.efarm.efarmbackend.service.FarmEquipmentService
-import com.efarm.efarmbackend.service.UserService
+import com.efarm.efarmbackend.service.equipment.EquipmentDisplayDataService
+import com.efarm.efarmbackend.service.equipment.FarmEquipmentService
+import com.efarm.efarmbackend.service.user.UserService
 import org.springframework.http.ResponseEntity
 import spock.lang.Specification
 import spock.lang.Subject
