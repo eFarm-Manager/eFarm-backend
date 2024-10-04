@@ -14,6 +14,7 @@ public class ScheduledTasks {
 
     private static final Logger logger = LoggerFactory.getLogger(ScheduledTasks.class);
 
+    //Every day at midnight
     @Scheduled(cron = "0 0 0 * * *", zone = "Europe/Warsaw")
     public void checkFarmsForExpiredActivationCodes() {
         logger.info("Start checking expired Activation Codes");

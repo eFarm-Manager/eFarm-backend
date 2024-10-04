@@ -11,6 +11,7 @@ import com.efarm.efarmbackend.repository.farm.FarmRepository
 import com.efarm.efarmbackend.repository.user.UserRepository
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.http.ResponseEntity
+import org.springframework.http.HttpStatus
 import spock.lang.Specification
 import spock.lang.Subject
 import spock.lang.Unroll
@@ -61,7 +62,6 @@ class FarmServiceSpec extends Specification {
         activationCode2.getId() >> 2
         activationCode2.getExpireDate() >> LocalDate.now().minusDays(10)
 
-
         Farm farm1 = Mock(Farm)
         farm1.getIsActive() >> true
         farm1.getFarmName() >> "farm1"
@@ -84,7 +84,6 @@ class FarmServiceSpec extends Specification {
         then:
         0 * farm1.setIsActive(false)
         1 * farm2.setIsActive(false)
-
         farm2.getIsActive() >>> [true, false]
     }
 
@@ -100,7 +99,7 @@ class FarmServiceSpec extends Specification {
         ResponseEntity<?> response = farmService.checkFarmDeactivation(userFarm,role_owner)
 
         then:
-        response.statusCodeValue == 403
+        response.getStatusCode() == HttpStatus.FORBIDDEN
         response.getHeaders().getLocation() ==  URI.create("/updateActivationCode")
         response.getBody().message == "Gospodarstwo jest nieaktywne. Podaj nowy kod aktywacyjny."
     }
@@ -117,7 +116,7 @@ class FarmServiceSpec extends Specification {
         ResponseEntity<?> response = farmService.checkFarmDeactivation(userFarm,role_manager)
 
         then:
-        response.statusCodeValue == 403
+        response.getStatusCode() == HttpStatus.FORBIDDEN
         response.getBody().message == "Gospodarstwo jest nieaktywne. Kod aktywacyjny wygasł."
     }
 
@@ -133,7 +132,7 @@ class FarmServiceSpec extends Specification {
         ResponseEntity<?> response = farmService.checkFarmDeactivation(userFarm,role_operator)
 
         then:
-        response.statusCodeValue == 403
+        response.getStatusCode() == HttpStatus.FORBIDDEN
         response.getBody().message == "Gospodarstwo jest nieaktywne. Kod aktywacyjny wygasł."
     }
     def "should not show inactive message because farm is active"() {

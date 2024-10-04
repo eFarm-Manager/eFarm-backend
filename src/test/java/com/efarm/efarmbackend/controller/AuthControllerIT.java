@@ -19,9 +19,11 @@ import com.efarm.efarmbackend.model.farm.Farm;
 import com.efarm.efarmbackend.model.user.ERole;
 import com.efarm.efarmbackend.model.user.Role;
 import com.efarm.efarmbackend.model.user.User;
+import com.efarm.efarmbackend.payload.request.ChangePasswordRequest;
 import com.efarm.efarmbackend.payload.request.LoginRequest;
 import com.efarm.efarmbackend.payload.request.SignupFarmRequest;
 import com.efarm.efarmbackend.payload.request.SignupRequest;
+import com.efarm.efarmbackend.payload.request.UpdateActivationCodeByLoggedOwnerRequest;
 import com.efarm.efarmbackend.payload.request.UpdateActivationCodeRequest;
 import com.efarm.efarmbackend.security.services.UserDetailsImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -34,6 +36,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -56,6 +59,11 @@ public class AuthControllerIT {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @BeforeEach
+    public void clearSecurityContext() {
+        SecurityContextHolder.clearContext();
+    }
 
     @Test
     @DisplayName("Test successful signin of a existing user with role operator")
@@ -700,5 +708,267 @@ public class AuthControllerIT {
         // Then
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Zbyt wiele nieudanych prób. Spróbuj ponownie później."));
+    }
+
+    @Test
+    @DisplayName("Test updating activation code by logged in owner")
+    void testUpdateActivationCodeByLoggedOwner() throws Exception {
+        //given
+        Role role = entityManager.find(Role.class, 3);
+        Farm farm = entityManager.find(Farm.class, 5);
+        User newUser = new User();
+        newUser.setUsername("username");
+        newUser.setFirstName("John");
+        newUser.setLastName("Doe");
+        newUser.setEmail("email@gmail.com");
+        newUser.setPassword(passwordEncoder.encode("password123"));
+        newUser.setRole(role);
+        newUser.setPhoneNumber("123465798");
+        newUser.setFarm(farm);
+        newUser.setIsActive(true);
+        entityManager.merge(newUser);
+        entityManager.flush(); 
+
+        User currentUser = entityManager.createQuery(
+                "SELECT u FROM User u WHERE u.username = :username", User.class)
+        .setParameter("username", "username")
+        .setMaxResults(1)  // Ensures only one result is returned
+        .getSingleResult();
+
+        UserDetailsImpl userDetails = UserDetailsImpl.build(currentUser);
+        UsernamePasswordAuthenticationToken authToken =
+                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authToken);
+
+        ActivationCode activationCode = entityManager.find(ActivationCode.class, 5);
+
+        UpdateActivationCodeByLoggedOwnerRequest updateActivationCodeByLoggedOwnerRequest = new UpdateActivationCodeByLoggedOwnerRequest();
+        updateActivationCodeByLoggedOwnerRequest.setPassword("password123");
+        updateActivationCodeByLoggedOwnerRequest.setNewActivationCode(activationCode.getCode());
+
+        //when
+        mockMvc.perform(put("/api/auth/update-activation-code")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updateActivationCodeByLoggedOwnerRequest)))
+        // Then
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.message").value("Activation code updated successfully for the farm."));
+    }
+
+    @Test
+    @DisplayName("Test updating activation code with invalid password")
+    void testUpdateActivationCodeWithInvalidPassword() throws Exception {
+        //given
+        Role role = entityManager.find(Role.class, 3);
+        Farm farm = entityManager.find(Farm.class, 5);
+        User newUser = new User();
+        newUser.setUsername("username");
+        newUser.setFirstName("John");
+        newUser.setLastName("Doe");
+        newUser.setEmail("email@gmail.com");
+        newUser.setPassword(passwordEncoder.encode("password123"));
+        newUser.setRole(role);
+        newUser.setPhoneNumber("123465798");
+        newUser.setFarm(farm);
+        newUser.setIsActive(true);
+        entityManager.merge(newUser);
+        entityManager.flush();
+    
+        User currentUser = entityManager.createQuery(
+                "SELECT u FROM User u WHERE u.username = :username", User.class)
+        .setParameter("username", "username")
+        .setMaxResults(1)
+        .getSingleResult();
+    
+        UserDetailsImpl userDetails = UserDetailsImpl.build(currentUser);
+        UsernamePasswordAuthenticationToken authToken =
+                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authToken);
+    
+        UpdateActivationCodeByLoggedOwnerRequest updateActivationCodeByLoggedOwnerRequest = new UpdateActivationCodeByLoggedOwnerRequest();
+        updateActivationCodeByLoggedOwnerRequest.setPassword("wrongPassword"); // Incorrect password
+        updateActivationCodeByLoggedOwnerRequest.setNewActivationCode("doesntMatterHere");
+    
+        //when
+        mockMvc.perform(put("/api/auth/update-activation-code")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updateActivationCodeByLoggedOwnerRequest)))
+        // Then
+        .andExpect(status().isUnauthorized())
+        .andExpect(jsonPath("$.message").value("Nieprawidłowe hasło"));
+    }
+
+    @Test
+    @DisplayName("Test updating activation code with the invalid code for any reason here used")
+    void testUpdateActivationCodeWithInvalidCode() throws Exception {
+        //given
+        Role role = entityManager.find(Role.class, 3);
+        Farm farm = entityManager.find(Farm.class, 5);
+        User newUser = new User();
+        newUser.setUsername("username");
+        newUser.setFirstName("John");
+        newUser.setLastName("Doe");
+        newUser.setEmail("email@gmail.com");
+        newUser.setPassword(passwordEncoder.encode("password123"));
+        newUser.setRole(role);
+        newUser.setPhoneNumber("123465798");
+        newUser.setFarm(farm);
+        newUser.setIsActive(true);
+        entityManager.merge(newUser);
+        entityManager.flush();
+    
+        User currentUser = entityManager.createQuery(
+                "SELECT u FROM User u WHERE u.username = :username", User.class)
+        .setParameter("username", "username")
+        .setMaxResults(1)
+        .getSingleResult();
+    
+        UserDetailsImpl userDetails = UserDetailsImpl.build(currentUser);
+        UsernamePasswordAuthenticationToken authToken =
+                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authToken);
+    
+        ActivationCode activationCode = entityManager.find(ActivationCode.class, 13);
+    
+        UpdateActivationCodeByLoggedOwnerRequest updateActivationCodeByLoggedOwnerRequest = new UpdateActivationCodeByLoggedOwnerRequest();
+        updateActivationCodeByLoggedOwnerRequest.setPassword("password123");
+        updateActivationCodeByLoggedOwnerRequest.setNewActivationCode(activationCode.getCode()); 
+    
+        //when
+        mockMvc.perform(put("/api/auth/update-activation-code")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updateActivationCodeByLoggedOwnerRequest)))
+        // Then
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.message").value("Activation code has already been used.")); 
+    }
+
+    @Test
+    @DisplayName("Test updating updating password by logged in user")
+    void testUpdatePassword() throws Exception {
+        //given
+        Role role = entityManager.find(Role.class, 1);
+        Farm farm = entityManager.find(Farm.class, 5);
+        User newUser = new User();
+        newUser.setUsername("username");
+        newUser.setFirstName("John");
+        newUser.setLastName("Doe");
+        newUser.setEmail("email@gmail.com");
+        newUser.setPassword(passwordEncoder.encode("password123"));
+        newUser.setRole(role);
+        newUser.setPhoneNumber("123465798");
+        newUser.setFarm(farm);
+        newUser.setIsActive(true);
+        entityManager.merge(newUser);
+        entityManager.flush(); 
+
+        User currentUser = entityManager.createQuery(
+                "SELECT u FROM User u WHERE u.username = :username", User.class)
+        .setParameter("username", "username")
+        .setMaxResults(1)  
+        .getSingleResult();
+
+        UserDetailsImpl userDetails = UserDetailsImpl.build(currentUser);
+        UsernamePasswordAuthenticationToken authToken =
+                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authToken);
+
+        ChangePasswordRequest changePasswordRequest = new ChangePasswordRequest();
+        changePasswordRequest.setCurrentPassword("password123");
+        changePasswordRequest.setNewPassword("321drowssap");
+
+        //when
+        mockMvc.perform(put("/api/auth/change-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(changePasswordRequest)))
+        // Then
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.message").value("Hasło zostało pomyślnie zmienione"));
+    }
+
+    @Test
+    @DisplayName("Test updating password with invalid current password")
+    void testUpdatePasswordWithInvalidCurrentPassword() throws Exception {
+        // Given
+        Role role = entityManager.find(Role.class, 1);
+        Farm farm = entityManager.find(Farm.class, 5);
+        User newUser = new User();
+        newUser.setUsername("username");
+        newUser.setFirstName("John");
+        newUser.setLastName("Doe");
+        newUser.setEmail("email@gmail.com");
+        newUser.setPassword(passwordEncoder.encode("password123"));
+        newUser.setRole(role);
+        newUser.setPhoneNumber("123465798");
+        newUser.setFarm(farm);
+        newUser.setIsActive(true);
+        entityManager.merge(newUser);
+        entityManager.flush(); 
+    
+        User currentUser = entityManager.createQuery(
+                "SELECT u FROM User u WHERE u.username = :username", User.class)
+        .setParameter("username", "username")
+        .setMaxResults(1)  
+        .getSingleResult();
+    
+        UserDetailsImpl userDetails = UserDetailsImpl.build(currentUser);
+        UsernamePasswordAuthenticationToken authToken =
+                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authToken);
+    
+        ChangePasswordRequest changePasswordRequest = new ChangePasswordRequest();
+        changePasswordRequest.setCurrentPassword("wrongPassword"); // Invalid password
+        changePasswordRequest.setNewPassword("321drowssap");
+    
+        // When
+        mockMvc.perform(put("/api/auth/change-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(changePasswordRequest)))
+        // Then
+        .andExpect(status().isUnauthorized())
+        .andExpect(jsonPath("$.message").value("Podano nieprawidłowe aktualne hasło"));
+    }
+
+    @Test
+    @DisplayName("Test updating password with new password same as current")
+    void testUpdatePasswordWithSameCurrentAndNewPassword() throws Exception {
+        // Given
+        Role role = entityManager.find(Role.class, 1);
+        Farm farm = entityManager.find(Farm.class, 5);
+        User newUser = new User();
+        newUser.setUsername("username");
+        newUser.setFirstName("John");
+        newUser.setLastName("Doe");
+        newUser.setEmail("email@gmail.com");
+        newUser.setPassword(passwordEncoder.encode("password123"));
+        newUser.setRole(role);
+        newUser.setPhoneNumber("123465798");
+        newUser.setFarm(farm);
+        newUser.setIsActive(true);
+        entityManager.merge(newUser);
+        entityManager.flush(); 
+    
+        User currentUser = entityManager.createQuery(
+                "SELECT u FROM User u WHERE u.username = :username", User.class)
+        .setParameter("username", "username")
+        .setMaxResults(1)  
+        .getSingleResult();
+    
+        UserDetailsImpl userDetails = UserDetailsImpl.build(currentUser);
+        UsernamePasswordAuthenticationToken authToken =
+                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authToken);
+    
+        ChangePasswordRequest changePasswordRequest = new ChangePasswordRequest();
+        changePasswordRequest.setCurrentPassword("password123");
+        changePasswordRequest.setNewPassword("password123"); // Same as current password
+    
+        // When
+        mockMvc.perform(put("/api/auth/change-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(changePasswordRequest)))
+        // Then
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.message").value("Nowe hasło nie może być takie samo jak poprzednie"));
     }
 }

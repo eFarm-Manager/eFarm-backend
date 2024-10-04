@@ -13,6 +13,7 @@ import com.efarm.efarmbackend.repository.farm.FarmRepository
 import com.efarm.efarmbackend.repository.farm.AddressRepository
 import com.efarm.efarmbackend.payload.response.MessageResponse;
 import com.efarm.efarmbackend.service.*;
+import org.springframework.http.HttpStatus;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +35,7 @@ class FarmFacadeSpec extends Specification {
     def activationCodeService = Mock(ActivationCodeService)
     def authService = Mock(AuthService)
     def addressService = Mock(AddressService)
+    def validationRequestService = Mock(ValidationRequestService)
 
     @Subject
     FarmFacade farmFacade = new FarmFacade(
@@ -41,7 +43,8 @@ class FarmFacadeSpec extends Specification {
             farmService: farmService,
             activationCodeService: activationCodeService,
             authService: authService,
-            addressService: addressService
+            addressService: addressService,
+            validationRequestService: validationRequestService
     )
 
     def setup() {
@@ -87,7 +90,7 @@ class FarmFacadeSpec extends Specification {
         ResponseEntity<List<UserDTO>> response = farmFacade.getFarmUsersByFarmId()
 
         then:
-        response.statusCodeValue == 200
+        response.getStatusCode() == HttpStatus.OK
         response.body.size() == 2
         response.body[0].username == "user1"
         response.body[1].username == "user2"
@@ -119,7 +122,7 @@ class FarmFacadeSpec extends Specification {
         ResponseEntity<FarmDTO> response = farmFacade.getFarmDetails()
 
         then:
-        response.statusCodeValue == 200
+        response.getStatusCode() == HttpStatus.OK
         response.body.farmName == "Farm Name"
         response.body.street == "ulica"
         response.body.activationCodeExpireDate == date
@@ -155,6 +158,7 @@ class FarmFacadeSpec extends Specification {
         AddressRepository addressRepository = Mock(AddressRepository)
 
         bindingResult.hasErrors() >> false
+        validationRequestService.validateRequest(bindingResult) >> null
         userService.getLoggedUserFarm() >> farm
         farmService.updateFarmDetails(farm, updateFarmDetailsRequest) >> {
             farm.setFarmName(updateFarmDetailsRequest.getFarmName())
@@ -170,7 +174,7 @@ class FarmFacadeSpec extends Specification {
         ResponseEntity<?> response = farmFacade.updateFarmDetails(updateFarmDetailsRequest,bindingResult)
 
         then:
-        response.statusCodeValue == 200
+        response.getStatusCode() == HttpStatus.OK
         response.body.message == "Poprawnie zaktualizowamo dane gospodarstwa"
         farm.getFarmName() == "New Farm"
         address.getStreet() == "ulica"

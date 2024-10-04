@@ -1,8 +1,7 @@
 package com.efarm.efarmbackend.controller;
 
 
-import com.efarm.efarmbackend.payload.request.SignupFarmRequest;
-import com.efarm.efarmbackend.payload.request.UpdateActivationCodeRequest;
+import com.efarm.efarmbackend.payload.request.*;
 import com.efarm.efarmbackend.service.facades.AuthFacade;
 import jakarta.validation.Valid;
 
@@ -14,8 +13,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import com.efarm.efarmbackend.payload.request.LoginRequest;
-import com.efarm.efarmbackend.payload.request.SignupRequest;
 import com.efarm.efarmbackend.payload.response.MessageResponse;
 import com.efarm.efarmbackend.security.jwt.JwtUtils;
 
@@ -48,6 +45,18 @@ public class AuthController {
     @PostMapping("/update-activation-code")
     public ResponseEntity<?> updateActivationCode(@Valid @RequestBody UpdateActivationCodeRequest updateActivationCodeRequest) {
         return authFacade.updateActivationCode(updateActivationCodeRequest);
+    }
+
+    @PutMapping("/update-activation-code")
+    @PreAuthorize("hasRole('ROLE_FARM_OWNER')")
+    public ResponseEntity<?> updateActivationCodeByLoggedOwner(@Valid @RequestBody UpdateActivationCodeByLoggedOwnerRequest updateActivationCodeByLoggedOwnerRequest, BindingResult bindingResult) {
+        return authFacade.updateActivationCodeByLoggedOwner(updateActivationCodeByLoggedOwnerRequest, bindingResult);
+    }
+
+    @PutMapping("/change-password")
+    @PreAuthorize("hasRole('ROLE_FARM_OWNER') or hasRole('ROLE_FARM_MANAGER') or hasRole('ROLE_FARM_EQUIPMENT_OPERATOR')")
+    public ResponseEntity<?> changePassword(@Valid @RequestBody ChangePasswordRequest changePasswordRequest, BindingResult bindingResult) {
+        return authFacade.changePassword(changePasswordRequest, bindingResult);
     }
 
     @PostMapping("/signout")
