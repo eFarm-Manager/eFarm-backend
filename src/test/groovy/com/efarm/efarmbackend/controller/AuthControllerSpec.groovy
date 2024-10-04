@@ -18,6 +18,7 @@ import org.springframework.security.core.Authentication
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.crypto.password.PasswordEncoder
+import org.springframework.http.HttpStatus
 import spock.lang.Specification
 import spock.lang.Subject
 import spock.lang.Unroll
@@ -53,7 +54,7 @@ class AuthControllerSpec extends Specification {
         ResponseEntity<?> result = authController.logoutUser()
 
         then:
-        result.statusCodeValue == 200
+        result.getStatusCode() == HttpStatus.OK
         result.headers.getFirst(HttpHeaders.SET_COOKIE) == "jwtTokenName=; Path=/api"
         result.body.message == "You've been signed out!"
     }

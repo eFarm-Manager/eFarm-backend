@@ -37,6 +37,9 @@ public class FarmFacade {
     @Autowired
     private AddressService addressService;
 
+    @Autowired
+    private ValidationRequestService validationRequestService;
+
     public ResponseEntity<List<UserDTO>> getFarmUsersByFarmId() {
         Farm loggedUserFarm = userService.getLoggedUserFarm();
         List<User> users = farmService.getUsersByFarmId(loggedUserFarm.getId());
@@ -77,11 +80,9 @@ public class FarmFacade {
     @Transactional
     public ResponseEntity<?> updateFarmDetails(UpdateFarmDetailsRequest updateFarmDetailsRequest, BindingResult bindingResult) {
 
-        if (bindingResult.hasErrors()) {
-            List<String> errorMessages = bindingResult.getFieldErrors().stream()
-                    .map(error -> error.getField() + ": " + error.getDefaultMessage())
-                    .collect(Collectors.toList());
-            return ResponseEntity.badRequest().body(new MessageResponse(String.join(", ", errorMessages)));
+        ResponseEntity<?> validationErrorResponse = validationRequestService.validateRequest(bindingResult);
+        if (validationErrorResponse != null) {
+            return validationErrorResponse;
         }
 
         Farm loggedUserFarm = userService.getLoggedUserFarm();

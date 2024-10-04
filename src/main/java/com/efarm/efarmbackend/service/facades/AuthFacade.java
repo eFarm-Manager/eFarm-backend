@@ -5,10 +5,7 @@ import com.efarm.efarmbackend.model.farm.Address;
 import com.efarm.efarmbackend.model.farm.Farm;
 import com.efarm.efarmbackend.model.user.Role;
 import com.efarm.efarmbackend.model.user.User;
-import com.efarm.efarmbackend.payload.request.LoginRequest;
-import com.efarm.efarmbackend.payload.request.SignupFarmRequest;
-import com.efarm.efarmbackend.payload.request.SignupRequest;
-import com.efarm.efarmbackend.payload.request.UpdateActivationCodeRequest;
+import com.efarm.efarmbackend.payload.request.*;
 import com.efarm.efarmbackend.payload.response.MessageResponse;
 import com.efarm.efarmbackend.payload.response.UserInfoResponse;
 import com.efarm.efarmbackend.repository.farm.ActivationCodeRepository;
@@ -17,10 +14,7 @@ import com.efarm.efarmbackend.repository.farm.FarmRepository;
 import com.efarm.efarmbackend.repository.user.UserRepository;
 import com.efarm.efarmbackend.security.jwt.JwtUtils;
 import com.efarm.efarmbackend.security.services.UserDetailsImpl;
-import com.efarm.efarmbackend.service.ActivationCodeService;
-import com.efarm.efarmbackend.service.AuthService;
-import com.efarm.efarmbackend.service.FarmService;
-import com.efarm.efarmbackend.service.UserService;
+import com.efarm.efarmbackend.service.*;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,8 +27,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class AuthFacade {
@@ -62,6 +56,9 @@ public class AuthFacade {
 
     @Autowired
     private FarmService farmService;
+
+    @Autowired
+    private ValidationRequestService validationRequestService;
 
     @Autowired
     AuthenticationManager authenticationManager;
@@ -111,11 +108,9 @@ public class AuthFacade {
     @Transactional
     public ResponseEntity<?> registerUser(SignupRequest signUpRequest, BindingResult bindingResult) {
 
-        if (bindingResult.hasErrors()) {
-            List<String> errorMessages = bindingResult.getFieldErrors().stream()
-                    .map(error -> error.getField() + ": " + error.getDefaultMessage())
-                    .collect(Collectors.toList());
-            return ResponseEntity.badRequest().body(new MessageResponse(String.join(", ", errorMessages)));
+        ResponseEntity<?> validationErrorResponse = validationRequestService.validateRequest(bindingResult);
+        if (validationErrorResponse != null) {
+            return validationErrorResponse;
         }
 
         logger.info("Received signup User request: {}", signUpRequest);
@@ -141,11 +136,9 @@ public class AuthFacade {
     @Transactional
     public ResponseEntity<?> registerFarmAndFarmOwner(SignupFarmRequest signUpFarmRequest, BindingResult bindingResult) {
 
-        if (bindingResult.hasErrors()) {
-            List<String> errorMessages = bindingResult.getFieldErrors().stream()
-                    .map(error -> error.getField() + ": " + error.getDefaultMessage())
-                    .collect(Collectors.toList());
-            return ResponseEntity.badRequest().body(new MessageResponse(String.join(", ", errorMessages)));
+        ResponseEntity<?> validationErrorResponse = validationRequestService.validateRequest(bindingResult);
+        if (validationErrorResponse != null) {
+            return validationErrorResponse;
         }
 
         logger.info("Received signup Farm request: {}", signUpFarmRequest);
@@ -200,6 +193,43 @@ public class AuthFacade {
             }
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
+        }
+    }
+
+    @Transactional
+    public ResponseEntity<?> updateActivationCodeByLoggedOwner(UpdateActivationCodeByLoggedOwnerRequest updateActivationCodeByLoggedOwnerRequest, BindingResult bindingResult) {
+
+        ResponseEntity<?> validationErrorResponse = validationRequestService.validateRequest(bindingResult);
+        if (validationErrorResponse != null) {
+            return validationErrorResponse;
+        }
+
+        if (userService.isPasswordValidForLoggedUser(updateActivationCodeByLoggedOwnerRequest.getPassword())) {
+            return activationCodeService.updateActivationCodeForFarm(updateActivationCodeByLoggedOwnerRequest.getNewActivationCode(), userService.getLoggedUserFarm().getId(), userService.getLoggedUser().getUsername());
+        } else {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(new MessageResponse("Nieprawidłowe hasło"));
+        }
+    }
+
+    @Transactional
+    public ResponseEntity<?> changePassword(ChangePasswordRequest changePasswordRequest, BindingResult bindingResult) {
+        ResponseEntity<?> validationErrorResponse = validationRequestService.validateRequest(bindingResult);
+        if (validationErrorResponse != null) {
+            return validationErrorResponse;
+        }
+
+        boolean isPasswordValid = userService.isPasswordValidForLoggedUser(changePasswordRequest.getCurrentPassword());
+        if (!isPasswordValid) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new MessageResponse("Podano nieprawidłowe aktualne hasło"));
+        }
+        if (!Objects.equals(changePasswordRequest.getCurrentPassword(), changePasswordRequest.getNewPassword())) {
+            userService.updatePasswordForLoggedUser(changePasswordRequest.getNewPassword());
+            return ResponseEntity.ok(new MessageResponse("Hasło zostało pomyślnie zmienione"));
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Nowe hasło nie może być takie samo jak poprzednie"));
         }
     }
 }

@@ -32,7 +32,6 @@ class UserServiceSpec extends Specification {
             userRepository: userRepository,
             roleRepository: roleRepository,
             encoder: encoder
-
     )
 
     def setup() {
@@ -109,6 +108,30 @@ class UserServiceSpec extends Specification {
         newUser.getPassword() == "encodedPassword"
     }
 
+    def "should handle returning current logged user" () {
+        given:
+        User currentUser = Mock(User)
+        currentUser.getUsername() >> "currentUser"
+        currentUser.getId() >> 1
+        currentUser.getEmail() >> "test@gmail.com"
+        currentUser.getPassword() >> "fwafwafa312z"
+        currentUser.getRole() >> class_role_manager
+        UserDetailsImpl currentUserDetails = UserDetailsImpl.build(currentUser)
+
+        Authentication authentication = Mock(Authentication) {
+            getPrincipal() >> currentUserDetails
+        }
+        SecurityContextHolder.getContext().setAuthentication(authentication)
+
+        userRepository.findById(Long.valueOf(currentUserDetails.getId())) >> Optional.of(currentUser)
+
+        when:
+        User currentUserReturned = userService.getLoggedUser()
+
+        then:
+        currentUserReturned.getUsername() == currentUser.getUsername()
+    }
+
     def "should handle returning current users farm"() {
         given:
         Farm currentFarm = Mock(Farm)
@@ -182,6 +205,87 @@ class UserServiceSpec extends Specification {
         then:
         roles == ["ROLE_FARM_MANAGER"]
     }
+
+    def "should return true when password is valid"() {
+        given:
+        String providedPassword = "password123"
+        String encodedPassword = "encodedPassword123"
+        User loggedUser = Mock(User) {
+            getPassword() >> encodedPassword
+        }
+        Authentication authentication = Mock(Authentication) {
+            getPrincipal() >> Mock(UserDetailsImpl) {
+                getId() >> 1
+            }
+        }
+        SecurityContextHolder.getContext().setAuthentication(authentication)
+        userRepository.findById(1) >> Optional.of(loggedUser)
+        encoder.matches(providedPassword, encodedPassword) >> true
+
+        when:
+        Boolean result = userService.isPasswordValidForLoggedUser(providedPassword)
+
+        then:
+        result == true
+    }
+
+    def "should return false when password is invalid"() {
+        given:
+        String providedPassword = "wrongPassword"
+        String encodedPassword = "encodedPassword123"
+        User loggedUser = Mock(User) {
+            getPassword() >> encodedPassword
+        }
+        Authentication authentication = Mock(Authentication) {
+            getPrincipal() >> Mock(UserDetailsImpl) {
+                getId() >> 1
+            }
+        }
+        SecurityContextHolder.getContext().setAuthentication(authentication)
+        userRepository.findById(1) >> Optional.of(loggedUser)
+        encoder.matches(providedPassword, encodedPassword) >> false
+
+        when:
+        Boolean result = userService.isPasswordValidForLoggedUser(providedPassword)
+
+        then:
+        result == false
+    }
+
+    def "should update password successfully"() {
+        given:
+        String newPassword = "newPassword123"
+        String encodedPassword = "encodedNewPassword123"
+        User loggedUser = Mock(User)
+        Authentication authentication = Mock(Authentication) {
+            getPrincipal() >> Mock(UserDetailsImpl) {
+                getId() >> 1
+            }
+        }
+        SecurityContextHolder.getContext().setAuthentication(authentication)
+        userRepository.findById(1) >> Optional.of(loggedUser)
+        encoder.encode(newPassword) >> encodedPassword
+
+        when:
+        userService.updatePasswordForLoggedUser(newPassword)
+
+        then:
+        1 * loggedUser.setPassword(encodedPassword)
+        1 * userRepository.save(loggedUser)
+    }
+
+    def "should throw error if authentication is null"() {
+        given:
+        SecurityContextHolder.getContext().setAuthentication(null)
+
+        when:
+        userService.updatePasswordForLoggedUser("newPassword123")
+
+        then:
+        thrown(RuntimeException)
+        0 * userRepository.save(_)
+    }
+
 
     def "should correctly return farm owner"() {
         given:

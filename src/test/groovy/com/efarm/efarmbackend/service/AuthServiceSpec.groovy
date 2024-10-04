@@ -223,6 +223,4 @@ class AuthServiceSpec extends Specification {
         then:
         result == false
     }
-
-
 }
