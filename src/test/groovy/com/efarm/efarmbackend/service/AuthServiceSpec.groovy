@@ -1,35 +1,17 @@
 package com.efarm.efarmbackend.service
 
 import com.efarm.efarmbackend.payload.request.LoginRequest
-import com.efarm.efarmbackend.model.farm.ActivationCode
-import com.efarm.efarmbackend.model.farm.Farm
-import com.efarm.efarmbackend.model.user.ERole
-import com.efarm.efarmbackend.model.user.Role
-import com.efarm.efarmbackend.model.user.User
-import com.efarm.efarmbackend.payload.request.SignupFarmRequest
 import com.efarm.efarmbackend.payload.request.UpdateActivationCodeRequest
-import com.efarm.efarmbackend.security.services.BruteForceProtectionService;
-import com.efarm.efarmbackend.payload.request.SignupRequest
-import com.efarm.efarmbackend.payload.response.MessageResponse
-import com.efarm.efarmbackend.repository.farm.ActivationCodeRepository
-import com.efarm.efarmbackend.repository.farm.AddressRepository
-import com.efarm.efarmbackend.repository.farm.FarmRepository
-import com.efarm.efarmbackend.repository.user.UserRepository
+import com.efarm.efarmbackend.security.services.BruteForceProtectionService
 import com.efarm.efarmbackend.security.services.UserDetailsImpl
 import org.springframework.security.core.authority.SimpleGrantedAuthority
-import org.springframework.http.ResponseEntity
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.authentication.BadCredentialsException
-import org.springframework.security.core.context.SecurityContextImpl
 import spock.lang.Specification
 import spock.lang.Subject
-import spock.lang.Unroll
-
-import java.time.LocalDate
 
 class AuthServiceSpec extends Specification {
 
@@ -45,13 +27,13 @@ class AuthServiceSpec extends Specification {
     def setup() {
         SecurityContextHolder.clearContext()
     }
-    
+
     def "should authenticate user by login request"() {
         given:
         LoginRequest loginRequest = new LoginRequest(username: "user", password: "password")
         UserDetailsImpl userDetails = Mock(UserDetailsImpl)
         userDetails.getAuthorities() >> [new SimpleGrantedAuthority("ROLE_FARM_MANAGER")]
-        
+
         bruteForceProtectionService.isBlocked(loginRequest.getUsername()) >> false
         UsernamePasswordAuthenticationToken authToken =
                 new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword());
@@ -90,8 +72,8 @@ class AuthServiceSpec extends Specification {
     def "should get too many attempts and block user"() {
         given:
         LoginRequest loginRequest = new LoginRequest(
-            username: "user",
-            password: "password"
+                username: "user",
+                password: "password"
         )
         bruteForceProtectionService.isBlocked(loginRequest.getUsername()) >> true
 
@@ -104,10 +86,10 @@ class AuthServiceSpec extends Specification {
 
     def "authenticate user by update code request"() {
         given:
-        UpdateActivationCodeRequest updateActivationCodeRequest = new UpdateActivationCodeRequest(username: "user", password: "password",newActivationCode: "newActivationCode")
+        UpdateActivationCodeRequest updateActivationCodeRequest = new UpdateActivationCodeRequest(username: "user", password: "password", newActivationCode: "newActivationCode")
         UserDetailsImpl userDetails = Mock(UserDetailsImpl)
         userDetails.getAuthorities() >> [new SimpleGrantedAuthority("ROLE_FARM_MANAGER")]
-        
+
         bruteForceProtectionService.isBlocked(updateActivationCodeRequest.getUsername()) >> false
         UsernamePasswordAuthenticationToken authToken =
                 new UsernamePasswordAuthenticationToken(updateActivationCodeRequest.getUsername(), updateActivationCodeRequest.getPassword());
@@ -125,7 +107,7 @@ class AuthServiceSpec extends Specification {
 
     def "wrong credentials when update code"() {
         given:
-        UpdateActivationCodeRequest updateActivationCodeRequest = new UpdateActivationCodeRequest(username: "user", password: "password",newActivationCode: "newActivationCode")
+        UpdateActivationCodeRequest updateActivationCodeRequest = new UpdateActivationCodeRequest(username: "user", password: "password", newActivationCode: "newActivationCode")
 
         Authentication authentication = Mock(Authentication)
         UserDetailsImpl userDetails = Mock(UserDetailsImpl)
@@ -142,7 +124,7 @@ class AuthServiceSpec extends Specification {
 
     def "should get too many attempts when update code and block user"() {
         given:
-        UpdateActivationCodeRequest updateActivationCodeRequest = new UpdateActivationCodeRequest(username: "user", password: "password",newActivationCode: "newActivationCode")
+        UpdateActivationCodeRequest updateActivationCodeRequest = new UpdateActivationCodeRequest(username: "user", password: "password", newActivationCode: "newActivationCode")
 
         bruteForceProtectionService.isBlocked(updateActivationCodeRequest.getUsername()) >> true
 
@@ -157,24 +139,24 @@ class AuthServiceSpec extends Specification {
         given:
         UserDetailsImpl userDetails = Mock(UserDetailsImpl)
         userDetails.getAuthorities() >> [new SimpleGrantedAuthority("ROLE_FARM_OWNER")]
-        
+
         Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(authentication) 
+        SecurityContextHolder.getContext().setAuthentication(authentication)
 
         when:
         boolean result = authService.hasCurrentUserRole("ROLE_FARM_OWNER")
 
         then:
         result == true
-    }    
+    }
 
     def "should correctly assume manager role"() {
         given:
         UserDetailsImpl userDetails = Mock(UserDetailsImpl)
         userDetails.getAuthorities() >> [new SimpleGrantedAuthority("ROLE_FARM_MANAGER")]
-        
+
         Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(authentication) 
+        SecurityContextHolder.getContext().setAuthentication(authentication)
 
         when:
         boolean result = authService.hasCurrentUserRole("ROLE_FARM_MANAGER")
@@ -187,9 +169,9 @@ class AuthServiceSpec extends Specification {
         given:
         UserDetailsImpl userDetails = Mock(UserDetailsImpl)
         userDetails.getAuthorities() >> [new SimpleGrantedAuthority("ROLE_FARM_EQUIPMENT_OPERATOR")]
-        
+
         Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(authentication) 
+        SecurityContextHolder.getContext().setAuthentication(authentication)
 
         when:
         boolean result = authService.hasCurrentUserRole("ROLE_FARM_EQUIPMENT_OPERATOR")
@@ -202,9 +184,9 @@ class AuthServiceSpec extends Specification {
         given:
         UserDetailsImpl userDetails = Mock(UserDetailsImpl)
         userDetails.getAuthorities() >> [new SimpleGrantedAuthority("ROLE_FARM_MANAGER")]
-        
+
         Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(authentication) 
+        SecurityContextHolder.getContext().setAuthentication(authentication)
 
         when:
         boolean result = authService.hasCurrentUserRole("ROLE_FARM_OWNER")
@@ -215,7 +197,7 @@ class AuthServiceSpec extends Specification {
 
     def "should correctly assume role with null authentication"() {
         given:
-        SecurityContextHolder.getContext().setAuthentication(null) 
+        SecurityContextHolder.getContext().setAuthentication(null)
 
         when:
         boolean result = authService.hasCurrentUserRole("ROLE_FARM_OWNER")

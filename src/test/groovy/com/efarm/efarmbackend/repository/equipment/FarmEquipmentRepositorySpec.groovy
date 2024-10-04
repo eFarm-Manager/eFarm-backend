@@ -3,7 +3,6 @@ package com.efarm.efarmbackend.repository.equipment
 import com.efarm.efarmbackend.model.equipment.FarmEquipment;
 import com.efarm.efarmbackend.model.equipment.FarmEquipmentId;
 import spock.lang.Specification
-import java.util.List;
 
 class FarmEquipmentRepositorySpec extends Specification {
 

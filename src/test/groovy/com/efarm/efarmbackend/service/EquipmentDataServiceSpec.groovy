@@ -2,8 +2,6 @@ package com.efarm.efarmbackend.service;
 
 import spock.lang.Specification
 import spock.lang.Subject
-import java.util.Arrays;
-import java.util.List;
 
 
 class EquipmentDisplayDataServiceSpec extends Specification {
@@ -12,68 +10,68 @@ class EquipmentDisplayDataServiceSpec extends Specification {
     EquipmentDisplayDataService equipmentDisplayDataService = new EquipmentDisplayDataService()
 
     def "should return correct fields for tractors"() {
-        given: 
+        given:
         String categoryName = "Ciągniki rolnicze"
 
-        when: 
+        when:
         List<String> result = equipmentDisplayDataService.getFieldsForCategory(categoryName)
 
-        then: 
+        then:
         result == ["power", "insurancePolicyNumber", "insuranceExpirationDate", "inspectionExpireDate"]
     }
 
     def "should return correct fields for trailers"() {
-        given: 
+        given:
         String categoryName = "Przyczepy rolnicze"
 
-        when: 
+        when:
         List<String> result = equipmentDisplayDataService.getFieldsForCategory(categoryName)
 
-        then: 
+        then:
         result == ["capacity", "insurancePolicyNumber", "insuranceExpirationDate", "inspectionExpireDate"]
     }
 
     def "should return correct fields for harvesters"() {
-        given: 
+        given:
         String categoryName = "Kombajny zbożowe"
 
-        when: 
+        when:
         List<String> result = equipmentDisplayDataService.getFieldsForCategory(categoryName)
 
-        then: 
+        then:
         result == ["power", "capacity", "workingWidth", "insurancePolicyNumber", "insuranceExpirationDate", "inspectionExpireDate"]
     }
 
     def "should return correct fields for agricultural machinery"() {
-        given: 
+        given:
         String categoryName = "Kosiarki"
 
-        when: 
+        when:
         List<String> result = equipmentDisplayDataService.getFieldsForCategory(categoryName)
 
-        then: 
+        then:
         result == ["workingWidth"]
     }
 
     def "should return correct fields for sprayers and spreaders"() {
-        given: 
+        given:
         String categoryName = "Opryskiwacze polowe"
 
-        when: 
+        when:
         List<String> result = equipmentDisplayDataService.getFieldsForCategory(categoryName)
 
-        then: 
+        then:
         result == ["capacity", "workingWidth"]
     }
 
     def "should return an empty list for unrecognized category"() {
-        given: 
+        given:
         String categoryName = "Unknown category"
 
-        when: 
+        when:
         List<String> result = equipmentDisplayDataService.getFieldsForCategory(categoryName)
 
-        then: 
+        then:
         result == []
     }
 }

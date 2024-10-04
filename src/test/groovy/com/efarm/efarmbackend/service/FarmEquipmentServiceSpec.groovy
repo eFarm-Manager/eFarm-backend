@@ -6,8 +6,6 @@ import com.efarm.efarmbackend.model.equipment.EquipmentCategory;
 import com.efarm.efarmbackend.model.equipment.FarmEquipmentDTO;
 import spock.lang.Specification
 import spock.lang.Subject
-import java.util.Arrays;
-import java.util.List;
 import java.time.LocalDate
 
 
@@ -16,15 +14,15 @@ class FarmEquipmentServiceSpec extends Specification {
     @Subject
     FarmEquipmentService farmEquipmentService = new FarmEquipmentService()
 
-    FarmEquipment equipment = Mock(FarmEquipment) 
+    FarmEquipment equipment = Mock(FarmEquipment)
 
     def setup() {
         equipment.getId() >> Mock(FarmEquipmentId) {
-            getId() >> 1 
+            getId() >> 1
             getFarmId() >> 1
-        } 
+        }
         equipment.getEquipmentName() >> "Tractor X"
-        equipment.getCategory() >> Mock(EquipmentCategory) { getCategoryName() >>"Ciągniki rolnicze"}
+        equipment.getCategory() >> Mock(EquipmentCategory) { getCategoryName() >> "Ciągniki rolnicze" }
         equipment.getBrand() >> "Brand X"
         equipment.getModel() >> "Model X"
         equipment.getPower() >> 120
@@ -58,7 +56,7 @@ class FarmEquipmentServiceSpec extends Specification {
 
     def "should create DTO with only power and capacity fields displayed"() {
         given:
-        List<String> fieldsToDisplay = ["power","capacity"]
+        List<String> fieldsToDisplay = ["power", "capacity"]
 
         when:
         FarmEquipmentDTO result = farmEquipmentService.createFarmEquipmentDTOtoDisplay(equipment, fieldsToDisplay)
