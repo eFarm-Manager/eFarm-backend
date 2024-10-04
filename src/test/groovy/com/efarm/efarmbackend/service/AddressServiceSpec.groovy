@@ -66,7 +66,4 @@ class AddressServiceSpec extends Specification {
         address.getZipCode() == "05-132"
         address.getCity() == "Miasto"
     }
-
-
-
 }

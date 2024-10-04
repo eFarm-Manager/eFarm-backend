@@ -87,7 +87,7 @@ class ActivationCodeServiceSpec extends Specification {
         ResponseEntity<MessageResponse> response = activationCodeService.validateActivationCode(activationCodeName)
 
         then:
-        response.statusCodeValue == 400
+        response.getStatusCode() == HttpStatus.BAD_REQUEST
         response.body.message == "Activation code has expired."
     }
 
@@ -105,7 +105,7 @@ class ActivationCodeServiceSpec extends Specification {
         ResponseEntity<MessageResponse> response = activationCodeService.validateActivationCode(activationCodeName)
 
         then:
-        response.statusCodeValue == 400
+        response.getStatusCode() == HttpStatus.BAD_REQUEST
         response.body.message == "Activation code has already been used."
     }   
 
@@ -363,7 +363,7 @@ class ActivationCodeServiceSpec extends Specification {
         ResponseEntity<MessageResponse> response = activationCodeService.updateActivationCodeForFarm(newActivationCode,1,username)
 
         then:
-        response.statusCodeValue == 429
+        response.getStatusCode() == HttpStatus.TOO_MANY_REQUESTS
         response.body.message == "Too many failed attempts. Please try again later."
     }
 

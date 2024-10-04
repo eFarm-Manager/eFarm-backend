@@ -76,6 +76,4 @@ class EquipmentDisplayDataServiceSpec extends Specification {
         then: 
         result == []
     }
-
-
 }

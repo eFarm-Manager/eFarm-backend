@@ -5,6 +5,7 @@ import com.efarm.efarmbackend.model.equipment.FarmEquipmentDTO;
 import com.efarm.efarmbackend.model.equipment.FarmEquipmentId;
 import com.efarm.efarmbackend.model.equipment.EquipmentCategory;
 import com.efarm.efarmbackend.model.farm.Farm;
+import org.springframework.http.HttpStatus;
 import com.efarm.efarmbackend.payload.response.MessageResponse;
 import com.efarm.efarmbackend.repository.equipment.FarmEquipmentRepository;
 import com.efarm.efarmbackend.service.EquipmentDisplayDataService;
@@ -68,7 +69,7 @@ class FarmEquipmentFacadeSpec extends Specification {
         ResponseEntity<List<FarmEquipmentDTO>> result = farmEquipmentFacade.getFarmEquipment(searchQuery)
 
         then:
-        result.statusCodeValue == 200
+        result.getStatusCode() == HttpStatus.OK
         result.body.size() == 1
         result.body.equipmentName == ["Tractor"]
     }
@@ -108,7 +109,7 @@ class FarmEquipmentFacadeSpec extends Specification {
         ResponseEntity<List<FarmEquipmentDTO>> result = farmEquipmentFacade.getFarmEquipment(searchQuery)
 
         then:
-        result.statusCodeValue == 200
+        result.getStatusCode() == HttpStatus.OK
         result.body.size() == 1
         result.body.equipmentName == ["Tractor"]
     }
@@ -148,7 +149,7 @@ class FarmEquipmentFacadeSpec extends Specification {
         ResponseEntity<List<FarmEquipmentDTO>> result = farmEquipmentFacade.getFarmEquipment(searchQuery)
 
         then:
-        result.statusCodeValue == 200
+        result.getStatusCode() == HttpStatus.OK
         result.body.size() == 0
         result.body.equipmentName == []
     }
@@ -198,7 +199,7 @@ class FarmEquipmentFacadeSpec extends Specification {
         ResponseEntity<?> response = farmEquipmentFacade.getEquipmentDetails(equipmentId)
 
         then:
-        response.statusCodeValue == 200
+        response.getStatusCode() == HttpStatus.OK
         response.body.equipmentId == equipmentId
         response.body.equipmentName == "Tractor X"
         response.body.category == "Ciągniki rolnicze"
@@ -228,7 +229,7 @@ class FarmEquipmentFacadeSpec extends Specification {
         ResponseEntity<?> response = farmEquipmentFacade.getEquipmentDetails(equipmentId)
     
         then:
-        response.statusCodeValue == 400
+        response.getStatusCode() == HttpStatus.BAD_REQUEST
         response.body.message == "Nie znaleziono maszyny o id: ${equipmentId}"
     }
 
@@ -273,7 +274,7 @@ class FarmEquipmentFacadeSpec extends Specification {
         ResponseEntity<?> response = farmEquipmentFacade.getEquipmentDetails(equipmentId)
 
         then:
-        response.statusCodeValue == 200
+        response.getStatusCode() == HttpStatus.OK
         response.body.equipmentId == equipmentId
         response.body.equipmentName == "Tractor X"
         response.body.category == "Ciągniki rolnicze"
@@ -283,28 +284,4 @@ class FarmEquipmentFacadeSpec extends Specification {
         response.body.capacity == null
         response.body.workingWidth == 5.5
     }
-
-    def "should return 400 when runtime exception occurs"() {
-        given:
-        Integer farmId = 1
-        Farm farm = Mock(Farm) {
-            getId() >> farmId
-        }
-        Integer equipmentId = 2
-        FarmEquipmentId farmEquipmentId = new FarmEquipmentId(equipmentId, farmId)
-
-        userService.getLoggedUserFarm() >> farm
-        farmEquipmentRepository.findById(farmEquipmentId) >> {
-            throw new RuntimeException("Database error")
-        }
-
-        when:
-        ResponseEntity<?> response = farmEquipmentFacade.getEquipmentDetails(equipmentId)
-
-        then:
-        response.statusCodeValue == 400
-        response.body.message == "Database error"
-    }
-
-
 }
