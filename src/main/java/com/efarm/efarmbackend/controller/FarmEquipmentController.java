@@ -1,5 +1,6 @@
 package com.efarm.efarmbackend.controller;
 
+import com.efarm.efarmbackend.model.equipment.EquipmentCategoryDTO;
 import com.efarm.efarmbackend.model.equipment.FarmEquipmentDTO;
 import com.efarm.efarmbackend.service.equipment.FarmEquipmentFacade;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,5 +29,10 @@ public class FarmEquipmentController {
     @PreAuthorize("hasRole('ROLE_FARM_MANAGER') or hasRole('ROLE_FARM_OWNER')")
     public ResponseEntity<?> getEquipmentDetails(@PathVariable Integer equipmentId) {
         return farmEquipmentFacade.getEquipmentDetails(equipmentId);
+    }
+
+    @GetMapping("/categories")
+    public ResponseEntity<List<EquipmentCategoryDTO>> getAllCategoriesWithFields() {
+        return farmEquipmentFacade.getEquipmentCategoriesWithFields();
     }
 }

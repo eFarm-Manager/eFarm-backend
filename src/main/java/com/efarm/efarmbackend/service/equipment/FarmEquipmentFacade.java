@@ -1,5 +1,6 @@
 package com.efarm.efarmbackend.service.equipment;
 
+import com.efarm.efarmbackend.model.equipment.EquipmentCategoryDTO;
 import com.efarm.efarmbackend.model.equipment.FarmEquipment;
 import com.efarm.efarmbackend.model.equipment.FarmEquipmentDTO;
 import com.efarm.efarmbackend.model.equipment.FarmEquipmentId;
@@ -71,6 +72,8 @@ public class FarmEquipmentFacade {
         }
     }
 
-
+    public ResponseEntity<List<EquipmentCategoryDTO>> getEquipmentCategoriesWithFields() {
+        return ResponseEntity.ok(equipmentDisplayDataService.getAllCategoriesWithFields());
+    }
 }
 
