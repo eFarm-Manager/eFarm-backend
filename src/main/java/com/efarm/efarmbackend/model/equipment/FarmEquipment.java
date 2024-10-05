@@ -5,15 +5,19 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
 
+
 @Getter
 @Setter
 @Entity
+@NoArgsConstructor
 @Table(name = "Sprzet")
 public class FarmEquipment {
+
     @EmbeddedId
     private FarmEquipmentId id;
 
@@ -61,6 +65,12 @@ public class FarmEquipment {
 
     @Column(name = "dataWaznosciPrzegladu")
     private LocalDate inspectionExpireDate;
+
+    public FarmEquipment(EquipmentCategory category, Farm farmIdFarm) {
+        this.category = category;
+        this.farmIdFarm = farmIdFarm;
+        this.id = new FarmEquipmentId(null, farmIdFarm.getId());
+    }
 
     public FarmEquipmentId getId() {
         return id != null ? new FarmEquipmentId(id) : null;

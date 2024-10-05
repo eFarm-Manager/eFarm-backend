@@ -1,18 +1,20 @@
 package com.efarm.efarmbackend.service.equipment;
 
-import com.efarm.efarmbackend.model.equipment.EquipmentCategoryDTO;
-import com.efarm.efarmbackend.model.equipment.FarmEquipment;
-import com.efarm.efarmbackend.model.equipment.FarmEquipmentDTO;
-import com.efarm.efarmbackend.model.equipment.FarmEquipmentId;
+import com.efarm.efarmbackend.model.equipment.*;
 import com.efarm.efarmbackend.model.farm.Farm;
 import com.efarm.efarmbackend.payload.response.MessageResponse;
+import com.efarm.efarmbackend.repository.equipment.EquipmentCategoryRepository;
 import com.efarm.efarmbackend.repository.equipment.FarmEquipmentRepository;
+import com.efarm.efarmbackend.service.ValidationRequestService;
 import com.efarm.efarmbackend.service.user.UserService;
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BindingResult;
 
 import java.util.List;
 import java.util.Locale;
@@ -32,6 +34,12 @@ public class FarmEquipmentFacade {
 
     @Autowired
     FarmEquipmentService farmEquipmentService;
+
+    @Autowired
+    private EquipmentCategoryRepository equipmentCategoryRepository;
+
+    @Autowired
+    private ValidationRequestService validationRequestService;
 
     private static final Logger logger = LoggerFactory.getLogger(FarmEquipmentFacade.class);
 
@@ -74,6 +82,55 @@ public class FarmEquipmentFacade {
 
     public ResponseEntity<List<EquipmentCategoryDTO>> getEquipmentCategoriesWithFields() {
         return ResponseEntity.ok(equipmentDisplayDataService.getAllCategoriesWithFields());
+    }
+
+    @Transactional
+    public ResponseEntity<?> addNewFarmEquipment(FarmEquipmentDTO farmEquipmentDTO, BindingResult bindingResult) {
+
+        ResponseEntity<?> validationErrorResponse = validationRequestService.validateRequest(bindingResult);
+        if (validationErrorResponse != null) {
+            return validationErrorResponse;
+        }
+
+        Farm loggedUserFarm = userService.getLoggedUserFarm();
+        FarmEquipment equipment = new FarmEquipment(equipmentCategoryRepository.findByCategoryName(farmEquipmentDTO.getCategory()), loggedUserFarm);
+
+        farmEquipmentService.setCommonFieldsForCategory(farmEquipmentDTO, equipment);
+        farmEquipmentService.setSpecificFieldsForCategory(farmEquipmentDTO, equipment, farmEquipmentDTO.getCategory());
+
+        farmEquipmentRepository.save(equipment);
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new MessageResponse("Pomyślnie dodano nową maszynę"));
+    }
+
+    @Transactional
+    public ResponseEntity<?> updateFarmEquipment(Integer equipmentId, FarmEquipmentDTO farmEquipmentDTO, BindingResult bindingResult) {
+
+        ResponseEntity<?> validationErrorResponse = validationRequestService.validateRequest(bindingResult);
+        if (validationErrorResponse != null) {
+            return validationErrorResponse;
+        }
+
+        Farm loggedUserFarm = userService.getLoggedUserFarm();
+        FarmEquipmentId farmEquipmentId = new FarmEquipmentId(equipmentId, loggedUserFarm.getId());
+
+        try {
+            FarmEquipment equipment = farmEquipmentRepository.findById(farmEquipmentId)
+                    .orElseThrow(() -> new RuntimeException("Nie znaleziono maszyny o id: " + equipmentId));
+
+            if (equipment.getIsAvailable()) {
+                farmEquipmentService.setCommonFieldsForCategory(farmEquipmentDTO, equipment);
+                farmEquipmentService.setSpecificFieldsForCategory(farmEquipmentDTO, equipment, equipment.getCategory().getCategoryName());
+                farmEquipmentRepository.save(equipment);
+            } else {
+                return ResponseEntity.badRequest().body(new MessageResponse("Wybrany sprzęt już nie istnieje"));
+            }
+        } catch (RuntimeException e) {
+            logger.info("Equipment with id: {}, can not by update for farm with id: {}",equipmentId, farmEquipmentId.getFarmId());
+            return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
+        }
+        return ResponseEntity.ok(new MessageResponse("Pomyślnie zaktualizowane dane maszyny."));
     }
 }
 

@@ -9,5 +9,7 @@ import java.util.List;
 public interface EquipmentCategoryRepository extends JpaRepository<EquipmentCategory, Integer> {
     @Query("SELECT e.categoryName FROM EquipmentCategory e")
     List<String> findAllCategoryNames();
+
+    EquipmentCategory findByCategoryName(String category);
 }
 
