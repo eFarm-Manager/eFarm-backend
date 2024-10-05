@@ -97,8 +97,12 @@ public class FarmEquipmentFacade {
         }
 
         Farm loggedUserFarm = userService.getLoggedUserFarm();
-        FarmEquipmentId farmEquipmentId = new FarmEquipmentId(farmEquipmentRepository.findNextFreeId(), loggedUserFarm.getId());
+        FarmEquipmentId farmEquipmentId = new FarmEquipmentId(farmEquipmentRepository.findNextFreeIdForFarm(loggedUserFarm.getId()), loggedUserFarm.getId());
         FarmEquipment equipment = new FarmEquipment(farmEquipmentId , equipmentCategoryRepository.findByCategoryName(farmEquipmentDTO.getCategory()), loggedUserFarm);
+
+        if(farmEquipmentRepository.existsByEquipmentNameAndFarmIdFarm(farmEquipmentDTO.getEquipmentName(), loggedUserFarm)) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Maszyna o podanej nazwie już istnieje"));
+        }
 
         farmEquipmentService.setCommonFieldsForCategory(farmEquipmentDTO, equipment);
         farmEquipmentService.setSpecificFieldsForCategory(farmEquipmentDTO, equipment, farmEquipmentDTO.getCategory());
@@ -125,6 +129,9 @@ public class FarmEquipmentFacade {
                     .orElseThrow(() -> new RuntimeException("Nie znaleziono maszyny o id: " + equipmentId));
 
             if (equipment.getIsAvailable()) {
+                if(farmEquipmentRepository.existsByEquipmentNameAndFarmIdFarm(farmEquipmentDTO.getEquipmentName(), loggedUserFarm)) {
+                    return ResponseEntity.badRequest().body(new MessageResponse("Maszyna o podanej nazwie już występuje w gospodarstwie"));
+                }
                 farmEquipmentService.setCommonFieldsForCategory(farmEquipmentDTO, equipment);
                 farmEquipmentService.setSpecificFieldsForCategory(farmEquipmentDTO, equipment, equipment.getCategory().getCategoryName());
                 farmEquipmentRepository.save(equipment);
