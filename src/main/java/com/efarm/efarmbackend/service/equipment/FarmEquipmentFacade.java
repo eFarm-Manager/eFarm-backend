@@ -144,5 +144,24 @@ public class FarmEquipmentFacade {
         }
         return ResponseEntity.ok(new MessageResponse("Pomyślnie zaktualizowane dane maszyny."));
     }
+
+    public ResponseEntity<?> deleteFarmEquipment(Integer equipmentId) {
+
+        FarmEquipmentId farmEquipmentId = new FarmEquipmentId(equipmentId, userService.getLoggedUserFarm().getId());
+
+        try {
+            FarmEquipment equipment = farmEquipmentRepository.findById(farmEquipmentId)
+                    .orElseThrow(() -> new RuntimeException("Nie znaleziono maszyny o id: " + equipmentId));
+
+            if (equipment.getIsAvailable()) {
+                equipment.setIsAvailable(false);
+                farmEquipmentRepository.save(equipment);
+                return ResponseEntity.ok(new MessageResponse("Pomyślnie usunięto maszynę"));
+            }
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
+        }
+        return ResponseEntity.badRequest().body(new MessageResponse("Wybrana maszyna została już usunięta"));
+    }
 }
 

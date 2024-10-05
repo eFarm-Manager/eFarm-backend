@@ -39,6 +39,12 @@ public class FarmEquipmentController {
         return farmEquipmentFacade.updateFarmEquipment(equipmentId, farmEquipmentDTO, bindingResult);
     }
 
+    @DeleteMapping("/{equipmentId}")
+    @PreAuthorize("hasRole('ROLE_FARM_MANAGER') or hasRole('ROLE_FARM_OWNER')")
+    public ResponseEntity<?> deleteFarmEquipment(@PathVariable Integer equipmentId) {
+        return farmEquipmentFacade.deleteFarmEquipment(equipmentId);
+    }
+
     @PostMapping("/new")
     @PreAuthorize("hasRole('ROLE_FARM_MANAGER') or hasRole('ROLE_FARM_OWNER')")
     public ResponseEntity<?> addNewFarmEquipment(@Valid @RequestBody FarmEquipmentDTO farmEquipmentDTO, BindingResult bindingResult) {
