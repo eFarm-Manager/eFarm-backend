@@ -66,10 +66,11 @@ public class FarmEquipment {
     @Column(name = "dataWaznosciPrzegladu")
     private LocalDate inspectionExpireDate;
 
-    public FarmEquipment(EquipmentCategory category, Farm farmIdFarm) {
+    public FarmEquipment(FarmEquipmentId farmEquipmentId, EquipmentCategory category, Farm farm) {
+        this.isAvailable = true;
         this.category = category;
-        this.farmIdFarm = farmIdFarm;
-        this.id = new FarmEquipmentId(null, farmIdFarm.getId());
+        this.farmIdFarm = farm;
+        this.id = farmEquipmentId;
     }
 
     public FarmEquipmentId getId() {

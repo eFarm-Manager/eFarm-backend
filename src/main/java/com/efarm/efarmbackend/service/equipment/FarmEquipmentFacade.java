@@ -70,10 +70,14 @@ public class FarmEquipmentFacade {
             FarmEquipment equipment = farmEquipmentRepository.findById(farmEquipmentId)
                     .orElseThrow(() -> new RuntimeException("Nie znaleziono maszyny o id: " + farmEquipmentId.getId()));
 
-            List<String> fieldsToDisplay = equipmentDisplayDataService.getFieldsForCategory(equipment.getCategory().getCategoryName());
-            FarmEquipmentDTO equipmentDetailDTO = FarmEquipmentService.createFarmEquipmentDTOtoDisplay(equipment, fieldsToDisplay);
+            if (equipment.getIsAvailable()) {
+                List<String> fieldsToDisplay = equipmentDisplayDataService.getFieldsForCategory(equipment.getCategory().getCategoryName());
+                FarmEquipmentDTO equipmentDetailDTO = FarmEquipmentService.createFarmEquipmentDTOtoDisplay(equipment, fieldsToDisplay);
 
-            return ResponseEntity.ok(equipmentDetailDTO);
+                return ResponseEntity.ok(equipmentDetailDTO);
+            } else {
+                return ResponseEntity.badRequest().body(new MessageResponse("Wybrany sprzęt już nie istnieje"));
+            }
         } catch (RuntimeException e) {
             logger.info("Equipment with id: {}, not found for farm with id: {}",equipmentId, farmEquipmentId.getFarmId());
             return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
@@ -93,7 +97,8 @@ public class FarmEquipmentFacade {
         }
 
         Farm loggedUserFarm = userService.getLoggedUserFarm();
-        FarmEquipment equipment = new FarmEquipment(equipmentCategoryRepository.findByCategoryName(farmEquipmentDTO.getCategory()), loggedUserFarm);
+        FarmEquipmentId farmEquipmentId = new FarmEquipmentId(farmEquipmentRepository.findNextFreeId(), loggedUserFarm.getId());
+        FarmEquipment equipment = new FarmEquipment(farmEquipmentId , equipmentCategoryRepository.findByCategoryName(farmEquipmentDTO.getCategory()), loggedUserFarm);
 
         farmEquipmentService.setCommonFieldsForCategory(farmEquipmentDTO, equipment);
         farmEquipmentService.setSpecificFieldsForCategory(farmEquipmentDTO, equipment, farmEquipmentDTO.getCategory());

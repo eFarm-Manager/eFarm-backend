@@ -18,7 +18,6 @@ public class FarmEquipmentId implements java.io.Serializable {
     @Serial
     private static final long serialVersionUID = 291875531197869384L;
 
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @NotNull
     @Column(name = "idSprzet", nullable = false)
     private Integer id;

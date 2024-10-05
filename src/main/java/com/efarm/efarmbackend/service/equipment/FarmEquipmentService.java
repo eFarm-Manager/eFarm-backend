@@ -2,16 +2,27 @@ package com.efarm.efarmbackend.service.equipment;
 
 import com.efarm.efarmbackend.model.equipment.FarmEquipment;
 import com.efarm.efarmbackend.model.equipment.FarmEquipmentDTO;
+import com.efarm.efarmbackend.repository.equipment.FarmEquipmentRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.logging.LoggersEndpoint;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
+
+import static com.mysql.cj.conf.PropertyKey.logger;
 
 @Service
 public class FarmEquipmentService {
 
     @Autowired
     private EquipmentDisplayDataService equipmentDisplayDataService;
+
+    private static final Logger logger = LoggerFactory.getLogger(FarmEquipmentService.class);
+    @Autowired
+    private FarmEquipmentRepository farmEquipmentRepository;
 
     public static FarmEquipmentDTO createFarmEquipmentDTOtoDisplay(FarmEquipment equipment, List<String> fieldsToDisplay) {
         FarmEquipmentDTO equipmentDetailDTO = new FarmEquipmentDTO(
@@ -87,5 +98,8 @@ public class FarmEquipmentService {
         if(farmEquipmentDTO.getModel() != null) {
             equipment.setModel(farmEquipmentDTO.getModel());
         }
+
+        Integer nowy = farmEquipmentRepository.findNextFreeId();
+        logger.warn("Największe id: {}", nowy);
     }
 }
