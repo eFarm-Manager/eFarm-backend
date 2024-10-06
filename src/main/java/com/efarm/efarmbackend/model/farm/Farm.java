@@ -62,5 +62,4 @@ public class Farm {
         this.sanitaryRegisterNumber = other.sanitaryRegisterNumber;
         this.isActive = other.isActive;
     }
-
 }

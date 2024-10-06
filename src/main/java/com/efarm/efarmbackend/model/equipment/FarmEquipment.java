@@ -81,10 +81,6 @@ public class FarmEquipment {
         this.id = id != null ? new FarmEquipmentId(id) : null;
     }
 
-    public Farm getFarmIdFarm() {
-        return farmIdFarm != null ? new Farm(farmIdFarm) : null;
-    }
-
     public void setFarmIdFarm(Farm farmIdFarm) {
         this.farmIdFarm = farmIdFarm != null ? new Farm(farmIdFarm) : null;
     }

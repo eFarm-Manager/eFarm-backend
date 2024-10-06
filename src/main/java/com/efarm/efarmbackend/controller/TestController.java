@@ -1,5 +1,9 @@
 package com.efarm.efarmbackend.controller;
 
+import com.efarm.efarmbackend.payload.response.MessageResponse;
+import com.efarm.efarmbackend.service.equipment.FarmEquipmentNotificationService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,6 +14,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/test")
 public class TestController {
+
+    @Autowired
+    private FarmEquipmentNotificationService farmEquipmentNotificationService;
+
     @GetMapping("/all")
     public String allAccess() {
         return "Public Content.";
@@ -31,5 +39,11 @@ public class TestController {
     @PreAuthorize("hasRole('ROLE_FARM_OWNER')")
     public String wonerAccess() {
         return "Owner Board.";
+    }
+
+    @GetMapping("/runInsuranceCronJob")
+    public ResponseEntity<?> runCronJobManually() {
+        farmEquipmentNotificationService.checkInsuranceAndInspectionExpiry();
+        return ResponseEntity.ok().body(new MessageResponse("Manual CRON job executed"));
     }
 }
