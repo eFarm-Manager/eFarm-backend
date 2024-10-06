@@ -1,0 +1,15 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: efarm-backend-svc-monitor
+  namespace: monitoring
+spec:
+  selector:
+   matchLabels:
+     app: efarm-backend
+  namespaceSelector:
+    matchNames:
+      - backend
+  endpoints:
+   - port: efarm-backend-http-traffic
+     path: /actuator/prometheus

@@ -8,7 +8,8 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-    - port: 8080
+    - name: efarm-backend-http-traffic
+      port: 8080
       targetPort: 8080
   selector:
     app: efarm-backend
