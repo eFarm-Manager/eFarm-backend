@@ -12,6 +12,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
@@ -51,7 +52,7 @@ public class FarmEquipmentNotificationService {
 
     private void checkAndNotifyForInsurance(FarmEquipment equipment, LocalDate today) {
         if (equipment.getInsuranceExpirationDate() != null) {
-            long daysUntilExpiry = today.until(equipment.getInsuranceExpirationDate()).getDays();
+            long daysUntilExpiry = ChronoUnit.DAYS.between(today, equipment.getInsuranceExpirationDate());
 
             if (daysUntilExpiry == 14 || daysUntilExpiry == 3 || daysUntilExpiry == 1) {
                 String message = String.format(
@@ -69,7 +70,7 @@ public class FarmEquipmentNotificationService {
 
     private void checkAndNotifyForInspection(FarmEquipment equipment, LocalDate today) {
         if (equipment.getInspectionExpireDate() != null) {
-            long daysUntilExpiry = today.until(equipment.getInspectionExpireDate()).getDays();
+            long daysUntilExpiry = ChronoUnit.DAYS.between(today, equipment.getInspectionExpireDate());
 
             if (daysUntilExpiry == 14 || daysUntilExpiry == 3 || daysUntilExpiry == 1) {
                 String message = String.format(
