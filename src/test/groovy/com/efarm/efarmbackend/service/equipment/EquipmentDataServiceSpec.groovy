@@ -1,14 +1,20 @@
 package com.efarm.efarmbackend.service
 
 import com.efarm.efarmbackend.service.equipment.EquipmentDisplayDataService;
+import com.efarm.efarmbackend.model.equipment.EquipmentCategoryDTO;
+import com.efarm.efarmbackend.repository.equipment.EquipmentCategoryRepository;
 import spock.lang.Specification
 import spock.lang.Subject
 
 
 class EquipmentDisplayDataServiceSpec extends Specification {
 
+    def equipmentCategoryRepository = Mock(EquipmentCategoryRepository)
+
     @Subject
-    EquipmentDisplayDataService equipmentDisplayDataService = new EquipmentDisplayDataService()
+    EquipmentDisplayDataService equipmentDisplayDataService = new EquipmentDisplayDataService(
+        equipmentCategoryRepository: equipmentCategoryRepository
+    )
 
     def "should return correct fields for tractors"() {
         given:
@@ -74,5 +80,28 @@ class EquipmentDisplayDataServiceSpec extends Specification {
 
         then:
         result == []
+    }
+
+    def "should get all categoires with fields"() {
+        given:
+        List<String> categories = ["Ciągniki rolnicze", "Kosiarki"]
+        equipmentCategoryRepository.findAllCategoryNames() >> categories
+
+        equipmentDisplayDataService.getFieldsForCategory("Ciągniki rolnicze") >> ["power", "insurancePolicyNumber", "insuranceExpirationDate", "inspectionExpireDate"]
+        equipmentDisplayDataService.getFieldsForCategory("Kosiarki") >> ["workingWidth"]
+
+        List<String> commonFields = ["equipmentName", "category", "brand", "model"]
+
+        when:
+        List<EquipmentCategoryDTO> result = equipmentDisplayDataService.getAllCategoriesWithFields()
+
+        then:
+        result.size() == 2
+
+        result[0].getCategoryName() == "Ciągniki rolnicze"
+        result[0].getFields() == commonFields + ["power", "insurancePolicyNumber", "insuranceExpirationDate", "inspectionExpireDate"]
+
+        result[1].getCategoryName() == "Kosiarki"
+        result[1].getFields() == commonFields + ["workingWidth"]  
     }
 }

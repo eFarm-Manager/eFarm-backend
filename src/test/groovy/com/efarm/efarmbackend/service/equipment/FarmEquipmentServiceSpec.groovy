@@ -5,6 +5,7 @@ import com.efarm.efarmbackend.model.equipment.FarmEquipmentId;
 import com.efarm.efarmbackend.model.equipment.EquipmentCategory;
 import com.efarm.efarmbackend.model.equipment.FarmEquipmentDTO
 import com.efarm.efarmbackend.service.equipment.FarmEquipmentService;
+import com.efarm.efarmbackend.service.equipment.EquipmentDisplayDataService
 import spock.lang.Specification
 import spock.lang.Subject
 import java.time.LocalDate
@@ -12,8 +13,12 @@ import java.time.LocalDate
 
 class FarmEquipmentServiceSpec extends Specification {
 
+    def equipmentDisplayDataService = Mock(EquipmentDisplayDataService)
+
     @Subject
-    FarmEquipmentService farmEquipmentService = new FarmEquipmentService()
+    FarmEquipmentService farmEquipmentService = new FarmEquipmentService(
+        equipmentDisplayDataService: equipmentDisplayDataService
+    )
 
     FarmEquipment equipment = Mock(FarmEquipment)
 
@@ -116,5 +121,52 @@ class FarmEquipmentServiceSpec extends Specification {
         result.getInsurancePolicyNumber() == null
         result.getInsuranceExpirationDate() == null
         result.getInspectionExpireDate() == null
+    }
+
+    def "should set specific fields for category"() {
+        given:
+        String categoryName = "Ciągniki rolnicze"
+        FarmEquipmentDTO farmEquipmentDTO = Mock(FarmEquipmentDTO) {
+            getPower() >> 120
+            getCapacity() >> null
+            getWorkingWidth() >> null
+            getInsurancePolicyNumber() >> "78156"
+            getInsuranceExpirationDate() >> LocalDate.of(2025, 12, 31)
+            getInspectionExpireDate() >> LocalDate.of(2024, 12, 31)
+        }
+
+        FarmEquipment equipment = new FarmEquipment()
+
+        List<String> fields = ["power", "insurancePolicyNumber", "insuranceExpirationDate", "inspectionExpireDate"]
+        equipmentDisplayDataService.getFieldsForCategory(categoryName) >> fields
+
+        when:
+        farmEquipmentService.setSpecificFieldsForCategory(farmEquipmentDTO, equipment, categoryName)
+
+        then:
+        equipment.getPower() == 120
+        equipment.getCapacity() == null 
+        equipment.getCapacity() == null
+        equipment.getInsurancePolicyNumber() == "78156"
+        equipment.getInsuranceExpirationDate() == LocalDate.of(2025, 12, 31)
+        equipment.getInspectionExpireDate() == LocalDate.of(2024, 12, 31)
+    }
+
+    def "should set common fields"() {
+        given:
+        FarmEquipmentDTO farmEquipmentDTO = Mock(FarmEquipmentDTO) {
+            getEquipmentName() >> "Tractor X"
+            getBrand() >> null
+            getModel() >> "Model X"
+        }
+        FarmEquipment equipment = new FarmEquipment()
+
+        when:
+        farmEquipmentService.setCommonFieldsForCategory(farmEquipmentDTO, equipment)
+
+        then:
+        equipment.getEquipmentName() == "Tractor X"
+        equipment.getBrand() == null 
+        equipment.getModel() == "Model X"  
     }
 }
