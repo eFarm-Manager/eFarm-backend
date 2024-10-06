@@ -112,6 +112,10 @@ public class UserService {
         userRepository.save(loggedUser);
     }
 
+    public List<User> getAllOwnersForFarm(Integer farmId) {
+        return userRepository.findOwnersForFarm(farmId);
+    }
+
     private Role assignUserRole(String strRole) {
         return switch (strRole) {
             case "ROLE_FARM_OWNER" -> roleRepository.findByName(ERole.ROLE_FARM_OWNER)

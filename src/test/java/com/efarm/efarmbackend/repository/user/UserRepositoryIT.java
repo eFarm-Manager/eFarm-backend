@@ -13,6 +13,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.everyItem;
 import static org.hamcrest.Matchers.hasProperty;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
@@ -182,6 +183,19 @@ public class UserRepositoryIT {
         // Then
         assertThat(users, is(not(empty())));
         assertThat(users, everyItem(hasProperty("farm", hasProperty("id", is(farmId)))));
+    }
+
+    @Test
+    @DisplayName("Test finding farm owners by farm ID")
+    public void testFindOwnersForFarm() {
+        //given
+        User user = entityManager.find(User.class,1);
+        // When
+        List<User> farmOwners = userRepository.findOwnersForFarm(1);
+
+        // Then
+        assertThat(farmOwners, hasSize(1)); 
+        assertThat(farmOwners.get(0).getUsername(), is(user.getUsername()));
     }
 
 }

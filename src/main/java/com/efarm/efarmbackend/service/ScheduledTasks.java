@@ -1,5 +1,6 @@
 package com.efarm.efarmbackend.service;
 
+import com.efarm.efarmbackend.service.equipment.FarmEquipmentNotificationService;
 import com.efarm.efarmbackend.service.farm.FarmService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +14,9 @@ public class ScheduledTasks {
     @Autowired
     private FarmService farmService;
 
+    @Autowired
+    private FarmEquipmentNotificationService farmEquipmentNotificationService;
+
     private static final Logger logger = LoggerFactory.getLogger(ScheduledTasks.class);
 
     //Every day at midnight
@@ -22,7 +26,14 @@ public class ScheduledTasks {
         try {
             farmService.deactivateFarmsWithExpiredActivationCodes();
         } catch (RuntimeException e) {
-            logger.error("Can not deactivate farms with error {}",  e.getMessage());
+            logger.error("Can not deactivate farms with error {}", e.getMessage());
         }
+    }
+
+    //Every day at 7:00
+    @Scheduled(cron = "0 0 7 * * *", zone = "Europe/Warsaw")
+    public void checkInsuranceAndInspectionExpiry() {
+        logger.info("Start checking Insurance and Inspection Expiry");
+        farmEquipmentNotificationService.checkInsuranceAndInspectionExpiry();
     }
 }

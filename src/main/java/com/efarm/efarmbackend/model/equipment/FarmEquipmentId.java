@@ -1,7 +1,6 @@
 package com.efarm.efarmbackend.model.equipment;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,6 +17,7 @@ public class FarmEquipmentId implements java.io.Serializable {
 
     @Serial
     private static final long serialVersionUID = 291875531197869384L;
+
     @NotNull
     @Column(name = "idSprzet", nullable = false)
     private Integer id;

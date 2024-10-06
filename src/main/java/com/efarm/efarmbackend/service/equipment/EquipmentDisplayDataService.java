@@ -1,12 +1,20 @@
 package com.efarm.efarmbackend.service.equipment;
 
+import com.efarm.efarmbackend.model.equipment.EquipmentCategoryDTO;
+import com.efarm.efarmbackend.repository.equipment.EquipmentCategoryRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class EquipmentDisplayDataService {
+
+    @Autowired
+    private EquipmentCategoryRepository equipmentCategoryRepository;
 
     public List<String> getFieldsForCategory(String categoryName) {
         return switch (categoryName) {
@@ -67,5 +75,18 @@ public class EquipmentDisplayDataService {
                  "Zbieracze kamieni" -> Arrays.asList("capacity", "workingWidth");
             default -> List.of();
         };
+    }
+
+    public List<EquipmentCategoryDTO> getAllCategoriesWithFields() {
+        List<String> categories = equipmentCategoryRepository.findAllCategoryNames();
+        List<String> commonFields = Arrays.asList("equipmentName", "category", "brand", "model");
+
+        return categories.stream()
+                .map(categoryName -> {
+                    List<String> fields = new ArrayList<>(commonFields);
+                    fields.addAll(getFieldsForCategory(categoryName));
+                    return new EquipmentCategoryDTO(categoryName, fields);
+                })
+                .collect(Collectors.toList());
     }
 }

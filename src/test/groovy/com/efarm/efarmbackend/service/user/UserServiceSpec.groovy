@@ -321,4 +321,20 @@ class UserServiceSpec extends Specification {
         then:
         assignRole.getName() == ERole.ROLE_FARM_EQUIPMENT_OPERATOR
     }
+
+    def "should return all owners for the specified farm"() {
+        given:
+        Integer farmId = 1
+        User owner1 = new User(email: "owner1@example.com")
+        User owner2 = new User(email: "owner2@example.com")
+        userRepository.findOwnersForFarm(farmId) >> [owner1, owner2]
+
+        when:
+        List<User> owners = userService.getAllOwnersForFarm(farmId)
+
+        then:
+        owners.size() == 2
+        owners[0].email == "owner1@example.com"
+        owners[1].email == "owner2@example.com"
+    }
 }
