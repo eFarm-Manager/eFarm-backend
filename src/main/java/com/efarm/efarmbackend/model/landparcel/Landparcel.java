@@ -84,6 +84,12 @@ public class Landparcel {
         this.isAvailable = landparcel.getIsAvailable();
     }
 
+    public Landparcel(LandparcelId id, Farm farm) {
+        this.id = id;
+        this.farm = farm;
+        this.isAvailable = true;
+    }
+
     public LandparcelId getId() {
         return id == null ? null : new LandparcelId(id);
     }
