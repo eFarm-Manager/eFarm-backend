@@ -5,11 +5,13 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
 @Entity
+@NoArgsConstructor
 @Table(name = "dzialka")
 public class Landparcel {
 
@@ -67,4 +69,18 @@ public class Landparcel {
     @Column(name = "czyDostepna", nullable = false)
     private Boolean isAvailable = false;
 
+    public Landparcel(Landparcel landparcel) {
+        this.id = landparcel.getId();
+        this.farm = landparcel.getFarm();
+        this.landOwnershipStatus = landparcel.getLandOwnershipStatus();
+        this.voivodeship = landparcel.getVoivodeship();
+        this.district = landparcel.getDistrict();
+        this.commune = landparcel.getCommune();
+        this.geodesyRegistrationDistrictNumber = landparcel.getGeodesyRegistrationDistrictNumber();
+        this.landparcelNumber = landparcel.getLandparcelNumber();
+        this.longitude = landparcel.getLongitude();
+        this.latitude = landparcel.getLatitude();
+        this.area = landparcel.getArea();
+        this.isAvailable = landparcel.getIsAvailable();
+    }
 }

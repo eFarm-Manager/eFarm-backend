@@ -5,11 +5,13 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
 @Entity
+@NoArgsConstructor
 @Table(name = "pole")
 public class Farmfield {
 
@@ -42,4 +44,30 @@ public class Farmfield {
     @Column(name = "opis", length = 500)
     private String description;
 
+    public Farmfield (Farmfield farmfield) {
+        this.id = farmfield.id;
+        this.farm = farmfield.farm;
+        this.crop = farmfield.crop;
+        this.name = farmfield.name;
+        this.area = farmfield.area;
+        this.isAvailable = farmfield.isAvailable;
+        this.description = farmfield.description;
+    }
+
+
+    public Farm getFarm() {
+        return farm == null ? null : new Farm(farm);
+    }
+
+    public void setFarm(Farm farm) {
+        this.farm = farm == null ? null : new Farm(farm);
+    }
+
+    public FarmfieldId getId() {
+        return id == null ? null : new FarmfieldId(id);
+    }
+
+    public void setId(FarmfieldId id) {
+        this.id = id == null ? null : new FarmfieldId(id);
+    }
 }
