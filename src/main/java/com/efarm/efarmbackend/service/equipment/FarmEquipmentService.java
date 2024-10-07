@@ -2,12 +2,16 @@ package com.efarm.efarmbackend.service.equipment;
 
 import com.efarm.efarmbackend.model.equipment.FarmEquipment;
 import com.efarm.efarmbackend.model.equipment.FarmEquipmentDTO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 public class FarmEquipmentService {
+
+    @Autowired
+    private EquipmentDisplayDataService equipmentDisplayDataService;
 
     public static FarmEquipmentDTO createFarmEquipmentDTOtoDisplay(FarmEquipment equipment, List<String> fieldsToDisplay) {
         FarmEquipmentDTO equipmentDetailDTO = new FarmEquipmentDTO(
@@ -37,5 +41,51 @@ public class FarmEquipmentService {
             equipmentDetailDTO.setInspectionExpireDate(equipment.getInspectionExpireDate());
         }
         return equipmentDetailDTO;
+    }
+
+    public void setSpecificFieldsForCategory(FarmEquipmentDTO farmEquipmentDTO, FarmEquipment equipment, String categoryName) {
+        List<String> fieldsForCategory = equipmentDisplayDataService.getFieldsForCategory(categoryName);
+        if (fieldsForCategory.contains("power")) {
+            if (farmEquipmentDTO.getPower() != null) {
+                equipment.setPower(farmEquipmentDTO.getPower());
+            }
+        }
+        if (fieldsForCategory.contains("capacity")) {
+            if (farmEquipmentDTO.getCapacity() != null) {
+                equipment.setCapacity(farmEquipmentDTO.getCapacity());
+            }
+        }
+        if (fieldsForCategory.contains("workingWidth")) {
+            if (farmEquipmentDTO.getWorkingWidth() != null) {
+                equipment.setWorkingWidth(farmEquipmentDTO.getWorkingWidth());
+            }
+        }
+        if (fieldsForCategory.contains("insurancePolicyNumber")) {
+            if (farmEquipmentDTO.getInsurancePolicyNumber() != null) {
+                equipment.setInsurancePolicyNumber(farmEquipmentDTO.getInsurancePolicyNumber());
+            }
+        }
+        if (fieldsForCategory.contains("insuranceExpirationDate")) {
+            if (farmEquipmentDTO.getInsuranceExpirationDate() != null) {
+                equipment.setInsuranceExpirationDate(farmEquipmentDTO.getInsuranceExpirationDate());
+            }
+        }
+        if (fieldsForCategory.contains("inspectionExpireDate")) {
+            if (farmEquipmentDTO.getInspectionExpireDate() != null) {
+                equipment.setInspectionExpireDate(farmEquipmentDTO.getInspectionExpireDate());
+            }
+        }
+    }
+
+    public void setCommonFieldsForCategory(FarmEquipmentDTO farmEquipmentDTO, FarmEquipment equipment) {
+        if(farmEquipmentDTO.getEquipmentName() != null) {
+            equipment.setEquipmentName(farmEquipmentDTO.getEquipmentName());
+        }
+        if(farmEquipmentDTO.getBrand() != null) {
+            equipment.setBrand(farmEquipmentDTO.getBrand());
+        }
+        if(farmEquipmentDTO.getModel() != null) {
+            equipment.setModel(farmEquipmentDTO.getModel());
+        }
     }
 }

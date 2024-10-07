@@ -47,6 +47,31 @@ spec:
                 secretKeyRef:
                   name: back-secret
                   key: JWT_SECRET
+            - name: SYSTEM_MAIL_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: back-secret
+                  key: SYSTEM_MAIL_HOST
+            - name: SYSTEM_MAIL_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: back-secret
+                  key: SYSTEM_MAIL_PORT
+            - name: SYSTEM_MAIL_SMTP_SSL_TRUST
+              valueFrom:
+                secretKeyRef:
+                  name: back-secret
+                  key: SYSTEM_MAIL_SMTP_SSL_TRUST
+            - name: SYSTEM_NOTIFICATION_EMAIL
+              valueFrom:
+                secretKeyRef:
+                  name: back-secret
+                  key: SYSTEM_NOTIFICATION_EMAIL
+            - name: SYSTEM_NOTIFICATION_EMAIL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: back-secret
+                  key: SYSTEM_NOTIFICATION_EMAIL_PASSWORD
           resources:
             limits:
               cpu: 500m
