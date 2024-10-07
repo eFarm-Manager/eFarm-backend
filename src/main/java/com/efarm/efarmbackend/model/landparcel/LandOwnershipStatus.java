@@ -25,6 +25,9 @@ public class LandOwnershipStatus {
     @Column(name = "nazwaStanuWlasnosci", nullable = false, length = 45)
     private ELandOwnershipStatus ownershipStatus;
 
+    public LandOwnershipStatus(ELandOwnershipStatus ownershipStatus) {
+        this.ownershipStatus = ownershipStatus;
+    }
 
     public LandOwnershipStatus(LandOwnershipStatus ownershipStatus) {
         this.id = ownershipStatus.id;
