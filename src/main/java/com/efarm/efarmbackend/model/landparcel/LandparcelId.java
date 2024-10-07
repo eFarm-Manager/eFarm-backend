@@ -4,12 +4,14 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Objects;
 
 @Getter
 @Setter
+@NoArgsConstructor
 @Embeddable
 public class LandparcelId implements java.io.Serializable {
 
@@ -17,7 +19,7 @@ public class LandparcelId implements java.io.Serializable {
 
     @NotNull
     @Column(name = "idDzialka", nullable = false)
-    private Integer idDzialka;
+    private Integer id;
 
     @NotNull
     @Column(name = "Gospodarstwo_idGospodarstwo", nullable = false)
@@ -29,12 +31,16 @@ public class LandparcelId implements java.io.Serializable {
         if (o == null || getClass() != o.getClass()) return false;
         LandparcelId that = (LandparcelId) o;
         return Objects.equals(farmId, that.farmId) &&
-                Objects.equals(idDzialka, that.idDzialka);
+                Objects.equals(id, that.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(farmId, idDzialka);
+        return Objects.hash(farmId, id);
     }
 
+    public LandparcelId(LandparcelId landparcelId) {
+        this.id = landparcelId.id;
+        this.farmId = landparcelId.farmId;
+    }
 }

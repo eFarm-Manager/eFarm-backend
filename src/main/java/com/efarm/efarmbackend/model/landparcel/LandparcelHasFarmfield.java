@@ -20,16 +20,16 @@ public class LandparcelHasFarmfield {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumns({
-            @JoinColumn(name = "Dzialka_idDzialka", referencedColumnName = "idDzialka"),
-            @JoinColumn(name = "Gospodarstwo_idGospodarstwo", referencedColumnName = "Gospodarstwo_idGospodarstwo")
+            @JoinColumn(name = "Dzialka_idDzialka", referencedColumnName = "idDzialka", insertable = false, updatable = false),
+            @JoinColumn(name = "Gospodarstwo_idGospodarstwo", referencedColumnName = "Gospodarstwo_idGospodarstwo", insertable = false, updatable = false)
     })
     private Landparcel landparcel;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumns({
-            @JoinColumn(name = "Pole_idPole", referencedColumnName = "idPole"),
-            @JoinColumn(name = "Gospodarstwo_idGospodarstwo", referencedColumnName = "Gospodarstwo_idGospodarstwo")
+            @JoinColumn(name = "Pole_idPole", referencedColumnName = "idPole", insertable = false, updatable = false),
+            @JoinColumn(name = "Gospodarstwo_idGospodarstwo", referencedColumnName = "Gospodarstwo_idGospodarstwo", insertable = false, updatable = false)
     })
     private Farmfield farmField;
 

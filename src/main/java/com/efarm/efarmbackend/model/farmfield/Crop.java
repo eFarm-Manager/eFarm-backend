@@ -4,11 +4,13 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
 @Entity
+@NoArgsConstructor
 @Table(name = "uprawa")
 public class Crop {
     @Id
@@ -21,4 +23,8 @@ public class Crop {
     @Column(name = "nazwaUprawy", nullable = false, length = 45)
     private String name;
 
+    public Crop(Crop crop) {
+        this.id = crop.id;
+        this.name = crop.name;
+    }
 }

@@ -70,4 +70,12 @@ public class Farmfield {
     public void setId(FarmfieldId id) {
         this.id = id == null ? null : new FarmfieldId(id);
     }
+
+    public Crop getCrop() {
+        return crop == null ? null : new Crop(crop);
+    }
+
+    public void setCrop(Crop crop) {
+        this.crop = crop == null ? null : new Crop(crop);
+    }
 }

@@ -4,11 +4,13 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
 @Entity
+@NoArgsConstructor
 @Table(name = "stanWlasnosciDzialki")
 public class LandOwnershipStatus {
 
@@ -22,6 +24,12 @@ public class LandOwnershipStatus {
     @Enumerated(EnumType.STRING)
     @Column(name = "nazwaStanuWlasnosci", nullable = false, length = 45)
     private ELandOwnershipStatus ownershipStatus;
+
+
+    public LandOwnershipStatus(LandOwnershipStatus ownershipStatus) {
+        this.id = ownershipStatus.id;
+        this.ownershipStatus = ownershipStatus.ownershipStatus;
+    }
 
     @Override
     public String toString() {

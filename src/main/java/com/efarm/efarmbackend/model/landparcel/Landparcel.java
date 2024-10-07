@@ -83,4 +83,28 @@ public class Landparcel {
         this.area = landparcel.getArea();
         this.isAvailable = landparcel.getIsAvailable();
     }
+
+    public LandparcelId getId() {
+        return id == null ? null : new LandparcelId(id);
+    }
+
+    public void setId(LandparcelId id) {
+        this.id = id == null ? null : new LandparcelId(id);
+    }
+
+    public Farm getFarm() {
+        return farm == null ? null : new Farm(farm);
+    }
+
+    public void setFarm(Farm farm) {
+        this.farm = farm == null ? null : new Farm(farm);
+    }
+
+    public LandOwnershipStatus getLandOwnershipStatus() {
+        return landOwnershipStatus == null ? null : new LandOwnershipStatus(landOwnershipStatus);
+    }
+
+    public void setLandOwnershipStatus(LandOwnershipStatus landOwnershipStatus) {
+        this.landOwnershipStatus = landOwnershipStatus == null ? null : new LandOwnershipStatus(landOwnershipStatus);
+    }
 }
