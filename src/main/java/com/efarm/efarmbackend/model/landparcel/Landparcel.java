@@ -106,9 +106,9 @@ public class Landparcel {
         this.farm = farm == null ? null : new Farm(farm);
     }
 
-    public LandOwnershipStatus getLandOwnershipStatus() {
-        return landOwnershipStatus == null ? null : new LandOwnershipStatus(landOwnershipStatus);
-    }
+//    public LandOwnershipStatus getLandOwnershipStatus() {
+//        return landOwnershipStatus == null ? null : new LandOwnershipStatus(landOwnershipStatus);
+//    }
 
     public void setLandOwnershipStatus(LandOwnershipStatus landOwnershipStatus) {
         this.landOwnershipStatus = landOwnershipStatus == null ? null : new LandOwnershipStatus(landOwnershipStatus);

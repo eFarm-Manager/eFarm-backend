@@ -24,7 +24,7 @@ public class LandparcelController {
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(new MessageResponse("Pomyślnie dodano nową działkę"));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Błąd podczas dodawania działki: " + e.getMessage());
+            return ResponseEntity.badRequest().body(new MessageResponse("Błąd dodawania działki: " + e.getMessage()));
         }
     }
 
@@ -35,7 +35,7 @@ public class LandparcelController {
             LandparcelDTO landparcelDTO = landparcelFacade.getLandparcelDetails(landparcelId);
             return ResponseEntity.ok(landparcelDTO);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
         }
     }
 }

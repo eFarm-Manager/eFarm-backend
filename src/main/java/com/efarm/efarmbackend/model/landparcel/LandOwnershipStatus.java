@@ -37,8 +37,8 @@ public class LandOwnershipStatus {
     @Override
     public String toString() {
         return switch (ownershipStatus) {
-            case STATUS_PRIVATELY_OWNED -> "Własna";
-            case STATUS_LEASE -> "Wydzierżawiona";
+            case STATUS_PRIVATELY_OWNED -> "STATUS_PRIVATELY_OWNED";
+            case STATUS_LEASE -> "STATUS_LEASE";
         };
     }
 }
