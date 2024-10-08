@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/landparcel")
 public class LandparcelController {
@@ -59,5 +61,15 @@ public class LandparcelController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
         }
+    }
+
+    @GetMapping("/all")
+    @PreAuthorize("hasRole('ROLE_FARM_MANAGER') or hasRole('ROLE_FARM_OWNER')")
+    public ResponseEntity<List<LandparcelDTO>> getLandparcels(
+            @RequestParam(required = false) String searchString,
+            @RequestParam(required = false) Double minArea,
+            @RequestParam(required = false) Double maxArea) {
+
+        return ResponseEntity.ok(landparcelFacade.getLandparcels(searchString, minArea, maxArea));
     }
 }
