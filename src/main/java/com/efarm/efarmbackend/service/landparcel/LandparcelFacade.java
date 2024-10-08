@@ -32,16 +32,11 @@ public class LandparcelFacade {
         LandparcelId landparcelId = new LandparcelId(landparcelRepository.findNextFreeIdForFarm(loggedUserFarm.getId()), loggedUserFarm.getId());
         Landparcel landparcel = new Landparcel(landparcelId, loggedUserFarm);
 
-        if (landparcelRepository.existsByDistrictAndCommuneAndAndGeodesyRegistrationDistrictNumberAndLandparcelNumberAndFarm(
-                landparcelDTO.getDistrict(),
-                landparcelDTO.getCommune(),
-                landparcelDTO.getGeodesyRegistrationDistrictNumber(),
-                landparcelDTO.getLandparcelNumber(),
-                loggedUserFarm)) {
+        if (landparcelService.isLandparcelAlreadyExsists(landparcelDTO, loggedUserFarm)) {
             throw new Exception("Działka o powyższych danych geodezyjnych już istnieje!");
         }
 
-        landparcelService.setLandparcelData(landparcelDTO, landparcel);
+        landparcelService.addNewLandparcelData(landparcelDTO, landparcel);
         landparcelRepository.save(landparcel);
     }
 
@@ -55,7 +50,22 @@ public class LandparcelFacade {
         if (!landparcel.getIsAvailable()) {
             throw new Exception("Wybrana działka już nie istnieje");
         }
-
         return landparcelService.createDTOtoDisplay(landparcel);
+    }
+
+    @Transactional
+    public void updateLandparcel(Integer id, LandparcelDTO landparcelDTO) throws Exception {
+        Farm loggedUserFarm = userService.getLoggedUserFarm();
+        LandparcelId landparcelId = new LandparcelId(id, loggedUserFarm.getId());
+
+        Landparcel landparcel = landparcelRepository.findById(landparcelId)
+                .orElseThrow(() -> new Exception("Działka nie istnieje"));
+
+        if (!landparcel.getIsAvailable()) {
+            throw new Exception("Wybrana działka już nie istnieje");
+        }
+
+        landparcelService.updateLandparcelData(landparcelDTO, landparcel);
+        landparcelRepository.save(landparcel);
     }
 }
