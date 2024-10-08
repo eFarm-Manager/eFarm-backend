@@ -12,7 +12,7 @@ import lombok.Setter;
 @Setter
 @Entity
 @NoArgsConstructor
-@Table(name = "dzialka")
+@Table(name = "Dzialka")
 public class Landparcel {
 
     @EmbeddedId

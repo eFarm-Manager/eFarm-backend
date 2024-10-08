@@ -11,7 +11,7 @@ import lombok.Setter;
 @Setter
 @Entity
 @NoArgsConstructor
-@Table(name = "stanWlasnosciDzialki")
+@Table(name = "StanWlasnosciDzialki")
 public class LandOwnershipStatus {
 
     @Id
