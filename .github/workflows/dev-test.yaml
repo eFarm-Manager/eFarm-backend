@@ -7,6 +7,7 @@ on:
 
 env:
   VERSION: ${{ github.ref_name }}-${{ github.sha }}
+  TRIVY_LOG_LEVEL: DEBUG
 
 jobs:
   integration:
@@ -94,7 +95,7 @@ jobs:
           format: 'sarif'
           severity: 'CRITICAL,HIGH'
           output: 'trivy-results.sarif'
-          debug: true
+          timeout: 5m
           github-pat: ${{ secrets.TRIVY_TOKEN }}
 
       - name: Modify Kustomize image tag
