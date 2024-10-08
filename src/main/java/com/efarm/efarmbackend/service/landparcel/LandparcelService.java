@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Locale;
+
 @Service
 public class LandparcelService {
 
@@ -22,7 +24,7 @@ public class LandparcelService {
         if (landparcelDTO.getLandOwnershipStatus() != null) {
             ELandOwnershipStatus ownershipStatusEnum;
             try {
-                ownershipStatusEnum = ELandOwnershipStatus.valueOf(landparcelDTO.getLandOwnershipStatus().toUpperCase());
+                ownershipStatusEnum = ELandOwnershipStatus.valueOf(landparcelDTO.getLandOwnershipStatus().toUpperCase(Locale.ROOT));
             } catch (IllegalArgumentException e) {
                 ownershipStatusEnum = ELandOwnershipStatus.STATUS_LEASE;
             }
