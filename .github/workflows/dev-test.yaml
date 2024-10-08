@@ -88,12 +88,14 @@ jobs:
             --cache-from type=gha,mode=max,compression=zstd --push .
 
       - name: Scan Docker image for vulnerabilities
-        uses: aquasecurity/trivy-action@0.20.0
+        uses: aquasecurity/trivy-action@master
         with:
           image-ref: ${{ env.DOCKER_IMAGE }}:${{ env.VERSION }}
           format: 'sarif'
           severity: 'CRITICAL,HIGH'
           output: 'trivy-results.sarif'
+          debug: true
+          github-pat: ${{ secrets.TRIVY_TOKEN }}
 
       - name: Modify Kustomize image tag
         run: |
