@@ -11,7 +11,7 @@ import lombok.Setter;
 @Setter
 @Entity
 @NoArgsConstructor
-@Table(name = "uprawa")
+@Table(name = "Uprawa")
 public class Crop {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

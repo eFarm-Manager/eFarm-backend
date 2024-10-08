@@ -58,11 +58,11 @@ public class LandparcelFacade {
         Farm loggedUserFarm = userService.getLoggedUserFarm();
         LandparcelId landparcelId = new LandparcelId(id, loggedUserFarm.getId());
 
-        logger.info("Landparcel IntegerId: {}", id);
-        logger.info("Landparcel loggedUserFarm: {}", loggedUserFarm.getId());
+        logger.info("Landparcel IntegerId: {}", landparcelId.getId());
+        logger.info("Landparcel loggedUserFarm: {}", landparcelId.getFarmId());
         logger.info("Landparcel id: " + landparcelId);
 
-
+        try{
         Landparcel landparcel = landparcelRepository.findById(landparcelId)
                 .orElseThrow(() -> new RuntimeException("Działka o id: " + landparcelId.getId() + ", farm id: " + landparcelId.getFarmId()));
 
@@ -73,5 +73,10 @@ public class LandparcelFacade {
         }
 
         return landparcelService.createDTOtoDisplay(landparcel);
+        } catch(RuntimeException e) {
+            logger.error("landparcel error");
+            logger.error(e.getMessage());
+            return null;
+        }
     }
 }

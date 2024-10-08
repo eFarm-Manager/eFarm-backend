@@ -12,7 +12,7 @@ import lombok.Setter;
 @Setter
 @Entity
 @NoArgsConstructor
-@Table(name = "pole")
+@Table(name = "Pole")
 public class Farmfield {
 
     @EmbeddedId
