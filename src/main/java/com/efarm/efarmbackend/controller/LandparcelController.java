@@ -38,4 +38,15 @@ public class LandparcelController {
             return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
         }
     }
+
+    @PutMapping("/{landparcelId}")
+    @PreAuthorize("hasRole('ROLE_FARM_MANAGER') or hasRole('ROLE_FARM_OWNER')")
+    public ResponseEntity<?> updateLandparcel(@PathVariable Integer landparcelId, @RequestBody LandparcelDTO landparcelDTO) {
+        try {
+            landparcelFacade.updateLandparcel(landparcelId, landparcelDTO);
+            return ResponseEntity.ok(new MessageResponse("Dane działki zostały pomyślmnie zaktualizowane"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
+        }
+    }
 }
