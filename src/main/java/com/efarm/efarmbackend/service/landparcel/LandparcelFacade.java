@@ -12,6 +12,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class LandparcelFacade {
 
@@ -35,7 +38,6 @@ public class LandparcelFacade {
         if (landparcelService.isLandparcelAlreadyExsists(landparcelDTO, loggedUserFarm)) {
             throw new Exception("Działka o powyższych danych geodezyjnych już istnieje!");
         }
-
         landparcelService.addNewLandparcelData(landparcelDTO, landparcel);
         landparcelRepository.save(landparcel);
     }
@@ -64,7 +66,6 @@ public class LandparcelFacade {
         if (!landparcel.getIsAvailable()) {
             throw new Exception("Wybrana działka już nie istnieje");
         }
-
         landparcelService.updateLandparcelData(landparcelDTO, landparcel);
         landparcelRepository.save(landparcel);
     }
@@ -81,5 +82,34 @@ public class LandparcelFacade {
         } else {
             throw new Exception("Wybrana działka już nie istnieje!");
         }
+    }
+
+    public List<LandparcelDTO> getLandparcels(String searchString, Double minArea, Double maxArea) {
+        Farm loggedUserFarm = userService.getLoggedUserFarm();
+        List<Landparcel> landparcels = landparcelRepository.findByFarmId(loggedUserFarm.getId());
+
+        if (searchString != null && searchString.length() >= 3) {
+            landparcels = landparcels.stream()
+                    .filter(lp -> lp.getCommune().contains(searchString) ||
+                            lp.getGeodesyRegistrationDistrictNumber().contains(searchString) ||
+                            lp.getLandparcelNumber().contains(searchString))
+                    .collect(Collectors.toList());
+        }
+
+        if (minArea != null) {
+            landparcels = landparcels.stream()
+                    .filter(lp -> lp.getArea() >= minArea)
+                    .collect(Collectors.toList());
+        }
+
+        if (maxArea != null) {
+            landparcels = landparcels.stream()
+                    .filter(lp -> lp.getArea() <= maxArea)
+                    .collect(Collectors.toList());
+        }
+
+        return landparcels.stream()
+                .map(LandparcelDTO::new)
+                .collect(Collectors.toList());
     }
 }
