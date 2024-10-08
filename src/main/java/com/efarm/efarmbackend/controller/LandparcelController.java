@@ -49,4 +49,15 @@ public class LandparcelController {
             return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
         }
     }
+
+    @DeleteMapping("/{landparcelId}")
+    @PreAuthorize("hasRole('ROLE_FARM_MANAGER') or hasRole('ROLE_FARM_OWNER')")
+    public ResponseEntity<?> deleteLandparcel(@PathVariable Integer landparcelId) {
+        try {
+            landparcelFacade.deleteLandparcel(landparcelId);
+            return ResponseEntity.ok(new MessageResponse("Działka została pomyślnie usunięta"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
+        }
+    }
 }
