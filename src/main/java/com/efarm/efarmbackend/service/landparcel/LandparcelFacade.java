@@ -68,4 +68,18 @@ public class LandparcelFacade {
         landparcelService.updateLandparcelData(landparcelDTO, landparcel);
         landparcelRepository.save(landparcel);
     }
+
+    @Transactional
+    public void deleteLandparcel(Integer id) throws Exception {
+        LandparcelId landparcelId = new LandparcelId(id, userService.getLoggedUserFarm().getId());
+        Landparcel landparcel = landparcelRepository.findById(landparcelId)
+                .orElseThrow(() -> new RuntimeException("Nie znaleziono działki o id: " + id));
+
+        if (landparcel.getIsAvailable()) {
+            landparcel.setIsAvailable(false);
+            landparcelRepository.save(landparcel);
+        } else {
+            throw new Exception("Wybrana działka już nie istnieje!");
+        }
+    }
 }
