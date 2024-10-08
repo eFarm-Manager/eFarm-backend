@@ -1,24 +1,35 @@
 package com.efarm.efarmbackend.service.landparcel;
 
-import com.efarm.efarmbackend.model.landparcel.*;
+import com.efarm.efarmbackend.model.landparcel.ELandOwnershipStatus;
+import com.efarm.efarmbackend.model.landparcel.LandOwnershipStatus;
+import com.efarm.efarmbackend.model.landparcel.Landparcel;
+import com.efarm.efarmbackend.model.landparcel.LandparcelDTO;
+import com.efarm.efarmbackend.repository.landparcel.LandOwnershipStatusRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.actuate.logging.LoggersEndpoint;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class LandparcelService {
 
+    @Autowired
+    private LandOwnershipStatusRepository landOwnershipStatusRepository;
+
     private static final Logger logger = LoggerFactory.getLogger(LandparcelService.class);
 
     public void setLandparcelData(LandparcelDTO landparcelDTO, Landparcel landparcel) {
         if (landparcelDTO.getLandOwnershipStatus() != null) {
+            ELandOwnershipStatus ownershipStatusEnum;
             try {
-                ELandOwnershipStatus ownershipStatus = ELandOwnershipStatus.valueOf(landparcelDTO.getLandOwnershipStatus().toUpperCase());
-                landparcel.setLandOwnershipStatus(new LandOwnershipStatus(ownershipStatus));
+                ownershipStatusEnum = ELandOwnershipStatus.valueOf(landparcelDTO.getLandOwnershipStatus().toUpperCase());
             } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("Niepoprawny status własności: " + landparcelDTO.getLandOwnershipStatus());
+                ownershipStatusEnum = ELandOwnershipStatus.STATUS_LEASE;
             }
+            LandOwnershipStatus ownershipStatus = landOwnershipStatusRepository.findByOwnershipStatus(ownershipStatusEnum)
+                    .orElseGet(() -> landOwnershipStatusRepository.findByOwnershipStatus(ELandOwnershipStatus.STATUS_LEASE).get());
+
+            landparcel.setLandOwnershipStatus(ownershipStatus);
         }
         if (landparcelDTO.getVoivodeship() != null) {
             landparcel.setVoivodeship(landparcelDTO.getVoivodeship());
@@ -47,8 +58,6 @@ public class LandparcelService {
     }
 
     public LandparcelDTO createDTOtoDisplay(Landparcel landparcel) {
-        LandparcelDTO landparcelDTO = new LandparcelDTO(landparcel);
-        logger.info("Creating LandparcelDTO: {}", landparcelDTO);
-        return landparcelDTO;
+        return new LandparcelDTO(landparcel);
     }
 }
