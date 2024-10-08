@@ -7,7 +7,7 @@ on:
 
 env:
   VERSION: ${{ github.ref_name }}-${{ github.sha }}
-  TRIVY_LOG_LEVEL: DEBUG
+  
 
 jobs:
   integration:
@@ -92,11 +92,21 @@ jobs:
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: ${{ env.DOCKER_IMAGE }}:${{ env.VERSION }}
-          format: 'sarif'
-          severity: 'CRITICAL,HIGH'
-          output: 'trivy-results.sarif'
-          timeout: 5m
-          github-pat: ${{ secrets.TRIVY_TOKEN }}
+          format: 'table'
+          severity: "HIGH,CRITICAL"
+          output: "trivy-report.txt"
+          timeout: 15m
+        env:
+          TRIVY_SHOW_SUPPRESSED: true
+          TRIVY_LOG_LEVEL: DEBUG
+          
+      - name: Upload Trivy Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-report
+          path: trivy-report.txt  
+          retention-days: 2
+          if-no-files-found: error
 
       - name: Modify Kustomize image tag
         run: |
@@ -110,8 +120,4 @@ jobs:
           git commit -m "Update imageTag to ${{ env.VERSION }}"
           git push origin ${{ github.ref }}
 
-      - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v3
-        if: always()
-        with:
-          sarif_file: 'trivy-results.sarif'
+
