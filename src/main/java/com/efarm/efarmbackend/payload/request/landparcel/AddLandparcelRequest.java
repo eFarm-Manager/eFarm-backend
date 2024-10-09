@@ -1,4 +1,4 @@
-package com.efarm.efarmbackend.payload.request;
+package com.efarm.efarmbackend.payload.request.landparcel;
 
 import jakarta.validation.constraints.*;
 import lombok.Getter;

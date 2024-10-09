@@ -4,8 +4,8 @@ import com.efarm.efarmbackend.model.farm.Farm
 import com.efarm.efarmbackend.model.user.ERole
 import com.efarm.efarmbackend.model.user.Role
 import com.efarm.efarmbackend.model.user.User
-import com.efarm.efarmbackend.payload.request.SignupFarmRequest
-import com.efarm.efarmbackend.payload.request.SignupRequest
+import com.efarm.efarmbackend.payload.request.auth.SignupFarmRequest
+import com.efarm.efarmbackend.payload.request.auth.SignupRequest
 import com.efarm.efarmbackend.repository.user.RoleRepository
 import com.efarm.efarmbackend.repository.user.UserRepository
 import com.efarm.efarmbackend.security.services.UserDetailsImpl

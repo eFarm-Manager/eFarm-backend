@@ -1,7 +1,7 @@
 package com.efarm.efarmbackend.service.farm;
 
 import com.efarm.efarmbackend.model.farm.Address;
-import com.efarm.efarmbackend.payload.request.UpdateFarmDetailsRequest;
+import com.efarm.efarmbackend.payload.request.farm.UpdateFarmDetailsRequest;
 import com.efarm.efarmbackend.repository.farm.AddressRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
