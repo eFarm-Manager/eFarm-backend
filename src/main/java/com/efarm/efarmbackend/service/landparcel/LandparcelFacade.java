@@ -4,6 +4,8 @@ import com.efarm.efarmbackend.model.farm.Farm;
 import com.efarm.efarmbackend.model.landparcel.Landparcel;
 import com.efarm.efarmbackend.model.landparcel.LandparcelDTO;
 import com.efarm.efarmbackend.model.landparcel.LandparcelId;
+import com.efarm.efarmbackend.payload.request.AddLandparcelRequest;
+import com.efarm.efarmbackend.payload.request.UpdateLandparcelRequest;
 import com.efarm.efarmbackend.repository.landparcel.LandparcelRepository;
 import com.efarm.efarmbackend.service.user.UserService;
 import jakarta.transaction.Transactional;
@@ -30,11 +32,12 @@ public class LandparcelFacade {
     private static final Logger logger = LoggerFactory.getLogger(LandparcelFacade.class);
 
     @Transactional
-    public void addNewLandparcel(LandparcelDTO landparcelDTO) throws Exception {
+    public void addNewLandparcel(AddLandparcelRequest addLandparcelRequest) throws Exception {
         Farm loggedUserFarm = userService.getLoggedUserFarm();
         LandparcelId landparcelId = new LandparcelId(landparcelRepository.findNextFreeIdForFarm(loggedUserFarm.getId()), loggedUserFarm.getId());
         Landparcel landparcel = new Landparcel(landparcelId, loggedUserFarm);
 
+        LandparcelDTO landparcelDTO = new LandparcelDTO(addLandparcelRequest);
         if (landparcelService.isLandparcelAlreadyExsists(landparcelDTO, loggedUserFarm)) {
             throw new Exception("Działka o powyższych danych geodezyjnych już istnieje!");
         }
@@ -56,9 +59,11 @@ public class LandparcelFacade {
     }
 
     @Transactional
-    public void updateLandparcel(Integer id, LandparcelDTO landparcelDTO) throws Exception {
+    public void updateLandparcel(Integer id, UpdateLandparcelRequest updateLandparcelRequest) throws Exception {
         Farm loggedUserFarm = userService.getLoggedUserFarm();
         LandparcelId landparcelId = new LandparcelId(id, loggedUserFarm.getId());
+
+        LandparcelDTO landparcelDTO = new LandparcelDTO(updateLandparcelRequest);
 
         Landparcel landparcel = landparcelRepository.findById(landparcelId)
                 .orElseThrow(() -> new Exception("Działka nie istnieje"));

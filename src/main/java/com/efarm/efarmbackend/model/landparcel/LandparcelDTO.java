@@ -1,5 +1,7 @@
 package com.efarm.efarmbackend.model.landparcel;
 
+import com.efarm.efarmbackend.payload.request.AddLandparcelRequest;
+import com.efarm.efarmbackend.payload.request.UpdateLandparcelRequest;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -31,5 +33,24 @@ public class LandparcelDTO
         this.longitude = landparcel.getLongitude();
         this.latitude = landparcel.getLatitude();
         this.area = landparcel.getArea();
+    }
+
+    public LandparcelDTO(AddLandparcelRequest addLandparcelRequest) {
+        this.landOwnershipStatus = addLandparcelRequest.getLandOwnershipStatus();
+        this.voivodeship = addLandparcelRequest.getVoivodeship();
+        this.district = addLandparcelRequest.getDistrict();
+        this.commune = addLandparcelRequest.getCommune();
+        this.geodesyRegistrationDistrictNumber = addLandparcelRequest.getGeodesyRegistrationDistrictNumber();
+        this.landparcelNumber = addLandparcelRequest.getLandparcelNumber();
+        this.longitude = addLandparcelRequest.getLongitude();
+        this.latitude = addLandparcelRequest.getLatitude();
+        this.area = addLandparcelRequest.getArea();
+    }
+
+    public LandparcelDTO(UpdateLandparcelRequest updateLandparcelRequest) {
+        this.landOwnershipStatus = updateLandparcelRequest.getLandOwnershipStatus();
+        this.longitude = updateLandparcelRequest.getLongitude();
+        this.latitude = updateLandparcelRequest.getLatitude();
+        this.area = updateLandparcelRequest.getArea();
     }
 }
