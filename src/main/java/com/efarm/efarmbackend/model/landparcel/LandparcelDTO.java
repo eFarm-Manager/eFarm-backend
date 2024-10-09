@@ -3,7 +3,6 @@ package com.efarm.efarmbackend.model.landparcel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.apache.logging.log4j.message.StringFormattedMessage;
 
 @Getter
 @Setter
