@@ -1,8 +1,8 @@
 package com.efarm.efarmbackend.controller;
 
 import com.efarm.efarmbackend.model.landparcel.LandparcelDTO;
-import com.efarm.efarmbackend.payload.request.AddLandparcelRequest;
-import com.efarm.efarmbackend.payload.request.UpdateLandparcelRequest;
+import com.efarm.efarmbackend.payload.request.landparcel.AddLandparcelRequest;
+import com.efarm.efarmbackend.payload.request.landparcel.UpdateLandparcelRequest;
 import com.efarm.efarmbackend.payload.response.MessageResponse;
 import com.efarm.efarmbackend.service.ValidationRequestService;
 import com.efarm.efarmbackend.service.landparcel.LandparcelFacade;

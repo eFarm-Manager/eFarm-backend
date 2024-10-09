@@ -2,7 +2,7 @@ package com.efarm.efarmbackend.service.equipment;
 
 import com.efarm.efarmbackend.model.equipment.*;
 import com.efarm.efarmbackend.model.farm.Farm;
-import com.efarm.efarmbackend.payload.request.AddUpdateFarmEquipmentRequest;
+import com.efarm.efarmbackend.payload.request.equipment.AddUpdateFarmEquipmentRequest;
 import com.efarm.efarmbackend.payload.response.MessageResponse;
 import com.efarm.efarmbackend.repository.equipment.EquipmentCategoryRepository;
 import com.efarm.efarmbackend.repository.equipment.FarmEquipmentRepository;

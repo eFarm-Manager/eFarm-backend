@@ -1,7 +1,7 @@
 package com.efarm.efarmbackend.service;
 
 import com.efarm.efarmbackend.model.farm.Address
-import com.efarm.efarmbackend.payload.request.UpdateFarmDetailsRequest
+import com.efarm.efarmbackend.payload.request.farm.UpdateFarmDetailsRequest
 import com.efarm.efarmbackend.repository.farm.AddressRepository
 import com.efarm.efarmbackend.service.farm.AddressService
 import spock.lang.Specification

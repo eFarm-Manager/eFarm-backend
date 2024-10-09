@@ -1,7 +1,7 @@
 package com.efarm.efarmbackend.controller;
 
 import com.efarm.efarmbackend.model.equipment.EquipmentCategoryDTO;
-import com.efarm.efarmbackend.payload.request.AddUpdateFarmEquipmentRequest;
+import com.efarm.efarmbackend.payload.request.equipment.AddUpdateFarmEquipmentRequest;
 import com.efarm.efarmbackend.model.equipment.FarmEquipmentShortDTO;
 import com.efarm.efarmbackend.service.equipment.FarmEquipmentFacade;
 import jakarta.validation.Valid;

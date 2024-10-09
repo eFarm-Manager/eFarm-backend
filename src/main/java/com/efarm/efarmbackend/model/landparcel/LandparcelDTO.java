@@ -1,7 +1,7 @@
 package com.efarm.efarmbackend.model.landparcel;
 
-import com.efarm.efarmbackend.payload.request.AddLandparcelRequest;
-import com.efarm.efarmbackend.payload.request.UpdateLandparcelRequest;
+import com.efarm.efarmbackend.payload.request.landparcel.AddLandparcelRequest;
+import com.efarm.efarmbackend.payload.request.landparcel.UpdateLandparcelRequest;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

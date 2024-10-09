@@ -1,4 +1,4 @@
-package com.efarm.efarmbackend.payload.request;
+package com.efarm.efarmbackend.payload.request.farm;
 
 import jakarta.validation.constraints.Size;
 import lombok.Getter;

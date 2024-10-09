@@ -1,7 +1,7 @@
 package com.efarm.efarmbackend.service
 
-import com.efarm.efarmbackend.payload.request.LoginRequest
-import com.efarm.efarmbackend.payload.request.UpdateActivationCodeRequest
+import com.efarm.efarmbackend.payload.request.auth.LoginRequest
+import com.efarm.efarmbackend.payload.request.auth.UpdateActivationCodeRequest
 import com.efarm.efarmbackend.security.services.BruteForceProtectionService
 import com.efarm.efarmbackend.security.services.UserDetailsImpl
 import com.efarm.efarmbackend.service.auth.AuthService

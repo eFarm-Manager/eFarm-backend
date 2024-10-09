@@ -3,7 +3,7 @@ package com.efarm.efarmbackend.service;
 import com.efarm.efarmbackend.model.equipment.FarmEquipment;
 import com.efarm.efarmbackend.model.equipment.FarmEquipmentId;
 import com.efarm.efarmbackend.model.equipment.EquipmentCategory;
-import com.efarm.efarmbackend.payload.request.AddUpdateFarmEquipmentRequest
+import com.efarm.efarmbackend.payload.request.equipment.AddUpdateFarmEquipmentRequest
 import com.efarm.efarmbackend.service.equipment.FarmEquipmentService;
 import com.efarm.efarmbackend.service.equipment.EquipmentDisplayDataService
 import spock.lang.Specification

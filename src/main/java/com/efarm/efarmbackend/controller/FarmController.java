@@ -2,7 +2,7 @@ package com.efarm.efarmbackend.controller;
 
 import com.efarm.efarmbackend.model.farm.FarmDTO;
 import com.efarm.efarmbackend.model.user.UserDTO;
-import com.efarm.efarmbackend.payload.request.UpdateFarmDetailsRequest;
+import com.efarm.efarmbackend.payload.request.farm.UpdateFarmDetailsRequest;
 import com.efarm.efarmbackend.service.farm.FarmFacade;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

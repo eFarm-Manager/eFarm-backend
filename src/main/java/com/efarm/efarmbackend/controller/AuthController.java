@@ -1,7 +1,7 @@
 package com.efarm.efarmbackend.controller;
 
 
-import com.efarm.efarmbackend.payload.request.*;
+import com.efarm.efarmbackend.payload.request.auth.*;
 import com.efarm.efarmbackend.service.auth.AuthFacade;
 import jakarta.validation.Valid;
 

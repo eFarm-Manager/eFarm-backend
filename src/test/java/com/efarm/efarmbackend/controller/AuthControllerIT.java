@@ -18,12 +18,12 @@ import com.efarm.efarmbackend.model.farm.Farm;
 import com.efarm.efarmbackend.model.user.ERole;
 import com.efarm.efarmbackend.model.user.Role;
 import com.efarm.efarmbackend.model.user.User;
-import com.efarm.efarmbackend.payload.request.ChangePasswordRequest;
-import com.efarm.efarmbackend.payload.request.LoginRequest;
-import com.efarm.efarmbackend.payload.request.SignupFarmRequest;
-import com.efarm.efarmbackend.payload.request.SignupRequest;
-import com.efarm.efarmbackend.payload.request.UpdateActivationCodeByLoggedOwnerRequest;
-import com.efarm.efarmbackend.payload.request.UpdateActivationCodeRequest;
+import com.efarm.efarmbackend.payload.request.auth.ChangePasswordRequest;
+import com.efarm.efarmbackend.payload.request.auth.LoginRequest;
+import com.efarm.efarmbackend.payload.request.auth.SignupFarmRequest;
+import com.efarm.efarmbackend.payload.request.auth.SignupRequest;
+import com.efarm.efarmbackend.payload.request.auth.UpdateActivationCodeByLoggedOwnerRequest;
+import com.efarm.efarmbackend.payload.request.auth.UpdateActivationCodeRequest;
 import com.efarm.efarmbackend.security.services.UserDetailsImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 

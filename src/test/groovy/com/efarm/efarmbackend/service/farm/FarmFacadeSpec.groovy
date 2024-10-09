@@ -7,7 +7,7 @@ import com.efarm.efarmbackend.model.farm.FarmDTO
 import com.efarm.efarmbackend.model.user.User
 import com.efarm.efarmbackend.model.user.Role
 import com.efarm.efarmbackend.model.user.UserDTO
-import com.efarm.efarmbackend.payload.request.UpdateFarmDetailsRequest
+import com.efarm.efarmbackend.payload.request.farm.UpdateFarmDetailsRequest
 import com.efarm.efarmbackend.repository.farm.FarmRepository
 import com.efarm.efarmbackend.repository.farm.AddressRepository
 import com.efarm.efarmbackend.service.*
