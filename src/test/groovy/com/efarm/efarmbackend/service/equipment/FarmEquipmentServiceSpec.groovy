@@ -3,7 +3,7 @@ package com.efarm.efarmbackend.service;
 import com.efarm.efarmbackend.model.equipment.FarmEquipment;
 import com.efarm.efarmbackend.model.equipment.FarmEquipmentId;
 import com.efarm.efarmbackend.model.equipment.EquipmentCategory;
-import com.efarm.efarmbackend.model.equipment.FarmEquipmentDTO
+import com.efarm.efarmbackend.payload.request.AddUpdateFarmEquipmentRequest
 import com.efarm.efarmbackend.service.equipment.FarmEquipmentService;
 import com.efarm.efarmbackend.service.equipment.EquipmentDisplayDataService
 import spock.lang.Specification
@@ -44,7 +44,7 @@ class FarmEquipmentServiceSpec extends Specification {
         List<String> fieldsToDisplay = ["power", "capacity", "workingWidth", "insurancePolicyNumber", "insuranceExpirationDate", "inspectionExpireDate"]
 
         when:
-        FarmEquipmentDTO result = farmEquipmentService.createFarmEquipmentDTOtoDisplay(equipment, fieldsToDisplay)
+        AddUpdateFarmEquipmentRequest result = farmEquipmentService.createFarmEquipmentDTOtoDisplay(equipment, fieldsToDisplay)
 
         then:
         result.getEquipmentId() == 1
@@ -65,7 +65,7 @@ class FarmEquipmentServiceSpec extends Specification {
         List<String> fieldsToDisplay = ["power", "capacity"]
 
         when:
-        FarmEquipmentDTO result = farmEquipmentService.createFarmEquipmentDTOtoDisplay(equipment, fieldsToDisplay)
+        AddUpdateFarmEquipmentRequest result = farmEquipmentService.createFarmEquipmentDTOtoDisplay(equipment, fieldsToDisplay)
 
         then:
         result.getEquipmentId() == 1
@@ -86,7 +86,7 @@ class FarmEquipmentServiceSpec extends Specification {
         List<String> fieldsToDisplay = ["insurancePolicyNumber", "insuranceExpirationDate", "inspectionExpireDate"]
 
         when:
-        FarmEquipmentDTO result = farmEquipmentService.createFarmEquipmentDTOtoDisplay(equipment, fieldsToDisplay)
+        AddUpdateFarmEquipmentRequest result = farmEquipmentService.createFarmEquipmentDTOtoDisplay(equipment, fieldsToDisplay)
 
         then:
         result.getEquipmentId() == 1
@@ -107,7 +107,7 @@ class FarmEquipmentServiceSpec extends Specification {
         List<String> fieldsToDisplay = []
 
         when:
-        FarmEquipmentDTO result = farmEquipmentService.createFarmEquipmentDTOtoDisplay(equipment, fieldsToDisplay)
+        AddUpdateFarmEquipmentRequest result = farmEquipmentService.createFarmEquipmentDTOtoDisplay(equipment, fieldsToDisplay)
 
         then:
         result.getEquipmentId() == 1
@@ -126,7 +126,7 @@ class FarmEquipmentServiceSpec extends Specification {
     def "should set specific fields for category"() {
         given:
         String categoryName = "Ciągniki rolnicze"
-        FarmEquipmentDTO farmEquipmentDTO = Mock(FarmEquipmentDTO) {
+        AddUpdateFarmEquipmentRequest farmEquipmentDTO = Mock(AddUpdateFarmEquipmentRequest) {
             getPower() >> 120
             getCapacity() >> null
             getWorkingWidth() >> null
@@ -154,7 +154,7 @@ class FarmEquipmentServiceSpec extends Specification {
 
     def "should set common fields"() {
         given:
-        FarmEquipmentDTO farmEquipmentDTO = Mock(FarmEquipmentDTO) {
+        AddUpdateFarmEquipmentRequest farmEquipmentDTO = Mock(AddUpdateFarmEquipmentRequest) {
             getEquipmentName() >> "Tractor X"
             getBrand() >> null
             getModel() >> "Model X"

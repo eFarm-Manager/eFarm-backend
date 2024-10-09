@@ -1,7 +1,7 @@
 package com.efarm.efarmbackend.service.facades
 
 import com.efarm.efarmbackend.model.equipment.FarmEquipment
-import com.efarm.efarmbackend.model.equipment.FarmEquipmentDTO
+import com.efarm.efarmbackend.payload.request.AddUpdateFarmEquipmentRequest
 import com.efarm.efarmbackend.model.equipment.FarmEquipmentId
 import com.efarm.efarmbackend.model.equipment.EquipmentCategory
 import com.efarm.efarmbackend.model.farm.Farm
@@ -74,7 +74,7 @@ class FarmEquipmentFacadeSpec extends Specification {
         farmEquipmentRepository.findByFarmIdFarm_Id(farmId) >> [equipment1, equipment2]
 
         when:
-        ResponseEntity<List<FarmEquipmentDTO>> result = farmEquipmentFacade.getFarmEquipment(searchQuery)
+        ResponseEntity<List<AddUpdateFarmEquipmentRequest>> result = farmEquipmentFacade.getFarmEquipment(searchQuery)
 
         then:
         result.getStatusCode() == HttpStatus.OK
@@ -114,7 +114,7 @@ class FarmEquipmentFacadeSpec extends Specification {
         farmEquipmentRepository.findByFarmIdFarm_Id(farmId) >> [equipment1, equipment2]
 
         when:
-        ResponseEntity<List<FarmEquipmentDTO>> result = farmEquipmentFacade.getFarmEquipment(searchQuery)
+        ResponseEntity<List<AddUpdateFarmEquipmentRequest>> result = farmEquipmentFacade.getFarmEquipment(searchQuery)
 
         then:
         result.getStatusCode() == HttpStatus.OK
@@ -154,7 +154,7 @@ class FarmEquipmentFacadeSpec extends Specification {
         farmEquipmentRepository.findByFarmIdFarm_Id(farmId) >> [equipment1, equipment2]
 
         when:
-        ResponseEntity<List<FarmEquipmentDTO>> result = farmEquipmentFacade.getFarmEquipment(searchQuery)
+        ResponseEntity<List<AddUpdateFarmEquipmentRequest>> result = farmEquipmentFacade.getFarmEquipment(searchQuery)
 
         then:
         result.getStatusCode() == HttpStatus.OK
@@ -192,7 +192,7 @@ class FarmEquipmentFacadeSpec extends Specification {
         farmEquipmentRepository.findById(farmEquipmentId) >> Optional.of(equipment)
         equipmentDisplayDataService.getFieldsForCategory(equipment.getCategory().getCategoryName()) >> fields
 
-        farmEquipmentService.createFarmEquipmentDTOtoDisplay(equipment, fields) >> Mock(FarmEquipmentDTO) {
+        farmEquipmentService.createFarmEquipmentDTOtoDisplay(equipment, fields) >> Mock(AddUpdateFarmEquipmentRequest) {
             getEquipmentId() >> equipmentId
             getEquipmentName() >> "Tractor X"
             getCategory() >> "Ciągniki rolnicze"
@@ -271,7 +271,7 @@ class FarmEquipmentFacadeSpec extends Specification {
         farmEquipmentRepository.findById(farmEquipmentId) >> Optional.of(equipment)
         equipmentDisplayDataService.getFieldsForCategory(equipment.getCategory().getCategoryName()) >> fields
 
-        farmEquipmentService.createFarmEquipmentDTOtoDisplay(equipment, fields) >> Mock(FarmEquipmentDTO) {
+        farmEquipmentService.createFarmEquipmentDTOtoDisplay(equipment, fields) >> Mock(AddUpdateFarmEquipmentRequest) {
             getEquipmentId() >> equipmentId
             getEquipmentName() >> "Tractor X"
             getCategory() >> "Ciągniki rolnicze"
@@ -305,7 +305,7 @@ class FarmEquipmentFacadeSpec extends Specification {
         Farm farm = Mock(Farm) {
             getId() >> 5
         }
-        FarmEquipmentDTO farmEquipmentDTO = Mock(FarmEquipmentDTO) {
+        AddUpdateFarmEquipmentRequest farmEquipmentDTO = Mock(AddUpdateFarmEquipmentRequest) {
             getEquipmentName() >> "Tractor X"
             getCategory() >> "Ciągniki rolnicze"
             getBrand() >> "Brand X"
@@ -347,7 +347,7 @@ class FarmEquipmentFacadeSpec extends Specification {
         validationRequestService.validateRequest(bindingResult) >> validationErrorResponse
 
         when:
-        ResponseEntity<?> response = farmEquipmentFacade.addNewFarmEquipment(Mock(FarmEquipmentDTO), bindingResult)
+        ResponseEntity<?> response = farmEquipmentFacade.addNewFarmEquipment(Mock(AddUpdateFarmEquipmentRequest), bindingResult)
 
         then:
         response == validationErrorResponse
@@ -364,7 +364,7 @@ class FarmEquipmentFacadeSpec extends Specification {
         Farm farm = Mock(Farm) {
             getId() >> 5
         }
-        FarmEquipmentDTO farmEquipmentDTO = Mock(FarmEquipmentDTO) {
+        AddUpdateFarmEquipmentRequest farmEquipmentDTO = Mock(AddUpdateFarmEquipmentRequest) {
             getEquipmentName() >> "Tractor X"
             getCategory() >> "Ciągniki rolnicze"
         }
@@ -393,7 +393,7 @@ class FarmEquipmentFacadeSpec extends Specification {
         Farm farm = Mock(Farm) {
             getId() >> 5
         }
-        FarmEquipmentDTO farmEquipmentDTO = Mock(FarmEquipmentDTO) {
+        AddUpdateFarmEquipmentRequest farmEquipmentDTO = Mock(AddUpdateFarmEquipmentRequest) {
             getEquipmentName() >> "Tractor X"
             getCategory() >> "Ciągniki rolnicze"
             getBrand() >> "Brand X"
@@ -434,7 +434,7 @@ class FarmEquipmentFacadeSpec extends Specification {
         validationRequestService.validateRequest(bindingResult) >> ResponseEntity.badRequest().body(new MessageResponse("Validation failed"))
 
         when:
-        ResponseEntity<?> response = farmEquipmentFacade.updateFarmEquipment(1, Mock(FarmEquipmentDTO), bindingResult)
+        ResponseEntity<?> response = farmEquipmentFacade.updateFarmEquipment(1, Mock(AddUpdateFarmEquipmentRequest), bindingResult)
 
         then:
         response.statusCode == HttpStatus.BAD_REQUEST
@@ -457,7 +457,7 @@ class FarmEquipmentFacadeSpec extends Specification {
         farmEquipmentRepository.findById(farmEquipmentId) >> Optional.empty()
 
         when:
-        ResponseEntity<?> response = farmEquipmentFacade.updateFarmEquipment(1, Mock(FarmEquipmentDTO), bindingResult)
+        ResponseEntity<?> response = farmEquipmentFacade.updateFarmEquipment(1, Mock(AddUpdateFarmEquipmentRequest), bindingResult)
 
         then:
         response.statusCode == HttpStatus.BAD_REQUEST
@@ -473,7 +473,7 @@ class FarmEquipmentFacadeSpec extends Specification {
         Farm farm = Mock(Farm) {
             getId() >> 5
         }
-        FarmEquipmentDTO farmEquipmentDTO = Mock(FarmEquipmentDTO) {
+        AddUpdateFarmEquipmentRequest farmEquipmentDTO = Mock(AddUpdateFarmEquipmentRequest) {
             getEquipmentName() >> "Tractor X"
         }
         FarmEquipment equipment = Mock(FarmEquipment) {
@@ -503,7 +503,7 @@ class FarmEquipmentFacadeSpec extends Specification {
         Farm farm = Mock(Farm) {
             getId() >> 5
         }
-        FarmEquipmentDTO farmEquipmentDTO = Mock(FarmEquipmentDTO) {
+        AddUpdateFarmEquipmentRequest farmEquipmentDTO = Mock(AddUpdateFarmEquipmentRequest) {
             getEquipmentName() >> "Tractor X"
         }
         FarmEquipment equipment = Mock(FarmEquipment) {

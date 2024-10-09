@@ -2,6 +2,7 @@ package com.efarm.efarmbackend.service.equipment;
 
 import com.efarm.efarmbackend.model.equipment.*;
 import com.efarm.efarmbackend.model.farm.Farm;
+import com.efarm.efarmbackend.payload.request.AddUpdateFarmEquipmentRequest;
 import com.efarm.efarmbackend.payload.response.MessageResponse;
 import com.efarm.efarmbackend.repository.equipment.EquipmentCategoryRepository;
 import com.efarm.efarmbackend.repository.equipment.FarmEquipmentRepository;
@@ -43,7 +44,7 @@ public class FarmEquipmentFacade {
 
     private static final Logger logger = LoggerFactory.getLogger(FarmEquipmentFacade.class);
 
-    public ResponseEntity<List<FarmEquipmentDTO>> getFarmEquipment(String searchQuery) {
+    public ResponseEntity<List<FarmEquipmentShortDTO>> getFarmEquipment(String searchQuery) {
         List<FarmEquipment> equipmentList = farmEquipmentRepository.findByFarmIdFarm_Id(userService.getLoggedUserFarm().getId());
 
         return ResponseEntity.ok(equipmentList.stream()
@@ -53,7 +54,7 @@ public class FarmEquipmentFacade {
                                 equipment.getCategory().getCategoryName().toLowerCase(Locale.ROOT).contains(searchQuery.toLowerCase(Locale.ROOT))
                         ) && (equipment.getIsAvailable())
                 )
-                .map(equipment -> new FarmEquipmentDTO(
+                .map(equipment -> new FarmEquipmentShortDTO(
                         equipment.getId().getId(),
                         equipment.getEquipmentName(),
                         equipment.getCategory().getCategoryName(),
@@ -72,7 +73,7 @@ public class FarmEquipmentFacade {
 
             if (equipment.getIsAvailable()) {
                 List<String> fieldsToDisplay = equipmentDisplayDataService.getFieldsForCategory(equipment.getCategory().getCategoryName());
-                FarmEquipmentDTO equipmentDetailDTO = FarmEquipmentService.createFarmEquipmentDTOtoDisplay(equipment, fieldsToDisplay);
+                AddUpdateFarmEquipmentRequest equipmentDetailDTO = FarmEquipmentService.createFarmEquipmentDTOtoDisplay(equipment, fieldsToDisplay);
 
                 return ResponseEntity.ok(equipmentDetailDTO);
             } else {
@@ -89,7 +90,7 @@ public class FarmEquipmentFacade {
     }
 
     @Transactional
-    public ResponseEntity<?> addNewFarmEquipment(FarmEquipmentDTO farmEquipmentDTO, BindingResult bindingResult) {
+    public ResponseEntity<?> addNewFarmEquipment(AddUpdateFarmEquipmentRequest addUpdateFarmEquipmentRequest, BindingResult bindingResult) {
 
         ResponseEntity<?> validationErrorResponse = validationRequestService.validateRequest(bindingResult);
         if (validationErrorResponse != null) {
@@ -98,14 +99,14 @@ public class FarmEquipmentFacade {
 
         Farm loggedUserFarm = userService.getLoggedUserFarm();
         FarmEquipmentId farmEquipmentId = new FarmEquipmentId(farmEquipmentRepository.findNextFreeIdForFarm(loggedUserFarm.getId()), loggedUserFarm.getId());
-        FarmEquipment equipment = new FarmEquipment(farmEquipmentId , equipmentCategoryRepository.findByCategoryName(farmEquipmentDTO.getCategory()), loggedUserFarm);
+        FarmEquipment equipment = new FarmEquipment(farmEquipmentId , equipmentCategoryRepository.findByCategoryName(addUpdateFarmEquipmentRequest.getCategory()), loggedUserFarm);
 
-        if(farmEquipmentRepository.existsByEquipmentNameAndFarmIdFarm(farmEquipmentDTO.getEquipmentName(), loggedUserFarm)) {
+        if(farmEquipmentRepository.existsByEquipmentNameAndFarmIdFarm(addUpdateFarmEquipmentRequest.getEquipmentName(), loggedUserFarm)) {
             return ResponseEntity.badRequest().body(new MessageResponse("Maszyna o podanej nazwie już istnieje"));
         }
 
-        farmEquipmentService.setCommonFieldsForCategory(farmEquipmentDTO, equipment);
-        farmEquipmentService.setSpecificFieldsForCategory(farmEquipmentDTO, equipment, farmEquipmentDTO.getCategory());
+        farmEquipmentService.setCommonFieldsForCategory(addUpdateFarmEquipmentRequest, equipment);
+        farmEquipmentService.setSpecificFieldsForCategory(addUpdateFarmEquipmentRequest, equipment, addUpdateFarmEquipmentRequest.getCategory());
 
         farmEquipmentRepository.save(equipment);
 
@@ -114,7 +115,7 @@ public class FarmEquipmentFacade {
     }
 
     @Transactional
-    public ResponseEntity<?> updateFarmEquipment(Integer equipmentId, FarmEquipmentDTO farmEquipmentDTO, BindingResult bindingResult) {
+    public ResponseEntity<?> updateFarmEquipment(Integer equipmentId, AddUpdateFarmEquipmentRequest addUpdateFarmEquipmentRequest, BindingResult bindingResult) {
 
         ResponseEntity<?> validationErrorResponse = validationRequestService.validateRequest(bindingResult);
         if (validationErrorResponse != null) {
@@ -129,11 +130,11 @@ public class FarmEquipmentFacade {
                     .orElseThrow(() -> new RuntimeException("Nie znaleziono maszyny o id: " + equipmentId));
 
             if (equipment.getIsAvailable()) {
-                if(farmEquipmentRepository.existsByEquipmentNameAndFarmIdFarm(farmEquipmentDTO.getEquipmentName(), loggedUserFarm)) {
+                if(farmEquipmentRepository.existsByEquipmentNameAndFarmIdFarm(addUpdateFarmEquipmentRequest.getEquipmentName(), loggedUserFarm)) {
                     return ResponseEntity.badRequest().body(new MessageResponse("Maszyna o podanej nazwie już występuje w gospodarstwie"));
                 }
-                farmEquipmentService.setCommonFieldsForCategory(farmEquipmentDTO, equipment);
-                farmEquipmentService.setSpecificFieldsForCategory(farmEquipmentDTO, equipment, equipment.getCategory().getCategoryName());
+                farmEquipmentService.setCommonFieldsForCategory(addUpdateFarmEquipmentRequest, equipment);
+                farmEquipmentService.setSpecificFieldsForCategory(addUpdateFarmEquipmentRequest, equipment, equipment.getCategory().getCategoryName());
                 farmEquipmentRepository.save(equipment);
             } else {
                 return ResponseEntity.badRequest().body(new MessageResponse("Wybrany sprzęt już nie istnieje"));
