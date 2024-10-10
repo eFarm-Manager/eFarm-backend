@@ -1,6 +1,7 @@
 package com.efarm.efarmbackend.controller;
 
 import com.efarm.efarmbackend.payload.request.finance.NewTransactionRequest;
+import com.efarm.efarmbackend.payload.request.finance.UpdateFinanceRequest;
 import com.efarm.efarmbackend.payload.response.MessageResponse;
 import com.efarm.efarmbackend.service.ValidationRequestService;
 import com.efarm.efarmbackend.service.finance.FinanceFacade;
@@ -35,4 +36,28 @@ public class FinanceController {
             return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
         }
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateTransaction(@PathVariable Integer id, @Valid @RequestBody UpdateFinanceRequest updateRequest, BindingResult bindingResult) {
+        try {
+            validationRequestService.validateRequestWithException(bindingResult);
+            financeFacade.updateTransaction(id, updateRequest);
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(new MessageResponse("Pomyślnie zaktualizowano transakcję"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteTransaction(@PathVariable Integer id) {
+        try {
+            financeFacade.deleteTransaction(id);
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(new MessageResponse("Transakcja została usunięta"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
+        }
+    }
+
 }
