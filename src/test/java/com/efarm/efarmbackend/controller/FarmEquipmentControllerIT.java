@@ -23,6 +23,7 @@ import com.efarm.efarmbackend.model.user.User;
 import com.efarm.efarmbackend.security.services.UserDetailsImpl;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.efarm.efarmbackend.model.equipment.FarmEquipmentShortDTO;
 
 import java.util.List;
 
@@ -88,8 +89,8 @@ public class FarmEquipmentControllerIT {
                 .andReturn();
 
         //then
-        List<AddUpdateFarmEquipmentRequest> equipmentDTOs = new ObjectMapper().readValue(result.getResponse().getContentAsString(),
-                new TypeReference<List<AddUpdateFarmEquipmentRequest>>() {
+        List<FarmEquipmentShortDTO> equipmentDTOs = new ObjectMapper().readValue(result.getResponse().getContentAsString(),
+                new TypeReference<List<FarmEquipmentShortDTO>>() {
                 });
 
         assertThat(equipmentDTOs.size(), is(equipmentCount.intValue()));
@@ -117,8 +118,8 @@ public class FarmEquipmentControllerIT {
                 .andReturn();
 
         //then
-        List<AddUpdateFarmEquipmentRequest> equipmentDTOs = new ObjectMapper().readValue(result.getResponse().getContentAsString(),
-                new TypeReference<List<AddUpdateFarmEquipmentRequest>>() {
+        List<FarmEquipmentShortDTO> equipmentDTOs = new ObjectMapper().readValue(result.getResponse().getContentAsString(),
+                new TypeReference<List<FarmEquipmentShortDTO>>() {
                 });
 
         assertThat(equipmentDTOs.size(), is(equipmentCount.intValue()));

@@ -235,7 +235,7 @@ public class AuthControllerIT {
         mockMvc.perform(post("/api/auth/signout"))
                 // Then
                 .andExpect(status().isOk())
-                .andExpect(header().string(HttpHeaders.SET_COOKIE, "jwtToken=; Path=/api"))
+                .andExpect(header().string(HttpHeaders.SET_COOKIE, "jwtToken=; Path=/api; Secure; SameSite=None"))
                 .andExpect(content().json("{\"message\":\"You've been signed out!\"}"));
 
 
