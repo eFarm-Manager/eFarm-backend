@@ -11,6 +11,7 @@ import com.efarm.efarmbackend.repository.equipment.FarmEquipmentRepository
 import com.efarm.efarmbackend.service.equipment.EquipmentDisplayDataService
 import com.efarm.efarmbackend.service.equipment.FarmEquipmentService
 import com.efarm.efarmbackend.repository.equipment.EquipmentCategoryRepository;
+import com.efarm.efarmbackend.model.equipment.FarmEquipmentShortDTO;
 import com.efarm.efarmbackend.service.ValidationRequestService;
 import com.efarm.efarmbackend.service.user.UserService
 import org.springframework.http.HttpStatus
@@ -74,7 +75,7 @@ class FarmEquipmentFacadeSpec extends Specification {
         farmEquipmentRepository.findByFarmIdFarm_Id(farmId) >> [equipment1, equipment2]
 
         when:
-        ResponseEntity<List<AddUpdateFarmEquipmentRequest>> result = farmEquipmentFacade.getFarmEquipment(searchQuery)
+        ResponseEntity<List<FarmEquipmentShortDTO>> result = farmEquipmentFacade.getFarmEquipment(searchQuery)
 
         then:
         result.getStatusCode() == HttpStatus.OK
@@ -114,7 +115,7 @@ class FarmEquipmentFacadeSpec extends Specification {
         farmEquipmentRepository.findByFarmIdFarm_Id(farmId) >> [equipment1, equipment2]
 
         when:
-        ResponseEntity<List<AddUpdateFarmEquipmentRequest>> result = farmEquipmentFacade.getFarmEquipment(searchQuery)
+        ResponseEntity<List<FarmEquipmentShortDTO>> result = farmEquipmentFacade.getFarmEquipment(searchQuery)
 
         then:
         result.getStatusCode() == HttpStatus.OK
@@ -154,7 +155,7 @@ class FarmEquipmentFacadeSpec extends Specification {
         farmEquipmentRepository.findByFarmIdFarm_Id(farmId) >> [equipment1, equipment2]
 
         when:
-        ResponseEntity<List<AddUpdateFarmEquipmentRequest>> result = farmEquipmentFacade.getFarmEquipment(searchQuery)
+        ResponseEntity<List<FarmEquipmentShortDTO>> result = farmEquipmentFacade.getFarmEquipment(searchQuery)
 
         then:
         result.getStatusCode() == HttpStatus.OK
