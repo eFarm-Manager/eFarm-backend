@@ -12,7 +12,7 @@ import lombok.Setter;
 @Setter
 @Entity
 @NoArgsConstructor
-@Table(name = "dzialka")
+@Table(name = "Dzialka")
 public class Landparcel {
 
     @EmbeddedId
@@ -84,6 +84,12 @@ public class Landparcel {
         this.isAvailable = landparcel.getIsAvailable();
     }
 
+    public Landparcel(LandparcelId id, Farm farm) {
+        this.id = id;
+        this.farm = farm;
+        this.isAvailable = true;
+    }
+
     public LandparcelId getId() {
         return id == null ? null : new LandparcelId(id);
     }
@@ -98,10 +104,6 @@ public class Landparcel {
 
     public void setFarm(Farm farm) {
         this.farm = farm == null ? null : new Farm(farm);
-    }
-
-    public LandOwnershipStatus getLandOwnershipStatus() {
-        return landOwnershipStatus == null ? null : new LandOwnershipStatus(landOwnershipStatus);
     }
 
     public void setLandOwnershipStatus(LandOwnershipStatus landOwnershipStatus) {

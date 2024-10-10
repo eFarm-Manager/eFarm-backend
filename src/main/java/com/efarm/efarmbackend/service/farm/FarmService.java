@@ -5,7 +5,7 @@ import com.efarm.efarmbackend.model.farm.Farm;
 import com.efarm.efarmbackend.model.user.ERole;
 import com.efarm.efarmbackend.model.user.Role;
 import com.efarm.efarmbackend.model.user.User;
-import com.efarm.efarmbackend.payload.request.UpdateFarmDetailsRequest;
+import com.efarm.efarmbackend.payload.request.farm.UpdateFarmDetailsRequest;
 import com.efarm.efarmbackend.payload.response.MessageResponse;
 import com.efarm.efarmbackend.repository.farm.ActivationCodeRepository;
 import com.efarm.efarmbackend.repository.farm.FarmRepository;

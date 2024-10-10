@@ -1,4 +1,4 @@
-package com.efarm.efarmbackend.payload.request;
+package com.efarm.efarmbackend.payload.request.auth;
 
 import jakarta.validation.constraints.*;
 import lombok.Getter;
@@ -6,7 +6,7 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class SignupFarmRequest {
+public class SignupRequest {
     @NotBlank
     @Size(min = 3, max = 30)
     private String firstName;
@@ -25,18 +25,14 @@ public class SignupFarmRequest {
     private String email;
 
     @NotBlank
+    @Size(min = 17, max = 28)
+    private String role;
+
+    @NotBlank
     @Size(min = 6, max = 40)
     private String password;
 
     @Size(max = 12)
     private String phoneNumber;
 
-    @NotBlank
-    @Size(min = 6, max = 45)
-    private String farmName;
-
-    @NotBlank
-    private String activationCode;
-
 }
-

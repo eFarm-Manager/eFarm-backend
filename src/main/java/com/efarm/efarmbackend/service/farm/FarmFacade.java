@@ -6,7 +6,7 @@ import com.efarm.efarmbackend.model.farm.Farm;
 import com.efarm.efarmbackend.model.farm.FarmDTO;
 import com.efarm.efarmbackend.model.user.User;
 import com.efarm.efarmbackend.model.user.UserDTO;
-import com.efarm.efarmbackend.payload.request.UpdateFarmDetailsRequest;
+import com.efarm.efarmbackend.payload.request.farm.UpdateFarmDetailsRequest;
 import com.efarm.efarmbackend.payload.response.MessageResponse;
 import com.efarm.efarmbackend.service.*;
 import com.efarm.efarmbackend.service.auth.AuthService;

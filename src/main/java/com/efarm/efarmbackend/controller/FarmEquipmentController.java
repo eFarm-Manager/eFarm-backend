@@ -1,7 +1,8 @@
 package com.efarm.efarmbackend.controller;
 
 import com.efarm.efarmbackend.model.equipment.EquipmentCategoryDTO;
-import com.efarm.efarmbackend.model.equipment.FarmEquipmentDTO;
+import com.efarm.efarmbackend.payload.request.equipment.AddUpdateFarmEquipmentRequest;
+import com.efarm.efarmbackend.model.equipment.FarmEquipmentShortDTO;
 import com.efarm.efarmbackend.service.equipment.FarmEquipmentFacade;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +22,7 @@ public class FarmEquipmentController {
 
     @GetMapping("/all")
     @PreAuthorize("hasRole('ROLE_FARM_MANAGER') or hasRole('ROLE_FARM_OWNER')")
-    public ResponseEntity<List<FarmEquipmentDTO>> getFarmEquipment(
+    public ResponseEntity<List<FarmEquipmentShortDTO>> getFarmEquipment(
             @RequestParam(required = false) String searchQuery
     ) {
         return farmEquipmentFacade.getFarmEquipment(searchQuery);
@@ -35,8 +36,8 @@ public class FarmEquipmentController {
 
     @PutMapping("/{equipmentId}")
     @PreAuthorize("hasRole('ROLE_FARM_MANAGER') or hasRole('ROLE_FARM_OWNER')")
-    public ResponseEntity<?> updateFarmEquipment(@PathVariable Integer equipmentId, @Valid @RequestBody FarmEquipmentDTO farmEquipmentDTO, BindingResult bindingResult) {
-        return farmEquipmentFacade.updateFarmEquipment(equipmentId, farmEquipmentDTO, bindingResult);
+    public ResponseEntity<?> updateFarmEquipment(@PathVariable Integer equipmentId, @Valid @RequestBody AddUpdateFarmEquipmentRequest addUpdateFarmEquipmentRequest, BindingResult bindingResult) {
+        return farmEquipmentFacade.updateFarmEquipment(equipmentId, addUpdateFarmEquipmentRequest, bindingResult);
     }
 
     @DeleteMapping("/{equipmentId}")
@@ -47,8 +48,8 @@ public class FarmEquipmentController {
 
     @PostMapping("/new")
     @PreAuthorize("hasRole('ROLE_FARM_MANAGER') or hasRole('ROLE_FARM_OWNER')")
-    public ResponseEntity<?> addNewFarmEquipment(@Valid @RequestBody FarmEquipmentDTO farmEquipmentDTO, BindingResult bindingResult) {
-        return farmEquipmentFacade.addNewFarmEquipment(farmEquipmentDTO, bindingResult);
+    public ResponseEntity<?> addNewFarmEquipment(@Valid @RequestBody AddUpdateFarmEquipmentRequest addUpdateFarmEquipmentRequest, BindingResult bindingResult) {
+        return farmEquipmentFacade.addNewFarmEquipment(addUpdateFarmEquipmentRequest, bindingResult);
     }
 
     @GetMapping("/categories")
