@@ -26,6 +26,9 @@
                 <Class name="com.efarm.efarmbackend.service.auth.AuthService"/>
                 <Method name="authenticateUserByUpdateCodeRequest"/>
             </And>
+            <And>
+                <Class name="com.efarm.efarmbackend.model.landparcel.Landparcel"/>
+            </And>
         </Or>
     </Match>
 </FindBugsFilter>
