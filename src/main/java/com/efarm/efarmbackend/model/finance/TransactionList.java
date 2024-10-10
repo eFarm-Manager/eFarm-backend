@@ -52,4 +52,36 @@ public class TransactionList {
     @Size(max = 500)
     @Column(name = "opis", length = 500)
     private String description;
+
+    public TransactionListId getId() {
+        return id == null ? null : new TransactionListId(id);
+    }
+
+    public void setId(TransactionListId id) {
+        this.id = id == null ? null : new TransactionListId(id);
+    }
+
+    public Farm getFarm() {
+        return farm == null ? null : new Farm(farm);
+    }
+
+    public void setFarm(Farm farm) {
+        this.farm = farm == null ? null : new Farm(farm);
+    }
+
+    public FinancialCategory getFinancialCategory() {
+        return financialCategory == null ? null : new FinancialCategory(financialCategory);
+    }
+
+    public void setFinancialCategory(FinancialCategory financialCategory) {
+        this.financialCategory = financialCategory == null ? null : new FinancialCategory(financialCategory);
+    }
+
+    public PaymentStatus getPaymentStatus() {
+        return paymentStatus == null ? null : new PaymentStatus(paymentStatus);
+    }
+
+    public void setPaymentStatus(PaymentStatus paymentStatus) {
+        this.paymentStatus = paymentStatus == null ? null : new PaymentStatus(paymentStatus);
+    }
 }

@@ -4,6 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serial;
@@ -11,6 +12,7 @@ import java.util.Objects;
 
 @Getter
 @Setter
+@NoArgsConstructor
 @Embeddable
 public class TransactionListId implements java.io.Serializable {
 
@@ -24,6 +26,11 @@ public class TransactionListId implements java.io.Serializable {
     @NotNull
     @Column(name = "Gospodarstwo_idGospodarstwo", nullable = false)
     private Integer farmId;
+
+    public TransactionListId(TransactionListId transactionListId) {
+        this.id = transactionListId.id;
+        this.farmId = transactionListId.farmId;
+    }
 
     @Override
     public boolean equals(Object o) {
