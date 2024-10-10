@@ -42,6 +42,9 @@ public class TransactionList {
     @Column(name = "dataTransakcji", nullable = false)
     private LocalDate transactionDate;
 
+    @Column(name = "terminPlatnosci")
+    private LocalDate terminPlatnosci;
+
     @NotNull
     @Column(name = "kwotaTransakcji", nullable = false)
     private Double amount;

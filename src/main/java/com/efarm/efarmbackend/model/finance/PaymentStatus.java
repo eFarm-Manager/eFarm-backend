@@ -20,5 +20,5 @@ public class PaymentStatus {
     @Size(max = 45)
     @NotNull
     @Column(name = "nazwaStatusu", nullable = false, length = 45)
-    private String name;
+    private EPaymentStatus name;
 }

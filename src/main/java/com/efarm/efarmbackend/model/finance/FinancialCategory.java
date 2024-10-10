@@ -20,5 +20,5 @@ public class FinancialCategory {
     @Size(max = 45)
     @NotNull
     @Column(name = "nazwaKategorii", nullable = false, length = 45)
-    private String name;
+    private EFinancialCategory name;
 }
