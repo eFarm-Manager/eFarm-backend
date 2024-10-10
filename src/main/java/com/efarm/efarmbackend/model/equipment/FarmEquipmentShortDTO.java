@@ -1,10 +1,12 @@
 package com.efarm.efarmbackend.model.equipment;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public class FarmEquipmentShortDTO {
 
     private Integer equipmentId;
