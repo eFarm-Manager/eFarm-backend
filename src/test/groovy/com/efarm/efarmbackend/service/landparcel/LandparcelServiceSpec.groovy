@@ -242,7 +242,7 @@ class LandparcelServiceSpec extends Specification {
         )
 
         Farm farm = Mock(Farm)
-        landparcelRepository.existsByDistrictAndCommuneAndAndGeodesyRegistrationDistrictNumberAndLandparcelNumberAndFarm(
+        landparcelRepository.existsByDistrictAndCommuneAndGeodesyRegistrationDistrictNumberAndLandparcelNumberAndFarm(
             landparcelDTO.getDistrict(),
             landparcelDTO.getCommune(),
             landparcelDTO.getGeodesyRegistrationDistrictNumber(),
@@ -251,7 +251,7 @@ class LandparcelServiceSpec extends Specification {
         ) >> true
 
         when:
-        Boolean result = landparcelService.isLandparcelAlreadyExsists(landparcelDTO, farm)
+        Boolean result = landparcelService.isLandparcelAlreadyExistingByFarm(landparcelDTO, farm)
 
         then:
         result == true
@@ -267,7 +267,7 @@ class LandparcelServiceSpec extends Specification {
         )
         Farm farm = new Farm()
 
-        landparcelRepository.existsByDistrictAndCommuneAndAndGeodesyRegistrationDistrictNumberAndLandparcelNumberAndFarm(
+        landparcelRepository.existsByDistrictAndCommuneAndGeodesyRegistrationDistrictNumberAndLandparcelNumberAndFarm(
             landparcelDTO.getDistrict(),
             landparcelDTO.getCommune(),
             landparcelDTO.getGeodesyRegistrationDistrictNumber(),
@@ -276,7 +276,7 @@ class LandparcelServiceSpec extends Specification {
         ) >> false
 
         when:
-        Boolean result = landparcelService.isLandparcelAlreadyExsists(landparcelDTO, farm)
+        Boolean result = landparcelService.isLandparcelAlreadyExistingByFarm(landparcelDTO, farm)
 
         then:
         result == false

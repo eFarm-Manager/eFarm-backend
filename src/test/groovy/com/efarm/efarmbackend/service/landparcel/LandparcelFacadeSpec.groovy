@@ -56,7 +56,7 @@ class LandparcelFacadeSpec extends Specification {
 
         userService.getLoggedUserFarm() >> farm
         landparcelRepository.findNextFreeIdForFarm(farm.getId()) >> 1
-        landparcelService.isLandparcelAlreadyExsists(_, farm) >> false
+        landparcelService.isLandparcelAlreadyExistingByFarm(_, farm) >> false
 
         when:
         landparcelFacade.addNewLandparcel(addLandparcelRequest)
@@ -86,7 +86,7 @@ class LandparcelFacadeSpec extends Specification {
         userService.getLoggedUserFarm() >> farm
         landparcelRepository.findNextFreeIdForFarm(farm.getId()) >> 123
 
-        landparcelService.isLandparcelAlreadyExsists(_, farm) >> true
+        landparcelService.isLandparcelAlreadyExistingByFarm(_, farm) >> true
 
         when:
         landparcelFacade.addNewLandparcel(addLandparcelRequest)

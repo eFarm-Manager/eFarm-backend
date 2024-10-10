@@ -2,9 +2,7 @@ package com.efarm.efarmbackend.repository.landparcel;
 
 import java.util.Optional;
 
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.internal.matchers.NotNull;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -16,19 +14,14 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.ActiveProfiles;
 
-import com.efarm.efarmbackend.model.equipment.FarmEquipment;
 import com.efarm.efarmbackend.model.farm.ActivationCode;
 import com.efarm.efarmbackend.model.farm.Address;
 import com.efarm.efarmbackend.model.farm.Farm;
-import com.efarm.efarmbackend.model.landparcel.ELandOwnershipStatus;
-import com.efarm.efarmbackend.model.landparcel.LandOwnershipStatus;
 import com.efarm.efarmbackend.model.landparcel.Landparcel;
-import com.efarm.efarmbackend.repository.farm.ActivationCodeRepository;
 
 import jakarta.transaction.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @DataJpaTest
 @Transactional
@@ -81,7 +74,7 @@ public class LandparcelRepositoryIT {
         String landparcelNumber = existingLandparcel.getLandparcelNumber();
 
         // When
-        Boolean exists = landparcelRepository.existsByDistrictAndCommuneAndAndGeodesyRegistrationDistrictNumberAndLandparcelNumberAndFarm(
+        Boolean exists = landparcelRepository.existsByDistrictAndCommuneAndGeodesyRegistrationDistrictNumberAndLandparcelNumberAndFarm(
                 district, commune, geodesyRegistrationDistrictNumber, landparcelNumber, farm);
 
         // Then
@@ -94,7 +87,7 @@ public class LandparcelRepositoryIT {
         Farm farm = entityManager.find(Farm.class, 1);
         
         // When
-        Boolean exists = landparcelRepository.existsByDistrictAndCommuneAndAndGeodesyRegistrationDistrictNumberAndLandparcelNumberAndFarm(
+        Boolean exists = landparcelRepository.existsByDistrictAndCommuneAndGeodesyRegistrationDistrictNumberAndLandparcelNumberAndFarm(
                 "DistrictUnknown", "CommuneUnknown", "GRDUnknown", "LPUnknown", farm);
 
         // Then
