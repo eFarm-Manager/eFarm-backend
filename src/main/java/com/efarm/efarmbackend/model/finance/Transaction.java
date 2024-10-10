@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
@@ -12,23 +13,22 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @Entity
+@NoArgsConstructor
 @Table(name = "ListaTransakcji")
-public class TransactionList {
+public class Transaction {
 
     @EmbeddedId
-    private TransactionListId id;
+    private TransactionId id;
 
     @MapsId("gospodarstwoIdgospodarstwo")
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "Gospodarstwo_idGospodarstwo", nullable = false, referencedColumnName = "idGospodarstwo")
     private Farm farm;
 
-    @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "KategorieFinansowe_idKategorieFinansowe", nullable = false)
     private FinancialCategory financialCategory;
 
-    @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "StatusPlatnosci_idStatusPlatnosci", nullable = false)
     private PaymentStatus paymentStatus;
@@ -43,7 +43,7 @@ public class TransactionList {
     private LocalDate transactionDate;
 
     @Column(name = "terminPlatnosci")
-    private LocalDate terminPlatnosci;
+    private LocalDate paymentDate;
 
     @NotNull
     @Column(name = "kwotaTransakcji", nullable = false)
@@ -53,12 +53,22 @@ public class TransactionList {
     @Column(name = "opis", length = 500)
     private String description;
 
-    public TransactionListId getId() {
-        return id == null ? null : new TransactionListId(id);
+    public Transaction(TransactionId id, Farm farm, String transactionName, LocalDate transactionDate, LocalDate paymentDate, Double amount, String description) {
+        this.id = id;
+        this.farm = farm;
+        this.transactionName = transactionName;
+        this.transactionDate = transactionDate;
+        this.paymentDate = paymentDate;
+        this.amount = amount;
+        this.description = description;
     }
 
-    public void setId(TransactionListId id) {
-        this.id = id == null ? null : new TransactionListId(id);
+    public TransactionId getId() {
+        return id == null ? null : new TransactionId(id);
+    }
+
+    public void setId(TransactionId id) {
+        this.id = id == null ? null : new TransactionId(id);
     }
 
     public Farm getFarm() {

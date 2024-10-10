@@ -20,5 +20,13 @@ public class ValidationRequestService {
         }
         return null;
     }
-}
 
+    public void validateRequestWithException(BindingResult bindingResult) throws Exception{
+        if (bindingResult.hasErrors()) {
+            List<String> errorMessages = bindingResult.getFieldErrors().stream()
+                    .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                    .collect(Collectors.toList());
+            throw new Exception(String.join(", ", errorMessages));
+        }
+    }
+}

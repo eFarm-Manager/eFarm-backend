@@ -21,6 +21,7 @@ public class PaymentStatus {
 
     @Size(max = 45)
     @NotNull
+    @Enumerated(EnumType.STRING)
     @Column(name = "nazwaStatusu", nullable = false, length = 45)
     private EPaymentStatus name;
 
