@@ -18,8 +18,8 @@ public class TransactionListId implements java.io.Serializable {
     private static final long serialVersionUID = -1335169215874405028L;
 
     @NotNull
-    @Column(name = "idFinanse", nullable = false)
-    private Integer idFinanse;
+    @Column(name = "idListaTransakcji", nullable = false)
+    private Integer id;
 
     @NotNull
     @Column(name = "Gospodarstwo_idGospodarstwo", nullable = false)
@@ -31,11 +31,11 @@ public class TransactionListId implements java.io.Serializable {
         if (o == null || getClass() != o.getClass()) return false;
         TransactionListId entity = (TransactionListId) o;
         return Objects.equals(this.farmId, entity.farmId) &&
-                Objects.equals(this.idFinanse, entity.idFinanse);
+                Objects.equals(this.id, entity.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(farmId, idFinanse);
+        return Objects.hash(farmId, id);
     }
 }
