@@ -56,7 +56,7 @@ public class LandparcelController {
         try {
             validationRequestService.validateRequestWithException(bindingResult);
             landparcelFacade.updateLandparcel(landparcelId, updateLandparcelRequest);
-            return ResponseEntity.ok(new MessageResponse("Dane działki zostały pomyślmnie zaktualizowane"));
+            return ResponseEntity.ok(new MessageResponse("Dane działki zostały pomyślnie zaktualizowane"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
         }
