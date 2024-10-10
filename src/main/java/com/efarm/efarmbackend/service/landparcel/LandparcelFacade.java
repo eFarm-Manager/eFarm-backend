@@ -38,7 +38,7 @@ public class LandparcelFacade {
         Landparcel landparcel = new Landparcel(landparcelId, loggedUserFarm);
 
         LandparcelDTO landparcelDTO = new LandparcelDTO(addLandparcelRequest);
-        if (landparcelService.isLandparcelAlreadyExsists(landparcelDTO, loggedUserFarm)) {
+        if (landparcelService.isLandparcelAlreadyExistingByFarm(landparcelDTO, loggedUserFarm)) {
             throw new Exception("Działka o powyższych danych geodezyjnych już istnieje!");
         }
         landparcelService.addNewLandparcelData(landparcelDTO, landparcel);

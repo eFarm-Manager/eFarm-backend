@@ -61,8 +61,8 @@ public class LandparcelService {
         return new LandparcelDTO(landparcel);
     }
 
-    public Boolean isLandparcelAlreadyExsists(LandparcelDTO landparcelDTO, Farm loggedUserFarm) {
-        return landparcelRepository.existsByDistrictAndCommuneAndAndGeodesyRegistrationDistrictNumberAndLandparcelNumberAndFarm(
+    public Boolean isLandparcelAlreadyExistingByFarm(LandparcelDTO landparcelDTO, Farm loggedUserFarm) {
+        return landparcelRepository.existsByDistrictAndCommuneAndGeodesyRegistrationDistrictNumberAndLandparcelNumberAndFarm(
                 landparcelDTO.getDistrict(),
                 landparcelDTO.getCommune(),
                 landparcelDTO.getGeodesyRegistrationDistrictNumber(),
