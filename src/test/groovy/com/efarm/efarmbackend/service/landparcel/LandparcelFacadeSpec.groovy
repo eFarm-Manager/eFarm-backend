@@ -50,23 +50,23 @@ class LandparcelFacadeSpec extends Specification {
         addLandparcelRequest.setLatitude(52.2297)
         addLandparcelRequest.setArea(100.0)
 
-        LandparcelDTO landparcelDTO = new LandparcelDTO(addLandparcelRequest)
-        Farm farm = Mock(Farm){
+        Farm farm = Mock(Farm) {
             getId() >> 1
         }
 
         userService.getLoggedUserFarm() >> farm
         landparcelRepository.findNextFreeIdForFarm(farm.getId()) >> 1
-        landparcelService.isLandparcelAlreadyExsists(landparcelDTO, farm) >> false
+        landparcelService.isLandparcelAlreadyExsists(_, farm) >> false
 
         when:
         landparcelFacade.addNewLandparcel(addLandparcelRequest)
 
         then:
-        1 * landparcelService.addNewLandparcelData(landparcelDTO, _)
+        1 * landparcelService.addNewLandparcelData(_, _)
         1 * landparcelRepository.save(_)
     }
-    /*
+
+    
     def "should throw exception when land parcel already exists"() {
         given:
         AddLandparcelRequest addLandparcelRequest = new AddLandparcelRequest(
@@ -80,14 +80,13 @@ class LandparcelFacadeSpec extends Specification {
             latitude: 52.2297,
             area: 1500.0
         )
-        LandparcelDTO landparcelDTO = new LandparcelDTO(addLandparcelRequest)
 
         Farm farm = Mock(Farm)
 
         userService.getLoggedUserFarm() >> farm
         landparcelRepository.findNextFreeIdForFarm(farm.getId()) >> 123
 
-        landparcelService.isLandparcelAlreadyExsists(landparcelDTO, farm) >> true
+        landparcelService.isLandparcelAlreadyExsists(_, farm) >> true
 
         when:
         landparcelFacade.addNewLandparcel(addLandparcelRequest)
@@ -98,7 +97,7 @@ class LandparcelFacadeSpec extends Specification {
 
         0 * landparcelService.addNewLandparcelData(_, _)
         0 * landparcelRepository.save(_)
-    }*/
+    }
     /*
         getLandparcelDetails
     */
@@ -180,8 +179,6 @@ class LandparcelFacadeSpec extends Specification {
             latitude: 52.2297,
             area: 1500.0
         )
-        LandparcelDTO landparcelDTO = new LandparcelDTO(updateLandparcelRequest)
-        
         LandparcelId landparcelId = new LandparcelId(id, farm.getId())
         Landparcel landparcel = new Landparcel()
         landparcel.setId(landparcelId)
@@ -194,7 +191,7 @@ class LandparcelFacadeSpec extends Specification {
         landparcelFacade.updateLandparcel(id, updateLandparcelRequest)
 
         then:
-        1 * landparcelService.updateLandparcelData(landparcelDTO, landparcel)
+        1 * landparcelService.updateLandparcelData(_, landparcel)
         1 * landparcelRepository.save(landparcel) 
     }
 
@@ -219,8 +216,7 @@ class LandparcelFacadeSpec extends Specification {
         Integer id = 3
         Farm farm = Mock(Farm)
         UpdateLandparcelRequest updateLandparcelRequest = new UpdateLandparcelRequest()
-        LandparcelDTO landparcelDTO = new LandparcelDTO(updateLandparcelRequest)
-
+        
         LandparcelId landparcelId = new LandparcelId(id, farm.getId())
         Landparcel landparcel = new Landparcel()
         landparcel.setId(landparcelId)
