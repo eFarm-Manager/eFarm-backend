@@ -108,7 +108,7 @@ public class FinanceService {
         if (Objects.equals(financialCategoryString, "EXPENSE") ||
                 Objects.equals(financialCategoryString, "INCOME")) {
 
-            EFinancialCategory financialCategoryEnum = EFinancialCategory.valueOf(financialCategoryString.toUpperCase());
+            EFinancialCategory financialCategoryEnum = EFinancialCategory.valueOf(financialCategoryString.toUpperCase(Locale.ROOT));
             financialCategory = financialCategoryRepository.findByName(financialCategoryEnum);
         } else {
             financialCategory = null;
@@ -122,7 +122,7 @@ public class FinanceService {
                 Objects.equals(paymentStatusString, "UNPAID") ||
                 Objects.equals(paymentStatusString, "AWAITING_PAYMENT")) {
 
-            EPaymentStatus paymentStatusEnum = EPaymentStatus.valueOf(paymentStatusString.toUpperCase());
+            EPaymentStatus paymentStatusEnum = EPaymentStatus.valueOf(paymentStatusString.toUpperCase(Locale.ROOT));
             paymentStatus = paymentStatusRepository.findByName(paymentStatusEnum);
         } else {
             paymentStatus = null;
