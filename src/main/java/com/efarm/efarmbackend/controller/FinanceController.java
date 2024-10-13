@@ -3,6 +3,7 @@ package com.efarm.efarmbackend.controller;
 import com.efarm.efarmbackend.model.finance.TransactionDTO;
 import com.efarm.efarmbackend.payload.request.finance.NewTransactionRequest;
 import com.efarm.efarmbackend.payload.request.finance.UpdateTransactionRequest;
+import com.efarm.efarmbackend.payload.response.BalanceResponse;
 import com.efarm.efarmbackend.payload.response.MessageResponse;
 import com.efarm.efarmbackend.service.ValidationRequestService;
 import com.efarm.efarmbackend.service.finance.FinanceFacade;
@@ -81,5 +82,13 @@ public class FinanceController {
                 financialCategory, paymentStatus, minAmount, maxAmount);
 
         return ResponseEntity.ok(transactions);
+    }
+
+    @GetMapping("/balance")
+    @PreAuthorize("hasRole('ROLE_FARM_OWNER')")
+    public ResponseEntity<?> getBalance() {
+            BalanceResponse balanceResponse = financeFacade.getBalanceForLastYear();
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(balanceResponse);
     }
 }

@@ -4,6 +4,7 @@ import com.efarm.efarmbackend.model.farm.Farm;
 import com.efarm.efarmbackend.model.finance.*;
 import com.efarm.efarmbackend.payload.request.finance.NewTransactionRequest;
 import com.efarm.efarmbackend.payload.request.finance.UpdateTransactionRequest;
+import com.efarm.efarmbackend.payload.response.BalanceResponse;
 import com.efarm.efarmbackend.repository.finance.TransactionRepository;
 import com.efarm.efarmbackend.service.user.UserService;
 import jakarta.transaction.Transactional;
@@ -77,6 +78,13 @@ public class FinanceFacade {
         return transactions.stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
+    }
+
+    public BalanceResponse getBalanceForLastYear() {
+        Integer farmId = userService.getLoggedUserFarm().getId();
+        LocalDate oneYearAgo = LocalDate.now().minusYears(1);
+        List<Transaction> transactions = financeService.getTransactionsByFarmAndDate(farmId, oneYearAgo, LocalDate.now());
+        return financeService.calculateFarmBalance(transactions);
     }
 
     private TransactionDTO mapToDTO(Transaction transaction) {

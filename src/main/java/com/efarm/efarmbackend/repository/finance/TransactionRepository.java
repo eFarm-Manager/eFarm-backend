@@ -40,6 +40,10 @@ public interface TransactionRepository extends JpaRepository<Transaction, Transa
 
     List<Transaction> findByfinancialCategoryAndPaymentStatus(FinancialCategory financialCategory, PaymentStatus paymentStatus);
 
+    @Query("SELECT t FROM Transaction t WHERE t.farm.id = :farmId AND t.transactionDate BETWEEN :startDate AND :endDate")
+    List<Transaction> findByFarmAndDate(@Param("farmId") Integer farmId, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+
+
     @Query("SELECT MAX(t.id.id) FROM Transaction t WHERE t.id.farmId = :farmId")
     Optional<Integer> findMaxIdForFarm(@Param("farmId") Integer farmId);
 

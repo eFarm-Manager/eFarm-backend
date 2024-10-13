@@ -4,6 +4,7 @@ import com.efarm.efarmbackend.model.farm.Farm;
 import com.efarm.efarmbackend.model.finance.*;
 import com.efarm.efarmbackend.payload.request.finance.NewTransactionRequest;
 import com.efarm.efarmbackend.payload.request.finance.UpdateTransactionRequest;
+import com.efarm.efarmbackend.payload.response.BalanceResponse;
 import com.efarm.efarmbackend.repository.finance.FinancialCategoryRepository;
 import com.efarm.efarmbackend.repository.finance.PaymentStatusRepository;
 import com.efarm.efarmbackend.repository.finance.TransactionRepository;
@@ -12,6 +13,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -125,6 +128,49 @@ public class FinanceService {
             paymentStatus = null;
         }
         return paymentStatus;
+    }
+
+    public List<Transaction> getTransactionsByFarmAndDate(Integer farmId, LocalDate startDate, LocalDate endDate) {
+        return transactionRepository.findByFarmAndDate(farmId, startDate, endDate);
+    }
+
+    public BalanceResponse calculateFarmBalance(List<Transaction> transactions) {
+        double totalIncome = 0.0;
+        double totalExpense = 0.0;
+        double toPay = 0.0;
+        double toReceive = 0.0;
+
+        for (Transaction transaction : transactions) {
+            if (transaction.getFinancialCategory().getName() == EFinancialCategory.INCOME) {
+                totalIncome += transaction.getAmount();
+            } else if (transaction.getFinancialCategory().getName() == EFinancialCategory.EXPENSE) {
+                totalExpense += transaction.getAmount();
+            }
+
+            // Sum to pay (UNPAID, EXPENSE)
+            if (transaction.getPaymentStatus().getName() == EPaymentStatus.UNPAID &&
+                    transaction.getFinancialCategory().getName() == EFinancialCategory.EXPENSE) {
+                toPay += transaction.getAmount();
+            }
+
+            // Sum to recive (UNPAID, INCOME)
+            if (transaction.getPaymentStatus().getName() == EPaymentStatus.UNPAID &&
+                    transaction.getFinancialCategory().getName() == EFinancialCategory.INCOME) {
+                toReceive += transaction.getAmount();
+            }
+        }
+
+        double balance = totalIncome - totalExpense;
+
+        totalIncome = Math.round(totalIncome * 100) / 100.0;
+        totalExpense = Math.round(totalExpense * 100) / 100.0;
+        balance = Math.round(balance * 100.0) / 100.0;
+        toPay = Math.round(toPay * 100.0) / 100.0;
+        toReceive = Math.round(toReceive * 100.0) / 100.0;
+
+        return new BalanceResponse(
+                totalIncome, totalExpense, balance, toPay, toReceive
+        );
     }
 
     private void setNewTransactionPaymentStatus(Transaction transaction, String paymentStatusName) {
