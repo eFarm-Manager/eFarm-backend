@@ -86,7 +86,7 @@ public class FinanceController {
 
     @GetMapping("/balance")
     @PreAuthorize("hasRole('ROLE_FARM_OWNER')")
-    public ResponseEntity<?> getBalance() {
+    public ResponseEntity<BalanceResponse> getBalance() {
             BalanceResponse balanceResponse = financeFacade.getBalanceForLastYear();
             return ResponseEntity.status(HttpStatus.OK)
                     .body(balanceResponse);

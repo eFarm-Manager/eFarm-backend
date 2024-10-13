@@ -14,5 +14,5 @@ public class BalanceResponse {
     private Double totalExpense;
     private Double balance;
     private Double toPay;
-    private Double toRecive;
+    private Double toReceive;
 }
