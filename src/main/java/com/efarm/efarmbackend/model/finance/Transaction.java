@@ -25,11 +25,11 @@ public class Transaction {
     @JoinColumn(name = "Gospodarstwo_idGospodarstwo", nullable = false, referencedColumnName = "idGospodarstwo")
     private Farm farm;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "KategorieFinansowe_idKategorieFinansowe", nullable = false)
     private FinancialCategory financialCategory;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "StatusPlatnosci_idStatusPlatnosci", nullable = false)
     private PaymentStatus paymentStatus;
 

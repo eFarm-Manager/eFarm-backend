@@ -1,7 +1,7 @@
 package com.efarm.efarmbackend.controller;
 
 import com.efarm.efarmbackend.payload.request.finance.NewTransactionRequest;
-import com.efarm.efarmbackend.payload.request.finance.UpdateFinanceRequest;
+import com.efarm.efarmbackend.payload.request.finance.UpdateTransactionRequest;
 import com.efarm.efarmbackend.payload.response.MessageResponse;
 import com.efarm.efarmbackend.service.ValidationRequestService;
 import com.efarm.efarmbackend.service.finance.FinanceFacade;
@@ -38,7 +38,8 @@ public class FinanceController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateTransaction(@PathVariable Integer id, @Valid @RequestBody UpdateFinanceRequest updateRequest, BindingResult bindingResult) {
+    @PreAuthorize("hasRole('ROLE_FARM_OWNER')")
+    public ResponseEntity<?> updateTransaction(@PathVariable Integer id, @Valid @RequestBody UpdateTransactionRequest updateRequest, BindingResult bindingResult) {
         try {
             validationRequestService.validateRequestWithException(bindingResult);
             financeFacade.updateTransaction(id, updateRequest);
@@ -50,6 +51,7 @@ public class FinanceController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_FARM_OWNER')")
     public ResponseEntity<?> deleteTransaction(@PathVariable Integer id) {
         try {
             financeFacade.deleteTransaction(id);

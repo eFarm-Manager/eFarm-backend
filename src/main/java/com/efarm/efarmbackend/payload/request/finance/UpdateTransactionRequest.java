@@ -8,7 +8,7 @@ import java.time.LocalDate;
 
 @Getter
 @Setter
-public class UpdateFinanceRequest {
+public class UpdateTransactionRequest {
 
     @Size(min = 3, max = 60, message = "Nazwa transakcji musi zawierać od 3 do 60 znaków")
     private String transactionName;
