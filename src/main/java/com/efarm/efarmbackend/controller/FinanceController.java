@@ -1,5 +1,6 @@
 package com.efarm.efarmbackend.controller;
 
+import com.efarm.efarmbackend.model.finance.TransactionDTO;
 import com.efarm.efarmbackend.payload.request.finance.NewTransactionRequest;
 import com.efarm.efarmbackend.payload.request.finance.UpdateTransactionRequest;
 import com.efarm.efarmbackend.payload.response.MessageResponse;
@@ -12,6 +13,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.util.List;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -62,4 +66,20 @@ public class FinanceController {
         }
     }
 
+    @GetMapping("/all")
+    @PreAuthorize("hasRole('ROLE_FARM_OWNER')")
+    public ResponseEntity<List<TransactionDTO>> getTransactions(
+            @RequestParam(required = false) String searchQuery,
+            @RequestParam(required = false) LocalDate minDate,
+            @RequestParam(required = false) LocalDate maxDate,
+            @RequestParam(required = false) String financialCategory,
+            @RequestParam(required = false) String paymentStatus,
+            @RequestParam(required = false) Double minAmount,
+            @RequestParam(required = false) Double maxAmount) {
+
+        List<TransactionDTO> transactions = financeFacade.getTransactions(searchQuery, minDate, maxDate,
+                financialCategory, paymentStatus, minAmount, maxAmount);
+
+        return ResponseEntity.ok(transactions);
+    }
 }

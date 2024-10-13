@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Locale;
+import java.util.Objects;
 
 @Service
 public class FinanceService {
@@ -93,11 +94,37 @@ public class FinanceService {
         }
     }
 
-
     public void checkTransactionAlreadyExistsByName(Farm loggedUserFarm, String transactionName) throws Exception {
         if (transactionRepository.existsByTransactionNameAndFarmId(transactionName, loggedUserFarm.getId())) {
             throw new Exception("Transakcja o podanej nazwie już istnieje!");
         }
+    }
+
+    public FinancialCategory getFinancialCategoryForFiltering(String financialCategoryString) {
+        FinancialCategory financialCategory;
+        if (Objects.equals(financialCategoryString, "EXPENSE") ||
+                Objects.equals(financialCategoryString, "INCOME")) {
+
+            EFinancialCategory financialCategoryEnum = EFinancialCategory.valueOf(financialCategoryString.toUpperCase());
+            financialCategory = financialCategoryRepository.findByName(financialCategoryEnum);
+        } else {
+            financialCategory = null;
+        }
+        return financialCategory;
+    }
+
+    public PaymentStatus getPaymentStatusForFiltering(String paymentStatusString) {
+        PaymentStatus paymentStatus;
+        if (Objects.equals(paymentStatusString, "PAID") ||
+                Objects.equals(paymentStatusString, "UNPAID") ||
+                Objects.equals(paymentStatusString, "AWAITING_PAYMENT")) {
+
+            EPaymentStatus paymentStatusEnum = EPaymentStatus.valueOf(paymentStatusString.toUpperCase());
+            paymentStatus = paymentStatusRepository.findByName(paymentStatusEnum);
+        } else {
+            paymentStatus = null;
+        }
+        return paymentStatus;
     }
 
     private void setNewTransactionPaymentStatus(Transaction transaction, String paymentStatusName) {

@@ -1,8 +1,7 @@
 package com.efarm.efarmbackend.service.finance;
 
 import com.efarm.efarmbackend.model.farm.Farm;
-import com.efarm.efarmbackend.model.finance.Transaction;
-import com.efarm.efarmbackend.model.finance.TransactionId;
+import com.efarm.efarmbackend.model.finance.*;
 import com.efarm.efarmbackend.payload.request.finance.NewTransactionRequest;
 import com.efarm.efarmbackend.payload.request.finance.UpdateTransactionRequest;
 import com.efarm.efarmbackend.repository.finance.TransactionRepository;
@@ -12,6 +11,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class FinanceFacade {
@@ -58,5 +61,34 @@ public class FinanceFacade {
         Transaction transaction = transactionRepository.findById(transactionId)
                 .orElseThrow(() -> new RuntimeException("Transakcja nie została znaleziona"));
         transactionRepository.delete(transaction);
+    }
+
+    public List<TransactionDTO> getTransactions(String searchQuery, LocalDate minDate, LocalDate maxDate,
+                                                String financialCategoryString, String paymentStatusString,
+                                                Double minAmount, Double maxAmount) {
+
+        Farm loggedUserFarm = userService.getLoggedUserFarm();
+        FinancialCategory financialCategory = financeService.getFinancialCategoryForFiltering(financialCategoryString);
+        PaymentStatus paymentStatus = financeService.getPaymentStatusForFiltering(paymentStatusString);
+
+        List<Transaction> transactions = transactionRepository.findFilteredTransactions(
+                loggedUserFarm.getId(), searchQuery, minDate, maxDate, financialCategory, paymentStatus, minAmount, maxAmount);
+
+        return transactions.stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
+    private TransactionDTO mapToDTO(Transaction transaction) {
+        TransactionDTO dto = new TransactionDTO();
+        dto.setId(transaction.getId().getId());
+        dto.setTransactionName(transaction.getTransactionName());
+        dto.setAmount(transaction.getAmount());
+        dto.setFinancialCategory(String.valueOf(transaction.getFinancialCategory().getName()));
+        dto.setPaymentStatus(String.valueOf(transaction.getPaymentStatus().getName()));
+        dto.setTransactionDate(transaction.getTransactionDate());
+        dto.setPaymentDate(transaction.getPaymentDate());
+        dto.setDescription(transaction.getDescription());
+        return dto;
     }
 }
