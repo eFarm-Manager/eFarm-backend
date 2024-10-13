@@ -38,6 +38,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, Transa
                                                @Param("minAmount") Double minAmount,
                                                @Param("maxAmount") Double maxAmount);
 
+    List<Transaction> findByfinancialCategoryAndPaymentStatus(FinancialCategory financialCategory, PaymentStatus paymentStatus);
+
     @Query("SELECT MAX(t.id.id) FROM Transaction t WHERE t.id.farmId = :farmId")
     Optional<Integer> findMaxIdForFarm(@Param("farmId") Integer farmId);
 

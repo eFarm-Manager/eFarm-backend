@@ -71,10 +71,6 @@ public class Transaction {
         this.id = id == null ? null : new TransactionId(id);
     }
 
-    public Farm getFarm() {
-        return farm == null ? null : new Farm(farm);
-    }
-
     public void setFarm(Farm farm) {
         this.farm = farm == null ? null : new Farm(farm);
     }
