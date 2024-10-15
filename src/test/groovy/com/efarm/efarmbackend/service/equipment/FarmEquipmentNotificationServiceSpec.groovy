@@ -57,7 +57,10 @@ class FarmEquipmentNotificationServiceSpec extends Specification {
             getInsurancePolicyNumber() >> "INS123"
             getFarmIdFarm() >> Mock(Farm) { getId() >> 1 }
         }
-        User owner = Mock(User) { getEmail() >> "owner@example.com" }
+        User owner = Mock(User) { 
+		getEmail() >> "owner@example.com"
+		getIsActive() >> true
+ }
         userService.getAllOwnersForFarm(1) >> [owner]
 
         when:
@@ -80,7 +83,10 @@ class FarmEquipmentNotificationServiceSpec extends Specification {
             getInsurancePolicyNumber() >> "INS456"
             getFarmIdFarm() >> Mock(Farm) { getId() >> 2 }
         }
-        User owner = Mock(User) { getEmail() >> "owner@example.com" }
+        User owner = Mock(User) { 
+		getEmail() >> "owner@example.com" 
+		getIsActive() >> true
+	}
         userService.getAllOwnersForFarm(2) >> [owner]
 
         when:
@@ -103,7 +109,10 @@ class FarmEquipmentNotificationServiceSpec extends Specification {
             getInsurancePolicyNumber() >> "INS789"
             getFarmIdFarm() >> Mock(Farm) { getId() >> 3 }
         }
-        User owner = Mock(User) { getEmail() >> "owner@example.com" }
+        User owner = Mock(User) { 
+		getEmail() >> "owner@example.com" 
+		getIsActive() >> true
+	}
         userService.getAllOwnersForFarm(3) >> [owner]
 
         when:

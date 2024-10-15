@@ -2,6 +2,7 @@ package com.efarm.efarmbackend.service;
 
 import com.efarm.efarmbackend.service.equipment.FarmEquipmentNotificationService;
 import com.efarm.efarmbackend.service.farm.FarmService;
+import com.efarm.efarmbackend.service.finance.FinanceNotificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,9 @@ public class ScheduledTasks {
 
     @Autowired
     private FarmEquipmentNotificationService farmEquipmentNotificationService;
+
+    @Autowired
+    private FinanceNotificationService financeNotificationService;
 
     private static final Logger logger = LoggerFactory.getLogger(ScheduledTasks.class);
 
@@ -35,5 +39,7 @@ public class ScheduledTasks {
     public void checkInsuranceAndInspectionExpiry() {
         logger.info("Start checking Insurance and Inspection Expiry");
         farmEquipmentNotificationService.checkInsuranceAndInspectionExpiry();
+        logger.info("Start checking Unpaid Financials");
+        financeNotificationService.checkPaymentDueDateNotifications();
     }
 }

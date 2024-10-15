@@ -2,6 +2,7 @@ package com.efarm.efarmbackend.controller;
 
 import com.efarm.efarmbackend.payload.response.MessageResponse;
 import com.efarm.efarmbackend.service.equipment.FarmEquipmentNotificationService;
+import com.efarm.efarmbackend.service.finance.FinanceNotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,6 +18,9 @@ public class TestController {
 
     @Autowired
     private FarmEquipmentNotificationService farmEquipmentNotificationService;
+
+    @Autowired
+    private FinanceNotificationService financeNotificationService;
 
     @GetMapping("/all")
     public String allAccess() {
@@ -44,6 +48,12 @@ public class TestController {
     @GetMapping("/runInsuranceCronJob")
     public ResponseEntity<?> runCronJobManually() {
         farmEquipmentNotificationService.checkInsuranceAndInspectionExpiry();
+        return ResponseEntity.ok().body(new MessageResponse("Manual CRON job executed"));
+    }
+
+    @GetMapping("/runFinanceCronJob")
+    public ResponseEntity<?> runFinanceJobManually() {
+        financeNotificationService.checkPaymentDueDateNotifications();
         return ResponseEntity.ok().body(new MessageResponse("Manual CRON job executed"));
     }
 }

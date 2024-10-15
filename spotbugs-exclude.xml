@@ -16,6 +16,9 @@
             <And>
                 <Class name="com.efarm.efarmbackend.model.landparcel.Landparcel"/>
             </And>
+            <And>
+                <Class name="com.efarm.efarmbackend.model.finance.Transaction"/>
+            </And>
         </Or>
     </Match>
     <Match>

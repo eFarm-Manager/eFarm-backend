@@ -61,8 +61,10 @@ public class FarmEquipmentNotificationService {
                 );
                 List<User> owners = userService.getAllOwnersForFarm(equipment.getFarmIdFarm().getId());
                 for (User owner : owners) {
-                    sendNotificationToOwner(owner, message, "Ubezpieczenie sprzętu wygasa!");
-                    logger.info("Sending insurance expire notification to owner: {}", owner.getEmail());
+                    if(owner.getIsActive()) {
+                        sendNotificationToOwner(owner, message, "Ubezpieczenie sprzętu wygasa!");
+                        logger.info("Sending insurance expire notification to owner: {}", owner.getEmail());
+                    }
                 }
             }
         }
