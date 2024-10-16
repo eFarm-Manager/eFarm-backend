@@ -166,7 +166,7 @@ class ActivationCodeServiceSpec extends Specification {
         jwtUtils.generateJwtCookie(currentUserDetails) >> mockCookie
 
         when:
-        ResponseEntity<?> response = activationCodeService.signinWithExpireCodeInfo(currentUserDetails, farm, ["ROLE_FARM_OWNER"])
+        ResponseEntity<?> response = activationCodeService.generateExpireCodeInfo(currentUserDetails, farm, ["ROLE_FARM_OWNER"])
 
         then:
         response.getStatusCode() == HttpStatus.OK
@@ -200,7 +200,7 @@ class ActivationCodeServiceSpec extends Specification {
         jwtUtils.generateJwtCookie(currentUserDetails) >> mockCookie
 
         when:
-        ResponseEntity<?> response = activationCodeService.signinWithExpireCodeInfo(currentUserDetails, farm, ["ROLE_FARM_OWNER"])
+        ResponseEntity<?> response = activationCodeService.generateExpireCodeInfo(currentUserDetails, farm, ["ROLE_FARM_OWNER"])
 
         then:
         response == null
@@ -224,7 +224,7 @@ class ActivationCodeServiceSpec extends Specification {
 
 
         when:
-        ResponseEntity<?> response = activationCodeService.signinWithExpireCodeInfo(currentUserDetails, farm, ["ROLE_FARM_MANAGER"])
+        ResponseEntity<?> response = activationCodeService.generateExpireCodeInfo(currentUserDetails, farm, ["ROLE_FARM_MANAGER"])
 
         then:
         response == null

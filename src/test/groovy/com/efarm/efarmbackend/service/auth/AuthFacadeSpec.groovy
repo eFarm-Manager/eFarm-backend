@@ -113,7 +113,7 @@ class AuthFacadeSpec extends Specification {
         userService.getUserFarmById(Long.valueOf(userDetails.getId())) >> farm
 
         farmService.checkFarmDeactivation(farm, role) >> null
-        activationCodeService.signinWithExpireCodeInfo(userDetails, farm, roles) >> null
+        activationCodeService.generateExpireCodeInfo(userDetails, farm, roles) >> null
 
         ResponseCookie jwtCookie = ResponseCookie.from("jwtTokenName", "jwtTokenString")
                 .path("/api")
@@ -258,7 +258,7 @@ class AuthFacadeSpec extends Specification {
         jwtUtils.generateJwtCookie(userDetails) >> jwtCookie
 
         long daysToExpiration = ChronoUnit.DAYS.between(LocalDate.now(), activationCode.getExpireDate())
-        activationCodeService.signinWithExpireCodeInfo(userDetails, farm, roles) >> ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, jwtUtils.generateJwtCookie(userDetails).toString())
+        activationCodeService.generateExpireCodeInfo(userDetails, farm, roles) >> ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, jwtUtils.generateJwtCookie(userDetails).toString())
                 .body(new UserInfoResponse(userDetails.getId(), userDetails.getUsername(), userDetails.getEmail(), roles, "Kod aktywacyjny wygasa za " + daysToExpiration + " dni."))
 
 
