@@ -5,6 +5,7 @@ import com.efarm.efarmbackend.model.user.User;
 import com.efarm.efarmbackend.repository.equipment.FarmEquipmentRepository;
 import com.efarm.efarmbackend.service.MainNotificationService;
 import com.efarm.efarmbackend.service.user.UserService;
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,7 @@ public class FarmEquipmentNotificationService {
 
     private static final Logger logger = LoggerFactory.getLogger(FarmEquipmentNotificationService.class);
 
+    @Transactional
     public void checkInsuranceAndInspectionExpiry() {
         LocalDate today = LocalDate.now();
         List<FarmEquipment> equipments = farmEquipmentRepository.findAll();

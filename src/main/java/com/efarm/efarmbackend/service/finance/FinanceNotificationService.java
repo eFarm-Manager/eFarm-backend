@@ -7,6 +7,7 @@ import com.efarm.efarmbackend.repository.finance.PaymentStatusRepository;
 import com.efarm.efarmbackend.repository.finance.TransactionRepository;
 import com.efarm.efarmbackend.service.MainNotificationService;
 import com.efarm.efarmbackend.service.user.UserService;
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,7 @@ public class FinanceNotificationService {
 
     private static final Logger logger = LoggerFactory.getLogger(FinanceNotificationService.class);
 
+    @Transactional
     public void checkPaymentDueDateNotifications() {
         LocalDate today = LocalDate.now();
         FinancialCategory financialCategory = financialCategoryRepository.findByName(EFinancialCategory.EXPENSE);
