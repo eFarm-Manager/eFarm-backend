@@ -8,14 +8,11 @@ import com.efarm.efarmbackend.model.user.User;
 import com.efarm.efarmbackend.model.user.UserDTO;
 import com.efarm.efarmbackend.payload.request.farm.UpdateFarmDetailsRequest;
 import com.efarm.efarmbackend.payload.response.MessageResponse;
-import com.efarm.efarmbackend.service.*;
 import com.efarm.efarmbackend.service.auth.AuthService;
 import com.efarm.efarmbackend.service.user.UserService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.BindingResult;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -39,13 +36,10 @@ public class FarmFacade {
     @Autowired
     private AddressService addressService;
 
-    @Autowired
-    private ValidationRequestService validationRequestService;
-
-    public ResponseEntity<List<UserDTO>> getFarmUsersByFarmId() {
+    public List<UserDTO> getFarmUsersByFarmId() {
         Farm loggedUserFarm = userService.getLoggedUserFarm();
         List<User> users = farmService.getUsersByFarmId(loggedUserFarm.getId());
-        List<UserDTO> userDTOs = users.stream()
+        return users.stream()
                 .map(user -> new UserDTO(
                         user.getUsername(),
                         user.getRole().toString(),
@@ -55,17 +49,15 @@ public class FarmFacade {
                         user.getPhoneNumber(),
                         user.getIsActive()))
                 .collect(Collectors.toList());
-        return ResponseEntity.ok(userDTOs);
     }
 
-    public ResponseEntity<FarmDTO> getFarmDetails() {
+    public FarmDTO getFarmDetails() {
         Farm loggedUserFarm = userService.getLoggedUserFarm();
         Address address = addressService.findAddressById(loggedUserFarm.getId());
         ActivationCode activationCode = activationCodeService.findActivationCodeById(loggedUserFarm.getIdActivationCode());
-
         LocalDate expireDate = authService.hasCurrentUserRole("ROLE_FARM_OWNER") ? activationCode.getExpireDate() : null;
 
-        FarmDTO farmDetails = new FarmDTO(
+        return new FarmDTO(
                 loggedUserFarm.getFarmName(),
                 loggedUserFarm.getFarmNumber(),
                 loggedUserFarm.getFeedNumber(),
@@ -75,24 +67,16 @@ public class FarmFacade {
                 address.getZipCode(),
                 address.getCity(),
                 expireDate);
-
-        return ResponseEntity.ok(farmDetails);
     }
 
     @Transactional
-    public ResponseEntity<?> updateFarmDetails(UpdateFarmDetailsRequest updateFarmDetailsRequest, BindingResult bindingResult) {
-
-        ResponseEntity<?> validationErrorResponse = validationRequestService.validateRequest(bindingResult);
-        if (validationErrorResponse != null) {
-            return validationErrorResponse;
-        }
+    public MessageResponse updateFarmDetails(UpdateFarmDetailsRequest updateFarmDetailsRequest) {
 
         Farm loggedUserFarm = userService.getLoggedUserFarm();
         farmService.updateFarmDetails(loggedUserFarm, updateFarmDetailsRequest);
-
         Address address = addressService.findAddressById(loggedUserFarm.getIdAddress());
         addressService.updateFarmAddress(address, updateFarmDetailsRequest);
 
-        return ResponseEntity.ok(new MessageResponse("Poprawnie zaktualizowamo dane gospodarstwa"));
+        return new MessageResponse("Poprawnie zaktualizowamo dane gospodarstwa");
     }
 }

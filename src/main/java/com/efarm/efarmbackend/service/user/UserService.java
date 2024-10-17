@@ -19,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -114,6 +115,14 @@ public class UserService {
 
     public List<User> getAllOwnersForFarm(Integer farmId) {
         return userRepository.findOwnersForFarm(farmId);
+    }
+
+    public Optional<User> getActiveUserById(UserDetailsImpl userDetails) throws RuntimeException {
+        Optional<User> loggingUser = userRepository.findById(Long.valueOf(userDetails.getId()));
+        if (loggingUser.isPresent() && !loggingUser.get().getIsActive()) {
+            throw new RuntimeException("Użytkownik jest nieaktywny!");
+        }
+        return loggingUser;
     }
 
     private Role assignUserRole(String strRole) {

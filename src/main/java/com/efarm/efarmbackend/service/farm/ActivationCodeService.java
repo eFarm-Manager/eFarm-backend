@@ -1,24 +1,19 @@
 package com.efarm.efarmbackend.service.farm;
 
+import com.efarm.efarmbackend.exception.TooManyRequestsException;
 import com.efarm.efarmbackend.model.farm.ActivationCode;
 import com.efarm.efarmbackend.model.farm.Farm;
 import com.efarm.efarmbackend.payload.response.MessageResponse;
-import com.efarm.efarmbackend.payload.response.UserInfoResponse;
 import com.efarm.efarmbackend.repository.farm.ActivationCodeRepository;
 import com.efarm.efarmbackend.repository.farm.FarmRepository;
 import com.efarm.efarmbackend.security.jwt.JwtUtils;
 import com.efarm.efarmbackend.security.services.BruteForceProtectionService;
-import com.efarm.efarmbackend.security.services.UserDetailsImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.net.URI;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -34,9 +29,6 @@ public class ActivationCodeService {
     private FarmRepository farmRepository;
 
     @Autowired
-    private JwtUtils jwtUtils;
-
-    @Autowired
     private BruteForceProtectionService bruteForceProtectionService;
 
     @Value("${efarm.app.notification.daysToShowExpireActivationCode}")
@@ -44,20 +36,19 @@ public class ActivationCodeService {
 
     private static final Logger logger = LoggerFactory.getLogger(ActivationCodeService.class);
 
-    public ResponseEntity<MessageResponse> validateActivationCode(String activationCode) {
+    public void validateActivationCode(String activationCode) throws RuntimeException {
         Optional<ActivationCode> activationCodeOpt = activationCodeRepository.findByCode(activationCode);
         if (activationCodeOpt.isEmpty()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Activation code does not exist."));
+            throw new RuntimeException("Podany kod aktywacyjny nie istnieje!");
         }
 
         if (activationCodeOpt.get().getExpireDate().isBefore(LocalDate.now())) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Activation code has expired."));
+            throw new RuntimeException("Kod aktywacyjny wygasł!");
         }
 
         if (activationCodeOpt.get().getIsUsed()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Activation code has already been used."));
+            throw new RuntimeException("Podany kod aktywacyjny został już wykorzystany!");
         }
-        return ResponseEntity.ok().build();
     }
 
     public void markActivationCodeAsUsed(String activationCode) {
@@ -67,25 +58,18 @@ public class ActivationCodeService {
             activationCodeEntity.setIsUsed(true);
             activationCodeRepository.save(activationCodeEntity);
         } else {
+            logger.warn("Can not user activation code: {}", activationCode);
             throw new RuntimeException("Activation code not found");
         }
     }
 
-    public ResponseEntity<?> signinWithExpireCodeInfo(UserDetailsImpl userDetails, Farm userFarm, List<String> roles) {
-        if(roles.contains("ROLE_FARM_OWNER")) {
-            ActivationCode activationCode;
-            try {
-                activationCode = findActivationCodeByFarmId(userFarm.getId());
-            } catch (RuntimeException e) {
-                logger.error("Can not find activation code : {}", e.getMessage());
-                return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
-            }
+    public String generateExpireCodeInfo(Farm userFarm, List<String> roles) {
+        if (roles.contains("ROLE_FARM_OWNER")) {
+            ActivationCode activationCode = findActivationCodeByFarmId(userFarm.getId());
             long daysToExpiration = ChronoUnit.DAYS.between(LocalDate.now(), activationCode.getExpireDate());
 
             if (daysToExpiration <= daysToShowExpireActivationCodeNotification && daysToExpiration >= 0) {
-                return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, jwtUtils.generateJwtCookie(userDetails).toString())
-                        .body(new UserInfoResponse(userDetails.getId(), userDetails.getUsername(),
-                                userDetails.getEmail(), roles, "Kod aktywacyjny wygasa za " + daysToExpiration + " dni."));
+                return "Kod aktywacyjny wygasa za " + daysToExpiration + " dni.";
             }
         }
         return null;
@@ -106,19 +90,13 @@ public class ActivationCodeService {
                 .orElseThrow(() -> new RuntimeException("Activation code not found for id: " + codeId));
     }
 
-    public ResponseEntity<MessageResponse> updateActivationCodeForFarm(String newActivationCode, Integer farmId, String username) {
+    public MessageResponse updateActivationCodeForFarm(String newActivationCode, Integer farmId, String username) throws Exception {
 
         if (bruteForceProtectionService.isBlocked(username)) {
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
-                    .body(new MessageResponse("Too many failed attempts. Please try again later."));
+            throw new TooManyRequestsException("Zbyt wiele nieudanych prób logowania! Spróbuj ponownie później.");
         }
 
-        ResponseEntity<MessageResponse> validationResponse = validateActivationCode(newActivationCode);
-        if (validationResponse.getStatusCode() != HttpStatus.OK) {
-            bruteForceProtectionService.loginFailed(username);
-            return validationResponse;
-        }
-
+        validateActivationCode(newActivationCode);
         bruteForceProtectionService.loginSucceeded(username);
         Optional<ActivationCode> activationCodeOpt = activationCodeRepository.findByCode(newActivationCode);
         ActivationCode newActivationCodeEntity = activationCodeOpt.get();
@@ -134,16 +112,11 @@ public class ActivationCodeService {
 
         farm.setIdActivationCode(newActivationCodeEntity.getId());
         farm.setIsActive(true);
-
         farmRepository.save(farm);
-
         newActivationCodeEntity.setIsUsed(true);
         activationCodeRepository.save(newActivationCodeEntity);
 
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .location(URI.create("/"))
-                .body(new MessageResponse("Activation code updated successfully for the farm."));
+        return new MessageResponse("Pomyślnie zaktualizowano kod aktywacyjny!");
     }
 }
 
