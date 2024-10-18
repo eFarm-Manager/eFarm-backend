@@ -1,25 +1,16 @@
 package com.efarm.efarmbackend.service
 
 import com.efarm.efarmbackend.exception.TooManyRequestsException;
-import com.efarm.efarmbackend.model.user.User
-import com.efarm.efarmbackend.model.user.Role
-import com.efarm.efarmbackend.model.user.ERole
 import com.efarm.efarmbackend.model.farm.ActivationCode
 import com.efarm.efarmbackend.model.farm.Farm
 import com.efarm.efarmbackend.payload.response.MessageResponse
 import com.efarm.efarmbackend.repository.farm.ActivationCodeRepository
 import com.efarm.efarmbackend.repository.farm.FarmRepository
-import com.efarm.efarmbackend.security.jwt.JwtUtils
-import com.efarm.efarmbackend.security.services.UserDetailsImpl
 import com.efarm.efarmbackend.security.services.BruteForceProtectionService
 import com.efarm.efarmbackend.service.farm.ActivationCodeService
-import org.springframework.http.ResponseEntity
 import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.http.HttpStatus
 import spock.lang.Specification
 import spock.lang.Subject
-import org.springframework.http.ResponseCookie
-import org.springframework.http.HttpHeaders
 
 import java.time.LocalDate
 
@@ -227,7 +218,7 @@ class ActivationCodeServiceSpec extends Specification {
 
 
         when:
-        ActivationCode farmCode = activationCodeService.findActivationCodeByFarmId(farm.getId())
+        activationCodeService.findActivationCodeByFarmId(farm.getId())
 
         then:
         thrown(RuntimeException)
@@ -253,7 +244,7 @@ class ActivationCodeServiceSpec extends Specification {
         activationCodeRepository.findById(1) >> Optional.empty()
 
         when:
-        ActivationCode foundActCode = activationCodeService.findActivationCodeById(1)
+        activationCodeService.findActivationCodeById(1)
 
         then:
         thrown(RuntimeException)
@@ -304,7 +295,7 @@ class ActivationCodeServiceSpec extends Specification {
         activationCodeRepository.findByCode(newActivationCode) >> Optional.of(newActivationCodeEntity)
 
         when:
-        MessageResponse response = activationCodeService.updateActivationCodeForFarm(newActivationCode, 1, username)
+        activationCodeService.updateActivationCodeForFarm(newActivationCode, 1, username)
 
         then:
         RuntimeException ex = thrown()
@@ -319,7 +310,7 @@ class ActivationCodeServiceSpec extends Specification {
         bruteForceProtectionService.isBlocked(username) >> true
 
         when:
-        MessageResponse response = activationCodeService.updateActivationCodeForFarm(newActivationCode, 1, username)
+        activationCodeService.updateActivationCodeForFarm(newActivationCode, 1, username)
 
         then:
         TooManyRequestsException ex = thrown()

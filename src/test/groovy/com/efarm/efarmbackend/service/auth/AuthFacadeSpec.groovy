@@ -3,48 +3,31 @@ package com.efarm.efarmbackend.service.facades
 import com.efarm.efarmbackend.model.farm.ActivationCode
 import com.efarm.efarmbackend.model.farm.Address
 import com.efarm.efarmbackend.model.farm.Farm
-import com.efarm.efarmbackend.model.user.Role
-import com.efarm.efarmbackend.model.user.ERole
 import com.efarm.efarmbackend.model.user.User
-import com.efarm.efarmbackend.payload.request.auth.LoginRequest
 import com.efarm.efarmbackend.payload.request.auth.SignupFarmRequest
 import com.efarm.efarmbackend.payload.request.auth.SignupRequest
 import com.efarm.efarmbackend.payload.request.auth.UpdateActivationCodeRequest
 import com.efarm.efarmbackend.payload.request.auth.UpdateActivationCodeByLoggedOwnerRequest
 import com.efarm.efarmbackend.payload.request.auth.ChangePasswordRequest
 import com.efarm.efarmbackend.payload.response.MessageResponse
-import com.efarm.efarmbackend.payload.response.UserInfoResponse
 import com.efarm.efarmbackend.repository.farm.ActivationCodeRepository
 import com.efarm.efarmbackend.repository.farm.AddressRepository
 import com.efarm.efarmbackend.repository.farm.FarmRepository
 import com.efarm.efarmbackend.repository.user.UserRepository
-import com.efarm.efarmbackend.security.jwt.JwtUtils
 import com.efarm.efarmbackend.security.services.UserDetailsImpl
 import com.efarm.efarmbackend.service.auth.AuthFacade
 import com.efarm.efarmbackend.service.farm.ActivationCodeService
-import org.springframework.security.core.authority.SimpleGrantedAuthority
 import com.efarm.efarmbackend.service.auth.AuthService
 import com.efarm.efarmbackend.service.farm.FarmService
 import com.efarm.efarmbackend.service.user.UserService
-import com.efarm.efarmbackend.service.ValidationRequestService
-import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
-import org.springframework.http.ResponseCookie
 import org.springframework.security.authentication.AuthenticationManager
-import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.validation.BindingResult
 import spock.lang.Specification
 import spock.lang.Subject
-import java.time.LocalDate
-import org.springframework.validation.FieldError
-import java.nio.file.AccessDeniedException;
-import com.efarm.efarmbackend.exception.UnauthorizedException;
-
-import java.time.temporal.ChronoUnit
-import java.time.Duration
+import java.nio.file.AccessDeniedException
+import com.efarm.efarmbackend.exception.UnauthorizedException
 
 
 class AuthFacadeSpec extends Specification {
@@ -104,7 +87,7 @@ class AuthFacadeSpec extends Specification {
 
         then:
         1 * userRepository.save(_)
-        response.message == "Zarejestrowano nowego użytkownika!"
+        response.message == 'Zarejestrowano nowego użytkownika!'
     }
 
     def "should return error if username already exists"() {
@@ -121,7 +104,7 @@ class AuthFacadeSpec extends Specification {
         userRepository.existsByUsername(signUpRequest.getUsername()) >> true
 
         when:
-        MessageResponse response = authFacade.registerUser(signUpRequest)
+        authFacade.registerUser(signUpRequest)
 
         then:
         RuntimeException exception = thrown()
@@ -146,7 +129,7 @@ class AuthFacadeSpec extends Specification {
         userService.getLoggedUserFarm() >> { throw new RuntimeException("Farm not found") }
 
         when:
-        MessageResponse response = authFacade.registerUser(signUpRequest)
+        authFacade.registerUser(signUpRequest)
 
         then:
         RuntimeException exception = thrown()
@@ -207,7 +190,7 @@ class AuthFacadeSpec extends Specification {
         userRepository.existsByUsername(signUpFarmRequest.getUsername()) >> true
 
         when:
-        MessageResponse response = authFacade.registerFarmAndFarmOwner(signUpFarmRequest)
+        authFacade.registerFarmAndFarmOwner(signUpFarmRequest)
 
         then:
         RuntimeException exception = thrown()
@@ -230,7 +213,7 @@ class AuthFacadeSpec extends Specification {
         farmRepository.existsByFarmName(signUpFarmRequest.getFarmName()) >> true
 
         when:
-        MessageResponse response = authFacade.registerFarmAndFarmOwner(signUpFarmRequest)
+        authFacade.registerFarmAndFarmOwner(signUpFarmRequest)
 
         then:
         RuntimeException exception = thrown()
@@ -284,7 +267,7 @@ class AuthFacadeSpec extends Specification {
         activationCodeService.validateActivationCode(signUpFarmRequest.getActivationCode()) >> { throw new RuntimeException("Podany kod aktywacyjny został już wykorzystany!") }
 
         when:
-        MessageResponse response = authFacade.registerFarmAndFarmOwner(signUpFarmRequest)
+        authFacade.registerFarmAndFarmOwner(signUpFarmRequest)
 
         then:
         RuntimeException exception = thrown()
@@ -321,7 +304,7 @@ class AuthFacadeSpec extends Specification {
         activationCodeService.markActivationCodeAsUsed(signUpFarmRequest.getActivationCode()) >> { throw new RuntimeException("Activation code not found") }
 
         when:
-        MessageResponse response = authFacade.registerFarmAndFarmOwner(signUpFarmRequest)
+        authFacade.registerFarmAndFarmOwner(signUpFarmRequest)
 
         then:
         RuntimeException exception = thrown()
@@ -375,7 +358,7 @@ class AuthFacadeSpec extends Specification {
         userService.getLoggedUserRoles(userDetails) >> roles
 
         when:
-        ResponseEntity<?> response = authFacade.updateActivationCode(updateActivationCodeRequest)
+        authFacade.updateActivationCode(updateActivationCodeRequest)
 
         then:
         AccessDeniedException exception = thrown()
@@ -404,7 +387,7 @@ class AuthFacadeSpec extends Specification {
         }
 
         when:
-        ResponseEntity<?> response = authFacade.updateActivationCode(updateActivationCodeRequest)
+        authFacade.updateActivationCode(updateActivationCodeRequest)
 
         then:
         RuntimeException exception = thrown()
@@ -448,7 +431,7 @@ class AuthFacadeSpec extends Specification {
         userService.isPasswordValidForLoggedUser(request.getPassword()) >> false
 
         when:
-        MessageResponse response = authFacade.updateActivationCodeByLoggedOwner(request)
+        authFacade.updateActivationCodeByLoggedOwner(request)
 
         then:
         UnauthorizedException exception = thrown()
@@ -488,7 +471,7 @@ class AuthFacadeSpec extends Specification {
         userService.isPasswordValidForLoggedUser(currentPassword) >> false
 
         when:
-        MessageResponse response = authFacade.changePassword(request)
+        authFacade.changePassword(request)
 
         then:
         UnauthorizedException exception = thrown()
@@ -507,7 +490,7 @@ class AuthFacadeSpec extends Specification {
         userService.isPasswordValidForLoggedUser(currentPassword) >> true
 
         when:
-        MessageResponse response = authFacade.changePassword(request)
+        authFacade.changePassword(request)
 
         then:
         RuntimeException exception = thrown()

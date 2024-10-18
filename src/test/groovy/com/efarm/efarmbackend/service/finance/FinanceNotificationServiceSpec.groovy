@@ -1,65 +1,93 @@
-package com.efarm.efarmbackend.service.finance;
+package com.efarm.efarmbackend.service.finance
 
-import com.efarm.efarmbackend.model.finance.*;
-import com.efarm.efarmbackend.model.user.User;
-import com.efarm.efarmbackend.model.farm.Farm;
+import com.efarm.efarmbackend.model.finance.*
+import com.efarm.efarmbackend.model.user.User
+import com.efarm.efarmbackend.model.farm.Farm
 import com.efarm.efarmbackend.repository.finance.FinancialCategoryRepository;
 import com.efarm.efarmbackend.repository.finance.PaymentStatusRepository;
 import com.efarm.efarmbackend.repository.finance.TransactionRepository;
-import com.efarm.efarmbackend.service.user.UserService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.stereotype.Service;
+import com.efarm.efarmbackend.service.user.UserService
+import org.springframework.mail.SimpleMailMessage
+import com.efarm.efarmbackend.service.MainNotificationService
 
-import java.util.List;
 import spock.lang.Specification
 import spock.lang.Subject
 import java.time.LocalDate
-import java.time.temporal.ChronoUnit
 
 class FinanceNotificationServiceSpec extends Specification {
 
-    def mailSender = Mock(JavaMailSender)
+    def transactionRepository = Mock(TransactionRepository)
     def userService = Mock(UserService)
     def financialCategoryRepository = Mock(FinancialCategoryRepository)
     def paymentStatusRepository = Mock(PaymentStatusRepository)
-    def transactionRepository = Mock(TransactionRepository)
+    def mainNotificationService = Mock(MainNotificationService)
 
     @Subject
     FinanceNotificationService financeNotificationService = new FinanceNotificationService(
-        mailSender: mailSender,
+        transactionRepository: transactionRepository,
         userService: userService,
         financialCategoryRepository: financialCategoryRepository,
         paymentStatusRepository: paymentStatusRepository,
-        transactionRepository: transactionRepository
+        mainNotificationService: mainNotificationService
     )
 
-    def "test checkAndNotifyForPayment when payment date is 5 days away"() {
+    def "should call checkAndNotifyForPayment for each transaction"() {
+        given:
+        LocalDate today = LocalDate.now()
+        FinancialCategory financialCategory = new FinancialCategory(name: EFinancialCategory.EXPENSE)
+        PaymentStatus paymentStatus = new PaymentStatus(name: EPaymentStatus.UNPAID)
+        Farm farm = Mock(Farm)
+        farm.id >> 1
+        farm.isActive >> true
+
+        Transaction transaction1 = Mock(Transaction)
+        Transaction transaction2 = Mock(Transaction)
+
+        transaction1.paymentDate >> today.plusDays(5)
+        transaction2.paymentDate >> today.plusDays(1)
+
+        transaction1.farm >> farm
+        transaction2.farm >> farm
+
+        financialCategoryRepository.findByName(EFinancialCategory.EXPENSE) >> financialCategory
+        paymentStatusRepository.findByName(EPaymentStatus.UNPAID) >> paymentStatus
+        transactionRepository.findByfinancialCategoryAndPaymentStatus(financialCategory, paymentStatus) >> 
+        [transaction1, transaction2]
+
+        userService.getAllOwnersForFarm(1) >> [Mock(User){ getIsActive() >> true }]
+
+        when:
+        financeNotificationService.checkPaymentDueDateNotifications()
+
+        then:
+        1 * mainNotificationService.sendNotificationToOwner(_ as User, _, "Niedługo upływa termin płatności!")
+        1 * mainNotificationService.sendNotificationToOwner(_ as User, _, "Niedługo upływa termin płatności!")
+    }
+
+    def "should checkAndNotifyForPayment when payment date is 5 days away"() {
         given:
         LocalDate today = LocalDate.now()
         Transaction transaction = Mock(Transaction)
-        transaction.getPaymentDate() >> today.plusDays(5)
-        transaction.getTransactionName() >> "Test Transaction"
-        transaction.getAmount() >> 100.0
-        transaction.getFarm() >> Mock(Farm) {
+        transaction.paymentDate >> today.plusDays(5)
+        transaction.transactionName >> 'Test Transaction'
+        transaction.amount >> 100.0
+        transaction.farm >> Mock(Farm) {
             getId() >> 1
+            getIsActive() >> true
         }
         User user = Mock(User)
-        user.getEmail() >> "test@example.com"
-        user.getIsActive() >> true
+        user.email >> 'test@example.com'
+        user.isActive >> true
         userService.getAllOwnersForFarm(1) >> [user]
 
         when:
         financeNotificationService.checkAndNotifyForPayment(transaction, today)
 
         then:
-        1 * mailSender.send(_ as SimpleMailMessage)
+        1 * mainNotificationService.sendNotificationToOwner(_ as User, _,"Niedługo upływa termin płatności!" )
     }
 
-    def "test checkAndNotifyForPayment when payment date is 1 day away"() {
+    def "should checkAndNotifyForPayment when payment date is 1 day away"() {
         given:
         LocalDate today = LocalDate.now()
         Transaction transaction = Mock(Transaction)
@@ -68,6 +96,7 @@ class FinanceNotificationServiceSpec extends Specification {
         transaction.getAmount() >> 100.0
         transaction.getFarm() >> Mock(Farm) {
             getId() >> 1
+            getIsActive() >> true
         }
         User user = Mock(User)
         user.getEmail() >> "test@example.com"
@@ -78,10 +107,10 @@ class FinanceNotificationServiceSpec extends Specification {
         financeNotificationService.checkAndNotifyForPayment(transaction, today)
 
         then:
-        1 * mailSender.send(_ as SimpleMailMessage)
+        1 * mainNotificationService.sendNotificationToOwner(_ as User, _,"Niedługo upływa termin płatności!" )
     }
 
-    def "test checkAndNotifyForPayment when payment date is not 5 or 1 day away"() {
+    def "should checkAndNotifyForPayment when payment date is not 5 or 1 day away"() {
         given:
         LocalDate today = LocalDate.now()
         Transaction transaction = Mock(Transaction)
@@ -100,10 +129,10 @@ class FinanceNotificationServiceSpec extends Specification {
         financeNotificationService.checkAndNotifyForPayment(transaction, today)
 
         then:
-        0 * mailSender.send(_ as SimpleMailMessage)
+        0 * mainNotificationService.sendNotificationToOwner(_ as User, _,"Niedługo upływa termin płatności!" )
     }
 
-    def "test checkAndNotifyForPayment when transaction has no payment date"() {
+    def "should checkAndNotifyForPayment when transaction has no payment date"() {
         given:
         LocalDate today = LocalDate.now()
         Transaction transaction = Mock(Transaction)
@@ -122,24 +151,7 @@ class FinanceNotificationServiceSpec extends Specification {
         financeNotificationService.checkAndNotifyForPayment(transaction, today)
 
         then:
-        0 * mailSender.send(_ as SimpleMailMessage)
-    }
-
-    def "should send notification to owner"() {
-        given:
-        User owner = new User(email: "owner@example.com")
-        String message = "Test message"
-        String subject = "Test subject"
-
-        when:
-        financeNotificationService.sendNotificationToOwner(owner, message, subject)
-
-        then:
-        1 * mailSender.send(_ as SimpleMailMessage) >> { SimpleMailMessage email ->
-            assert email.to == ["owner@example.com"]
-            assert email.subject == subject
-            assert email.text == message
-        }
+        0 * mainNotificationService.sendNotificationToOwner(_ as User, _,"Niedługo upływa termin płatności!" )
     }
 
 }

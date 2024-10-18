@@ -166,7 +166,6 @@ class UserServiceSpec extends Specification {
         Authentication authentication = Mock(Authentication) {
             getPrincipal() >> null
         }
-        UserDetailsImpl currentUserDetails = Mock(UserDetailsImpl)
 
         SecurityContextHolder.getContext().setAuthentication(authentication)
 
@@ -320,6 +319,43 @@ class UserServiceSpec extends Specification {
 
         then:
         assignRole.getName() == ERole.ROLE_FARM_EQUIPMENT_OPERATOR
+    }
+
+    def "should get active user by id"() {
+        given:
+        UserDetailsImpl userDetails = Mock(UserDetailsImpl) {
+            getId() >> 1
+        }
+        User user = Mock(User) {
+            getId() >> 1
+            getIsActive() >> true
+        }
+        userRepository.findById(Long.valueOf(userDetails.getId())) >> Optional.of(user)
+
+        when:
+        Optional<User> activeUser = userService.getActiveUserById(userDetails)
+
+        then:
+        activeUser.get() == user
+    }
+
+    def "should throw runtime exception when user is not active"() {
+        given:
+        UserDetailsImpl userDetails = Mock(UserDetailsImpl) {
+            getId() >> 1
+        }
+        User user = Mock(User) {
+            getId() >> 1
+            getIsActive() >> false
+        }
+        userRepository.findById(Long.valueOf(userDetails.getId())) >> Optional.of(user)
+
+        when:
+        userService.getActiveUserById(userDetails)
+
+        then:
+        RuntimeException ex = thrown(RuntimeException)
+        ex.message == "Użytkownik jest nieaktywny!"
     }
 
     def "should return all owners for the specified farm"() {

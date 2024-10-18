@@ -34,7 +34,7 @@ class AddressServiceSpec extends Specification {
         addressRepository.findById(1) >> Optional.empty()
 
         when:
-        Address foundAddress = addressService.findAddressById(1)
+        addressService.findAddressById(1)
 
         then:
         thrown(RuntimeException)

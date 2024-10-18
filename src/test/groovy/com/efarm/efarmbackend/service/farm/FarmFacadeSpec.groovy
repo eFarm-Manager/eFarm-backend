@@ -20,7 +20,8 @@ import com.efarm.efarmbackend.service.user.UserService
 import org.springframework.http.HttpStatus
 import org.springframework.validation.BindingResult
 import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.http.ResponseEntity
+import com.efarm.efarmbackend.payload.response.MessageResponse;
+
 import spock.lang.Specification
 import spock.lang.Subject
 
@@ -33,7 +34,6 @@ class FarmFacadeSpec extends Specification {
     def activationCodeService = Mock(ActivationCodeService)
     def authService = Mock(AuthService)
     def addressService = Mock(AddressService)
-    def validationRequestService = Mock(ValidationRequestService)
 
     @Subject
     FarmFacade farmFacade = new FarmFacade(
@@ -41,8 +41,7 @@ class FarmFacadeSpec extends Specification {
             farmService: farmService,
             activationCodeService: activationCodeService,
             authService: authService,
-            addressService: addressService,
-            validationRequestService: validationRequestService
+            addressService: addressService
     )
 
     def setup() {
@@ -85,13 +84,12 @@ class FarmFacadeSpec extends Specification {
         farmService.getUsersByFarmId(farm1.getId()) >> [user1, user2]
 
         when:
-        ResponseEntity<List<UserDTO>> response = farmFacade.getFarmUsersByFarmId()
+        List<UserDTO> response = farmFacade.getFarmUsersByFarmId()
 
         then:
-        response.getStatusCode() == HttpStatus.OK
-        response.body.size() == 2
-        response.body[0].username == "user1"
-        response.body[1].username == "user2"
+        response.size() == 2
+        response[0].username == "user1"
+        response[1].username == "user2"
     }
 
     def "should return farm details"() {
@@ -117,13 +115,12 @@ class FarmFacadeSpec extends Specification {
         activationCode.getExpireDate() >> date
 
         when:
-        ResponseEntity<FarmDTO> response = farmFacade.getFarmDetails()
+        FarmDTO response = farmFacade.getFarmDetails()
 
         then:
-        response.getStatusCode() == HttpStatus.OK
-        response.body.farmName == "Farm Name"
-        response.body.street == "ulica"
-        response.body.activationCodeExpireDate == date
+        response.farmName == "Farm Name"
+        response.street == "ulica"
+        response.activationCodeExpireDate == date
     }
 
     def "should update farm details correctly"() {
@@ -151,12 +148,9 @@ class FarmFacadeSpec extends Specification {
         address.setBuildingNumber("1")
         address.setZipCode("05-132")
         address.setCity("nie miasto")
-        BindingResult bindingResult = Mock(BindingResult)
         FarmRepository farmRepository = Mock(FarmRepository)
         AddressRepository addressRepository = Mock(AddressRepository)
 
-        bindingResult.hasErrors() >> false
-        validationRequestService.validateRequest(bindingResult) >> null
         userService.getLoggedUserFarm() >> farm
         farmService.updateFarmDetails(farm, updateFarmDetailsRequest) >> {
             farm.setFarmName(updateFarmDetailsRequest.getFarmName())
@@ -169,11 +163,10 @@ class FarmFacadeSpec extends Specification {
         addressRepository.save(address) >> address
 
         when:
-        ResponseEntity<?> response = farmFacade.updateFarmDetails(updateFarmDetailsRequest, bindingResult)
+        MessageResponse response = farmFacade.updateFarmDetails(updateFarmDetailsRequest)
 
         then:
-        response.getStatusCode() == HttpStatus.OK
-        response.body.message == "Poprawnie zaktualizowamo dane gospodarstwa"
+        response.message == "Poprawnie zaktualizowamo dane gospodarstwa"
         farm.getFarmName() == "New Farm"
         address.getStreet() == "ulica"
     }

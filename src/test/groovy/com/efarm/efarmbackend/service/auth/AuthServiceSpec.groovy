@@ -57,9 +57,6 @@ class AuthServiceSpec extends Specification {
                 username: "user",
                 password: "password"
         )
-        Authentication authentication = Mock(Authentication)
-        UserDetailsImpl userDetails = Mock(UserDetailsImpl)
-
         bruteForceProtectionService.isBlocked(loginRequest.getUsername()) >> false
         authenticationManager.authenticate(_ as UsernamePasswordAuthenticationToken) >> { throw new BadCredentialsException("Bad credentials") }
 
@@ -109,9 +106,6 @@ class AuthServiceSpec extends Specification {
     def "wrong credentials when update code"() {
         given:
         UpdateActivationCodeRequest updateActivationCodeRequest = new UpdateActivationCodeRequest(username: "user", password: "password", newActivationCode: "newActivationCode")
-
-        Authentication authentication = Mock(Authentication)
-        UserDetailsImpl userDetails = Mock(UserDetailsImpl)
 
         bruteForceProtectionService.isBlocked(updateActivationCodeRequest.getUsername()) >> false
         authenticationManager.authenticate(_ as UsernamePasswordAuthenticationToken) >> { throw new BadCredentialsException("Bad credentials") }

@@ -51,7 +51,7 @@ class JwtUtilsSpec extends Specification {
         HttpServletRequest request = null
 
         when:
-        String jwtToken = new JwtUtils().getJwtFromCookies(request)
+        new JwtUtils().getJwtFromCookies(request)
 
         then:
         thrown(IllegalArgumentException)
@@ -98,7 +98,7 @@ class JwtUtilsSpec extends Specification {
         fieldSecret.set(jwtUtils, jwtSecret)
 
         when:
-        ResponseCookie cookie = jwtUtils.generateJwtCookie(null)
+        jwtUtils.generateJwtCookie(null)
 
         then:
         thrown(NullPointerException)
@@ -186,7 +186,7 @@ class JwtUtilsSpec extends Specification {
         String token = jwtUtils.generateTokenFromUsername(username)
 
         when:
-        String result = jwtUtils.getUserNameFromJwtToken(token)
+        jwtUtils.getUserNameFromJwtToken(token)
 
         then:
         thrown(io.jsonwebtoken.ExpiredJwtException)
@@ -203,7 +203,7 @@ class JwtUtilsSpec extends Specification {
         fieldSecret.set(jwtUtils, jwtSecret)
 
         when:
-        String result = jwtUtils.getUserNameFromJwtToken(malformedToken)
+        jwtUtils.getUserNameFromJwtToken(malformedToken)
 
         then:
         thrown(io.jsonwebtoken.MalformedJwtException)
@@ -220,7 +220,7 @@ class JwtUtilsSpec extends Specification {
         fieldSecret.set(jwtUtils, jwtSecret)
 
         when:
-        String result = jwtUtils.getUserNameFromJwtToken(emptyToken)
+        jwtUtils.getUserNameFromJwtToken(emptyToken)
 
         then:
         thrown(IllegalArgumentException)

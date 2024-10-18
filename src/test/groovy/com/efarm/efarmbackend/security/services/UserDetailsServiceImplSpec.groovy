@@ -44,7 +44,7 @@ class UserDetailsServiceImplSpec extends Specification {
         userRepository.findByUsername(usernameTest) >> Optional.empty()
 
         when:
-        UserDetails actual = userDetailsServiceImpl.loadUserByUsername(usernameTest)
+        userDetailsServiceImpl.loadUserByUsername(usernameTest)
 
         then:
         thrown(UsernameNotFoundException)
