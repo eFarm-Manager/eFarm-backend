@@ -22,7 +22,6 @@ class FarmServiceSpec extends Specification {
     def farmRepository = Mock(FarmRepository)
     def activationCodeRepository = Mock(ActivationCodeRepository)
     def userRepository = Mock(UserRepository)
-import org.springframework.http.HttpStatus
 
     @Subject
     FarmService farmService = new FarmService(
