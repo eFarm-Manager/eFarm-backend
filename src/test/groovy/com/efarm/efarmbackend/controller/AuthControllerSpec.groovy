@@ -199,7 +199,7 @@ class AuthControllerSpec extends Specification {
         ResponseEntity<?> response = authController.authenticateUser(loginRequest, bindingResult)
 
         then:
-        response.getStatusCode() == HttpStatus.FORBIDDEN
+        response.getStatusCode() == HttpStatus.UNAUTHORIZED
         response.body.message == 'Gospodarstwo jest nieaktywne. Kod aktywacyjny wygasł.'
     }
 
