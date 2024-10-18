@@ -29,7 +29,6 @@ import spock.lang.Subject
 import java.nio.file.AccessDeniedException
 import com.efarm.efarmbackend.exception.UnauthorizedException
 
-
 class AuthFacadeSpec extends Specification {
 
     def userRepository = Mock(UserRepository)
@@ -66,13 +65,13 @@ class AuthFacadeSpec extends Specification {
     def "should register user successfully"() {
         given:
         SignupRequest signUpRequest = new SignupRequest(
-                firstName: "John",
-                lastName: "Doe",
-                username: "user",
-                email: "user@gmail.com",
-                password: "password",
-                phoneNumber: "",
-                role: "ROLE_FARM_MANAGER"
+                firstName: 'John',
+                lastName: 'Doe',
+                username: 'user',
+                email: 'user@gmail.com',
+                password: 'password',
+                phoneNumber: '',
+                role: 'ROLE_FARM_MANAGER'
         )
 
         User user = Mock(User)
@@ -93,13 +92,13 @@ class AuthFacadeSpec extends Specification {
     def "should return error if username already exists"() {
         given:
         SignupRequest signUpRequest = new SignupRequest(
-                firstName: "John",
-                lastName: "Doe",
-                username: "existingUser",
-                email: "newuser@example.com",
-                password: "password",
-                phoneNumber: "123456789",
-                role: "ROLE_FARM_MANAGER"
+                firstName: 'John',
+                lastName: 'Doe',
+                username: 'existingUser',
+                email: 'newuser@example.com',
+                password: 'password',
+                phoneNumber: '123456789',
+                role: 'ROLE_FARM_MANAGER'
         )
         userRepository.existsByUsername(signUpRequest.getUsername()) >> true
 
@@ -108,32 +107,32 @@ class AuthFacadeSpec extends Specification {
 
         then:
         RuntimeException exception = thrown()
-        exception.message == "Podana nazwa użytkownika jest już zajęta!"
+        exception.message == 'Podana nazwa użytkownika jest już zajęta!'
     }
 
     def "should return error if farm retrieval fails"() {
         given:
         SignupRequest signUpRequest = new SignupRequest(
-                firstName: "John",
-                lastName: "Doe",
-                username: "newUser",
-                email: "newuser@example.com",
-                password: "password",
-                phoneNumber: "123456789",
-                role: "ROLE_FARM_MANAGER"
+                firstName: 'John',
+                lastName: 'Doe',
+                username: 'newUser',
+                email: 'newuser@example.com',
+                password: 'password',
+                phoneNumber: '123456789',
+                role: 'ROLE_FARM_MANAGER'
         )
         User user = Mock(User)
 
         userRepository.existsByUsername(signUpRequest.getUsername()) >> false
         userService.createFarmUser(signUpRequest) >> user
-        userService.getLoggedUserFarm() >> { throw new RuntimeException("Farm not found") }
+        userService.getLoggedUserFarm() >> { throw new RuntimeException('Farm not found') }
 
         when:
         authFacade.registerUser(signUpRequest)
 
         then:
         RuntimeException exception = thrown()
-        exception.message == "Farm not found"
+        exception.message == 'Farm not found'
     }
     /*
         registerFarmAndFarmOwner
@@ -142,14 +141,14 @@ class AuthFacadeSpec extends Specification {
     def "should handle signup farm and farm owner"() {
         given:
         SignupFarmRequest signUpFarmRequest = new SignupFarmRequest(
-                firstName: "John",
-                lastName: "Doe",
-                username: "newUser",
-                email: "newuser@example.com",
-                password: "password",
-                phoneNumber: "123456789",
-                farmName: "NewFarm",
-                activationCode: "activation-code"
+                firstName: 'John',
+                lastName: 'Doe',
+                username: 'newUser',
+                email: 'newuser@example.com',
+                password: 'password',
+                phoneNumber: '123456789',
+                farmName: 'NewFarm',
+                activationCode: 'activation-code'
         )
         User user = Mock(User)
         ActivationCode activationCode = Mock(ActivationCode)
@@ -162,9 +161,9 @@ class AuthFacadeSpec extends Specification {
         farmRepository.existsByFarmName(signUpFarmRequest.getFarmName()) >> false
         userService.createFarmOwner(signUpFarmRequest) >> user
         activationCodeRepository.findByCode(signUpFarmRequest.getActivationCode()) >> Optional.of(activationCode)
-        activationCodeService.validateActivationCode(signUpFarmRequest.getActivationCode()) >> {}
+        activationCodeService.validateActivationCode(signUpFarmRequest.getActivationCode()) >> { }
         farmService.createFarm(signUpFarmRequest.getFarmName(), address.getId(), activationCode.getId()) >> farm
-        activationCodeService.markActivationCodeAsUsed(signUpFarmRequest.getActivationCode()) >> {}
+        activationCodeService.markActivationCodeAsUsed(signUpFarmRequest.getActivationCode()) >> { }
 
         when:
         MessageResponse response = authFacade.registerFarmAndFarmOwner(signUpFarmRequest)
@@ -172,20 +171,20 @@ class AuthFacadeSpec extends Specification {
         then:
         1 * addressRepository.save(_)
         1 * userRepository.save(_)
-        response.message == "Pomyślnie zarejestrowano nową farmę!"
+        response.message == 'Pomyślnie zarejestrowano nową farmę!'
     }
 
     def "should return bad request when username is already taken"() {
         given:
         SignupFarmRequest signUpFarmRequest = new SignupFarmRequest(
-                firstName: "John",
-                lastName: "Doe",
-                username: "existingUser",
-                email: "newuser@example.com",
-                password: "password",
-                phoneNumber: "123456789",
-                farmName: "NewFarm",
-                activationCode: "activation-code"
+                firstName: 'John',
+                lastName: 'Doe',
+                username: 'existingUser',
+                email: 'newuser@example.com',
+                password: 'password',
+                phoneNumber: '123456789',
+                farmName: 'NewFarm',
+                activationCode: 'activation-code'
         )
         userRepository.existsByUsername(signUpFarmRequest.getUsername()) >> true
 
@@ -194,20 +193,20 @@ class AuthFacadeSpec extends Specification {
 
         then:
         RuntimeException exception = thrown()
-        exception.message == "Wybrana nazwa użytkownika jest już zajęta!"
+        exception.message == 'Wybrana nazwa użytkownika jest już zajęta!'
     }
 
     def "should return bad request when farm name is already taken"() {
         given:
         SignupFarmRequest signUpFarmRequest = new SignupFarmRequest(
-                firstName: "John",
-                lastName: "Doe",
-                username: "newUser",
-                email: "newuser@example.com",
-                password: "password",
-                phoneNumber: "123456789",
-                farmName: "ExistingFarm",
-                activationCode: "activation-code"
+                firstName: 'John',
+                lastName: 'Doe',
+                username: 'newUser',
+                email: 'newuser@example.com',
+                password: 'password',
+                phoneNumber: '123456789',
+                farmName: 'ExistingFarm',
+                activationCode: 'activation-code'
         )
         userRepository.existsByUsername(signUpFarmRequest.getUsername()) >> false
         farmRepository.existsByFarmName(signUpFarmRequest.getFarmName()) >> true
@@ -217,46 +216,46 @@ class AuthFacadeSpec extends Specification {
 
         then:
         RuntimeException exception = thrown()
-        exception.message == "Wybrana nazwa farmy jest już zajęta!"
+        exception.message == 'Wybrana nazwa farmy jest już zajęta!'
     }
 
     def "should return bad request when activation code does not exist"() {
         given:
         SignupFarmRequest signUpFarmRequest = new SignupFarmRequest(
-                firstName: "John",
-                lastName: "Doe",
-                username: "newUser",
-                email: "newuser@example.com",
-                password: "password",
-                phoneNumber: "123456789",
-                farmName: "NewFarm",
-                activationCode: "invalid-code"
+                firstName: 'John',
+                lastName: 'Doe',
+                username: 'newUser',
+                email: 'newuser@example.com',
+                password: 'password',
+                phoneNumber: '123456789',
+                farmName: 'NewFarm',
+                activationCode: 'invalid-code'
         )
         userRepository.existsByUsername(signUpFarmRequest.getUsername()) >> false
         farmRepository.existsByFarmName(signUpFarmRequest.getFarmName()) >> false
         activationCodeRepository.findByCode(signUpFarmRequest.getActivationCode()) >> Optional.empty()
 
-        activationCodeService.validateActivationCode(signUpFarmRequest.getActivationCode()) >> { throw new RuntimeException("Podany kod aktywacyjny nie istnieje!") }
+        activationCodeService.validateActivationCode(signUpFarmRequest.getActivationCode()) >> { throw new RuntimeException('Podany kod aktywacyjny nie istnieje!') }
 
         when:
         authFacade.registerFarmAndFarmOwner(signUpFarmRequest)
 
         then:
         RuntimeException exception = thrown()
-        exception.message == "Podany kod aktywacyjny nie istnieje!"
+        exception.message == 'Podany kod aktywacyjny nie istnieje!'
     }
 
     def "should return bad request when activation code is used"() {
         given:
         SignupFarmRequest signUpFarmRequest = new SignupFarmRequest(
-                firstName: "John",
-                lastName: "Doe",
-                username: "newUser",
-                email: "newuser@example.com",
-                password: "password",
-                phoneNumber: "123456789",
-                farmName: "NewFarm",
-                activationCode: "invalid-code"
+                firstName: 'John',
+                lastName: 'Doe',
+                username: 'newUser',
+                email: 'newuser@example.com',
+                password: 'password',
+                phoneNumber: '123456789',
+                farmName: 'NewFarm',
+                activationCode: 'invalid-code'
         )
         ActivationCode activationCode = Mock(ActivationCode)
         activationCode.getIsUsed() >> true
@@ -264,27 +263,27 @@ class AuthFacadeSpec extends Specification {
         userRepository.existsByUsername(signUpFarmRequest.getUsername()) >> false
         farmRepository.existsByFarmName(signUpFarmRequest.getFarmName()) >> false
         activationCodeRepository.findByCode(signUpFarmRequest.getActivationCode()) >> Optional.of(activationCode)
-        activationCodeService.validateActivationCode(signUpFarmRequest.getActivationCode()) >> { throw new RuntimeException("Podany kod aktywacyjny został już wykorzystany!") }
+        activationCodeService.validateActivationCode(signUpFarmRequest.getActivationCode()) >> { throw new RuntimeException('Podany kod aktywacyjny został już wykorzystany!') }
 
         when:
         authFacade.registerFarmAndFarmOwner(signUpFarmRequest)
 
         then:
         RuntimeException exception = thrown()
-        exception.message == "Podany kod aktywacyjny został już wykorzystany!"
+        exception.message == 'Podany kod aktywacyjny został już wykorzystany!'
     }
 
     def "should return bad request when marking activation code as used fails"() {
         given:
         SignupFarmRequest signUpFarmRequest = new SignupFarmRequest(
-                firstName: "John",
-                lastName: "Doe",
-                username: "newUser",
-                email: "newuser@example.com",
-                password: "password",
-                phoneNumber: "123456789",
-                farmName: "NewFarm",
-                activationCode: "activation-code"
+                firstName: 'John',
+                lastName: 'Doe',
+                username: 'newUser',
+                email: 'newuser@example.com',
+                password: 'password',
+                phoneNumber: '123456789',
+                farmName: 'NewFarm',
+                activationCode: 'activation-code'
         )
         ActivationCode activationCode = Mock(ActivationCode)
         activationCode.getId() >> 1
@@ -297,18 +296,17 @@ class AuthFacadeSpec extends Specification {
         farmRepository.existsByFarmName(signUpFarmRequest.getFarmName()) >> false
         userService.createFarmOwner(signUpFarmRequest) >> user
         activationCodeRepository.findByCode(signUpFarmRequest.getActivationCode()) >> Optional.of(activationCode)
-        activationCodeService.validateActivationCode(signUpFarmRequest.getActivationCode()) >> {}
+        activationCodeService.validateActivationCode(signUpFarmRequest.getActivationCode()) >> { }
         farmService.createFarm(signUpFarmRequest.getFarmName(), address.getId(), activationCode.getId()) >> farm
 
-
-        activationCodeService.markActivationCodeAsUsed(signUpFarmRequest.getActivationCode()) >> { throw new RuntimeException("Activation code not found") }
+        activationCodeService.markActivationCodeAsUsed(signUpFarmRequest.getActivationCode()) >> { throw new RuntimeException('Activation code not found') }
 
         when:
         authFacade.registerFarmAndFarmOwner(signUpFarmRequest)
 
         then:
         RuntimeException exception = thrown()
-        exception.message == "Activation code not found"
+        exception.message == 'Activation code not found'
     }
     /*
         updateActivationCode
@@ -317,40 +315,39 @@ class AuthFacadeSpec extends Specification {
     def "should update activation code by owner"() {
         given:
         UpdateActivationCodeRequest updateActivationCodeRequest = new UpdateActivationCodeRequest(
-                username: "user",
-                password: "password",
-                newActivationCode: "newActivationCode"
+                username: 'user',
+                password: 'password',
+                newActivationCode: 'newActivationCode'
         )
-        List<String> roles = ["ROLE_FARM_OWNER"]
+        List<String> roles = ['ROLE_FARM_OWNER']
         UserDetailsImpl userDetails = Mock(UserDetailsImpl)
         userDetails.getId() >> 1
         userDetails.getUsername() >> updateActivationCodeRequest.getUsername()
         Farm farm = Mock(Farm)
         farm.getId() >> 1
 
-
         authService.authenticateUserByUpdateCodeRequest(updateActivationCodeRequest) >> userDetails
         userService.getLoggedUserRoles(userDetails) >> roles
         userService.getUserFarmById(Long.valueOf(userDetails.getId())) >> farm
-        activationCodeService.updateActivationCodeForFarm(updateActivationCodeRequest.getNewActivationCode(), farm.getId(), userDetails.getUsername()) >> 
-                new MessageResponse("Pomyślnie zaktualizowano kod aktywacyjny!")
+        activationCodeService.updateActivationCodeForFarm(updateActivationCodeRequest.getNewActivationCode(), farm.getId(), userDetails.getUsername()) >>
+                new MessageResponse('Pomyślnie zaktualizowano kod aktywacyjny!')
 
         when:
         ResponseEntity<?> response = authFacade.updateActivationCode(updateActivationCodeRequest)
 
         then:
         response.getStatusCode() == HttpStatus.OK
-        response.getBody().message.contains("Pomyślnie zaktualizowano kod aktywacyjny!")
+        response.getBody().message.contains('Pomyślnie zaktualizowano kod aktywacyjny!')
     }
 
     def "should return UNAUTHORIZED if user is not a farm owner"() {
         given:
         UpdateActivationCodeRequest updateActivationCodeRequest = new UpdateActivationCodeRequest(
-                username: "user",
-                password: "password",
-                newActivationCode: "newActivationCode"
+                username: 'user',
+                password: 'password',
+                newActivationCode: 'newActivationCode'
         )
-        List<String> roles = ["ROLE_FARM_MANAGER"]
+        List<String> roles = ['ROLE_FARM_MANAGER']
         UserDetailsImpl userDetails = Mock(UserDetailsImpl)
         userDetails.getId() >> 1
 
@@ -362,17 +359,17 @@ class AuthFacadeSpec extends Specification {
 
         then:
         AccessDeniedException exception = thrown()
-        exception.message == "Brak uprawnień"
+        exception.message == 'Brak uprawnień'
     }
 
     def "should return BAD_REQUEST if activation code update fails"() {
         given:
         UpdateActivationCodeRequest updateActivationCodeRequest = new UpdateActivationCodeRequest(
-                username: "user",
-                password: "password",
-                newActivationCode: "invalidActivationCode"
+                username: 'user',
+                password: 'password',
+                newActivationCode: 'invalidActivationCode'
         )
-        List<String> roles = ["ROLE_FARM_OWNER"]
+        List<String> roles = ['ROLE_FARM_OWNER']
         UserDetailsImpl userDetails = Mock(UserDetailsImpl)
         userDetails.getId() >> 1
         userDetails.getUsername() >> updateActivationCodeRequest.getUsername()
@@ -382,8 +379,8 @@ class AuthFacadeSpec extends Specification {
         authService.authenticateUserByUpdateCodeRequest(updateActivationCodeRequest) >> userDetails
         userService.getLoggedUserRoles(userDetails) >> roles
         userService.getUserFarmById(Long.valueOf(userDetails.getId())) >> farm
-        activationCodeService.updateActivationCodeForFarm(updateActivationCodeRequest.getNewActivationCode(), farm.getId(), userDetails.getUsername()) >> { 
-            throw new RuntimeException("Podany kod aktywacyjny nie istnieje!") 
+        activationCodeService.updateActivationCodeForFarm(updateActivationCodeRequest.getNewActivationCode(), farm.getId(), userDetails.getUsername()) >> {
+            throw new RuntimeException('Podany kod aktywacyjny nie istnieje!')
         }
 
         when:
@@ -391,7 +388,7 @@ class AuthFacadeSpec extends Specification {
 
         then:
         RuntimeException exception = thrown()
-        exception.message ==  "Podany kod aktywacyjny nie istnieje!"
+        exception.message ==  'Podany kod aktywacyjny nie istnieje!'
     }
     /*
         updateActivationCodeByLoggedOwner
@@ -400,32 +397,31 @@ class AuthFacadeSpec extends Specification {
     def "should update activation code when password is valid and no validation errors"() {
         given:
         UpdateActivationCodeByLoggedOwnerRequest request = Mock(UpdateActivationCodeByLoggedOwnerRequest) {
-            getPassword() >> "validPassword"
-            getNewActivationCode() >> "newActivationCode123"
+            getPassword() >> 'validPassword'
+            getNewActivationCode() >> 'newActivationCode123'
         }
         Integer farmId = 1
-        String username = "loggedOwner"
+        String username = 'loggedOwner'
         Farm farm = Mock(Farm) { getId() >> farmId }
 
         userService.isPasswordValidForLoggedUser(request.getPassword()) >> true
         userService.getLoggedUserFarm() >> farm
         userService.getLoggedUser() >> Mock(User) { getUsername() >> username }
 
-        activationCodeService.updateActivationCodeForFarm(request.getNewActivationCode(), farmId, username) >> new MessageResponse("Pomyślnie zaktualizowano kod aktywacyjny!")
+        activationCodeService.updateActivationCodeForFarm(request.getNewActivationCode(), farmId, username) >> new MessageResponse('Pomyślnie zaktualizowano kod aktywacyjny!')
 
         when:
         MessageResponse response = authFacade.updateActivationCodeByLoggedOwner(request)
 
         then:
-        response.message == "Pomyślnie zaktualizowano kod aktywacyjny!"
+        response.message == 'Pomyślnie zaktualizowano kod aktywacyjny!'
     }
-
 
     def "should return unauthorized when password is invalid"() {
         given:
         UpdateActivationCodeByLoggedOwnerRequest request = Mock(UpdateActivationCodeByLoggedOwnerRequest) {
-            getPassword() >> "invalidPassword"
-            getNewActivationCode() >> "newActivationCode123"
+            getPassword() >> 'invalidPassword'
+            getNewActivationCode() >> 'newActivationCode123'
         }
 
         userService.isPasswordValidForLoggedUser(request.getPassword()) >> false
@@ -435,7 +431,7 @@ class AuthFacadeSpec extends Specification {
 
         then:
         UnauthorizedException exception = thrown()
-        exception.message == "Nieprawidłowe hasło"
+        exception.message == 'Nieprawidłowe hasło'
     }
 
     /*
@@ -444,8 +440,8 @@ class AuthFacadeSpec extends Specification {
 
     def "should successfully change password when valid"() {
         given:
-        String currentPassword = "password123"
-        String newPassword = "newPassword123"
+        String currentPassword = 'password123'
+        String newPassword = 'newPassword123'
         ChangePasswordRequest request = Mock(ChangePasswordRequest) {
             getCurrentPassword() >> currentPassword
             getNewPassword() >> newPassword
@@ -457,13 +453,13 @@ class AuthFacadeSpec extends Specification {
         MessageResponse response = authFacade.changePassword(request)
 
         then:
-        response.message == "Hasło zostało pomyślnie zmienione"
+        response.message == 'Hasło zostało pomyślnie zmienione'
     }
 
     def "should return unauthorized if current password is invalid"() {
         given:
-        String currentPassword = "wrongPassword"
-        String newPassword = "newPassword123"
+        String currentPassword = 'wrongPassword'
+        String newPassword = 'newPassword123'
         ChangePasswordRequest request = Mock(ChangePasswordRequest) {
             getCurrentPassword() >> currentPassword
             getNewPassword() >> newPassword
@@ -475,13 +471,13 @@ class AuthFacadeSpec extends Specification {
 
         then:
         UnauthorizedException exception = thrown()
-        exception.message == "Podano nieprawidłowe aktualne hasło"
+        exception.message == 'Podano nieprawidłowe aktualne hasło'
     }
 
     def "should return runtime exceptioon when new password is same as old password"() {
         given:
-        String currentPassword = "password123"
-        String newPassword = "password123"
+        String currentPassword = 'password123'
+        String newPassword = 'password123'
         ChangePasswordRequest request = Mock(ChangePasswordRequest) {
             getCurrentPassword() >> currentPassword
             getNewPassword() >> newPassword
@@ -494,6 +490,7 @@ class AuthFacadeSpec extends Specification {
 
         then:
         RuntimeException exception = thrown()
-        exception.message == "Nowe hasło nie może być takie samo jak poprzednie"
+        exception.message == 'Nowe hasło nie może być takie samo jak poprzednie'
     }
+
 }

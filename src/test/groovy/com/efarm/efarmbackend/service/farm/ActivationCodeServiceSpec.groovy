@@ -1,6 +1,6 @@
 package com.efarm.efarmbackend.service
 
-import com.efarm.efarmbackend.exception.TooManyRequestsException;
+import com.efarm.efarmbackend.exception.TooManyRequestsException
 import com.efarm.efarmbackend.model.farm.ActivationCode
 import com.efarm.efarmbackend.model.farm.Farm
 import com.efarm.efarmbackend.payload.response.MessageResponse
@@ -34,7 +34,7 @@ class ActivationCodeServiceSpec extends Specification {
 
     def "should handle correct code"() {
         given:
-        String activationCodeName = "validCode"
+        String activationCodeName = 'validCode'
 
         ActivationCode activationCode = Mock(ActivationCode)
         activationCode.getCode() >> activationCodeName
@@ -51,7 +51,7 @@ class ActivationCodeServiceSpec extends Specification {
 
     def "should handle invalid code"() {
         given:
-        String activationCodeName = "validCode"
+        String activationCodeName = 'validCode'
 
         activationCodeRepository.findByCode(activationCodeName) >> Optional.empty()
 
@@ -60,12 +60,12 @@ class ActivationCodeServiceSpec extends Specification {
 
         then:
         RuntimeException ex = thrown()
-        ex.message == "Podany kod aktywacyjny nie istnieje!"
+        ex.message == 'Podany kod aktywacyjny nie istnieje!'
     }
 
     def "should handle expired code"() {
         given:
-        String activationCodeName = "validCode"
+        String activationCodeName = 'validCode'
 
         ActivationCode activationCode = Mock(ActivationCode)
         activationCode.getCode() >> activationCodeName
@@ -78,12 +78,12 @@ class ActivationCodeServiceSpec extends Specification {
 
         then:
         RuntimeException ex = thrown()
-        ex.message == "Kod aktywacyjny wygasł!"
+        ex.message == 'Kod aktywacyjny wygasł!'
     }
 
     def "should handle used code"() {
         given:
-        String activationCodeName = "validCode"
+        String activationCodeName = 'validCode'
 
         ActivationCode activationCode = Mock(ActivationCode)
         activationCode.getCode() >> activationCodeName
@@ -96,12 +96,12 @@ class ActivationCodeServiceSpec extends Specification {
 
         then:
         RuntimeException ex = thrown()
-        ex.message == "Podany kod aktywacyjny został już wykorzystany!"
+        ex.message == 'Podany kod aktywacyjny został już wykorzystany!'
     }
 
     def "should handle using code correctly"() {
         given:
-        String activationCodeName = "validCode"
+        String activationCodeName = 'validCode'
 
         ActivationCode activationCode = Mock(ActivationCode)
         activationCode.getCode() >> activationCodeName
@@ -119,7 +119,7 @@ class ActivationCodeServiceSpec extends Specification {
 
     def "should handle using code when not found"() {
         given:
-        String activationCodeName = "validCode"
+        String activationCodeName = 'validCode'
 
         activationCodeRepository.findByCode(activationCodeName) >> Optional.empty()
 
@@ -141,12 +141,11 @@ class ActivationCodeServiceSpec extends Specification {
         farmRepository.findById(farm.getId()) >> Optional.of(farm)
         activationCodeRepository.findById(farm.getIdActivationCode()) >> Optional.of(activationCode)
 
-
         when:
-        String response = activationCodeService.generateExpireCodeInfo(farm, ["ROLE_FARM_OWNER"])
+        String response = activationCodeService.generateExpireCodeInfo(farm, ['ROLE_FARM_OWNER'])
 
         then:
-        response == "Kod aktywacyjny wygasa za 1 dni."
+        response == 'Kod aktywacyjny wygasa za 1 dni.'
     }
 
     def "should no info during sign in with expire code for owner when its more than 14 to expire"() {
@@ -160,7 +159,7 @@ class ActivationCodeServiceSpec extends Specification {
         activationCodeRepository.findById(farm.getIdActivationCode()) >> Optional.of(activationCode)
 
         when:
-        String response = activationCodeService.generateExpireCodeInfo(farm, ["ROLE_FARM_OWNER"])
+        String response = activationCodeService.generateExpireCodeInfo(farm, ['ROLE_FARM_OWNER'])
 
         then:
         response == null
@@ -175,7 +174,7 @@ class ActivationCodeServiceSpec extends Specification {
         farm.getIdActivationCode() >> activationCode.getId()
 
         when:
-        String response = activationCodeService.generateExpireCodeInfo(farm, ["ROLE_FARM_MANAGER"])
+        String response = activationCodeService.generateExpireCodeInfo(farm, ['ROLE_FARM_MANAGER'])
 
         then:
         response == null
@@ -183,7 +182,7 @@ class ActivationCodeServiceSpec extends Specification {
 
     def "find activation code by farm id"() {
         given:
-        String activationCodeName = "validCode"
+        String activationCodeName = 'validCode'
         ActivationCode activationCode = Mock(ActivationCode)
         activationCode.getCode() >> activationCodeName
         activationCode.getExpireDate() >> LocalDate.now().plusDays(1)
@@ -193,7 +192,6 @@ class ActivationCodeServiceSpec extends Specification {
 
         farmRepository.findById(farm.getId()) >> Optional.of(farm)
         activationCodeRepository.findById(farm.getIdActivationCode()) >> Optional.of(activationCode)
-
 
         when:
         ActivationCode farmCode = activationCodeService.findActivationCodeByFarmId(farm.getId())
@@ -205,7 +203,7 @@ class ActivationCodeServiceSpec extends Specification {
 
     def "find activation code by farm id not found activation code"() {
         given:
-        String activationCodeName = "validCode"
+        String activationCodeName = 'validCode'
         ActivationCode activationCode = Mock(ActivationCode)
         activationCode.getCode() >> activationCodeName
         activationCode.getExpireDate() >> LocalDate.now().plusDays(1)
@@ -215,7 +213,6 @@ class ActivationCodeServiceSpec extends Specification {
 
         farmRepository.findById(farm.getId()) >> Optional.of(farm)
         activationCodeRepository.findById(farm.getIdActivationCode()) >> Optional.empty()
-
 
         when:
         activationCodeService.findActivationCodeByFarmId(farm.getId())
@@ -236,7 +233,6 @@ class ActivationCodeServiceSpec extends Specification {
 
         then:
         foundActCode == activationCode
-
     }
 
     def "should not find activation code with runtime exception"() {
@@ -252,23 +248,23 @@ class ActivationCodeServiceSpec extends Specification {
 
     def "should update activation code for farm"() {
         given:
-        String newActivationCode = "newCode"
+        String newActivationCode = 'newCode'
         ActivationCode newActivationCodeEntity = Mock(ActivationCode)
         newActivationCodeEntity.getCode() >> newActivationCode
         newActivationCodeEntity.getExpireDate() >> LocalDate.now().plusDays(1)
         newActivationCodeEntity.getIsUsed() >> false
         ActivationCode currentCode = Mock(ActivationCode)
-        currentCode.getCode() >> "oldCode"
+        currentCode.getCode() >> 'oldCode'
         currentCode.getExpireDate() >> LocalDate.now().plusDays(1)
         currentCode.getIsUsed() >> true
         Farm farm = Mock(Farm)
         farm.getId() >> 1
         farm.getIdActivationCode() >> currentCode.getId()
-        String username = "testUsername"
+        String username = 'testUsername'
 
         bruteForceProtectionService.isBlocked(username) >> false
         activationCodeRepository.findByCode(newActivationCode) >> Optional.of(newActivationCodeEntity)
-        bruteForceProtectionService.loginSucceeded(username) >> {}
+        bruteForceProtectionService.loginSucceeded(username) >> { }
         farmRepository.findById(farm.getId()) >> Optional.of(farm)
         activationCodeRepository.findById(farm.getIdActivationCode()) >> Optional.of(currentCode)
 
@@ -279,17 +275,17 @@ class ActivationCodeServiceSpec extends Specification {
         1 * activationCodeRepository.delete(currentCode)
         1 * farmRepository.save(farm)
         1 * activationCodeRepository.save(newActivationCodeEntity)
-        response.message=="Pomyślnie zaktualizowano kod aktywacyjny!"
+        response.message == 'Pomyślnie zaktualizowano kod aktywacyjny!'
     }
 
     def "should catch new code as not ok in here used"() {
         given:
-        String newActivationCode = "newCode"
+        String newActivationCode = 'newCode'
         ActivationCode newActivationCodeEntity = Mock(ActivationCode)
         newActivationCodeEntity.getCode() >> newActivationCode
         newActivationCodeEntity.getExpireDate() >> LocalDate.now().plusDays(1)
         newActivationCodeEntity.getIsUsed() >> true
-        String username = "testUsername"
+        String username = 'testUsername'
 
         bruteForceProtectionService.isBlocked(username) >> false
         activationCodeRepository.findByCode(newActivationCode) >> Optional.of(newActivationCodeEntity)
@@ -299,13 +295,13 @@ class ActivationCodeServiceSpec extends Specification {
 
         then:
         RuntimeException ex = thrown()
-        ex.message=="Podany kod aktywacyjny został już wykorzystany!"
+        ex.message == 'Podany kod aktywacyjny został już wykorzystany!'
     }
 
     def "should block user for too many attempts"() {
         given:
-        String newActivationCode = "newCode"
-        String username = "testUsername"
+        String newActivationCode = 'newCode'
+        String username = 'testUsername'
 
         bruteForceProtectionService.isBlocked(username) >> true
 
@@ -314,7 +310,7 @@ class ActivationCodeServiceSpec extends Specification {
 
         then:
         TooManyRequestsException ex = thrown()
-        ex.message == "Zbyt wiele nieudanych prób logowania! Spróbuj ponownie później."
+        ex.message == 'Zbyt wiele nieudanych prób logowania! Spróbuj ponownie później.'
     }
 
 }

@@ -1,4 +1,4 @@
-package com.efarm.efarmbackend.service;
+package com.efarm.efarmbackend.service
 
 import com.efarm.efarmbackend.model.farm.Address
 import com.efarm.efarmbackend.payload.request.farm.UpdateFarmDetailsRequest
@@ -44,15 +44,15 @@ class AddressServiceSpec extends Specification {
         given:
         Address address = new Address()
         address.setId(1)
-        address.setStreet("nie ulica")
-        address.setBuildingNumber("1")
-        address.setZipCode("05-132")
-        address.setCity("nie miasto")
+        address.setStreet('nie ulica')
+        address.setBuildingNumber('1')
+        address.setZipCode('05-132')
+        address.setCity('nie miasto')
         UpdateFarmDetailsRequest updateFarmDetailsRequest = new UpdateFarmDetailsRequest(
-                street: "ulica",
-                buildingNumber: "20",
-                zipCode: "05-132",
-                city: "Miasto"
+                street: 'ulica',
+                buildingNumber: '20',
+                zipCode: '05-132',
+                city: 'Miasto'
         )
 
         when:
@@ -60,9 +60,10 @@ class AddressServiceSpec extends Specification {
 
         then:
         1 * addressRepository.save(address)
-        address.getStreet() == "ulica"
-        address.getBuildingNumber() == "20"
-        address.getZipCode() == "05-132"
-        address.getCity() == "Miasto"
+        address.getStreet() == 'ulica'
+        address.getBuildingNumber() == '20'
+        address.getZipCode() == '05-132'
+        address.getCity() == 'Miasto'
     }
+
 }

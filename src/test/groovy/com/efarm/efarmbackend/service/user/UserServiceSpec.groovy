@@ -57,64 +57,63 @@ class UserServiceSpec extends Specification {
     def "should handle creation of farm owner"() {
         given:
         def signUpFarmRequest = new SignupFarmRequest(
-                firstName: "John",
-                lastName: "Doe",
-                username: "user",
-                email: "user@example.com",
-                password: "password",
-                phoneNumber: "",
-                farmName: "FarmName",
-                activationCode: "activation-code"
+                firstName: 'John',
+                lastName: 'Doe',
+                username: 'user',
+                email: 'user@example.com',
+                password: 'password',
+                phoneNumber: '',
+                farmName: 'FarmName',
+                activationCode: 'activation-code'
         )
         roleRepository.findByName(ERole.ROLE_FARM_OWNER) >> Optional.of(class_role_owner)
         roleRepository.findByName(ERole.ROLE_FARM_MANAGER) >> Optional.of(class_role_manager)
         roleRepository.findByName(ERole.ROLE_FARM_EQUIPMENT_OPERATOR) >> Optional.of(class_role_operator)
 
-        encoder.encode(signUpFarmRequest.getPassword()) >> "encodedPassword"
+        encoder.encode(signUpFarmRequest.getPassword()) >> 'encodedPassword'
 
         when:
         User newFarmOwner = userService.createFarmOwner(signUpFarmRequest)
 
         then:
-        newFarmOwner.getUsername() == "user"
+        newFarmOwner.getUsername() == 'user'
         newFarmOwner.getRole().getName() == ERole.ROLE_FARM_OWNER
-        newFarmOwner.getPassword() == "encodedPassword"
+        newFarmOwner.getPassword() == 'encodedPassword'
     }
 
     def "should handle create farm user"() {
         given:
         SignupRequest signUpRequest = new SignupRequest(
-                firstName: "John",
-                lastName: "Doe",
-                username: "newUser",
-                email: "newuser@example.com",
-                password: "password",
-                phoneNumber: "",
-                role: "ROLE_FARM_OWNER"
+                firstName: 'John',
+                lastName: 'Doe',
+                username: 'newUser',
+                email: 'newuser@example.com',
+                password: 'password',
+                phoneNumber: '',
+                role: 'ROLE_FARM_OWNER'
         )
         roleRepository.findByName(ERole.ROLE_FARM_OWNER) >> Optional.of(class_role_owner)
         roleRepository.findByName(ERole.ROLE_FARM_MANAGER) >> Optional.of(class_role_manager)
         roleRepository.findByName(ERole.ROLE_FARM_EQUIPMENT_OPERATOR) >> Optional.of(class_role_operator)
 
-
-        encoder.encode(signUpRequest.getPassword()) >> "encodedPassword"
+        encoder.encode(signUpRequest.getPassword()) >> 'encodedPassword'
 
         when:
         User newUser = userService.createFarmUser(signUpRequest)
 
         then:
-        newUser.getUsername() == "newUser"
+        newUser.getUsername() == 'newUser'
         newUser.getRole().getName() == ERole.ROLE_FARM_OWNER
-        newUser.getPassword() == "encodedPassword"
+        newUser.getPassword() == 'encodedPassword'
     }
 
     def "should handle returning current logged user"() {
         given:
         User currentUser = Mock(User)
-        currentUser.getUsername() >> "currentUser"
+        currentUser.getUsername() >> 'currentUser'
         currentUser.getId() >> 1
-        currentUser.getEmail() >> "test@gmail.com"
-        currentUser.getPassword() >> "fwafwafa312z"
+        currentUser.getEmail() >> 'test@gmail.com'
+        currentUser.getPassword() >> 'fwafwafa312z'
         currentUser.getRole() >> class_role_manager
         UserDetailsImpl currentUserDetails = UserDetailsImpl.build(currentUser)
 
@@ -136,14 +135,14 @@ class UserServiceSpec extends Specification {
         given:
         Farm currentFarm = Mock(Farm)
         currentFarm.getId() >> 1
-        currentFarm.getFarmName() >> "uniqueFarmName"
+        currentFarm.getFarmName() >> 'uniqueFarmName'
 
         User currentUser = Mock(User)
-        currentUser.getUsername() >> "currentUser"
+        currentUser.getUsername() >> 'currentUser'
         currentUser.getId() >> 1
         currentUser.getFarm() >> currentFarm
-        currentUser.getEmail() >> "test@gmail.com"
-        currentUser.getPassword() >> "fwafwafa312z"
+        currentUser.getEmail() >> 'test@gmail.com'
+        currentUser.getPassword() >> 'fwafwafa312z'
         currentUser.getRole() >> class_role_manager
         UserDetailsImpl currentUserDetails = UserDetailsImpl.build(currentUser)
 
@@ -194,7 +193,7 @@ class UserServiceSpec extends Specification {
     def "should get logged user roles"() {
         given:
         GrantedAuthority authority = Mock(GrantedAuthority)
-        authority.getAuthority() >> "ROLE_FARM_MANAGER"
+        authority.getAuthority() >> 'ROLE_FARM_MANAGER'
         UserDetailsImpl userDetails = Mock(UserDetailsImpl)
         userDetails.getAuthorities() >> [authority]
 
@@ -202,13 +201,13 @@ class UserServiceSpec extends Specification {
         List<String> roles = userService.getLoggedUserRoles(userDetails)
 
         then:
-        roles == ["ROLE_FARM_MANAGER"]
+        roles == ['ROLE_FARM_MANAGER']
     }
 
     def "should return true when password is valid"() {
         given:
-        String providedPassword = "password123"
-        String encodedPassword = "encodedPassword123"
+        String providedPassword = 'password123'
+        String encodedPassword = 'encodedPassword123'
         User loggedUser = Mock(User) {
             getPassword() >> encodedPassword
         }
@@ -230,8 +229,8 @@ class UserServiceSpec extends Specification {
 
     def "should return false when password is invalid"() {
         given:
-        String providedPassword = "wrongPassword"
-        String encodedPassword = "encodedPassword123"
+        String providedPassword = 'wrongPassword'
+        String encodedPassword = 'encodedPassword123'
         User loggedUser = Mock(User) {
             getPassword() >> encodedPassword
         }
@@ -253,8 +252,8 @@ class UserServiceSpec extends Specification {
 
     def "should update password successfully"() {
         given:
-        String newPassword = "newPassword123"
-        String encodedPassword = "encodedNewPassword123"
+        String newPassword = 'newPassword123'
+        String encodedPassword = 'encodedNewPassword123'
         User loggedUser = Mock(User)
         Authentication authentication = Mock(Authentication) {
             getPrincipal() >> Mock(UserDetailsImpl) {
@@ -278,17 +277,16 @@ class UserServiceSpec extends Specification {
         SecurityContextHolder.getContext().setAuthentication(null)
 
         when:
-        userService.updatePasswordForLoggedUser("newPassword123")
+        userService.updatePasswordForLoggedUser('newPassword123')
 
         then:
         thrown(RuntimeException)
         0 * userRepository.save(_)
     }
 
-
     def "should correctly return farm owner"() {
         given:
-        String role = "ROLE_FARM_OWNER"
+        String role = 'ROLE_FARM_OWNER'
         roleRepository.findByName(ERole.ROLE_FARM_OWNER) >> Optional.of(class_role_owner)
 
         when:
@@ -300,7 +298,7 @@ class UserServiceSpec extends Specification {
 
     def "should correctly return farm manager"() {
         given:
-        String role = "ROLE_FARM_MANAGER"
+        String role = 'ROLE_FARM_MANAGER'
         roleRepository.findByName(ERole.ROLE_FARM_MANAGER) >> Optional.of(class_role_manager)
 
         when:
@@ -315,7 +313,7 @@ class UserServiceSpec extends Specification {
         roleRepository.findByName(ERole.ROLE_FARM_EQUIPMENT_OPERATOR) >> Optional.of(class_role_operator)
 
         when:
-        Role assignRole = userService.assignUserRole("")
+        Role assignRole = userService.assignUserRole('')
 
         then:
         assignRole.getName() == ERole.ROLE_FARM_EQUIPMENT_OPERATOR
@@ -355,14 +353,14 @@ class UserServiceSpec extends Specification {
 
         then:
         RuntimeException ex = thrown(RuntimeException)
-        ex.message == "Użytkownik jest nieaktywny!"
+        ex.message == 'Użytkownik jest nieaktywny!'
     }
 
     def "should return all owners for the specified farm"() {
         given:
         Integer farmId = 1
-        User owner1 = new User(email: "owner1@example.com")
-        User owner2 = new User(email: "owner2@example.com")
+        User owner1 = new User(email: 'owner1@example.com')
+        User owner2 = new User(email: 'owner2@example.com')
         userRepository.findOwnersForFarm(farmId) >> [owner1, owner2]
 
         when:
@@ -370,7 +368,8 @@ class UserServiceSpec extends Specification {
 
         then:
         owners.size() == 2
-        owners[0].email == "owner1@example.com"
-        owners[1].email == "owner2@example.com"
+        owners[0].email == 'owner1@example.com'
+        owners[1].email == 'owner2@example.com'
     }
+
 }

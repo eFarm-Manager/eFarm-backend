@@ -31,15 +31,15 @@ class AuthServiceSpec extends Specification {
 
     def "should authenticate user by login request"() {
         given:
-        LoginRequest loginRequest = new LoginRequest(username: "user", password: "password")
+        LoginRequest loginRequest = new LoginRequest(username: 'user', password: 'password')
         UserDetailsImpl userDetails = Mock(UserDetailsImpl)
-        userDetails.getAuthorities() >> [new SimpleGrantedAuthority("ROLE_FARM_MANAGER")]
+        userDetails.getAuthorities() >> [new SimpleGrantedAuthority('ROLE_FARM_MANAGER')]
 
         bruteForceProtectionService.isBlocked(loginRequest.getUsername()) >> false
         UsernamePasswordAuthenticationToken authToken =
-                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword());
+                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
 
-        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities())
         authenticationManager.authenticate(authToken) >> authentication
 
         when:
@@ -50,15 +50,14 @@ class AuthServiceSpec extends Specification {
         SecurityContextHolder.getContext().getAuthentication() == authentication
     }
 
-
     def "wrong credentials when login"() {
         given:
         LoginRequest loginRequest = new LoginRequest(
-                username: "user",
-                password: "password"
+                username: 'user',
+                password: 'password'
         )
         bruteForceProtectionService.isBlocked(loginRequest.getUsername()) >> false
-        authenticationManager.authenticate(_ as UsernamePasswordAuthenticationToken) >> { throw new BadCredentialsException("Bad credentials") }
+        authenticationManager.authenticate(_ as UsernamePasswordAuthenticationToken) >> { throw new BadCredentialsException('Bad credentials') }
 
         when:
         authService.authenticateUserByLoginRequest(loginRequest)
@@ -70,8 +69,8 @@ class AuthServiceSpec extends Specification {
     def "should get too many attempts and block user"() {
         given:
         LoginRequest loginRequest = new LoginRequest(
-                username: "user",
-                password: "password"
+                username: 'user',
+                password: 'password'
         )
         bruteForceProtectionService.isBlocked(loginRequest.getUsername()) >> true
 
@@ -84,15 +83,15 @@ class AuthServiceSpec extends Specification {
 
     def "authenticate user by update code request"() {
         given:
-        UpdateActivationCodeRequest updateActivationCodeRequest = new UpdateActivationCodeRequest(username: "user", password: "password", newActivationCode: "newActivationCode")
+        UpdateActivationCodeRequest updateActivationCodeRequest = new UpdateActivationCodeRequest(username: 'user', password: 'password', newActivationCode: 'newActivationCode')
         UserDetailsImpl userDetails = Mock(UserDetailsImpl)
-        userDetails.getAuthorities() >> [new SimpleGrantedAuthority("ROLE_FARM_MANAGER")]
+        userDetails.getAuthorities() >> [new SimpleGrantedAuthority('ROLE_FARM_MANAGER')]
 
         bruteForceProtectionService.isBlocked(updateActivationCodeRequest.getUsername()) >> false
         UsernamePasswordAuthenticationToken authToken =
-                new UsernamePasswordAuthenticationToken(updateActivationCodeRequest.getUsername(), updateActivationCodeRequest.getPassword());
+                new UsernamePasswordAuthenticationToken(updateActivationCodeRequest.getUsername(), updateActivationCodeRequest.getPassword())
 
-        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities())
         authenticationManager.authenticate(authToken) >> authentication
 
         when:
@@ -105,10 +104,10 @@ class AuthServiceSpec extends Specification {
 
     def "wrong credentials when update code"() {
         given:
-        UpdateActivationCodeRequest updateActivationCodeRequest = new UpdateActivationCodeRequest(username: "user", password: "password", newActivationCode: "newActivationCode")
+        UpdateActivationCodeRequest updateActivationCodeRequest = new UpdateActivationCodeRequest(username: 'user', password: 'password', newActivationCode: 'newActivationCode')
 
         bruteForceProtectionService.isBlocked(updateActivationCodeRequest.getUsername()) >> false
-        authenticationManager.authenticate(_ as UsernamePasswordAuthenticationToken) >> { throw new BadCredentialsException("Bad credentials") }
+        authenticationManager.authenticate(_ as UsernamePasswordAuthenticationToken) >> { throw new BadCredentialsException('Bad credentials') }
 
         when:
         authService.authenticateUserByLoginRequest(updateActivationCodeRequest)
@@ -119,7 +118,7 @@ class AuthServiceSpec extends Specification {
 
     def "should get too many attempts when update code and block user"() {
         given:
-        UpdateActivationCodeRequest updateActivationCodeRequest = new UpdateActivationCodeRequest(username: "user", password: "password", newActivationCode: "newActivationCode")
+        UpdateActivationCodeRequest updateActivationCodeRequest = new UpdateActivationCodeRequest(username: 'user', password: 'password', newActivationCode: 'newActivationCode')
 
         bruteForceProtectionService.isBlocked(updateActivationCodeRequest.getUsername()) >> true
 
@@ -133,13 +132,13 @@ class AuthServiceSpec extends Specification {
     def "should correctly assume owner role"() {
         given:
         UserDetailsImpl userDetails = Mock(UserDetailsImpl)
-        userDetails.getAuthorities() >> [new SimpleGrantedAuthority("ROLE_FARM_OWNER")]
+        userDetails.getAuthorities() >> [new SimpleGrantedAuthority('ROLE_FARM_OWNER')]
 
-        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities())
         SecurityContextHolder.getContext().setAuthentication(authentication)
 
         when:
-        boolean result = authService.hasCurrentUserRole("ROLE_FARM_OWNER")
+        boolean result = authService.hasCurrentUserRole('ROLE_FARM_OWNER')
 
         then:
         result == true
@@ -148,13 +147,13 @@ class AuthServiceSpec extends Specification {
     def "should correctly assume manager role"() {
         given:
         UserDetailsImpl userDetails = Mock(UserDetailsImpl)
-        userDetails.getAuthorities() >> [new SimpleGrantedAuthority("ROLE_FARM_MANAGER")]
+        userDetails.getAuthorities() >> [new SimpleGrantedAuthority('ROLE_FARM_MANAGER')]
 
-        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities())
         SecurityContextHolder.getContext().setAuthentication(authentication)
 
         when:
-        boolean result = authService.hasCurrentUserRole("ROLE_FARM_MANAGER")
+        boolean result = authService.hasCurrentUserRole('ROLE_FARM_MANAGER')
 
         then:
         result == true
@@ -163,13 +162,13 @@ class AuthServiceSpec extends Specification {
     def "should correctly assume operator role"() {
         given:
         UserDetailsImpl userDetails = Mock(UserDetailsImpl)
-        userDetails.getAuthorities() >> [new SimpleGrantedAuthority("ROLE_FARM_EQUIPMENT_OPERATOR")]
+        userDetails.getAuthorities() >> [new SimpleGrantedAuthority('ROLE_FARM_EQUIPMENT_OPERATOR')]
 
-        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities())
         SecurityContextHolder.getContext().setAuthentication(authentication)
 
         when:
-        boolean result = authService.hasCurrentUserRole("ROLE_FARM_EQUIPMENT_OPERATOR")
+        boolean result = authService.hasCurrentUserRole('ROLE_FARM_EQUIPMENT_OPERATOR')
 
         then:
         result == true
@@ -178,13 +177,13 @@ class AuthServiceSpec extends Specification {
     def "should correctly assume not same role"() {
         given:
         UserDetailsImpl userDetails = Mock(UserDetailsImpl)
-        userDetails.getAuthorities() >> [new SimpleGrantedAuthority("ROLE_FARM_MANAGER")]
+        userDetails.getAuthorities() >> [new SimpleGrantedAuthority('ROLE_FARM_MANAGER')]
 
-        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities())
         SecurityContextHolder.getContext().setAuthentication(authentication)
 
         when:
-        boolean result = authService.hasCurrentUserRole("ROLE_FARM_OWNER")
+        boolean result = authService.hasCurrentUserRole('ROLE_FARM_OWNER')
 
         then:
         result == false
@@ -195,9 +194,10 @@ class AuthServiceSpec extends Specification {
         SecurityContextHolder.getContext().setAuthentication(null)
 
         when:
-        boolean result = authService.hasCurrentUserRole("ROLE_FARM_OWNER")
+        boolean result = authService.hasCurrentUserRole('ROLE_FARM_OWNER')
 
         then:
         result == false
     }
+
 }

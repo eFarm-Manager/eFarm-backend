@@ -1,4 +1,4 @@
-package com.efarm.efarmbackend.security.services;
+package com.efarm.efarmbackend.security.services
 
 import com.efarm.efarmbackend.model.user.Role
 import com.efarm.efarmbackend.model.user.User
@@ -13,10 +13,10 @@ class UserDetailsImplSpec extends Specification {
     def "should properly initialize UserDetailsImpl object via constructor"() {
         given:
         Integer id = 1
-        String username = "user1"
-        String email = "user1@gmail.com"
-        String password = "pass123!"
-        Collection<? extends GrantedAuthority> authorities = [new SimpleGrantedAuthority("ROLE_FARM_MANAGER")]
+        String username = 'user1'
+        String email = 'user1@gmail.com'
+        String password = 'pass123!'
+        Collection<? extends GrantedAuthority> authorities = [new SimpleGrantedAuthority('ROLE_FARM_MANAGER')]
 
         when:
         UserDetailsImpl userDetails = new UserDetailsImpl(id, username, email, password, authorities)
@@ -34,12 +34,12 @@ class UserDetailsImplSpec extends Specification {
         given:
         User user = Mock(User)
         Role role = Mock(Role)
-        String roleName = "ROLE_FARM_MANAGER"
+        String roleName = 'ROLE_FARM_MANAGER'
 
         user.getId() >> 1
-        user.getUsername() >> "user1"
-        user.getEmail() >> "user1@gmail.com"
-        user.getPassword() >> "pass123!"
+        user.getUsername() >> 'user1'
+        user.getEmail() >> 'user1@gmail.com'
+        user.getPassword() >> 'pass123!'
         role.getName() >> ERole.valueOf(roleName)
         user.getRole() >> role
 
@@ -48,9 +48,9 @@ class UserDetailsImplSpec extends Specification {
 
         then:
         userDetails.id == 1
-        userDetails.username == "user1"
-        userDetails.email == "user1@gmail.com"
-        userDetails.password == "pass123!"
+        userDetails.username == 'user1'
+        userDetails.email == 'user1@gmail.com'
+        userDetails.password == 'pass123!'
         userDetails.authorities.size() == 1
         userDetails.authorities[0].authority == roleName
     }
@@ -58,8 +58,8 @@ class UserDetailsImplSpec extends Specification {
     //checks if same user is equal to itself
     def "should return true when UserDetailsImpl compared to itself - equals"() {
         given:
-        UserDetailsImpl user1 = new UserDetailsImpl(1, "user1", "user1@gmail.com",
-                "pass123!", [new SimpleGrantedAuthority("ROLE_FARM_MANAGER")])
+        UserDetailsImpl user1 = new UserDetailsImpl(1, 'user1', 'user1@gmail.com',
+                'pass123!', [new SimpleGrantedAuthority('ROLE_FARM_MANAGER')])
 
         expect:
         user1.equals(user1)
@@ -68,10 +68,10 @@ class UserDetailsImplSpec extends Specification {
     //checks if different users are equal
     def "should return false when UserDetailsImpl compared to another UserDetailsImpl with different id - equals"() {
         given:
-        UserDetailsImpl user1 = new UserDetailsImpl(1, "user1", "user1@gmail.com",
-                "pass123!", [new SimpleGrantedAuthority("ROLE_FARM_MANAGER")])
-        UserDetailsImpl user2 = new UserDetailsImpl(2, "user2", "user2@gmail.com",
-                "pass123!", [new SimpleGrantedAuthority("ROLE_FARM_MANAGER")])
+        UserDetailsImpl user1 = new UserDetailsImpl(1, 'user1', 'user1@gmail.com',
+                'pass123!', [new SimpleGrantedAuthority('ROLE_FARM_MANAGER')])
+        UserDetailsImpl user2 = new UserDetailsImpl(2, 'user2', 'user2@gmail.com',
+                'pass123!', [new SimpleGrantedAuthority('ROLE_FARM_MANAGER')])
 
         expect:
         !user1.equals(user2)
@@ -80,8 +80,8 @@ class UserDetailsImplSpec extends Specification {
     //checks if existing user is equal to null
     def "should return false when UserDetailsImpl compared to null - equals"() {
         given:
-        UserDetailsImpl user1 = new UserDetailsImpl(1, "user1", "user1@gmail.com",
-                "pass123!", [new SimpleGrantedAuthority("ROLE_FARM_MANAGER")])
+        UserDetailsImpl user1 = new UserDetailsImpl(1, 'user1', 'user1@gmail.com',
+                'pass123!', [new SimpleGrantedAuthority('ROLE_FARM_MANAGER')])
 
         expect:
         !user1.equals(null)
@@ -90,13 +90,14 @@ class UserDetailsImplSpec extends Specification {
     //checks if Object with field id is equal to user details with same id
     def "should return false when UserDetailsImpl compared to object - equals"() {
         given:
-        UserDetailsImpl user1 = new UserDetailsImpl(1, "user1", "user1@gmail.com",
-                "pass123!", [new SimpleGrantedAuthority("ROLE_FARM_MANAGER")])
+        UserDetailsImpl user1 = new UserDetailsImpl(1, 'user1', 'user1@gmail.com',
+                'pass123!', [new SimpleGrantedAuthority('ROLE_FARM_MANAGER')])
         Object obj = new Expando()
         obj.id = 1
 
         expect:
         !user1.equals(obj)
     }
+
 }
 

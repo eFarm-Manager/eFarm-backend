@@ -3,11 +3,10 @@ package com.efarm.efarmbackend.service.finance
 import com.efarm.efarmbackend.model.finance.*
 import com.efarm.efarmbackend.model.user.User
 import com.efarm.efarmbackend.model.farm.Farm
-import com.efarm.efarmbackend.repository.finance.FinancialCategoryRepository;
-import com.efarm.efarmbackend.repository.finance.PaymentStatusRepository;
-import com.efarm.efarmbackend.repository.finance.TransactionRepository;
+import com.efarm.efarmbackend.repository.finance.FinancialCategoryRepository
+import com.efarm.efarmbackend.repository.finance.PaymentStatusRepository
+import com.efarm.efarmbackend.repository.finance.TransactionRepository
 import com.efarm.efarmbackend.service.user.UserService
-import org.springframework.mail.SimpleMailMessage
 import com.efarm.efarmbackend.service.MainNotificationService
 
 import spock.lang.Specification
@@ -51,17 +50,17 @@ class FinanceNotificationServiceSpec extends Specification {
 
         financialCategoryRepository.findByName(EFinancialCategory.EXPENSE) >> financialCategory
         paymentStatusRepository.findByName(EPaymentStatus.UNPAID) >> paymentStatus
-        transactionRepository.findByfinancialCategoryAndPaymentStatus(financialCategory, paymentStatus) >> 
+        transactionRepository.findByfinancialCategoryAndPaymentStatus(financialCategory, paymentStatus) >>
         [transaction1, transaction2]
 
-        userService.getAllOwnersForFarm(1) >> [Mock(User){ getIsActive() >> true }]
+        userService.getAllOwnersForFarm(1) >> [Mock(User) { getIsActive() >> true }]
 
         when:
         financeNotificationService.checkPaymentDueDateNotifications()
 
         then:
-        1 * mainNotificationService.sendNotificationToOwner(_ as User, _, "Niedługo upływa termin płatności!")
-        1 * mainNotificationService.sendNotificationToOwner(_ as User, _, "Niedługo upływa termin płatności!")
+        1 * mainNotificationService.sendNotificationToOwner(_ as User, _, 'Niedługo upływa termin płatności!')
+        1 * mainNotificationService.sendNotificationToOwner(_ as User, _, 'Niedługo upływa termin płatności!')
     }
 
     def "should checkAndNotifyForPayment when payment date is 5 days away"() {
@@ -84,7 +83,7 @@ class FinanceNotificationServiceSpec extends Specification {
         financeNotificationService.checkAndNotifyForPayment(transaction, today)
 
         then:
-        1 * mainNotificationService.sendNotificationToOwner(_ as User, _,"Niedługo upływa termin płatności!" )
+        1 * mainNotificationService.sendNotificationToOwner(_ as User, _,'Niedługo upływa termin płatności!')
     }
 
     def "should checkAndNotifyForPayment when payment date is 1 day away"() {
@@ -92,14 +91,14 @@ class FinanceNotificationServiceSpec extends Specification {
         LocalDate today = LocalDate.now()
         Transaction transaction = Mock(Transaction)
         transaction.getPaymentDate() >> today.plusDays(1)
-        transaction.getTransactionName() >> "Test Transaction"
+        transaction.getTransactionName() >> 'Test Transaction'
         transaction.getAmount() >> 100.0
         transaction.getFarm() >> Mock(Farm) {
             getId() >> 1
             getIsActive() >> true
         }
         User user = Mock(User)
-        user.getEmail() >> "test@example.com"
+        user.getEmail() >> 'test@example.com'
         user.getIsActive() >> true
         userService.getAllOwnersForFarm(1) >> [user]
 
@@ -107,7 +106,7 @@ class FinanceNotificationServiceSpec extends Specification {
         financeNotificationService.checkAndNotifyForPayment(transaction, today)
 
         then:
-        1 * mainNotificationService.sendNotificationToOwner(_ as User, _,"Niedługo upływa termin płatności!" )
+        1 * mainNotificationService.sendNotificationToOwner(_ as User, _,'Niedługo upływa termin płatności!')
     }
 
     def "should checkAndNotifyForPayment when payment date is not 5 or 1 day away"() {
@@ -115,13 +114,13 @@ class FinanceNotificationServiceSpec extends Specification {
         LocalDate today = LocalDate.now()
         Transaction transaction = Mock(Transaction)
         transaction.getPaymentDate() >> today.plusDays(3)
-        transaction.getTransactionName() >> "Test Transaction"
+        transaction.getTransactionName() >> 'Test Transaction'
         transaction.getAmount() >> 100.0
         transaction.getFarm() >> Mock(Farm) {
             getId() >> 1
         }
         User user = Mock(User)
-        user.getEmail() >> "test@example.com"
+        user.getEmail() >> 'test@example.com'
         user.getIsActive() >> true
         userService.getAllOwnersForFarm(1) >> [user]
 
@@ -129,7 +128,7 @@ class FinanceNotificationServiceSpec extends Specification {
         financeNotificationService.checkAndNotifyForPayment(transaction, today)
 
         then:
-        0 * mainNotificationService.sendNotificationToOwner(_ as User, _,"Niedługo upływa termin płatności!" )
+        0 * mainNotificationService.sendNotificationToOwner(_ as User, _,'Niedługo upływa termin płatności!')
     }
 
     def "should checkAndNotifyForPayment when transaction has no payment date"() {
@@ -137,13 +136,13 @@ class FinanceNotificationServiceSpec extends Specification {
         LocalDate today = LocalDate.now()
         Transaction transaction = Mock(Transaction)
         transaction.getPaymentDate() >> null
-        transaction.getTransactionName() >> "Test Transaction"
+        transaction.getTransactionName() >> 'Test Transaction'
         transaction.getAmount() >> 100.0
         transaction.getFarm() >> Mock(Farm) {
             getId() >> 1
         }
         User user = Mock(User)
-        user.getEmail() >> "test@example.com"
+        user.getEmail() >> 'test@example.com'
         user.getIsActive() >> true
         userService.getAllOwnersForFarm(1) >> [user]
 
@@ -151,7 +150,7 @@ class FinanceNotificationServiceSpec extends Specification {
         financeNotificationService.checkAndNotifyForPayment(transaction, today)
 
         then:
-        0 * mainNotificationService.sendNotificationToOwner(_ as User, _,"Niedługo upływa termin płatności!" )
+        0 * mainNotificationService.sendNotificationToOwner(_ as User, _,'Niedługo upływa termin płatności!')
     }
 
 }

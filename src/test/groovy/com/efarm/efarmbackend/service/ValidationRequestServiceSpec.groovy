@@ -1,13 +1,12 @@
-package com.efarm.efarmbackend.service;
+package com.efarm.efarmbackend.service
 
-import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
+import org.springframework.validation.BindingResult
 import spock.lang.Specification
 import spock.lang.Subject
 import org.springframework.validation.FieldError
-import org.springframework.http.HttpStatus
 
 class ValidationRequestServiceSpec extends Specification {
+
         @Subject
     def validationRequestService = new ValidationRequestService()
 
@@ -16,8 +15,8 @@ class ValidationRequestServiceSpec extends Specification {
         def bindingResult = Mock(BindingResult)
         bindingResult.hasErrors() >> true
         bindingResult.getFieldErrors() >> [
-            new FieldError("objectName", "field1", "error1"),
-            new FieldError("objectName", "field2", "error2")
+            new FieldError('objectName', 'field1', 'error1'),
+            new FieldError('objectName', 'field2', 'error2')
         ]
 
         when:
@@ -25,7 +24,7 @@ class ValidationRequestServiceSpec extends Specification {
 
         then:
         def e = thrown(Exception)
-        e.message == "field1: error1, field2: error2"
+        e.message == 'field1: error1, field2: error2'
     }
 
     def "test validateRequestWithException without errors"() {
@@ -39,4 +38,5 @@ class ValidationRequestServiceSpec extends Specification {
         then:
         noExceptionThrown()
     }
+
 }

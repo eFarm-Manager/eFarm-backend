@@ -7,7 +7,7 @@ class ERoleSpec extends Specification {
     // checking if ERole contains only expexted values
     def "should contain only the expected enum values - ERole enum"() {
         given:
-        Set<String> expectedValues = ["ROLE_FARM_MANAGER", "ROLE_FARM_EQUIPMENT_OPERATOR", "ROLE_FARM_OWNER"]
+        Set<String> expectedValues = ['ROLE_FARM_MANAGER', 'ROLE_FARM_EQUIPMENT_OPERATOR', 'ROLE_FARM_OWNER']
 
         when:
         Set<String> actualValues = ERole.values().collect { it.name() }
@@ -17,4 +17,5 @@ class ERoleSpec extends Specification {
         actualValues.containsAll(expectedValues)
         expectedValues.containsAll(actualValues)
     }
+
 }
