@@ -54,6 +54,11 @@ public class Farmfield {
         this.description = farmfield.description;
     }
 
+    public Farmfield(FarmfieldId id, Farm farm) {
+        this.id = id;
+        this.farm = farm;
+        this.isAvailable = true;
+    }
 
     public Farm getFarm() {
         return farm == null ? null : new Farm(farm);

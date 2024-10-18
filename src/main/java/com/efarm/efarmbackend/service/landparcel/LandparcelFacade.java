@@ -1,11 +1,16 @@
 package com.efarm.efarmbackend.service.landparcel;
 
 import com.efarm.efarmbackend.model.farm.Farm;
+import com.efarm.efarmbackend.model.farmfield.Farmfield;
+import com.efarm.efarmbackend.model.farmfield.FarmfieldId;
 import com.efarm.efarmbackend.model.landparcel.Landparcel;
 import com.efarm.efarmbackend.model.landparcel.LandparcelDTO;
+import com.efarm.efarmbackend.model.landparcel.LandparcelHasFarmfield;
 import com.efarm.efarmbackend.model.landparcel.LandparcelId;
 import com.efarm.efarmbackend.payload.request.landparcel.AddLandparcelRequest;
 import com.efarm.efarmbackend.payload.request.landparcel.UpdateLandparcelRequest;
+import com.efarm.efarmbackend.repository.farmfield.FarmfieldRepository;
+import com.efarm.efarmbackend.repository.landparcel.LandparcelHasFarmfieldRepository;
 import com.efarm.efarmbackend.repository.landparcel.LandparcelRepository;
 import com.efarm.efarmbackend.service.user.UserService;
 import jakarta.transaction.Transactional;
@@ -29,6 +34,12 @@ public class LandparcelFacade {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private FarmfieldRepository farmfieldRepository;
+
+    @Autowired
+    private LandparcelHasFarmfieldRepository landparcelHasFarmfieldRepository;
+    
     private static final Logger logger = LoggerFactory.getLogger(LandparcelFacade.class);
 
     @Transactional
@@ -43,6 +54,18 @@ public class LandparcelFacade {
         }
         landparcelService.addNewLandparcelData(landparcelDTO, landparcel);
         landparcelRepository.save(landparcel);
+
+        FarmfieldId farmfieldId = new FarmfieldId(farmfieldRepository.findNextFreeIdForFarm(loggedUserFarm.getId()), loggedUserFarm.getId());
+        Farmfield farmfield = new Farmfield(farmfieldId, loggedUserFarm);
+        farmfield.setName("Default Name"); 
+        farmfield.setArea(landparcelDTO.getArea());
+        farmfieldRepository.save(farmfield);
+        // Create and save a new LandparcelHasFarmfield
+        LandparcelHasFarmfield landparcelHasFarmfield = new LandparcelHasFarmfield();
+        landparcelHasFarmfield.setLandparcel(landparcel);
+        landparcelHasFarmfield.setFarmField(farmfield);
+        landparcelHasFarmfield.setFarmId(loggedUserFarm.getId());
+        landparcelHasFarmfieldRepository.save(landparcelHasFarmfield);
     }
 
     public LandparcelDTO getLandparcelDetails(Integer id) throws Exception {

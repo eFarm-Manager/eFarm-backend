@@ -44,4 +44,8 @@ public class FarmfieldId implements java.io.Serializable {
         return Objects.hash(id, farmId);
     }
 
+    public FarmfieldId(Integer id, Integer farmId) {
+        this.id = id;
+        this.farmId = farmId;
+    }
 }
