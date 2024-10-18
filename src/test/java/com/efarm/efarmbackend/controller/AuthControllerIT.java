@@ -18,12 +18,12 @@ import com.efarm.efarmbackend.model.farm.Farm;
 import com.efarm.efarmbackend.model.user.ERole;
 import com.efarm.efarmbackend.model.user.Role;
 import com.efarm.efarmbackend.model.user.User;
-import com.efarm.efarmbackend.payload.request.ChangePasswordRequest;
-import com.efarm.efarmbackend.payload.request.LoginRequest;
-import com.efarm.efarmbackend.payload.request.SignupFarmRequest;
-import com.efarm.efarmbackend.payload.request.SignupRequest;
-import com.efarm.efarmbackend.payload.request.UpdateActivationCodeByLoggedOwnerRequest;
-import com.efarm.efarmbackend.payload.request.UpdateActivationCodeRequest;
+import com.efarm.efarmbackend.payload.request.auth.ChangePasswordRequest;
+import com.efarm.efarmbackend.payload.request.auth.LoginRequest;
+import com.efarm.efarmbackend.payload.request.auth.SignupFarmRequest;
+import com.efarm.efarmbackend.payload.request.auth.SignupRequest;
+import com.efarm.efarmbackend.payload.request.auth.UpdateActivationCodeByLoggedOwnerRequest;
+import com.efarm.efarmbackend.payload.request.auth.UpdateActivationCodeRequest;
 import com.efarm.efarmbackend.security.services.UserDetailsImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -61,7 +61,9 @@ public class AuthControllerIT {
     public void clearSecurityContext() {
         SecurityContextHolder.clearContext();
     }
-
+    /*
+     * Post /signin
+     */
     @Test
     @DisplayName("Test successful signin of a existing user with role operator")
     void testSigninInSucessfulOperator() throws Exception {
@@ -235,13 +237,12 @@ public class AuthControllerIT {
         mockMvc.perform(post("/api/auth/signout"))
                 // Then
                 .andExpect(status().isOk())
-                .andExpect(header().string(HttpHeaders.SET_COOKIE, "jwtToken=; Path=/api"))
-                .andExpect(content().json("{\"message\":\"You've been signed out!\"}"));
-
-
+                .andExpect(header().string(HttpHeaders.SET_COOKIE, "jwtToken=; Path=/api; Secure; SameSite=None"))
+                .andExpect(jsonPath("$.message").value("Wylogowano"));
     }
-
-    //Singup User
+    /*
+     * POST /signup
+     */
 
     @Test
     @DisplayName("Test successful registration of a new user by manager")
@@ -273,7 +274,8 @@ public class AuthControllerIT {
                         .content(objectMapper.writeValueAsString(signUpRequest)))
                 // Then
                 .andExpect(status().isOk())
-                .andExpect(content().json("{\"message\":\"User registered successfully!\"}"));
+                .andExpect(jsonPath("$.message").value("Zarejestrowano nowego użytkownika!"));
+
     }
 
     @Test
@@ -373,11 +375,12 @@ public class AuthControllerIT {
                         .content(objectMapper.writeValueAsString(signUpRequest)))
                 // Then
                 .andExpect(status().isBadRequest())
-                .andExpect(content().json("{\"message\":\"Error: Username is already taken!\"}"));
+                .andExpect(jsonPath("$.message").value("Podana nazwa użytkownika jest już zajęta!"));
+
     }
-
-
-    // Signup farm
+    /*
+     * POST /signupfarm
+     */
     @Test
     @DisplayName("Tests sucessful user and farm registration")
     void testUserFarmRegistration() throws Exception {
@@ -404,7 +407,8 @@ public class AuthControllerIT {
                         .content(objectMapper.writeValueAsString(signUpFarmRequest)))
                 // Then
                 .andExpect(status().isOk())
-                .andExpect(content().json("{\"message\":\"Farm registered successfully!\"}"));
+                .andExpect(jsonPath("$.message").value("Pomyślnie zarejestrowano nową farmę!"));
+
     }
 
     @Test
@@ -459,7 +463,8 @@ public class AuthControllerIT {
                         .content(objectMapper.writeValueAsString(signUpFarmRequest)))
                 // Then
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string(containsString("Error: Username is already taken!")));
+                .andExpect(jsonPath("$.message").value("Wybrana nazwa użytkownika jest już zajęta!"));
+
     }
 
     @Test
@@ -489,7 +494,8 @@ public class AuthControllerIT {
                         .content(objectMapper.writeValueAsString(signUpFarmRequest)))
                 // Then
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string(containsString("Error: Farm Name is already taken!")));
+                .andExpect(jsonPath("$.message").value("Wybrana nazwa farmy jest już zajęta!"));
+
     }
 
     @Test
@@ -511,11 +517,13 @@ public class AuthControllerIT {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(signUpFarmRequest)))
                 // Then
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string(containsString("Activation code does not exist.")));
-    }
+                .andExpect(status().isBadRequest())                
+                .andExpect(jsonPath("$.message").value("Podany kod aktywacyjny nie istnieje!"));
 
-    // updateActivationCode
+    }
+    /*
+     * POST /update-activation-code
+     */
 
     @Test
     @DisplayName("Test updating activation code by owner")
@@ -557,7 +565,8 @@ public class AuthControllerIT {
                         .content(objectMapper.writeValueAsString(updateActivationCodeRequest)))
                 // Then
                 .andExpect(status().isOk())
-                .andExpect(content().json("{\"message\":\"Activation code updated successfully for the farm.\"}"));
+                .andExpect(jsonPath("$.message").value("Pomyślnie zaktualizowano kod aktywacyjny!"));
+
     }
 
     @Test
@@ -616,8 +625,9 @@ public class AuthControllerIT {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateActivationCodeRequest)))
                 // Then
-                .andExpect(status().isUnauthorized())
-                .andExpect(content().json("{\"message\":\"Brak uprawnień\"}"));
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Brak uprawnień"));
+
     }
 
     @Test
@@ -655,7 +665,8 @@ public class AuthControllerIT {
                         .content(objectMapper.writeValueAsString(updateActivationCodeRequest)))
                 // Then
                 .andExpect(status().isBadRequest())
-                .andExpect(content().json("{\"message\":\"Activation code does not exist.\"}"));
+                .andExpect(jsonPath("$.message").value("Podany kod aktywacyjny nie istnieje!"));
+
     }
 
     @Test
@@ -707,6 +718,9 @@ public class AuthControllerIT {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Zbyt wiele nieudanych prób. Spróbuj ponownie później."));
     }
+    /*
+     * PUT /update-activation-code
+     */
 
     @Test
     @DisplayName("Test updating activation code by logged in owner")
@@ -750,7 +764,7 @@ public class AuthControllerIT {
                         .content(objectMapper.writeValueAsString(updateActivationCodeByLoggedOwnerRequest)))
                 // Then
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Activation code updated successfully for the farm."));
+                .andExpect(jsonPath("$.message").value("Pomyślnie zaktualizowano kod aktywacyjny!"));
     }
 
     @Test
@@ -838,8 +852,11 @@ public class AuthControllerIT {
                         .content(objectMapper.writeValueAsString(updateActivationCodeByLoggedOwnerRequest)))
                 // Then
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Activation code has already been used."));
+                .andExpect(jsonPath("$.message").value("Podany kod aktywacyjny został już wykorzystany!"));
     }
+    /*
+     * PUT /change-password
+     */
 
     @Test
     @DisplayName("Test updating updating password by logged in user")

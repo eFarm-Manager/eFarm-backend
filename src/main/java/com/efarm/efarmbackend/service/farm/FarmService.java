@@ -5,20 +5,16 @@ import com.efarm.efarmbackend.model.farm.Farm;
 import com.efarm.efarmbackend.model.user.ERole;
 import com.efarm.efarmbackend.model.user.Role;
 import com.efarm.efarmbackend.model.user.User;
-import com.efarm.efarmbackend.payload.request.UpdateFarmDetailsRequest;
-import com.efarm.efarmbackend.payload.response.MessageResponse;
+import com.efarm.efarmbackend.payload.request.farm.UpdateFarmDetailsRequest;
 import com.efarm.efarmbackend.repository.farm.ActivationCodeRepository;
 import com.efarm.efarmbackend.repository.farm.FarmRepository;
 import com.efarm.efarmbackend.repository.user.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.net.URI;
+import java.nio.file.AccessDeniedException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -34,9 +30,6 @@ public class FarmService {
 
     @Autowired
     private UserRepository userRepository;
-
-    @Value("${efarm.app.frontend.updateActivationCodeUri}")
-    private String frontendUriToUpdateActivationCode;
 
     private static final Logger logger = LoggerFactory.getLogger(FarmService.class);
 
@@ -64,23 +57,17 @@ public class FarmService {
         }
     }
 
-    public ResponseEntity<?> checkFarmDeactivation(Farm userFarm, Role role) {
+    public void checkFarmDeactivation(Farm userFarm, Role role) throws Exception{
         if (!userFarm.getIsActive()) {
             if (role.getName() == ERole.ROLE_FARM_EQUIPMENT_OPERATOR ||
                     role.getName() == ERole.ROLE_FARM_MANAGER) {
-                return ResponseEntity
-                        .status(HttpStatus.FORBIDDEN)
-                        .body(new MessageResponse("Gospodarstwo jest nieaktywne. Kod aktywacyjny wygasł."));
+                throw new AccessDeniedException("Gospodarstwo jest nieaktywne. Kod aktywacyjny wygasł.");
             }
 
             if (role.getName() == ERole.ROLE_FARM_OWNER) {
-                return ResponseEntity
-                        .status(HttpStatus.FORBIDDEN)
-                        .location(URI.create(frontendUriToUpdateActivationCode))
-                        .body(new MessageResponse("Gospodarstwo jest nieaktywne. Podaj nowy kod aktywacyjny."));
+                throw new AccessDeniedException("Gospodarstwo jest nieaktywne. Podaj nowy kod aktywacyjny.");
             }
         }
-        return null;
     }
 
     public void updateFarmDetails(Farm loggedUserFarm , UpdateFarmDetailsRequest updateFarmDetailsRequest) {

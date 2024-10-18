@@ -1,7 +1,7 @@
 package com.efarm.efarmbackend.service.facades
 
 import com.efarm.efarmbackend.model.equipment.FarmEquipment
-import com.efarm.efarmbackend.model.equipment.FarmEquipmentDTO
+import com.efarm.efarmbackend.payload.request.equipment.AddUpdateFarmEquipmentRequest
 import com.efarm.efarmbackend.model.equipment.FarmEquipmentId
 import com.efarm.efarmbackend.model.equipment.EquipmentCategory
 import com.efarm.efarmbackend.model.farm.Farm
@@ -11,11 +11,10 @@ import com.efarm.efarmbackend.repository.equipment.FarmEquipmentRepository
 import com.efarm.efarmbackend.service.equipment.EquipmentDisplayDataService
 import com.efarm.efarmbackend.service.equipment.FarmEquipmentService
 import com.efarm.efarmbackend.repository.equipment.EquipmentCategoryRepository;
+import com.efarm.efarmbackend.model.equipment.FarmEquipmentShortDTO;
 import com.efarm.efarmbackend.service.ValidationRequestService;
 import com.efarm.efarmbackend.service.user.UserService
 import org.springframework.http.HttpStatus
-import org.springframework.validation.BindingResult;
-import org.springframework.http.ResponseEntity
 import com.efarm.efarmbackend.payload.response.MessageResponse;
 import spock.lang.Specification
 import spock.lang.Subject
@@ -28,7 +27,6 @@ class FarmEquipmentFacadeSpec extends Specification {
     def equipmentDisplayDataService = Mock(EquipmentDisplayDataService)
     def farmEquipmentService = Mock(FarmEquipmentService)
     def equipmentCategoryRepository = Mock(EquipmentCategoryRepository)
-    def validationRequestService = Mock(ValidationRequestService)
 
     @Subject
     FarmEquipmentFacade farmEquipmentFacade = new FarmEquipmentFacade(
@@ -37,7 +35,6 @@ class FarmEquipmentFacadeSpec extends Specification {
             equipmentDisplayDataService: equipmentDisplayDataService,
             farmEquipmentService: farmEquipmentService,
             equipmentCategoryRepository: equipmentCategoryRepository,
-            validationRequestService: validationRequestService
     )
     /*
         getFarmEquipment
@@ -74,12 +71,11 @@ class FarmEquipmentFacadeSpec extends Specification {
         farmEquipmentRepository.findByFarmIdFarm_Id(farmId) >> [equipment1, equipment2]
 
         when:
-        ResponseEntity<List<FarmEquipmentDTO>> result = farmEquipmentFacade.getFarmEquipment(searchQuery)
+        List<FarmEquipmentShortDTO> result = farmEquipmentFacade.getFarmEquipment(searchQuery)
 
         then:
-        result.getStatusCode() == HttpStatus.OK
-        result.body.size() == 1
-        result.body.equipmentName == ["Tractor"]
+        result.size() == 1
+        result.equipmentName == ["Tractor"]
     }
 
     def "should return all with search query case that will get brand"() {
@@ -114,12 +110,11 @@ class FarmEquipmentFacadeSpec extends Specification {
         farmEquipmentRepository.findByFarmIdFarm_Id(farmId) >> [equipment1, equipment2]
 
         when:
-        ResponseEntity<List<FarmEquipmentDTO>> result = farmEquipmentFacade.getFarmEquipment(searchQuery)
+        List<FarmEquipmentShortDTO> result = farmEquipmentFacade.getFarmEquipment(searchQuery)
 
         then:
-        result.getStatusCode() == HttpStatus.OK
-        result.body.size() == 1
-        result.body.equipmentName == ["Tractor"]
+        result.size() == 1
+        result.equipmentName == ["Tractor"]
     }
 
     def "should return nothing with search query doesnt exist since it doesnt exist"() {
@@ -154,12 +149,11 @@ class FarmEquipmentFacadeSpec extends Specification {
         farmEquipmentRepository.findByFarmIdFarm_Id(farmId) >> [equipment1, equipment2]
 
         when:
-        ResponseEntity<List<FarmEquipmentDTO>> result = farmEquipmentFacade.getFarmEquipment(searchQuery)
+        List<FarmEquipmentShortDTO> result = farmEquipmentFacade.getFarmEquipment(searchQuery)
 
         then:
-        result.getStatusCode() == HttpStatus.OK
-        result.body.size() == 0
-        result.body.equipmentName == []
+        result.size() == 0
+        result.equipmentName == []
     }
     /*
         getEquipmentDetails
@@ -192,7 +186,7 @@ class FarmEquipmentFacadeSpec extends Specification {
         farmEquipmentRepository.findById(farmEquipmentId) >> Optional.of(equipment)
         equipmentDisplayDataService.getFieldsForCategory(equipment.getCategory().getCategoryName()) >> fields
 
-        farmEquipmentService.createFarmEquipmentDTOtoDisplay(equipment, fields) >> Mock(FarmEquipmentDTO) {
+        farmEquipmentService.createFarmEquipmentDTOtoDisplay(equipment, fields) >> Mock(AddUpdateFarmEquipmentRequest) {
             getEquipmentId() >> equipmentId
             getEquipmentName() >> "Tractor X"
             getCategory() >> "Ciągniki rolnicze"
@@ -207,21 +201,20 @@ class FarmEquipmentFacadeSpec extends Specification {
         }
 
         when:
-        ResponseEntity<?> response = farmEquipmentFacade.getEquipmentDetails(equipmentId)
+        AddUpdateFarmEquipmentRequest response = farmEquipmentFacade.getEquipmentDetails(equipmentId)
 
         then:
-        response.getStatusCode() == HttpStatus.OK
-        response.body.equipmentId == equipmentId
-        response.body.equipmentName == "Tractor X"
-        response.body.category == "Ciągniki rolnicze"
-        response.body.brand == "Brand X"
-        response.body.model == "Model X"
-        response.body.power == 120
-        response.body.capacity == null
-        response.body.workingWidth == null
-        response.body.insurancePolicyNumber == "78156"
-        response.body.insuranceExpirationDate == LocalDate.of(2025, 12, 31)
-        response.body.inspectionExpireDate == LocalDate.of(2024, 12, 31)
+        response.equipmentId == equipmentId
+        response.equipmentName == "Tractor X"
+        response.category == "Ciągniki rolnicze"
+        response.brand == "Brand X"
+        response.model == "Model X"
+        response.power == 120
+        response.capacity == null
+        response.workingWidth == null
+        response.insurancePolicyNumber == "78156"
+        response.insuranceExpirationDate == LocalDate.of(2025, 12, 31)
+        response.inspectionExpireDate == LocalDate.of(2024, 12, 31)
     }
 
     def "should return 400 when equipment is not found"() {
@@ -237,11 +230,11 @@ class FarmEquipmentFacadeSpec extends Specification {
         farmEquipmentRepository.findById(farmEquipmentId) >> Optional.empty()
 
         when:
-        ResponseEntity<?> response = farmEquipmentFacade.getEquipmentDetails(equipmentId)
+        farmEquipmentFacade.getEquipmentDetails(equipmentId)
 
         then:
-        response.getStatusCode() == HttpStatus.BAD_REQUEST
-        response.body.message == "Nie znaleziono maszyny o id: ${equipmentId}"
+        RuntimeException e = thrown(RuntimeException)
+        e.message == "Nie znaleziono maszyny o id: ${equipmentId}"
     }
 
     def "should handle case when some fields to display do not exist on equipment"() {
@@ -271,7 +264,7 @@ class FarmEquipmentFacadeSpec extends Specification {
         farmEquipmentRepository.findById(farmEquipmentId) >> Optional.of(equipment)
         equipmentDisplayDataService.getFieldsForCategory(equipment.getCategory().getCategoryName()) >> fields
 
-        farmEquipmentService.createFarmEquipmentDTOtoDisplay(equipment, fields) >> Mock(FarmEquipmentDTO) {
+        farmEquipmentService.createFarmEquipmentDTOtoDisplay(equipment, fields) >> Mock(AddUpdateFarmEquipmentRequest) {
             getEquipmentId() >> equipmentId
             getEquipmentName() >> "Tractor X"
             getCategory() >> "Ciągniki rolnicze"
@@ -283,29 +276,27 @@ class FarmEquipmentFacadeSpec extends Specification {
         }
 
         when:
-        ResponseEntity<?> response = farmEquipmentFacade.getEquipmentDetails(equipmentId)
+        AddUpdateFarmEquipmentRequest response = farmEquipmentFacade.getEquipmentDetails(equipmentId)
 
         then:
-        response.getStatusCode() == HttpStatus.OK
-        response.body.equipmentId == equipmentId
-        response.body.equipmentName == "Tractor X"
-        response.body.category == "Ciągniki rolnicze"
-        response.body.brand == "Brand X"
-        response.body.model == "Model X"
-        response.body.power == 120
-        response.body.capacity == null
-        response.body.workingWidth == 5.5
+        response.equipmentId == equipmentId
+        response.equipmentName == "Tractor X"
+        response.category == "Ciągniki rolnicze"
+        response.brand == "Brand X"
+        response.model == "Model X"
+        response.power == 120
+        response.capacity == null
+        response.workingWidth == 5.5
     }
     /*
         addNewFarmEquipment
     */
     def "should add new farming equipment"() {
         given:
-        BindingResult bindingResult = Mock(BindingResult)
         Farm farm = Mock(Farm) {
             getId() >> 5
         }
-        FarmEquipmentDTO farmEquipmentDTO = Mock(FarmEquipmentDTO) {
+        AddUpdateFarmEquipmentRequest farmEquipmentDTO = Mock(AddUpdateFarmEquipmentRequest) {
             getEquipmentName() >> "Tractor X"
             getCategory() >> "Ciągniki rolnicze"
             getBrand() >> "Brand X"
@@ -318,7 +309,6 @@ class FarmEquipmentFacadeSpec extends Specification {
             getCategoryName() >> "Ciągniki rolnicze"
         }
 
-        validationRequestService.validateRequest(bindingResult) >> null
         userService.getLoggedUserFarm() >> farm
         farmEquipmentRepository.findNextFreeIdForFarm(farm.getId()) >> 1
         equipmentCategoryRepository.findByCategoryName(farmEquipmentDTO.getCategory()) >> equipmentCategory
@@ -330,55 +320,32 @@ class FarmEquipmentFacadeSpec extends Specification {
         farmEquipmentService.setSpecificFieldsForCategory(farmEquipmentDTO, equipment, farmEquipmentDTO.getCategory()) >> { /* No-op */ }
 
         when:
-        ResponseEntity<?> response = farmEquipmentFacade.addNewFarmEquipment(farmEquipmentDTO, bindingResult)
+     	MessageResponse response = farmEquipmentFacade.addNewFarmEquipment(farmEquipmentDTO)
 
         then:
         1 * farmEquipmentRepository.save(_ as FarmEquipment)
-        response.statusCode == HttpStatus.CREATED
-        response.body.message == "Pomyślnie dodano nową maszynę"     
-    }
-
-    def "should return validation error if binding result has errors"() {
-        given:
-        BindingResult bindingResult = Mock(BindingResult) {
-            hasErrors() >> true
-        }
-        ResponseEntity<?> validationErrorResponse = ResponseEntity.badRequest().body(new MessageResponse("Validation failed"))
-        validationRequestService.validateRequest(bindingResult) >> validationErrorResponse
-
-        when:
-        ResponseEntity<?> response = farmEquipmentFacade.addNewFarmEquipment(Mock(FarmEquipmentDTO), bindingResult)
-
-        then:
-        response == validationErrorResponse
-        response.statusCode == HttpStatus.BAD_REQUEST
-        response.body.message == "Validation failed"
-        0 * farmEquipmentRepository.save(_)
+        response.message == "Pomyślnie dodano nową maszynę"     
     }
 
     def "should return error if equipment with the same name already exists"() {
         given:
-        BindingResult bindingResult = Mock(BindingResult) {
-            hasErrors() >> false
-        }
         Farm farm = Mock(Farm) {
             getId() >> 5
         }
-        FarmEquipmentDTO farmEquipmentDTO = Mock(FarmEquipmentDTO) {
+        AddUpdateFarmEquipmentRequest farmEquipmentDTO = Mock(AddUpdateFarmEquipmentRequest) {
             getEquipmentName() >> "Tractor X"
             getCategory() >> "Ciągniki rolnicze"
         }
 
-        validationRequestService.validateRequest(bindingResult) >> null
         userService.getLoggedUserFarm() >> farm
         farmEquipmentRepository.existsByEquipmentNameAndFarmIdFarm(farmEquipmentDTO.getEquipmentName(), farm) >> true
 
         when:
-        ResponseEntity<?> response = farmEquipmentFacade.addNewFarmEquipment(farmEquipmentDTO, bindingResult)
+       	farmEquipmentFacade.addNewFarmEquipment(farmEquipmentDTO)
 
         then:
-        response.statusCode == HttpStatus.BAD_REQUEST
-        response.body.message == "Maszyna o podanej nazwie już istnieje"
+	RuntimeException e = thrown(RuntimeException)
+	e.message == "Maszyna o podanej nazwie już istnieje"
         0 * farmEquipmentRepository.save(_)
     }
     /*
@@ -387,13 +354,10 @@ class FarmEquipmentFacadeSpec extends Specification {
 
     def "should update farm equipment successfully"() {
         given:
-        BindingResult bindingResult = Mock(BindingResult) {
-            hasErrors() >> false
-        }
         Farm farm = Mock(Farm) {
             getId() >> 5
         }
-        FarmEquipmentDTO farmEquipmentDTO = Mock(FarmEquipmentDTO) {
+        AddUpdateFarmEquipmentRequest farmEquipmentDTO = Mock(AddUpdateFarmEquipmentRequest) {
             getEquipmentName() >> "Tractor X"
             getCategory() >> "Ciągniki rolnicze"
             getBrand() >> "Brand X"
@@ -410,70 +374,45 @@ class FarmEquipmentFacadeSpec extends Specification {
         }
         FarmEquipmentId farmEquipmentId = new FarmEquipmentId(1, farm.getId())
 
-        validationRequestService.validateRequest(bindingResult) >> null
         userService.getLoggedUserFarm() >> farm
         farmEquipmentRepository.findById(farmEquipmentId) >> Optional.of(equipment)
         farmEquipmentRepository.existsByEquipmentNameAndFarmIdFarm(farmEquipmentDTO.getEquipmentName(), farm) >> false
 
         when:
-        ResponseEntity<?> response = farmEquipmentFacade.updateFarmEquipment(1, farmEquipmentDTO, bindingResult)
+        MessageResponse response = farmEquipmentFacade.updateFarmEquipment(1, farmEquipmentDTO)
 
         then:
         1 * farmEquipmentService.setCommonFieldsForCategory(farmEquipmentDTO, equipment)
         1 * farmEquipmentService.setSpecificFieldsForCategory(farmEquipmentDTO, equipment, "Ciągniki rolnicze")
         1 * farmEquipmentRepository.save(equipment)
-        response.statusCode == HttpStatus.OK
-        response.body.message == "Pomyślnie zaktualizowane dane maszyny."
-    }
-
-    def "should return validation error when binding result has errors"() {
-        given:
-        BindingResult bindingResult = Mock(BindingResult) {
-            hasErrors() >> true
-        }
-        validationRequestService.validateRequest(bindingResult) >> ResponseEntity.badRequest().body(new MessageResponse("Validation failed"))
-
-        when:
-        ResponseEntity<?> response = farmEquipmentFacade.updateFarmEquipment(1, Mock(FarmEquipmentDTO), bindingResult)
-
-        then:
-        response.statusCode == HttpStatus.BAD_REQUEST
-        response.body.message == "Validation failed"
-        0 * farmEquipmentRepository.save(_)
+        response.message == "Pomyślnie zaktualizowane dane maszyny."
     }
 
     def "should return error when equipment is not found"() {
         given:
-        BindingResult bindingResult = Mock(BindingResult) {
-            hasErrors() >> false
-        }
         Farm farm = Mock(Farm) {
             getId() >> 5
         }
         FarmEquipmentId farmEquipmentId = new FarmEquipmentId(1, farm.getId())
 
-        validationRequestService.validateRequest(bindingResult) >> null
         userService.getLoggedUserFarm() >> farm
         farmEquipmentRepository.findById(farmEquipmentId) >> Optional.empty()
 
         when:
-        ResponseEntity<?> response = farmEquipmentFacade.updateFarmEquipment(1, Mock(FarmEquipmentDTO), bindingResult)
+        MessageResponse response = farmEquipmentFacade.updateFarmEquipment(1, Mock(AddUpdateFarmEquipmentRequest))
 
         then:
-        response.statusCode == HttpStatus.BAD_REQUEST
-        response.body.message == "Nie znaleziono maszyny o id: 1"
+	RuntimeException e = thrown(RuntimeException)
+	e.message == "Nie znaleziono maszyny o id: 1"
         0 * farmEquipmentRepository.save(_)
     }
 
     def "should return error when equipment is already available with the same name"() {
         given:
-        BindingResult bindingResult = Mock(BindingResult) {
-            hasErrors() >> false
-        }
         Farm farm = Mock(Farm) {
             getId() >> 5
         }
-        FarmEquipmentDTO farmEquipmentDTO = Mock(FarmEquipmentDTO) {
+        AddUpdateFarmEquipmentRequest farmEquipmentDTO = Mock(AddUpdateFarmEquipmentRequest) {
             getEquipmentName() >> "Tractor X"
         }
         FarmEquipment equipment = Mock(FarmEquipment) {
@@ -481,29 +420,25 @@ class FarmEquipmentFacadeSpec extends Specification {
         }
         FarmEquipmentId farmEquipmentId = new FarmEquipmentId(1, farm.getId())
 
-        validationRequestService.validateRequest(bindingResult) >> null
         userService.getLoggedUserFarm() >> farm
         farmEquipmentRepository.findById(farmEquipmentId) >> Optional.of(equipment)
         farmEquipmentRepository.existsByEquipmentNameAndFarmIdFarm(farmEquipmentDTO.getEquipmentName(), farm) >> true
 
         when:
-        ResponseEntity<?> response = farmEquipmentFacade.updateFarmEquipment(1, farmEquipmentDTO, bindingResult)
+        MessageResponse response = farmEquipmentFacade.updateFarmEquipment(1, farmEquipmentDTO)
 
         then:
-        response.statusCode == HttpStatus.BAD_REQUEST
-        response.body.message == "Maszyna o podanej nazwie już występuje w gospodarstwie"
+	RuntimeException e = thrown(RuntimeException)
+	e.message == "Maszyna o podanej nazwie już występuje w gospodarstwie"
         0 * farmEquipmentRepository.save(_)
     }
 
     def "should return error when equipment is not available"() {
         given:
-        BindingResult bindingResult = Mock(BindingResult) {
-            hasErrors() >> false
-        }
         Farm farm = Mock(Farm) {
             getId() >> 5
         }
-        FarmEquipmentDTO farmEquipmentDTO = Mock(FarmEquipmentDTO) {
+        AddUpdateFarmEquipmentRequest farmEquipmentDTO = Mock(AddUpdateFarmEquipmentRequest) {
             getEquipmentName() >> "Tractor X"
         }
         FarmEquipment equipment = Mock(FarmEquipment) {
@@ -511,16 +446,15 @@ class FarmEquipmentFacadeSpec extends Specification {
         }
         FarmEquipmentId farmEquipmentId = new FarmEquipmentId(1, farm.getId())
 
-        validationRequestService.validateRequest(bindingResult) >> null
         userService.getLoggedUserFarm() >> farm
         farmEquipmentRepository.findById(farmEquipmentId) >> Optional.of(equipment)
 
         when:
-        ResponseEntity<?> response = farmEquipmentFacade.updateFarmEquipment(1, farmEquipmentDTO, bindingResult)
+        farmEquipmentFacade.updateFarmEquipment(1, farmEquipmentDTO)
 
         then:
-        response.statusCode == HttpStatus.BAD_REQUEST
-        response.body.message == "Wybrany sprzęt już nie istnieje"
+	RuntimeException e = thrown(RuntimeException)
+	e.message == "Wybrany sprzęt już nie istnieje"
         0 * farmEquipmentRepository.save(_)
     }
 
@@ -542,13 +476,12 @@ class FarmEquipmentFacadeSpec extends Specification {
         farmEquipmentRepository.findById(farmEquipmentId) >> Optional.of(equipment)
 
         when:
-        ResponseEntity<?> response = farmEquipmentFacade.deleteFarmEquipment(1)
+        MessageResponse response = farmEquipmentFacade.deleteFarmEquipment(1)
 
         then:
         1 * equipment.setIsAvailable(false)
         1 * farmEquipmentRepository.save(equipment)
-        response.statusCode == HttpStatus.OK
-        response.body.message == "Pomyślnie usunięto maszynę"
+        response.message == "Pomyślnie usunięto maszynę"
     }
 
     def "should return error when equipment is not found"() {
@@ -562,11 +495,11 @@ class FarmEquipmentFacadeSpec extends Specification {
         farmEquipmentRepository.findById(farmEquipmentId) >> Optional.empty()
     
         when:
-        ResponseEntity<?> response = farmEquipmentFacade.deleteFarmEquipment(1)
+        farmEquipmentFacade.deleteFarmEquipment(1)
     
         then:
-        response.statusCode == HttpStatus.BAD_REQUEST
-        response.body.message == "Nie znaleziono maszyny o id: 1"
+	RuntimeException e = thrown(RuntimeException)
+	e.message == "Nie znaleziono maszyny o id: 1"
         0 * farmEquipmentRepository.save(_)
     }
     
@@ -584,11 +517,11 @@ class FarmEquipmentFacadeSpec extends Specification {
         farmEquipmentRepository.findById(farmEquipmentId) >> Optional.of(equipment)
     
         when:
-        ResponseEntity<?> response = farmEquipmentFacade.deleteFarmEquipment(1)
+        farmEquipmentFacade.deleteFarmEquipment(1)
     
         then:
-        response.statusCode == HttpStatus.BAD_REQUEST
-        response.body.message == "Wybrana maszyna została już usunięta"
+	RuntimeException e = thrown(RuntimeException)
+	e.message == "Wybrana maszyna została już usunięta"
         0 * farmEquipmentRepository.save(_)
     }
 

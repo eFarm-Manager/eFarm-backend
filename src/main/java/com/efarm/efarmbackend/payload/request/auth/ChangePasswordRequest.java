@@ -1,4 +1,4 @@
-package com.efarm.efarmbackend.payload.request;
+package com.efarm.efarmbackend.payload.request.auth;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

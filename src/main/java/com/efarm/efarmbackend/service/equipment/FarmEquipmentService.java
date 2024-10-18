@@ -1,7 +1,7 @@
 package com.efarm.efarmbackend.service.equipment;
 
 import com.efarm.efarmbackend.model.equipment.FarmEquipment;
-import com.efarm.efarmbackend.model.equipment.FarmEquipmentDTO;
+import com.efarm.efarmbackend.payload.request.equipment.AddUpdateFarmEquipmentRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,8 +13,8 @@ public class FarmEquipmentService {
     @Autowired
     private EquipmentDisplayDataService equipmentDisplayDataService;
 
-    public static FarmEquipmentDTO createFarmEquipmentDTOtoDisplay(FarmEquipment equipment, List<String> fieldsToDisplay) {
-        FarmEquipmentDTO equipmentDetailDTO = new FarmEquipmentDTO(
+    public static AddUpdateFarmEquipmentRequest createFarmEquipmentDTOtoDisplay(FarmEquipment equipment, List<String> fieldsToDisplay) {
+        AddUpdateFarmEquipmentRequest equipmentDetailDTO = new AddUpdateFarmEquipmentRequest(
                 equipment.getId().getId(),
                 equipment.getEquipmentName(),
                 equipment.getCategory().getCategoryName(),
@@ -43,49 +43,49 @@ public class FarmEquipmentService {
         return equipmentDetailDTO;
     }
 
-    public void setSpecificFieldsForCategory(FarmEquipmentDTO farmEquipmentDTO, FarmEquipment equipment, String categoryName) {
+    public void setSpecificFieldsForCategory(AddUpdateFarmEquipmentRequest addUpdateFarmEquipmentRequest, FarmEquipment equipment, String categoryName) {
         List<String> fieldsForCategory = equipmentDisplayDataService.getFieldsForCategory(categoryName);
         if (fieldsForCategory.contains("power")) {
-            if (farmEquipmentDTO.getPower() != null) {
-                equipment.setPower(farmEquipmentDTO.getPower());
+            if (addUpdateFarmEquipmentRequest.getPower() != null) {
+                equipment.setPower(addUpdateFarmEquipmentRequest.getPower());
             }
         }
         if (fieldsForCategory.contains("capacity")) {
-            if (farmEquipmentDTO.getCapacity() != null) {
-                equipment.setCapacity(farmEquipmentDTO.getCapacity());
+            if (addUpdateFarmEquipmentRequest.getCapacity() != null) {
+                equipment.setCapacity(addUpdateFarmEquipmentRequest.getCapacity());
             }
         }
         if (fieldsForCategory.contains("workingWidth")) {
-            if (farmEquipmentDTO.getWorkingWidth() != null) {
-                equipment.setWorkingWidth(farmEquipmentDTO.getWorkingWidth());
+            if (addUpdateFarmEquipmentRequest.getWorkingWidth() != null) {
+                equipment.setWorkingWidth(addUpdateFarmEquipmentRequest.getWorkingWidth());
             }
         }
         if (fieldsForCategory.contains("insurancePolicyNumber")) {
-            if (farmEquipmentDTO.getInsurancePolicyNumber() != null) {
-                equipment.setInsurancePolicyNumber(farmEquipmentDTO.getInsurancePolicyNumber());
+            if (addUpdateFarmEquipmentRequest.getInsurancePolicyNumber() != null) {
+                equipment.setInsurancePolicyNumber(addUpdateFarmEquipmentRequest.getInsurancePolicyNumber());
             }
         }
         if (fieldsForCategory.contains("insuranceExpirationDate")) {
-            if (farmEquipmentDTO.getInsuranceExpirationDate() != null) {
-                equipment.setInsuranceExpirationDate(farmEquipmentDTO.getInsuranceExpirationDate());
+            if (addUpdateFarmEquipmentRequest.getInsuranceExpirationDate() != null) {
+                equipment.setInsuranceExpirationDate(addUpdateFarmEquipmentRequest.getInsuranceExpirationDate());
             }
         }
         if (fieldsForCategory.contains("inspectionExpireDate")) {
-            if (farmEquipmentDTO.getInspectionExpireDate() != null) {
-                equipment.setInspectionExpireDate(farmEquipmentDTO.getInspectionExpireDate());
+            if (addUpdateFarmEquipmentRequest.getInspectionExpireDate() != null) {
+                equipment.setInspectionExpireDate(addUpdateFarmEquipmentRequest.getInspectionExpireDate());
             }
         }
     }
 
-    public void setCommonFieldsForCategory(FarmEquipmentDTO farmEquipmentDTO, FarmEquipment equipment) {
-        if(farmEquipmentDTO.getEquipmentName() != null) {
-            equipment.setEquipmentName(farmEquipmentDTO.getEquipmentName());
+    public void setCommonFieldsForCategory(AddUpdateFarmEquipmentRequest addUpdateFarmEquipmentRequest, FarmEquipment equipment) {
+        if(addUpdateFarmEquipmentRequest.getEquipmentName() != null) {
+            equipment.setEquipmentName(addUpdateFarmEquipmentRequest.getEquipmentName());
         }
-        if(farmEquipmentDTO.getBrand() != null) {
-            equipment.setBrand(farmEquipmentDTO.getBrand());
+        if(addUpdateFarmEquipmentRequest.getBrand() != null) {
+            equipment.setBrand(addUpdateFarmEquipmentRequest.getBrand());
         }
-        if(farmEquipmentDTO.getModel() != null) {
-            equipment.setModel(farmEquipmentDTO.getModel());
+        if(addUpdateFarmEquipmentRequest.getModel() != null) {
+            equipment.setModel(addUpdateFarmEquipmentRequest.getModel());
         }
     }
 }

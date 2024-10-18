@@ -9,26 +9,22 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.validation.BindingResult;
 
-import com.efarm.efarmbackend.model.equipment.EquipmentCategoryDTO;
 import com.efarm.efarmbackend.model.equipment.FarmEquipment;
-import com.efarm.efarmbackend.model.equipment.FarmEquipmentDTO;
+import com.efarm.efarmbackend.payload.request.equipment.AddUpdateFarmEquipmentRequest;
 import com.efarm.efarmbackend.model.equipment.FarmEquipmentId;
 import com.efarm.efarmbackend.model.farm.Farm;
 import com.efarm.efarmbackend.model.user.User;
-import com.efarm.efarmbackend.payload.response.MessageResponse;
 import com.efarm.efarmbackend.security.services.UserDetailsImpl;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.efarm.efarmbackend.model.equipment.FarmEquipmentShortDTO;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.EntityManager;
@@ -39,7 +35,6 @@ import java.nio.charset.StandardCharsets;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -94,8 +89,8 @@ public class FarmEquipmentControllerIT {
                 .andReturn();
 
         //then
-        List<FarmEquipmentDTO> equipmentDTOs = new ObjectMapper().readValue(result.getResponse().getContentAsString(),
-                new TypeReference<List<FarmEquipmentDTO>>() {
+        List<FarmEquipmentShortDTO> equipmentDTOs = new ObjectMapper().readValue(result.getResponse().getContentAsString(),
+                new TypeReference<List<FarmEquipmentShortDTO>>() {
                 });
 
         assertThat(equipmentDTOs.size(), is(equipmentCount.intValue()));
@@ -123,8 +118,8 @@ public class FarmEquipmentControllerIT {
                 .andReturn();
 
         //then
-        List<FarmEquipmentDTO> equipmentDTOs = new ObjectMapper().readValue(result.getResponse().getContentAsString(),
-                new TypeReference<List<FarmEquipmentDTO>>() {
+        List<FarmEquipmentShortDTO> equipmentDTOs = new ObjectMapper().readValue(result.getResponse().getContentAsString(),
+                new TypeReference<List<FarmEquipmentShortDTO>>() {
                 });
 
         assertThat(equipmentDTOs.size(), is(equipmentCount.intValue()));
@@ -147,7 +142,7 @@ public class FarmEquipmentControllerIT {
 
         //then
         String jsonResponse = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        FarmEquipmentDTO equipmentDTO = objectMapper.readValue(jsonResponse, new TypeReference<FarmEquipmentDTO>() {
+        AddUpdateFarmEquipmentRequest equipmentDTO = objectMapper.readValue(jsonResponse, new TypeReference<AddUpdateFarmEquipmentRequest>() {
         });
         assertThat(equipmentDTO.getEquipmentName(), is(firstEquipment.getEquipmentName()));
         assertThat(equipmentDTO.getEquipmentId(), is(firstEquipment.getId().getId()));
@@ -161,13 +156,13 @@ public class FarmEquipmentControllerIT {
     public void testUpdateFarmEquipmentSuccess() throws Exception {
         // Given
         Integer equipmentId = 1;
-        FarmEquipmentDTO farmEquipmentDTO = new FarmEquipmentDTO();
-        farmEquipmentDTO.setEquipmentName("Updated Name");
+        AddUpdateFarmEquipmentRequest addUpdateFarmEquipmentRequest = new AddUpdateFarmEquipmentRequest();
+        addUpdateFarmEquipmentRequest.setEquipmentName("Updated Name");
 
         //when
         mockMvc.perform(put("/api/equipment/{equipmentId}", equipmentId)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(farmEquipmentDTO)))
+                .content(objectMapper.writeValueAsString(addUpdateFarmEquipmentRequest)))
                 .andDo(print())
         //then
                 .andExpect(status().isOk())
@@ -179,13 +174,13 @@ public class FarmEquipmentControllerIT {
     public void testUpdateFarmEquipmentNotFound() throws Exception {
         // Given
         Integer equipmentId = 999; 
-        FarmEquipmentDTO farmEquipmentDTO = new FarmEquipmentDTO();
-        farmEquipmentDTO.setEquipmentName("Updated Name");
+        AddUpdateFarmEquipmentRequest addUpdateFarmEquipmentRequest = new AddUpdateFarmEquipmentRequest();
+        addUpdateFarmEquipmentRequest.setEquipmentName("Updated Name");
     
         // When
         mockMvc.perform(put("/api/equipment/{equipmentId}", equipmentId)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(farmEquipmentDTO)))
+                .content(objectMapper.writeValueAsString(addUpdateFarmEquipmentRequest)))
                 .andDo(print())
         //then
                 .andExpect(status().isBadRequest()) 
@@ -200,8 +195,8 @@ public class FarmEquipmentControllerIT {
                 "SELECT e from FarmEquipment e WHERE e.isAvailable = :available", FarmEquipment.class)
         .setParameter("available", false)
         .getSingleResult();
-        FarmEquipmentDTO farmEquipmentDTO = new FarmEquipmentDTO();
-        farmEquipmentDTO.setEquipmentName("Updated Name");
+        AddUpdateFarmEquipmentRequest addUpdateFarmEquipmentRequest = new AddUpdateFarmEquipmentRequest();
+        addUpdateFarmEquipmentRequest.setEquipmentName("Updated Name");
         SecurityContextHolder.clearContext();
 
         Farm farm = entityManager.find(Farm.class, farmEquipment.getId().getFarmId());
@@ -220,7 +215,7 @@ public class FarmEquipmentControllerIT {
         // When
         mockMvc.perform(put("/api/equipment/{equipmentId}", farmEquipment.getId().getId())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(farmEquipmentDTO)))
+                .content(objectMapper.writeValueAsString(addUpdateFarmEquipmentRequest)))
                 .andDo(print())
         //then
                 .andExpect(status().isBadRequest()) 
@@ -252,8 +247,8 @@ public class FarmEquipmentControllerIT {
                 "SELECT e from FarmEquipment e WHERE e.isAvailable = :available", FarmEquipment.class)
         .setParameter("available", false)
         .getSingleResult();
-        FarmEquipmentDTO farmEquipmentDTO = new FarmEquipmentDTO();
-        farmEquipmentDTO.setEquipmentName("Updated Name");
+        AddUpdateFarmEquipmentRequest addUpdateFarmEquipmentRequest = new AddUpdateFarmEquipmentRequest();
+        addUpdateFarmEquipmentRequest.setEquipmentName("Updated Name");
         SecurityContextHolder.clearContext();
 
         Farm farm = entityManager.find(Farm.class, farmEquipment.getId().getFarmId());
@@ -302,18 +297,18 @@ public class FarmEquipmentControllerIT {
     @DisplayName("Test successfully adding new farm equipment")
     public void testAddNewFarmEquipmentSuccess() throws Exception {
         // Given
-        FarmEquipmentDTO farmEquipmentDTO = new FarmEquipmentDTO();
-        farmEquipmentDTO.setEquipmentName("Tractor X");
-        farmEquipmentDTO.setCategory("Ciągniki rolnicze");
-        farmEquipmentDTO.setBrand("Brand X");
-        farmEquipmentDTO.setModel("Model X");
-        farmEquipmentDTO.setPower(120);
-        farmEquipmentDTO.setWorkingWidth(5.5);
+        AddUpdateFarmEquipmentRequest addUpdateFarmEquipmentRequest = new AddUpdateFarmEquipmentRequest();
+        addUpdateFarmEquipmentRequest.setEquipmentName("Tractor X");
+        addUpdateFarmEquipmentRequest.setCategory("Ciągniki rolnicze");
+        addUpdateFarmEquipmentRequest.setBrand("Brand X");
+        addUpdateFarmEquipmentRequest.setModel("Model X");
+        addUpdateFarmEquipmentRequest.setPower(120);
+        addUpdateFarmEquipmentRequest.setWorkingWidth(5.5);
     
         // When
         mockMvc.perform(post("/api/equipment/new")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(farmEquipmentDTO)))
+                .content(objectMapper.writeValueAsString(addUpdateFarmEquipmentRequest)))
                 .andDo(print())
         //then
                 .andExpect(status().isCreated())
@@ -324,16 +319,16 @@ public class FarmEquipmentControllerIT {
     @DisplayName("Test adding farm equipment with duplicate name")
     public void testAddFarmEquipmentDuplicateName() throws Exception {
         // Given
-        FarmEquipmentDTO farmEquipmentDTO = new FarmEquipmentDTO();
+        AddUpdateFarmEquipmentRequest addUpdateFarmEquipmentRequest = new AddUpdateFarmEquipmentRequest();
         FarmEquipmentId farmEquipmentId = new FarmEquipmentId(1,1);
         FarmEquipment farmEquipment = entityManager.find(FarmEquipment.class,farmEquipmentId );
-        farmEquipmentDTO.setEquipmentName(farmEquipment.getEquipmentName()); 
-        farmEquipmentDTO.setCategory("Ciągniki rolnicze");
+        addUpdateFarmEquipmentRequest.setEquipmentName(farmEquipment.getEquipmentName());
+        addUpdateFarmEquipmentRequest.setCategory("Ciągniki rolnicze");
         
         // When 
         mockMvc.perform(post("/api/equipment/new")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(farmEquipmentDTO)))
+                .content(objectMapper.writeValueAsString(addUpdateFarmEquipmentRequest)))
                 .andDo(print())
         //then
                 .andExpect(status().isBadRequest())

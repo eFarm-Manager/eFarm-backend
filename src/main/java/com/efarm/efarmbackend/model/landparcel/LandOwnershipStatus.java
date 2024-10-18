@@ -11,7 +11,7 @@ import lombok.Setter;
 @Setter
 @Entity
 @NoArgsConstructor
-@Table(name = "stanWlasnosciDzialki")
+@Table(name = "StanWlasnosciDzialki")
 public class LandOwnershipStatus {
 
     @Id
@@ -25,6 +25,9 @@ public class LandOwnershipStatus {
     @Column(name = "nazwaStanuWlasnosci", nullable = false, length = 45)
     private ELandOwnershipStatus ownershipStatus;
 
+    public LandOwnershipStatus(ELandOwnershipStatus ownershipStatus) {
+        this.ownershipStatus = ownershipStatus;
+    }
 
     public LandOwnershipStatus(LandOwnershipStatus ownershipStatus) {
         this.id = ownershipStatus.id;
@@ -34,8 +37,8 @@ public class LandOwnershipStatus {
     @Override
     public String toString() {
         return switch (ownershipStatus) {
-            case STATUS_PRIVATELY_OWNED -> "Własna";
-            case STATUS_LEASE -> "Wydzierżawiona";
+            case STATUS_PRIVATELY_OWNED -> "STATUS_PRIVATELY_OWNED";
+            case STATUS_LEASE -> "STATUS_LEASE";
         };
     }
 }

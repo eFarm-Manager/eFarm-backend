@@ -9,7 +9,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "dzialkaMaPole")
+@Table(name = "DzialkaMaPole")
 public class LandparcelHasFarmfield {
 
     @Id
