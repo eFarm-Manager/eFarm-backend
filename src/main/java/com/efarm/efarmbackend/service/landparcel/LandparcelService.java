@@ -98,5 +98,8 @@ public class LandparcelService {
         if (landparcelDTO.getLandparcelNumber() != null) {
             landparcel.setLandparcelNumber(landparcelDTO.getLandparcelNumber());
         }
+        if (landparcelDTO.getGeodesyLandparcelNumber() != null) {
+            landparcel.setGeodesyLandparcelNumber(landparcelDTO.getGeodesyLandparcelNumber());
+        }
     }
 }
