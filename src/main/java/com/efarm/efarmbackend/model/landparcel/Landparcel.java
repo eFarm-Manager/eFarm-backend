@@ -53,6 +53,11 @@ public class Landparcel {
     @Column(name = "numerDzialki", nullable = false, length = 10)
     private String landparcelNumber;
 
+    @Size(max = 45)
+    @NotNull
+    @Column(name = "panstwowyIdDzialki", nullable = false, length = 45)
+    private String geodesyLandparcelNumber;
+
     @NotNull
     @Column(name = "dlugoscGeograficzna", nullable = false)
     private Double longitude;
@@ -78,6 +83,7 @@ public class Landparcel {
         this.commune = landparcel.getCommune();
         this.geodesyRegistrationDistrictNumber = landparcel.getGeodesyRegistrationDistrictNumber();
         this.landparcelNumber = landparcel.getLandparcelNumber();
+        this.geodesyLandparcelNumber = landparcel.getGeodesyLandparcelNumber();
         this.longitude = landparcel.getLongitude();
         this.latitude = landparcel.getLatitude();
         this.area = landparcel.getArea();

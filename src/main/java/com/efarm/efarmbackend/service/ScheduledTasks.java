@@ -1,6 +1,7 @@
 package com.efarm.efarmbackend.service;
 
 import com.efarm.efarmbackend.service.equipment.FarmEquipmentNotificationService;
+import com.efarm.efarmbackend.service.farm.FarmNotificationService;
 import com.efarm.efarmbackend.service.farm.FarmService;
 import com.efarm.efarmbackend.service.finance.FinanceNotificationService;
 import org.slf4j.Logger;
@@ -21,6 +22,9 @@ public class ScheduledTasks {
     @Autowired
     private FinanceNotificationService financeNotificationService;
 
+    @Autowired
+    private FarmNotificationService farmNotificationService;
+
     private static final Logger logger = LoggerFactory.getLogger(ScheduledTasks.class);
 
     //Every day at midnight
@@ -39,6 +43,8 @@ public class ScheduledTasks {
     public void checkInsuranceAndInspectionExpiry() {
         logger.info("Start checking Insurance and Inspection Expiry");
         farmEquipmentNotificationService.checkInsuranceAndInspectionExpiry();
+        logger.info("Start checking Expire Activation Codes");
+        farmNotificationService.checkActivationCodeDueDateNotifications();
         logger.info("Start checking Unpaid Financials");
         financeNotificationService.checkPaymentDueDateNotifications();
     }

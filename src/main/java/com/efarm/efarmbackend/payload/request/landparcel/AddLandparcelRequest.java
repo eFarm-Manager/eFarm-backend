@@ -33,6 +33,10 @@ public class AddLandparcelRequest {
     @Size(min = 1, max = 20, message = "Numer działki musi zawierać od 1 do 20 znaków")
     private String landparcelNumber;
 
+    @NotBlank(message = "Numer działki nie może być pusty")
+    @Size(min = 1, max = 45, message = "Numer ewidencyjny działki musi być prawidłowy")
+    private String geodesyLandparcelNumber;
+
     @NotNull(message = "Długość geograficzna nie może być pusta")
     @DecimalMin(value = "-180.0", message = "Długość geograficzna musi być w przedziale od -180 do 180")
     @DecimalMax(value = "180.0", message = "Długość geograficzna musi być w przedziale od -180 do 180")
