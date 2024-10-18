@@ -23,7 +23,7 @@ class UserDetailsServiceImplSpec extends Specification {
         String usernameTest = 'userTest'
         User mockUser = Mock(User)
         Role role = Mock(Role)
-        String roleName = "ROLE_FARM_MANAGER"
+        String roleName = 'ROLE_FARM_MANAGER'
         mockUser.getUsername() >> usernameTest
         role.getName() >> ERole.valueOf(roleName)
         mockUser.getRole() >> role
@@ -44,9 +44,10 @@ class UserDetailsServiceImplSpec extends Specification {
         userRepository.findByUsername(usernameTest) >> Optional.empty()
 
         when:
-        UserDetails actual = userDetailsServiceImpl.loadUserByUsername(usernameTest)
+        userDetailsServiceImpl.loadUserByUsername(usernameTest)
 
         then:
         thrown(UsernameNotFoundException)
     }
+
 }

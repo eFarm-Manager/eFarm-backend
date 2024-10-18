@@ -32,7 +32,6 @@ import com.efarm.efarmbackend.model.finance.Transaction;
 import com.efarm.efarmbackend.model.finance.TransactionId;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
 
 @DataJpaTest

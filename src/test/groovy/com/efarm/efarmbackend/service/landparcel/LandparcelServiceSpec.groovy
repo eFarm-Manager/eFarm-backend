@@ -1,21 +1,15 @@
-package com.efarm.efarmbackend.service.landparcel;
+package com.efarm.efarmbackend.service.landparcel
 
-import com.efarm.efarmbackend.model.farm.Farm;
-import com.efarm.efarmbackend.model.landparcel.ELandOwnershipStatus;
-import com.efarm.efarmbackend.model.landparcel.LandOwnershipStatus;
-import com.efarm.efarmbackend.model.landparcel.Landparcel;
+import com.efarm.efarmbackend.model.farm.Farm
+import com.efarm.efarmbackend.model.landparcel.ELandOwnershipStatus
+import com.efarm.efarmbackend.model.landparcel.LandOwnershipStatus
+import com.efarm.efarmbackend.model.landparcel.Landparcel
 import com.efarm.efarmbackend.model.landparcel.LandparcelId
-import com.efarm.efarmbackend.model.landparcel.LandparcelDTO;
-import com.efarm.efarmbackend.repository.landparcel.LandOwnershipStatusRepository;
-import com.efarm.efarmbackend.repository.landparcel.LandparcelRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import com.efarm.efarmbackend.model.landparcel.LandparcelDTO
+import com.efarm.efarmbackend.repository.landparcel.LandOwnershipStatusRepository
+import com.efarm.efarmbackend.repository.landparcel.LandparcelRepository
 import spock.lang.Specification
 import spock.lang.Subject
-import java.time.LocalDate;
-import java.util.List;
 
 class LandparcelServiceSpec extends Specification {
 
@@ -29,28 +23,28 @@ class LandparcelServiceSpec extends Specification {
     )
 
     def "should set ownership status and call setters when valid status provided"() {
-        given: 
+        given:
         LandparcelDTO landparcelDTO = new LandparcelDTO(
-            landOwnershipStatus: "STATUS_PRIVATELY_OWNED",
-            voivodeship: "Mazowieckie",
-            district: "Warszawa",
-            commune: "Mokotów",
-            geodesyRegistrationDistrictNumber: "XYZ123",
-            landparcelNumber: "LP-001",
+            landOwnershipStatus: 'STATUS_PRIVATELY_OWNED',
+            voivodeship: 'Mazowieckie',
+            district: 'Warszawa',
+            commune: 'Mokotów',
+            geodesyRegistrationDistrictNumber: 'XYZ123',
+            landparcelNumber: 'LP-001',
             longitude: 21.0122,
             latitude: 52.2297,
             area: 1500.0
         )
         Landparcel landparcel = new Landparcel()
-        LandOwnershipStatus ownershipStatus = new LandOwnershipStatus() 
-        ownershipStatus.setOwnershipStatus(ELandOwnershipStatus.STATUS_PRIVATELY_OWNED) 
+        LandOwnershipStatus ownershipStatus = new LandOwnershipStatus()
+        ownershipStatus.setOwnershipStatus(ELandOwnershipStatus.STATUS_PRIVATELY_OWNED)
 
         landOwnershipStatusRepository.findByOwnershipStatus(ELandOwnershipStatus.STATUS_PRIVATELY_OWNED) >> Optional.of(ownershipStatus)
-      
-        when: 
+
+        when:
         landparcelService.addNewLandparcelData(landparcelDTO, landparcel)
 
-        then: 
+        then:
         landparcel.getLandOwnershipStatus().getOwnershipStatus() == ownershipStatus.getOwnershipStatus()
         landparcel.getVoivodeship() == landparcelDTO.getVoivodeship()
         landparcel.getDistrict() == landparcelDTO.getDistrict()
@@ -63,28 +57,28 @@ class LandparcelServiceSpec extends Specification {
     }
 
     def "should set ownership status to STATUS_LEASE when provided"() {
-        given: 
+        given:
         LandparcelDTO landparcelDTO = new LandparcelDTO(
-            landOwnershipStatus: "STATUS_LEASE",
-            voivodeship: "Mazowieckie",
-            district: "Warszawa",
-            commune: "Mokotów",
-            geodesyRegistrationDistrictNumber: "XYZ123",
-            landparcelNumber: "LP-001",
+            landOwnershipStatus: 'STATUS_LEASE',
+            voivodeship: 'Mazowieckie',
+            district: 'Warszawa',
+            commune: 'Mokotów',
+            geodesyRegistrationDistrictNumber: 'XYZ123',
+            landparcelNumber: 'LP-001',
             longitude: 21.0122,
             latitude: 52.2297,
             area: 1500.0
         )
         Landparcel landparcel = new Landparcel()
-        LandOwnershipStatus ownershipStatus = new LandOwnershipStatus() 
+        LandOwnershipStatus ownershipStatus = new LandOwnershipStatus()
         ownershipStatus.setOwnershipStatus(ELandOwnershipStatus.STATUS_LEASE)
 
         landOwnershipStatusRepository.findByOwnershipStatus(ELandOwnershipStatus.STATUS_LEASE) >> Optional.of(ownershipStatus)
 
-        when: 
+        when:
         landparcelService.addNewLandparcelData(landparcelDTO, landparcel)
 
-        then: 
+        then:
         landparcel.getLandOwnershipStatus().getOwnershipStatus() == ELandOwnershipStatus.STATUS_LEASE
         landparcel.getVoivodeship() == landparcelDTO.getVoivodeship()
         landparcel.getDistrict() == landparcelDTO.getDistrict()
@@ -96,29 +90,29 @@ class LandparcelServiceSpec extends Specification {
         landparcel.getArea() == landparcelDTO.getArea()
     }
 
-        def "should set ownership status to STATUS_LEASE when invalid provided"() {
-        given: 
+    def "should set ownership status to STATUS_LEASE when invalid provided"() {
+        given:
         LandparcelDTO landparcelDTO = new LandparcelDTO(
-            landOwnershipStatus: "INVALID",
-            voivodeship: "Mazowieckie",
-            district: "Warszawa",
-            commune: "Mokotów",
-            geodesyRegistrationDistrictNumber: "XYZ123",
-            landparcelNumber: "LP-001",
+            landOwnershipStatus: 'INVALID',
+            voivodeship: 'Mazowieckie',
+            district: 'Warszawa',
+            commune: 'Mokotów',
+            geodesyRegistrationDistrictNumber: 'XYZ123',
+            landparcelNumber: 'LP-001',
             longitude: 21.0122,
             latitude: 52.2297,
             area: 1500.0
         )
         Landparcel landparcel = new Landparcel()
-        LandOwnershipStatus ownershipStatus = new LandOwnershipStatus() 
+        LandOwnershipStatus ownershipStatus = new LandOwnershipStatus()
         ownershipStatus.setOwnershipStatus(ELandOwnershipStatus.STATUS_LEASE)
 
         landOwnershipStatusRepository.findByOwnershipStatus(ELandOwnershipStatus.STATUS_LEASE) >> Optional.of(ownershipStatus)
 
-        when: 
+        when:
         landparcelService.addNewLandparcelData(landparcelDTO, landparcel)
 
-        then: 
+        then:
         landparcel.getLandOwnershipStatus().getOwnershipStatus() == ELandOwnershipStatus.STATUS_LEASE
         landparcel.getVoivodeship() == landparcelDTO.getVoivodeship()
         landparcel.getDistrict() == landparcelDTO.getDistrict()
@@ -138,9 +132,9 @@ class LandparcelServiceSpec extends Specification {
             area: 1500.0
         )
         Landparcel landparcel = new Landparcel()
-        landparcel.setArea(750) 
-        landparcel.setLongitude(22) 
-        landparcel.setLatitude(53) 
+        landparcel.setArea(750)
+        landparcel.setLongitude(22)
+        landparcel.setLatitude(53)
         LandOwnershipStatus currentOwnershipStatus = new LandOwnershipStatus()
         currentOwnershipStatus.setOwnershipStatus(ELandOwnershipStatus.STATUS_PRIVATELY_OWNED)
         landparcel.setLandOwnershipStatus(currentOwnershipStatus)
@@ -159,7 +153,7 @@ class LandparcelServiceSpec extends Specification {
     def "should update ownership status when different valid status is provided"() {
         given:
         LandparcelDTO landparcelDTO = new LandparcelDTO(
-            landOwnershipStatus: "STATUS_LEASE"
+            landOwnershipStatus: 'STATUS_LEASE'
         )
         Landparcel landparcel = new Landparcel()
         LandOwnershipStatus currentOwnershipStatus = new LandOwnershipStatus()
@@ -181,7 +175,7 @@ class LandparcelServiceSpec extends Specification {
     def "should handle invalid ownership status gracefully"() {
         given:
         LandparcelDTO landparcelDTO = new LandparcelDTO(
-            landOwnershipStatus: "INVALID_STATUS",
+            landOwnershipStatus: 'INVALID_STATUS',
             longitude: 21.0122,
             latitude: 52.2297,
             area: 1500.0
@@ -203,15 +197,15 @@ class LandparcelServiceSpec extends Specification {
 
     def "should correctly create DTO from Landparcel"() {
         given:
-        LandparcelId landparcelId = new LandparcelId(1,1)
+        LandparcelId landparcelId = new LandparcelId(1, 1)
         Landparcel landparcel = new Landparcel()
         landparcel.setId(landparcelId)
         landparcel.setLandOwnershipStatus(new LandOwnershipStatus(ELandOwnershipStatus.STATUS_PRIVATELY_OWNED))
-        landparcel.setVoivodeship("Mazowieckie")
-        landparcel.setDistrict("Warszawa")
-        landparcel.setCommune("Mokotów")
-        landparcel.setGeodesyRegistrationDistrictNumber("XYZ123")
-        landparcel.setLandparcelNumber("LP-001")
+        landparcel.setVoivodeship('Mazowieckie')
+        landparcel.setDistrict('Warszawa')
+        landparcel.setCommune('Mokotów')
+        landparcel.setGeodesyRegistrationDistrictNumber('XYZ123')
+        landparcel.setLandparcelNumber('LP-001')
         landparcel.setLongitude(21.0122)
         landparcel.setLatitude(52.2297)
         landparcel.setArea(1500.0)
@@ -235,10 +229,10 @@ class LandparcelServiceSpec extends Specification {
     def "should return true when land parcel already exists"() {
         given:
         LandparcelDTO landparcelDTO = new LandparcelDTO(
-            district: "District",
-            commune: "Commune",
-            geodesyRegistrationDistrictNumber: "987654",
-            landparcelNumber: "12345"
+            district: 'District',
+            commune: 'Commune',
+            geodesyRegistrationDistrictNumber: '987654',
+            landparcelNumber: '12345'
         )
 
         Farm farm = Mock(Farm)
@@ -260,10 +254,10 @@ class LandparcelServiceSpec extends Specification {
     def "should return false when land parcel does not exist"() {
         given:
         LandparcelDTO landparcelDTO = new LandparcelDTO(
-            district: "District",
-            commune: "Commune",
-            geodesyRegistrationDistrictNumber: "987654",
-            landparcelNumber: "12345"
+            district: 'District',
+            commune: 'Commune',
+            geodesyRegistrationDistrictNumber: '987654',
+            landparcelNumber: '12345'
         )
         Farm farm = new Farm()
 
@@ -303,11 +297,11 @@ class LandparcelServiceSpec extends Specification {
     def "should set all administrative data when all fields are provided"() {
         given:
         LandparcelDTO landparcelDTO = new LandparcelDTO(
-            voivodeship: "Lubelskie",
-            district: "district",
+            voivodeship: 'Lubelskie',
+            district: 'district',
             commune: null,
-            geodesyRegistrationDistrictNumber: "987654",
-            landparcelNumber: "12345"
+            geodesyRegistrationDistrictNumber: '987654',
+            landparcelNumber: '12345'
         )
         Landparcel landparcel = new Landparcel()
 
@@ -321,17 +315,5 @@ class LandparcelServiceSpec extends Specification {
         landparcel.getGeodesyRegistrationDistrictNumber() == landparcelDTO.getGeodesyRegistrationDistrictNumber()
         landparcel.getLandparcelNumber() == landparcelDTO.getLandparcelNumber()
     }
-
-
-
-
-
-
-
-
-
-
-
-
 
 }

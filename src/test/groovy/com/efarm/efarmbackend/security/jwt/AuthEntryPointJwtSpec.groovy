@@ -17,6 +17,7 @@ class AuthEntryPointJwtSpec extends Specification {
         authEntryPointJwt.commence(request, response, authException)
 
         then:
-        1 * response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Error: Unauthorized")
+        1 * response.sendError(HttpServletResponse.SC_UNAUTHORIZED, 'Error: Unauthorized')
     }
+
 }

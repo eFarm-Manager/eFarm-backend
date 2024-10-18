@@ -28,9 +28,9 @@ class AuthTokenFilterSpec extends Specification {
 
     def "should authenticate user if JWT token is valid"() {
         given:
-        def jwt = "valid-token"
-        def username = "user"
-        def userDetails = Mock(UserDetails)
+        String jwt = 'valid-token'
+        String username = 'user'
+        UserDetails userDetails = Mock(UserDetails)
         jwtUtils.getJwtFromCookies(request) >> jwt
         jwtUtils.validateJwtToken(jwt) >> true
         jwtUtils.getUserNameFromJwtToken(jwt) >> username
@@ -47,7 +47,7 @@ class AuthTokenFilterSpec extends Specification {
 
     def "should not authenticate user if JWT token is invalid"() {
         given:
-        jwtUtils.getJwtFromCookies(request) >> "invalid-token"
+        jwtUtils.getJwtFromCookies(request) >> 'invalid-token'
         jwtUtils.validateJwtToken(_) >> false
 
         when:
@@ -57,4 +57,5 @@ class AuthTokenFilterSpec extends Specification {
         1 * filterChain.doFilter(request, response)
         assert SecurityContextHolder.getContext().getAuthentication() == null
     }
+
 }

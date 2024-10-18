@@ -11,10 +11,9 @@ import com.efarm.efarmbackend.repository.farm.FarmRepository
 import com.efarm.efarmbackend.repository.user.UserRepository
 import com.efarm.efarmbackend.service.farm.FarmService
 import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.http.ResponseEntity
-import org.springframework.http.HttpStatus
 import spock.lang.Specification
 import spock.lang.Subject
+import java.nio.file.AccessDeniedException
 
 import java.time.LocalDate
 
@@ -28,8 +27,7 @@ class FarmServiceSpec extends Specification {
     FarmService farmService = new FarmService(
             farmRepository: farmRepository,
             activationCodeRepository: activationCodeRepository,
-            userRepository: userRepository,
-            frontendUriToUpdateActivationCode: "/updateActivationCode"
+            userRepository: userRepository
     )
 
     def setup() {
@@ -95,12 +93,11 @@ class FarmServiceSpec extends Specification {
         userFarm.getIsActive() >> false
 
         when:
-        ResponseEntity<?> response = farmService.checkFarmDeactivation(userFarm, role_owner)
+        farmService.checkFarmDeactivation(userFarm, role_owner)
 
         then:
-        response.getStatusCode() == HttpStatus.FORBIDDEN
-        response.getHeaders().getLocation() == URI.create("/updateActivationCode")
-        response.getBody().message == "Gospodarstwo jest nieaktywne. Podaj nowy kod aktywacyjny."
+        AccessDeniedException ex = thrown()
+        ex.message == "Gospodarstwo jest nieaktywne. Podaj nowy kod aktywacyjny."
     }
 
     def "should show that farm not active for manager"() {
@@ -112,11 +109,11 @@ class FarmServiceSpec extends Specification {
         userFarm.getIsActive() >> false
 
         when:
-        ResponseEntity<?> response = farmService.checkFarmDeactivation(userFarm, role_manager)
+        farmService.checkFarmDeactivation(userFarm, role_manager)
 
         then:
-        response.getStatusCode() == HttpStatus.FORBIDDEN
-        response.getBody().message == "Gospodarstwo jest nieaktywne. Kod aktywacyjny wygasł."
+	AccessDeniedException ex = thrown()
+	ex.message == "Gospodarstwo jest nieaktywne. Kod aktywacyjny wygasł." 
     }
 
     def "should show that farm not active for operator"() {
@@ -128,11 +125,11 @@ class FarmServiceSpec extends Specification {
         userFarm.getIsActive() >> false
 
         when:
-        ResponseEntity<?> response = farmService.checkFarmDeactivation(userFarm, role_operator)
+        farmService.checkFarmDeactivation(userFarm, role_operator)
 
         then:
-        response.getStatusCode() == HttpStatus.FORBIDDEN
-        response.getBody().message == "Gospodarstwo jest nieaktywne. Kod aktywacyjny wygasł."
+	AccessDeniedException ex = thrown()
+	ex.message == "Gospodarstwo jest nieaktywne. Kod aktywacyjny wygasł."
     }
 
     def "should not show inactive message because farm is active"() {
@@ -144,10 +141,10 @@ class FarmServiceSpec extends Specification {
         userFarm.getIsActive() >> true
 
         when:
-        ResponseEntity<?> response = farmService.checkFarmDeactivation(userFarm, role_owner)
+        farmService.checkFarmDeactivation(userFarm, role_owner)
 
         then:
-        response == null
+        noExceptionThrown()
     }
 
     def "should update farm details - name, farm number and sanitary register number"() {
