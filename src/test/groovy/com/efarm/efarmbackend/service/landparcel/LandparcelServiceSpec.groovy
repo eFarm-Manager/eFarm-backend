@@ -301,7 +301,8 @@ class LandparcelServiceSpec extends Specification {
             district: 'district',
             commune: null,
             geodesyRegistrationDistrictNumber: '987654',
-            landparcelNumber: '12345'
+            landparcelNumber: '12345',
+            geodesyLandparcelNumber: '25312.05'
         )
         Landparcel landparcel = new Landparcel()
 
@@ -314,6 +315,7 @@ class LandparcelServiceSpec extends Specification {
         landparcel.getCommune() == null
         landparcel.getGeodesyRegistrationDistrictNumber() == landparcelDTO.getGeodesyRegistrationDistrictNumber()
         landparcel.getLandparcelNumber() == landparcelDTO.getLandparcelNumber()
+        landparcel.getGeodesyLandparcelNumber() == landparcelDTO.getGeodesyLandparcelNumber()
     }
 
 }

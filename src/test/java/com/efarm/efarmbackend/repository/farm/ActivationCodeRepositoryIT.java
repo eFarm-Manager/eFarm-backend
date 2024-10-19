@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -57,5 +58,27 @@ public class ActivationCodeRepositoryIT {
 
         // Then
         assertThat(foundCode.isPresent(), is(false));
+    }
+
+    @Test
+    public void testFindById() {
+        // Given
+        ActivationCode activationCode = entityManager.find(ActivationCode.class, 1);
+
+        // When
+        ActivationCode foundCode = activationCodeRepository.findById(1);
+
+        // Then
+        assertThat(foundCode, notNullValue());
+        assertThat(foundCode.getCode(), is(activationCode.getCode()));
+    }
+
+    @Test
+    public void testDoesntFindByIdThatNotExist() {
+        // When
+        ActivationCode foundCode = activationCodeRepository.findById(9999);
+
+        // Then
+        assertThat(foundCode, is(nullValue()));
     }
 }
