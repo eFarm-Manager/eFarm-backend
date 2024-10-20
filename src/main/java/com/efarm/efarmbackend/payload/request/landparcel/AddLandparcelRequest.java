@@ -13,6 +13,10 @@ public class AddLandparcelRequest {
     @Pattern(regexp = "STATUS_LEASE|STATUS_PRIVATELY_OWNED", message = "Status własności musi być jednym z: STATUS_LEASE, STATUS_PRIVATELY_OWNED")
     private String landOwnershipStatus;
 
+    @NotBlank(message = "Nazwa pola nie może być pusta")
+    @Size(min = 3, max = 45, message = "Nazwa pola musi zawierać od 3 do 45 znaków")
+    private String farmfieldName;
+
     @NotBlank(message = "Województwo nie może być puste")
     @Size(min = 3, max = 30, message = "Województwo musi zawierać od 3 do 30 znaków")
     private String voivodeship;

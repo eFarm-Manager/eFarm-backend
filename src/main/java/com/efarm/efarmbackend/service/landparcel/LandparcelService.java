@@ -1,11 +1,10 @@
 package com.efarm.efarmbackend.service.landparcel;
 
 import com.efarm.efarmbackend.model.farm.Farm;
-import com.efarm.efarmbackend.model.landparcel.ELandOwnershipStatus;
-import com.efarm.efarmbackend.model.landparcel.LandOwnershipStatus;
-import com.efarm.efarmbackend.model.landparcel.Landparcel;
-import com.efarm.efarmbackend.model.landparcel.LandparcelDTO;
+import com.efarm.efarmbackend.model.farmfield.Farmfield;
+import com.efarm.efarmbackend.model.landparcel.*;
 import com.efarm.efarmbackend.repository.landparcel.LandOwnershipStatusRepository;
+import com.efarm.efarmbackend.repository.landparcel.LandparcelHasFarmfieldRepository;
 import com.efarm.efarmbackend.repository.landparcel.LandparcelRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +21,9 @@ public class LandparcelService {
 
     @Autowired
     private LandparcelRepository landparcelRepository;
+
+    @Autowired
+    private LandparcelHasFarmfieldRepository landparcelHasFarmfieldRepository;
 
     private static final Logger logger = LoggerFactory.getLogger(LandparcelService.class);
 
@@ -68,6 +70,14 @@ public class LandparcelService {
                 landparcelDTO.getGeodesyRegistrationDistrictNumber(),
                 landparcelDTO.getLandparcelNumber(),
                 loggedUserFarm);
+    }
+
+    public void createRelationLandparcelToFarmfield(Landparcel landparcel, Farmfield farmfield, Farm loggedUserFarm) {
+        LandparcelHasFarmfield landparcelHasFarmfield = new LandparcelHasFarmfield();
+        landparcelHasFarmfield.setLandparcel(landparcel);
+        landparcelHasFarmfield.setFarmField(farmfield);
+        landparcelHasFarmfield.setFarmId(loggedUserFarm.getId());
+        landparcelHasFarmfieldRepository.save(landparcelHasFarmfield);
     }
 
     private void setCommonFields(Landparcel landparcel, LandparcelDTO landparcelDTO) {

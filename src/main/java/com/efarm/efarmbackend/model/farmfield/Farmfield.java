@@ -44,7 +44,7 @@ public class Farmfield {
     @Column(name = "opis", length = 500)
     private String description;
 
-    public Farmfield (Farmfield farmfield) {
+    public Farmfield(Farmfield farmfield) {
         this.id = farmfield.id;
         this.farm = farmfield.farm;
         this.crop = farmfield.crop;
@@ -54,9 +54,11 @@ public class Farmfield {
         this.description = farmfield.description;
     }
 
-    public Farmfield(FarmfieldId id, Farm farm) {
+    public Farmfield(FarmfieldId id, Farm farm, String name, Double area) {
         this.id = id;
         this.farm = farm;
+        this.name = name;
+        this.area = area;
         this.isAvailable = true;
     }
 
