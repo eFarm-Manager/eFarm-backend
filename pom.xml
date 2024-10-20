@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.3</version>
+        <version>3.3.4</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.efarm</groupId>
@@ -34,7 +34,7 @@
         <jjwt-api.version>0.12.6</jjwt-api.version>
         <jjwt-impl.version>0.12.6</jjwt-impl.version>
         <jjwt-jackson.version>0.12.6</jjwt-jackson.version>
-        <mysql-connector-j.version>9.0.0</mysql-connector-j.version>
+        <mysql-connector-j.version>9.1.0</mysql-connector-j.version>
         <gmavenplus-plugin.version>3.0.2</gmavenplus-plugin.version>
         <maven-surefire-plugin.version>3.2.2</maven-surefire-plugin.version>
         <maven-failsafe-plugin.version>3.0.0-M5</maven-failsafe-plugin.version>
@@ -45,10 +45,10 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-            <!-- fixing vulnerability issues with 6.1.12-->
+            <!-- fixing vulnerability issues with 6.1.13-->
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-webmvc</artifactId>
-                <version>6.1.13</version> 
+                <version>6.1.14</version> 
             </dependency>
         </dependencies>
     </dependencyManagement>

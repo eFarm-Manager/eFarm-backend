@@ -72,25 +72,26 @@ public class LandparcelControllerIT {
     @Test
     void testAddingNewLandparcel() throws Exception {
         //given
-        LandparcelDTO landparcelDTO = new LandparcelDTO();
-        landparcelDTO.setLandOwnershipStatus("STATUS_PRIVATELY_OWNED"); 
-        landparcelDTO.setVoivodeship("Lubelskie");
-        landparcelDTO.setDistrict("district");
-        landparcelDTO.setCommune("commune");
-        landparcelDTO.setGeodesyRegistrationDistrictNumber("GRD1");
-        landparcelDTO.setLandparcelNumber("LP1");
-        landparcelDTO.setLongitude(21.0122);
-        landparcelDTO.setLatitude(52.2297);
-        landparcelDTO.setArea(500.0);
+        AddLandparcelRequest addLandparcelRequest = new AddLandparcelRequest();
+        addLandparcelRequest.setLandOwnershipStatus("STATUS_PRIVATELY_OWNED"); 
+        addLandparcelRequest.setVoivodeship("Lubelskie");
+        addLandparcelRequest.setDistrict("district");
+        addLandparcelRequest.setCommune("commune");
+        addLandparcelRequest.setGeodesyRegistrationDistrictNumber("GRD1");
+        addLandparcelRequest.setLandparcelNumber("LP1");
+        addLandparcelRequest.setLongitude(21.0122);
+        addLandparcelRequest.setLatitude(52.2297);
+        addLandparcelRequest.setArea(500.0);
+        addLandparcelRequest.setGeodesyLandparcelNumber("12523.02");
 
         //when
         mockMvc.perform(post("/api/landparcel/new")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(landparcelDTO)))
+                .content(objectMapper.writeValueAsString(addLandparcelRequest)))
         //then
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.message").value("Pomyślnie dodano nową działkę"));
-    }
+}
 
     @Test
     void testAddingExistingLandparcel() throws Exception {
@@ -108,6 +109,7 @@ public class LandparcelControllerIT {
         addLandparcelRequest.setLongitude(existingLandparcel.getLongitude());
         addLandparcelRequest.setLatitude(existingLandparcel.getLatitude());
         addLandparcelRequest.setArea(existingLandparcel.getArea());
+	addLandparcelRequest.setGeodesyLandparcelNumber(existingLandparcel.getGeodesyLandparcelNumber());
 
         //when
         mockMvc.perform(post("/api/landparcel/new")
@@ -144,6 +146,7 @@ public class LandparcelControllerIT {
         assertThat(landparcelDTO.getCommune(),is(firstLandparcel.getCommune()));
         assertThat(landparcelDTO.getGeodesyRegistrationDistrictNumber(), is(firstLandparcel.getGeodesyRegistrationDistrictNumber()));
         assertThat(landparcelDTO.getLandparcelNumber(),is(firstLandparcel.getLandparcelNumber()));
+	assertThat(landparcelDTO.getGeodesyLandparcelNumber(),is(firstLandparcel.getGeodesyLandparcelNumber()));
     }
     /*
      * PUT /landparcelId

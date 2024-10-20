@@ -43,6 +43,7 @@ class LandparcelFacadeSpec extends Specification {
         addLandparcelRequest.setLongitude(21.0122)
         addLandparcelRequest.setLatitude(52.2297)
         addLandparcelRequest.setArea(100.0)
+	addLandparcelRequest.setGeodesyLandparcelNumber('25312.05')
 
         Farm farm = Mock(Farm) {
             getId() >> 1
@@ -71,7 +72,8 @@ class LandparcelFacadeSpec extends Specification {
             landparcelNumber: 'LP-001',
             longitude: 21.0122,
             latitude: 52.2297,
-            area: 1500.0
+            area: 1500.0,
+	        geodesyLandparcelNumber: '25312.05'
         )
 
         Farm farm = Mock(Farm)
