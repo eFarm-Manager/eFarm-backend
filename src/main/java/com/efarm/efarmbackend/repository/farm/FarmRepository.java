@@ -9,6 +9,7 @@ import java.util.List;
 @Repository
 public interface FarmRepository extends JpaRepository<Farm, Integer> {
     boolean existsByFarmName(String farmName);
+
     List<Farm> findByIsActiveTrue();
 }
 

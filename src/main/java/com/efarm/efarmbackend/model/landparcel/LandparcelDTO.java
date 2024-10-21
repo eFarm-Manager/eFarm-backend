@@ -18,6 +18,7 @@ public class LandparcelDTO
     private String commune;
     private String geodesyRegistrationDistrictNumber;
     private String landparcelNumber;
+    private String geodesyLandparcelNumber;
     private Double longitude;
     private Double latitude;
     private Double area;
@@ -30,6 +31,7 @@ public class LandparcelDTO
         this.commune = landparcel.getCommune();
         this.geodesyRegistrationDistrictNumber = landparcel.getGeodesyRegistrationDistrictNumber();
         this.landparcelNumber = landparcel.getLandparcelNumber();
+        this.geodesyLandparcelNumber = landparcel.getGeodesyLandparcelNumber();
         this.longitude = landparcel.getLongitude();
         this.latitude = landparcel.getLatitude();
         this.area = landparcel.getArea();
@@ -42,6 +44,7 @@ public class LandparcelDTO
         this.commune = addLandparcelRequest.getCommune();
         this.geodesyRegistrationDistrictNumber = addLandparcelRequest.getGeodesyRegistrationDistrictNumber();
         this.landparcelNumber = addLandparcelRequest.getLandparcelNumber();
+        this.geodesyLandparcelNumber = addLandparcelRequest.getGeodesyLandparcelNumber();
         this.longitude = addLandparcelRequest.getLongitude();
         this.latitude = addLandparcelRequest.getLatitude();
         this.area = addLandparcelRequest.getArea();

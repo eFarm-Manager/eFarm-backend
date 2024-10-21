@@ -9,4 +9,6 @@ import java.util.Optional;
 @Repository
 public interface ActivationCodeRepository extends JpaRepository<ActivationCode, Integer> {
     Optional<ActivationCode> findByCode(String code);
+
+    ActivationCode findById(int id);
 }
