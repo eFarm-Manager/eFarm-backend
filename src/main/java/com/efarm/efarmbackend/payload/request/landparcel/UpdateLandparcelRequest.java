@@ -12,6 +12,9 @@ public class UpdateLandparcelRequest {
     @Pattern(regexp = "STATUS_LEASE|STATUS_PRIVATELY_OWNED", message = "Status własności musi być jednym z: STATUS_LEASE, STATUS_PRIVATELY_OWNED")
     private String landOwnershipStatus;
 
+    @Size(min = 3, max = 60, message = "Nazwa musi zawierać od 3 do 60 znaków")
+    private String name;
+
     @DecimalMin(value = "-180.0", message = "Długość geograficzna musi być w przedziale od -180 do 180")
     @DecimalMax(value = "180.0", message = "Długość geograficzna musi być w przedziale od -180 do 180")
     private Double longitude;

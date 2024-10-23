@@ -62,15 +62,15 @@ public class LandparcelService {
     }
 
     public Boolean isLandparcelAlreadyExistingByFarm(LandparcelDTO landparcelDTO, Farm loggedUserFarm) {
-        return landparcelRepository.existsByDistrictAndCommuneAndGeodesyRegistrationDistrictNumberAndLandparcelNumberAndFarm(
-                landparcelDTO.getDistrict(),
-                landparcelDTO.getCommune(),
-                landparcelDTO.getGeodesyRegistrationDistrictNumber(),
-                landparcelDTO.getLandparcelNumber(),
+        return landparcelRepository.existsByGeodesyLandparcelNumberAndFarm(
+                landparcelDTO.getGeodesyLandparcelNumber(),
                 loggedUserFarm);
     }
 
     private void setCommonFields(Landparcel landparcel, LandparcelDTO landparcelDTO) {
+        if (landparcelDTO.getName() != null) {
+            landparcel.setName(landparcelDTO.getName());
+        }
         if (landparcelDTO.getLongitude() != null) {
             landparcel.setLongitude(landparcelDTO.getLongitude());
         }
@@ -92,8 +92,8 @@ public class LandparcelService {
         if (landparcelDTO.getCommune() != null) {
             landparcel.setCommune(landparcelDTO.getCommune());
         }
-        if (landparcelDTO.getGeodesyRegistrationDistrictNumber() != null) {
-            landparcel.setGeodesyRegistrationDistrictNumber(landparcelDTO.getGeodesyRegistrationDistrictNumber());
+        if (landparcelDTO.getGeodesyDistrictNumber() != null) {
+            landparcel.setGeodesyDistrictNumber(landparcelDTO.getGeodesyDistrictNumber());
         }
         if (landparcelDTO.getLandparcelNumber() != null) {
             landparcel.setLandparcelNumber(landparcelDTO.getLandparcelNumber());

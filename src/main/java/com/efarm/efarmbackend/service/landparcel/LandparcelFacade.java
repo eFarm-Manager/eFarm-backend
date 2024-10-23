@@ -7,6 +7,7 @@ import com.efarm.efarmbackend.model.landparcel.LandparcelId;
 import com.efarm.efarmbackend.payload.request.landparcel.AddLandparcelRequest;
 import com.efarm.efarmbackend.payload.request.landparcel.UpdateLandparcelRequest;
 import com.efarm.efarmbackend.repository.landparcel.LandparcelRepository;
+import com.efarm.efarmbackend.service.agriculturalrecords.AgriculturalRecordService;
 import com.efarm.efarmbackend.service.user.UserService;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
@@ -29,6 +30,9 @@ public class LandparcelFacade {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private AgriculturalRecordService agriculturalRecordService;
+
     private static final Logger logger = LoggerFactory.getLogger(LandparcelFacade.class);
 
     @Transactional
@@ -43,6 +47,7 @@ public class LandparcelFacade {
         }
         landparcelService.addNewLandparcelData(landparcelDTO, landparcel);
         landparcelRepository.save(landparcel);
+        agriculturalRecordService.createInitialAgriculturalRecordForLandparcel(landparcel);
     }
 
     public LandparcelDTO getLandparcelDetails(Integer id) throws Exception {
@@ -96,7 +101,7 @@ public class LandparcelFacade {
         if (searchString != null && searchString.length() >= 3) {
             landparcels = landparcels.stream()
                     .filter(lp -> lp.getCommune().contains(searchString) ||
-                            lp.getGeodesyRegistrationDistrictNumber().contains(searchString) ||
+                            lp.getGeodesyDistrictNumber().contains(searchString) ||
                             lp.getLandparcelNumber().contains(searchString))
                     .collect(Collectors.toList());
         }

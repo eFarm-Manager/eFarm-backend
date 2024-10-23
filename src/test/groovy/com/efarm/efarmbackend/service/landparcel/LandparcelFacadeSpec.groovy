@@ -38,7 +38,7 @@ class LandparcelFacadeSpec extends Specification {
         addLandparcelRequest.setVoivodeship('Lubelskie')
         addLandparcelRequest.setDistrict('district')
         addLandparcelRequest.setCommune('commune')
-        addLandparcelRequest.setGeodesyRegistrationDistrictNumber('XYZ123')
+        addLandparcelRequest.setGeodesyDistrictNumber('XYZ123')
         addLandparcelRequest.setLandparcelNumber('LP-001')
         addLandparcelRequest.setLongitude(21.0122)
         addLandparcelRequest.setLatitude(52.2297)
@@ -68,7 +68,7 @@ class LandparcelFacadeSpec extends Specification {
             voivodeship: 'Lubelskie',
             district: 'district',
             commune: 'commune',
-            geodesyRegistrationDistrictNumber: 'XYZ123',
+                setGeodesyDistrictNumber: 'XYZ123',
             landparcelNumber: 'LP-001',
             longitude: 21.0122,
             latitude: 52.2297,
@@ -300,7 +300,7 @@ class LandparcelFacadeSpec extends Specification {
         landparcel1.setLandOwnershipStatus(ownerStatus)
         landparcel1.setArea(500.0)
         landparcel1.setCommune('CommuneA')
-        landparcel1.setGeodesyRegistrationDistrictNumber('GRD1')
+        landparcel1.setGeodesyDistrictNumber('GRD1')
         landparcel1.setLandparcelNumber('LP1')
 
         Landparcel landparcel2 = new Landparcel()
@@ -308,7 +308,7 @@ class LandparcelFacadeSpec extends Specification {
         landparcel2.setLandOwnershipStatus(ownerStatus)
         landparcel2.setArea(600.0)
         landparcel2.setCommune('CommuneB')
-        landparcel2.setGeodesyRegistrationDistrictNumber('GRD2')
+        landparcel2.setGeodesyDistrictNumber('GRD2')
         landparcel2.setLandparcelNumber('LP2')
 
         List<Landparcel> landparcelList = [landparcel1, landparcel2]
@@ -335,7 +335,7 @@ class LandparcelFacadeSpec extends Specification {
         landparcel1.setLandOwnershipStatus(ownerStatus)
         landparcel1.setArea(500.0)
         landparcel1.setCommune('CommuneA')
-        landparcel1.setGeodesyRegistrationDistrictNumber('GRD1')
+        landparcel1.setGeodesyDistrictNumber('GRD1')
         landparcel1.setLandparcelNumber('LP1')
 
         Landparcel landparcel2 = new Landparcel()
@@ -343,7 +343,7 @@ class LandparcelFacadeSpec extends Specification {
         landparcel2.setLandOwnershipStatus(ownerStatus)
         landparcel2.setArea(600.0)
         landparcel2.setCommune('CommuneB')
-        landparcel2.setGeodesyRegistrationDistrictNumber('GRD2')
+        landparcel2.setGeodesyDistrictNumber('GRD2')
         landparcel2.setLandparcelNumber('LP2')
 
         List<Landparcel> landparcelList = [landparcel1, landparcel2]
@@ -369,7 +369,7 @@ class LandparcelFacadeSpec extends Specification {
         landparcel1.setLandOwnershipStatus(ownerStatus)
         landparcel1.setArea(500.0)
         landparcel1.setCommune('CommuneA')
-        landparcel1.setGeodesyRegistrationDistrictNumber('GRD1')
+        landparcel1.setGeodesyDistrictNumber('GRD1')
         landparcel1.setLandparcelNumber('LP1')
 
         Landparcel landparcel2 = new Landparcel()
@@ -377,7 +377,7 @@ class LandparcelFacadeSpec extends Specification {
         landparcel2.setLandOwnershipStatus(ownerStatus)
         landparcel2.setArea(600.0)
         landparcel2.setCommune('CommuneB')
-        landparcel2.setGeodesyRegistrationDistrictNumber('GRD2')
+        landparcel2.setGeodesyDistrictNumber('GRD2')
         landparcel2.setLandparcelNumber('LP2')
 
         List<Landparcel> landparcelList = [landparcel1, landparcel2]
@@ -403,7 +403,7 @@ class LandparcelFacadeSpec extends Specification {
         landparcel1.setLandOwnershipStatus(ownerStatus)
         landparcel1.setArea(500.0)
         landparcel1.setCommune('CommuneA')
-        landparcel1.setGeodesyRegistrationDistrictNumber('GRD1')
+        landparcel1.setGeodesyDistrictNumber('GRD1')
         landparcel1.setLandparcelNumber('LP1')
 
         Landparcel landparcel2 = new Landparcel()
@@ -411,7 +411,7 @@ class LandparcelFacadeSpec extends Specification {
         landparcel2.setLandOwnershipStatus(ownerStatus)
         landparcel2.setArea(600.0)
         landparcel2.setCommune('CommuneB')
-        landparcel2.setGeodesyRegistrationDistrictNumber('GRD2')
+        landparcel2.setGeodesyDistrictNumber('GRD2')
         landparcel2.setLandparcelNumber('LP2')
 
         List<Landparcel> landparcelList = [landparcel1, landparcel2]
@@ -438,7 +438,7 @@ class LandparcelFacadeSpec extends Specification {
         landparcel1.setLandOwnershipStatus(ownerStatus)
         landparcel1.setArea(500.0)
         landparcel1.setCommune('CommuneA')
-        landparcel1.setGeodesyRegistrationDistrictNumber('GRD1')
+        landparcel1.setGeodesyDistrictNumber('GRD1')
         landparcel1.setLandparcelNumber('LP1')
 
         Landparcel landparcel2 = new Landparcel()
@@ -446,7 +446,7 @@ class LandparcelFacadeSpec extends Specification {
         landparcel2.setLandOwnershipStatus(ownerStatus)
         landparcel2.setArea(600.0)
         landparcel2.setCommune('CommuneB')
-        landparcel2.setGeodesyRegistrationDistrictNumber('GRD2')
+        landparcel2.setGeodesyDistrictNumber('GRD2')
         landparcel2.setLandparcelNumber('LP2')
 
         Landparcel landparcel3 = new Landparcel()
@@ -454,7 +454,7 @@ class LandparcelFacadeSpec extends Specification {
         landparcel3.setLandOwnershipStatus(ownerStatus)
         landparcel3.setArea(700.0)
         landparcel3.setCommune('CommuneC')
-        landparcel3.setGeodesyRegistrationDistrictNumber('GRD3')
+        landparcel3.setGeodesyDistrictNumber('GRD3')
         landparcel3.setLandparcelNumber('LP3')
 
         List<Landparcel> landparcelList = [landparcel1, landparcel2, landparcel3]
@@ -480,7 +480,7 @@ class LandparcelFacadeSpec extends Specification {
         landparcel1.setLandOwnershipStatus(ownerStatus)
         landparcel1.setArea(500.0)
         landparcel1.setCommune('CommuneA')
-        landparcel1.setGeodesyRegistrationDistrictNumber('GRD1')
+        landparcel1.setGeodesyDistrictNumber('GRD1')
         landparcel1.setLandparcelNumber('LP1')
 
         Landparcel landparcel2 = new Landparcel()
@@ -488,7 +488,7 @@ class LandparcelFacadeSpec extends Specification {
         landparcel2.setLandOwnershipStatus(ownerStatus)
         landparcel2.setArea(600.0)
         landparcel2.setCommune('CommuneB')
-        landparcel2.setGeodesyRegistrationDistrictNumber('GRD2')
+        landparcel2.setGeodesyDistrictNumber('GRD2')
         landparcel2.setLandparcelNumber('LP2')
 
         List<Landparcel> landparcelList = [landparcel1, landparcel2]

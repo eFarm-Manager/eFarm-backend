@@ -1,27 +1,23 @@
 package com.efarm.efarmbackend.repository.landparcel;
 
-import java.util.Optional;
-
+import com.efarm.efarmbackend.model.farm.ActivationCode;
+import com.efarm.efarmbackend.model.farm.Address;
+import com.efarm.efarmbackend.model.farm.Farm;
+import com.efarm.efarmbackend.model.landparcel.Landparcel;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.ActiveProfiles;
 
-import com.efarm.efarmbackend.model.farm.ActivationCode;
-import com.efarm.efarmbackend.model.farm.Address;
-import com.efarm.efarmbackend.model.farm.Farm;
-import com.efarm.efarmbackend.model.landparcel.Landparcel;
-
-import jakarta.transaction.Transactional;
-
 import java.util.List;
+import java.util.Optional;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 
 @DataJpaTest
 @Transactional
@@ -68,14 +64,10 @@ public class LandparcelRepositoryIT {
             .createQuery("SELECT l FROM Landparcel l WHERE l.id.farmId = 1 AND l.id.id = 1", Landparcel.class)
             .getSingleResult();
 
-        String district = existingLandparcel.getDistrict();
-        String commune= existingLandparcel.getCommune();
-        String geodesyRegistrationDistrictNumber = existingLandparcel.getGeodesyRegistrationDistrictNumber();
-        String landparcelNumber = existingLandparcel.getLandparcelNumber();
+        String geodesyLandparcelNumber = existingLandparcel.getGeodesyLandparcelNumber();
 
         // When
-        Boolean exists = landparcelRepository.existsByDistrictAndCommuneAndGeodesyRegistrationDistrictNumberAndLandparcelNumberAndFarm(
-                district, commune, geodesyRegistrationDistrictNumber, landparcelNumber, farm);
+        Boolean exists = landparcelRepository.existsByGeodesyLandparcelNumberAndFarm(geodesyLandparcelNumber, farm);
 
         // Then
         assertThat(exists,is(true));
@@ -87,8 +79,7 @@ public class LandparcelRepositoryIT {
         Farm farm = entityManager.find(Farm.class, 1);
         
         // When
-        Boolean exists = landparcelRepository.existsByDistrictAndCommuneAndGeodesyRegistrationDistrictNumberAndLandparcelNumberAndFarm(
-                "DistrictUnknown", "CommuneUnknown", "GRDUnknown", "LPUnknown", farm);
+        Boolean exists = landparcelRepository.existsByGeodesyLandparcelNumberAndFarm("geodesyLandparcelNumberUnknown", farm);
 
         // Then
         assertThat(exists, is(false));

@@ -13,6 +13,10 @@ public class AddLandparcelRequest {
     @Pattern(regexp = "STATUS_LEASE|STATUS_PRIVATELY_OWNED", message = "Status własności musi być jednym z: STATUS_LEASE, STATUS_PRIVATELY_OWNED")
     private String landOwnershipStatus;
 
+    @NotBlank(message = "Nazwa nie może być pusta")
+    @Size(min = 3, max = 60, message = "Nazwa musi zawierać od 3 do 60 znaków")
+    private String name;
+
     @NotBlank(message = "Województwo nie może być puste")
     @Size(min = 3, max = 30, message = "Województwo musi zawierać od 3 do 30 znaków")
     private String voivodeship;
@@ -27,7 +31,7 @@ public class AddLandparcelRequest {
 
     @NotBlank(message = "Numer obrębu ewidencyjnego nie może być pusty")
     @Size(min = 1, max = 10, message = "Numer obrębu ewidencyjnego musi zawierać od 1 do 10 znaków")
-    private String geodesyRegistrationDistrictNumber;
+    private String geodesyDistrictNumber;
 
     @NotBlank(message = "Numer działki nie może być pusty")
     @Size(min = 1, max = 20, message = "Numer działki musi zawierać od 1 do 20 znaków")

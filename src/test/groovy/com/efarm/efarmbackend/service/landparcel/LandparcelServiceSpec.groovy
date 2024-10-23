@@ -29,7 +29,7 @@ class LandparcelServiceSpec extends Specification {
             voivodeship: 'Mazowieckie',
             district: 'Warszawa',
             commune: 'Mokotów',
-            geodesyRegistrationDistrictNumber: 'XYZ123',
+                setGeodesyDistrictNumber: 'XYZ123',
             landparcelNumber: 'LP-001',
             longitude: 21.0122,
             latitude: 52.2297,
@@ -49,7 +49,7 @@ class LandparcelServiceSpec extends Specification {
         landparcel.getVoivodeship() == landparcelDTO.getVoivodeship()
         landparcel.getDistrict() == landparcelDTO.getDistrict()
         landparcel.getCommune() == landparcelDTO.getCommune()
-        landparcel.getGeodesyRegistrationDistrictNumber() == landparcelDTO.getGeodesyRegistrationDistrictNumber()
+        landparcel.getGeodesyDistrictNumber() == landparcelDTO.getGeodesyDistrictNumber()
         landparcel.getLandparcelNumber() == landparcelDTO.getLandparcelNumber()
         landparcel.getLongitude() == landparcelDTO.getLongitude()
         landparcel.getLatitude() == landparcelDTO.getLatitude()
@@ -63,7 +63,7 @@ class LandparcelServiceSpec extends Specification {
             voivodeship: 'Mazowieckie',
             district: 'Warszawa',
             commune: 'Mokotów',
-            geodesyRegistrationDistrictNumber: 'XYZ123',
+                setGeodesyDistrictNumber: 'XYZ123',
             landparcelNumber: 'LP-001',
             longitude: 21.0122,
             latitude: 52.2297,
@@ -83,7 +83,7 @@ class LandparcelServiceSpec extends Specification {
         landparcel.getVoivodeship() == landparcelDTO.getVoivodeship()
         landparcel.getDistrict() == landparcelDTO.getDistrict()
         landparcel.getCommune() == landparcelDTO.getCommune()
-        landparcel.getGeodesyRegistrationDistrictNumber() == landparcelDTO.getGeodesyRegistrationDistrictNumber()
+        landparcel.getGeodesyDistrictNumber() == landparcelDTO.getGeodesyDistrictNumber()
         landparcel.getLandparcelNumber() == landparcelDTO.getLandparcelNumber()
         landparcel.getLongitude() == landparcelDTO.getLongitude()
         landparcel.getLatitude() == landparcelDTO.getLatitude()
@@ -97,7 +97,7 @@ class LandparcelServiceSpec extends Specification {
             voivodeship: 'Mazowieckie',
             district: 'Warszawa',
             commune: 'Mokotów',
-            geodesyRegistrationDistrictNumber: 'XYZ123',
+                setGeodesyDistrictNumber: 'XYZ123',
             landparcelNumber: 'LP-001',
             longitude: 21.0122,
             latitude: 52.2297,
@@ -117,7 +117,7 @@ class LandparcelServiceSpec extends Specification {
         landparcel.getVoivodeship() == landparcelDTO.getVoivodeship()
         landparcel.getDistrict() == landparcelDTO.getDistrict()
         landparcel.getCommune() == landparcelDTO.getCommune()
-        landparcel.getGeodesyRegistrationDistrictNumber() == landparcelDTO.getGeodesyRegistrationDistrictNumber()
+        landparcel.getGeodesyDistrictNumber() == landparcelDTO.getGeodesyDistrictNumber()
         landparcel.getLandparcelNumber() == landparcelDTO.getLandparcelNumber()
         landparcel.getLongitude() == landparcelDTO.getLongitude()
         landparcel.getLatitude() == landparcelDTO.getLatitude()
@@ -204,7 +204,7 @@ class LandparcelServiceSpec extends Specification {
         landparcel.setVoivodeship('Mazowieckie')
         landparcel.setDistrict('Warszawa')
         landparcel.setCommune('Mokotów')
-        landparcel.setGeodesyRegistrationDistrictNumber('XYZ123')
+        landparcel.setGeodesyDistrictNumber('XYZ123')
         landparcel.setLandparcelNumber('LP-001')
         landparcel.setLongitude(21.0122)
         landparcel.setLatitude(52.2297)
@@ -219,7 +219,7 @@ class LandparcelServiceSpec extends Specification {
         landparcelDTO.getVoivodeship() == landparcel.getVoivodeship()
         landparcelDTO.getDistrict() == landparcel.getDistrict()
         landparcelDTO.getCommune() == landparcel.getCommune()
-        landparcelDTO.getGeodesyRegistrationDistrictNumber() == landparcel.getGeodesyRegistrationDistrictNumber()
+        landparcelDTO.getGeodesyDistrictNumber() == landparcel.getGeodesyDistrictNumber()
         landparcelDTO.getLandparcelNumber() == landparcel.getLandparcelNumber()
         landparcelDTO.getLongitude() == landparcel.getLongitude()
         landparcelDTO.getLatitude() == landparcel.getLatitude()
@@ -231,7 +231,7 @@ class LandparcelServiceSpec extends Specification {
         LandparcelDTO landparcelDTO = new LandparcelDTO(
             district: 'District',
             commune: 'Commune',
-            geodesyRegistrationDistrictNumber: '987654',
+                setGeodesyDistrictNumber: '987654',
             landparcelNumber: '12345'
         )
 
@@ -239,7 +239,7 @@ class LandparcelServiceSpec extends Specification {
         landparcelRepository.existsByDistrictAndCommuneAndGeodesyRegistrationDistrictNumberAndLandparcelNumberAndFarm(
             landparcelDTO.getDistrict(),
             landparcelDTO.getCommune(),
-            landparcelDTO.getGeodesyRegistrationDistrictNumber(),
+            landparcelDTO.getGeodesyDistrictNumber(),
             landparcelDTO.getLandparcelNumber(),
             farm
         ) >> true
@@ -256,7 +256,7 @@ class LandparcelServiceSpec extends Specification {
         LandparcelDTO landparcelDTO = new LandparcelDTO(
             district: 'District',
             commune: 'Commune',
-            geodesyRegistrationDistrictNumber: '987654',
+                setGeodesyDistrictNumber: '987654',
             landparcelNumber: '12345'
         )
         Farm farm = new Farm()
@@ -264,7 +264,7 @@ class LandparcelServiceSpec extends Specification {
         landparcelRepository.existsByDistrictAndCommuneAndGeodesyRegistrationDistrictNumberAndLandparcelNumberAndFarm(
             landparcelDTO.getDistrict(),
             landparcelDTO.getCommune(),
-            landparcelDTO.getGeodesyRegistrationDistrictNumber(),
+            landparcelDTO.getGeodesyDistrictNumber(),
             landparcelDTO.getLandparcelNumber(),
             farm
         ) >> false
@@ -300,7 +300,7 @@ class LandparcelServiceSpec extends Specification {
             voivodeship: 'Lubelskie',
             district: 'district',
             commune: null,
-            geodesyRegistrationDistrictNumber: '987654',
+                setGeodesyDistrictNumber: '987654',
             landparcelNumber: '12345',
             geodesyLandparcelNumber: '25312.05'
         )
@@ -313,7 +313,7 @@ class LandparcelServiceSpec extends Specification {
         landparcel.getVoivodeship() == landparcelDTO.getVoivodeship()
         landparcel.getDistrict() == landparcelDTO.getDistrict()
         landparcel.getCommune() == null
-        landparcel.getGeodesyRegistrationDistrictNumber() == landparcelDTO.getGeodesyRegistrationDistrictNumber()
+        landparcel.getGeodesyDistrictNumber() == landparcelDTO.getGeodesyDistrictNumber()
         landparcel.getLandparcelNumber() == landparcelDTO.getLandparcelNumber()
         landparcel.getGeodesyLandparcelNumber() == landparcelDTO.getGeodesyLandparcelNumber()
     }

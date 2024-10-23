@@ -1,4 +1,4 @@
-package com.efarm.efarmbackend.model.farmfield;
+package com.efarm.efarmbackend.model.agriculturalrecords;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -11,20 +11,15 @@ import lombok.Setter;
 @Setter
 @Entity
 @NoArgsConstructor
-@Table(name = "Uprawa")
-public class Crop {
+@Table(name = "Sezony")
+public class Season {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "idUprawa", nullable = false)
+    @Column(name = "idSezony", nullable = false)
     private Integer id;
 
-    @Size(max = 45)
+    @Size(max = 15)
     @NotNull
-    @Column(name = "nazwaUprawy", nullable = false, length = 45)
+    @Column(name = "nazwaSezonu", nullable = false, length = 15)
     private String name;
-
-    public Crop(Crop crop) {
-        this.id = crop.id;
-        this.name = crop.name;
-    }
 }

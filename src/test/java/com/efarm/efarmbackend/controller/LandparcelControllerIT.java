@@ -77,7 +77,7 @@ public class LandparcelControllerIT {
         addLandparcelRequest.setVoivodeship("Lubelskie");
         addLandparcelRequest.setDistrict("district");
         addLandparcelRequest.setCommune("commune");
-        addLandparcelRequest.setGeodesyRegistrationDistrictNumber("GRD1");
+        addLandparcelRequest.setGeodesyDistrictNumber("GRD1");
         addLandparcelRequest.setLandparcelNumber("LP1");
         addLandparcelRequest.setLongitude(21.0122);
         addLandparcelRequest.setLatitude(52.2297);
@@ -104,7 +104,7 @@ public class LandparcelControllerIT {
         addLandparcelRequest.setVoivodeship(existingLandparcel.getVoivodeship());
         addLandparcelRequest.setDistrict(existingLandparcel.getDistrict());
         addLandparcelRequest.setCommune(existingLandparcel.getCommune());
-        addLandparcelRequest.setGeodesyRegistrationDistrictNumber(existingLandparcel.getGeodesyRegistrationDistrictNumber());
+        addLandparcelRequest.setGeodesyDistrictNumber(existingLandparcel.getGeodesyDistrictNumber());
         addLandparcelRequest.setLandparcelNumber(existingLandparcel.getLandparcelNumber());
         addLandparcelRequest.setLongitude(existingLandparcel.getLongitude());
         addLandparcelRequest.setLatitude(existingLandparcel.getLatitude());
@@ -144,7 +144,7 @@ public class LandparcelControllerIT {
         assertThat(landparcelDTO.getLandOwnershipStatus(), is(firstLandparcel.getLandOwnershipStatus().getOwnershipStatus().toString()));
         assertThat(landparcelDTO.getDistrict(), is(firstLandparcel.getDistrict()));
         assertThat(landparcelDTO.getCommune(),is(firstLandparcel.getCommune()));
-        assertThat(landparcelDTO.getGeodesyRegistrationDistrictNumber(), is(firstLandparcel.getGeodesyRegistrationDistrictNumber()));
+        assertThat(landparcelDTO.getGeodesyDistrictNumber(), is(firstLandparcel.getGeodesyDistrictNumber()));
         assertThat(landparcelDTO.getLandparcelNumber(),is(firstLandparcel.getLandparcelNumber()));
 	assertThat(landparcelDTO.getGeodesyLandparcelNumber(),is(firstLandparcel.getGeodesyLandparcelNumber()));
     }
