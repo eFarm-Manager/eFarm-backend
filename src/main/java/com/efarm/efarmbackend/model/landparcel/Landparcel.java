@@ -28,6 +28,11 @@ public class Landparcel {
     @JoinColumn(name = "StanWlasnosciDzialki_idStanWlasnosciDzialki", nullable = false)
     private LandOwnershipStatus landOwnershipStatus;
 
+    @Size(max = 60)
+    @NotNull
+    @Column(name = "nazwaWlasna", nullable = false, length = 60)
+    private String name;
+
     @Size(max = 45)
     @NotNull
     @Column(name = "wojewodztwo", nullable = false, length = 45)
@@ -43,10 +48,10 @@ public class Landparcel {
     @Column(name = "gmina", nullable = false, length = 60)
     private String commune;
 
-    @Size(max = 10)
+    @Size(max = 60)
     @NotNull
-    @Column(name = "numerObrebuEwidencyjnego", nullable = false, length = 10)
-    private String geodesyRegistrationDistrictNumber;
+    @Column(name = "obreb", nullable = false, length = 60)
+    private String geodesyDistrictNumber;
 
     @Size(max = 10)
     @NotNull
@@ -78,10 +83,11 @@ public class Landparcel {
         this.id = landparcel.getId();
         this.farm = landparcel.getFarm();
         this.landOwnershipStatus = landparcel.getLandOwnershipStatus();
+        this.name = landparcel.getName();
         this.voivodeship = landparcel.getVoivodeship();
         this.district = landparcel.getDistrict();
         this.commune = landparcel.getCommune();
-        this.geodesyRegistrationDistrictNumber = landparcel.getGeodesyRegistrationDistrictNumber();
+        this.geodesyDistrictNumber = landparcel.getGeodesyDistrictNumber();
         this.landparcelNumber = landparcel.getLandparcelNumber();
         this.geodesyLandparcelNumber = landparcel.getGeodesyLandparcelNumber();
         this.longitude = landparcel.getLongitude();
