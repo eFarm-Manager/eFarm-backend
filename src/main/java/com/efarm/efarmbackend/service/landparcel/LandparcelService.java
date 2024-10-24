@@ -1,10 +1,7 @@
 package com.efarm.efarmbackend.service.landparcel;
 
 import com.efarm.efarmbackend.model.farm.Farm;
-import com.efarm.efarmbackend.model.landparcel.ELandOwnershipStatus;
-import com.efarm.efarmbackend.model.landparcel.LandOwnershipStatus;
-import com.efarm.efarmbackend.model.landparcel.Landparcel;
-import com.efarm.efarmbackend.model.landparcel.LandparcelDTO;
+import com.efarm.efarmbackend.model.landparcel.*;
 import com.efarm.efarmbackend.repository.landparcel.LandOwnershipStatusRepository;
 import com.efarm.efarmbackend.repository.landparcel.LandparcelRepository;
 import org.slf4j.Logger;
@@ -65,6 +62,12 @@ public class LandparcelService {
         return landparcelRepository.existsByGeodesyLandparcelNumberAndFarm(
                 landparcelDTO.getGeodesyLandparcelNumber(),
                 loggedUserFarm);
+    }
+
+    public Landparcel findlandparcelByFarm(Integer id,  Farm loggedUserFarm) throws Exception {
+        LandparcelId landparcelId = new LandparcelId(id, loggedUserFarm.getId());
+        return landparcelRepository.findById(landparcelId)
+                .orElseThrow(() -> new Exception("Nie znaleziono działki"));
     }
 
     private void setCommonFields(Landparcel landparcel, LandparcelDTO landparcelDTO) {

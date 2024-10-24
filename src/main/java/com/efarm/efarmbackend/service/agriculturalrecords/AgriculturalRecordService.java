@@ -4,6 +4,7 @@ import com.efarm.efarmbackend.model.agriculturalrecords.AgriculturalRecord;
 import com.efarm.efarmbackend.model.agriculturalrecords.Crop;
 import com.efarm.efarmbackend.model.agriculturalrecords.Season;
 import com.efarm.efarmbackend.model.landparcel.Landparcel;
+import com.efarm.efarmbackend.payload.request.agriculturalrecord.CreateNewAgriculturalRecordRequest;
 import com.efarm.efarmbackend.repository.agriculturalrecords.AgriculturalRecordRepository;
 import com.efarm.efarmbackend.repository.agriculturalrecords.CropRepository;
 import com.efarm.efarmbackend.repository.landparcel.LandparcelRepository;
@@ -12,6 +13,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static org.codehaus.groovy.runtime.DefaultGroovyMethods.round;
 
 @Service
 public class AgriculturalRecordService {
@@ -37,7 +40,7 @@ public class AgriculturalRecordService {
         agriculturalRecordRepository.save(agriculturalRecord);
     }
 
-    public List<AgriculturalRecord> filterRecordsBySearchQuery(List<AgriculturalRecord> agriculturalRecords,  String searchQuery) {
+    public List<AgriculturalRecord> filterRecordsBySearchQuery(List<AgriculturalRecord> agriculturalRecords, String searchQuery) {
         if (searchQuery != null && !searchQuery.isEmpty()) {
             agriculturalRecords = agriculturalRecords.stream()
                     .filter(record -> record.getLandparcel().getName().contains(searchQuery) ||
@@ -52,5 +55,27 @@ public class AgriculturalRecordService {
                 .filter(Landparcel::getIsAvailable)
                 .flatMap(landparcel -> agriculturalRecordRepository.findByLandparcelAndSeason(landparcel, season).stream())
                 .collect(Collectors.toList());
+    }
+
+    public Crop validateCrop(Landparcel landparcel, Season season, String cropName) throws Exception {
+        Crop crop = cropRepository.findByName(cropName);
+        if (crop == null) {
+            throw new Exception("Wybrano nieprawidłowy rodzaj uprawy");
+        }
+        List<AgriculturalRecord> cropsOnLandparcel = agriculturalRecordRepository.findByLandparcelAndSeasonAndCrop(landparcel, season, crop);
+        if (!cropsOnLandparcel.isEmpty()) {
+            throw new Exception("Wybrana uprawa już istnieje na tym polu. Możesz zmienić jej powierzchnię zamiast dodawać ją ponownie.");
+        }
+        return crop;
+    }
+
+    public void validateCropArea(Landparcel landparcel, Season season, CreateNewAgriculturalRecordRequest recordRequest) throws Exception {
+        List<AgriculturalRecord> existingRecords = agriculturalRecordRepository.findByLandparcelAndSeason(landparcel, season);
+        double totalUsedArea = existingRecords.stream().mapToDouble(AgriculturalRecord::getArea).sum();
+
+        if (totalUsedArea + recordRequest.getArea() > landparcel.getArea()) {
+            double areaExceeded = (landparcel.getArea() - recordRequest.getArea() - totalUsedArea)*(-1.0);
+            throw new Exception("Wprowadzona łączna powierzchnia upraw na tym polu została przekroczona o: " + round(areaExceeded, 2) + "ha. Spróbuj najpierw ustawić powierzchnię pozostałych upraw.");
+        }
     }
 }
