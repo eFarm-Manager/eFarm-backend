@@ -5,6 +5,7 @@ import com.efarm.efarmbackend.model.agriculturalrecords.Crop;
 import com.efarm.efarmbackend.model.agriculturalrecords.Season;
 import com.efarm.efarmbackend.model.landparcel.Landparcel;
 import com.efarm.efarmbackend.payload.request.agriculturalrecord.CreateNewAgriculturalRecordRequest;
+import com.efarm.efarmbackend.payload.request.agriculturalrecord.UpdateAgriculturalRecordRequest;
 import com.efarm.efarmbackend.repository.agriculturalrecords.AgriculturalRecordRepository;
 import com.efarm.efarmbackend.repository.agriculturalrecords.CropRepository;
 import com.efarm.efarmbackend.repository.landparcel.LandparcelRepository;
@@ -74,7 +75,40 @@ public class AgriculturalRecordService {
         double totalUsedArea = existingRecords.stream().mapToDouble(AgriculturalRecord::getArea).sum();
 
         if (totalUsedArea + recordRequest.getArea() > landparcel.getArea()) {
-            double areaExceeded = (landparcel.getArea() - recordRequest.getArea() - totalUsedArea)*(-1.0);
+            double areaExceeded = (landparcel.getArea() - recordRequest.getArea() - totalUsedArea) * (-1.0);
+            throw new Exception("Wprowadzona łączna powierzchnia upraw na tym polu została przekroczona o: " + round(areaExceeded, 2) + "ha. Spróbuj najpierw ustawić powierzchnię pozostałych upraw.");
+        }
+    }
+
+    public void updateAgriculturalRecord(Integer id, UpdateAgriculturalRecordRequest updateRequest) throws Exception {
+
+        AgriculturalRecord recordToUpdate = agriculturalRecordRepository.findById(id)
+                .orElseThrow(() -> new Exception("Nie znaleziono ewidencji"));
+
+        Landparcel landparcel = recordToUpdate.getLandparcel();
+        Season season = recordToUpdate.getSeason();
+
+        if (updateRequest.getCropName() != null) {
+            Crop newCrop = validateCrop(landparcel, season, updateRequest.getCropName());
+            recordToUpdate.setCrop(newCrop);
+        }
+        if (updateRequest.getArea() != null) {
+            validateUpdatedCropArea(landparcel, season, updateRequest, recordToUpdate);
+            recordToUpdate.setArea(updateRequest.getArea());
+        }
+        agriculturalRecordRepository.save(recordToUpdate);
+    }
+
+    public void validateUpdatedCropArea(Landparcel landparcel, Season season, UpdateAgriculturalRecordRequest updateRequest, AgriculturalRecord recordToUpdate) throws Exception {
+        List<AgriculturalRecord> existingRecords = agriculturalRecordRepository.findByLandparcelAndSeason(landparcel, season);
+
+        double totalUsedArea = existingRecords.stream()
+                .filter(record -> !record.getId().equals(recordToUpdate.getId()))
+                .mapToDouble(AgriculturalRecord::getArea)
+                .sum();
+
+        if (totalUsedArea + updateRequest.getArea() > landparcel.getArea()) {
+            double areaExceeded = (landparcel.getArea() - updateRequest.getArea() - totalUsedArea) * (-1.0);
             throw new Exception("Wprowadzona łączna powierzchnia upraw na tym polu została przekroczona o: " + round(areaExceeded, 2) + "ha. Spróbuj najpierw ustawić powierzchnię pozostałych upraw.");
         }
     }

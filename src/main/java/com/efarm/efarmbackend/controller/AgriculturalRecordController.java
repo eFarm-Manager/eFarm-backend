@@ -1,6 +1,7 @@
 package com.efarm.efarmbackend.controller;
 
 import com.efarm.efarmbackend.payload.request.agriculturalrecord.CreateNewAgriculturalRecordRequest;
+import com.efarm.efarmbackend.payload.request.agriculturalrecord.UpdateAgriculturalRecordRequest;
 import com.efarm.efarmbackend.payload.response.MessageResponse;
 import com.efarm.efarmbackend.service.ValidationRequestService;
 import com.efarm.efarmbackend.service.agriculturalrecords.AgriculturalRecordFacade;
@@ -41,6 +42,17 @@ public class AgriculturalRecordController {
             validationRequestService.validateRequestWithException(bindingResult);
             agriculturalRecordFacade.addAgriculturalRecord(request);
             return ResponseEntity.ok(new MessageResponse("Pomyślnie dodano nową uprawę"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
+        }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateAgriculturalRecord(@PathVariable Integer id, @RequestBody @Valid UpdateAgriculturalRecordRequest updateRequest, BindingResult bindingResult) {
+        try {
+            validationRequestService.validateRequestWithException(bindingResult);
+            agriculturalRecordFacade.updateAgriculturalRecord(id, updateRequest);
+            return ResponseEntity.ok(new MessageResponse("Pomyślnie zaktualizowano dane"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
         }

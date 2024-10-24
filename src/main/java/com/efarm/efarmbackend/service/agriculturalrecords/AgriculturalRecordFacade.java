@@ -7,6 +7,7 @@ import com.efarm.efarmbackend.model.agriculturalrecords.Season;
 import com.efarm.efarmbackend.model.farm.Farm;
 import com.efarm.efarmbackend.model.landparcel.Landparcel;
 import com.efarm.efarmbackend.payload.request.agriculturalrecord.CreateNewAgriculturalRecordRequest;
+import com.efarm.efarmbackend.payload.request.agriculturalrecord.UpdateAgriculturalRecordRequest;
 import com.efarm.efarmbackend.repository.agriculturalrecords.AgriculturalRecordRepository;
 import com.efarm.efarmbackend.service.landparcel.LandparcelService;
 import com.efarm.efarmbackend.service.user.UserService;
@@ -69,5 +70,10 @@ public class AgriculturalRecordFacade {
         Crop crop = agriculturalRecordService.validateCrop(landparcel, season, recordRequest.getCropName());
         AgriculturalRecord newRecord = new AgriculturalRecord(season, landparcel, crop, recordRequest.getArea());
         agriculturalRecordRepository.save(newRecord);
+    }
+
+    @Transactional
+    public void updateAgriculturalRecord(Integer id, UpdateAgriculturalRecordRequest updateRequest) throws Exception {
+        agriculturalRecordService.updateAgriculturalRecord(id, updateRequest);
     }
 }
