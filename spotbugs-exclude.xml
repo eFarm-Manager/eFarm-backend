@@ -6,20 +6,6 @@
  
     <Match>
         <Bug code="EI,EI2" />
-        <Or>
-            <And>
-                <Class name="com.efarm.efarmbackend.model.user.User" />
-            </And>
-            <And>
-                <Class name="com.efarm.efarmbackend.model.equipment.FarmEquipment"/>
-            </And>
-            <And>
-                <Class name="com.efarm.efarmbackend.model.landparcel.Landparcel"/>
-            </And>
-            <And>
-                <Class name="com.efarm.efarmbackend.model.finance.Transaction"/>
-            </And>
-        </Or>
     </Match>
     <Match>
         <Bug pattern="REC_CATCH_EXCEPTION"/>

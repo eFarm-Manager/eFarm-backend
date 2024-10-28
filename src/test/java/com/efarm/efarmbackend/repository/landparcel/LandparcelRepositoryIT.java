@@ -16,6 +16,9 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.everyItem;
+import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 
@@ -43,8 +46,8 @@ public class LandparcelRepositoryIT {
 
         // Then
         assertThat(result.size(), is(countActive.intValue()));
-        assertThat(result.get(0).getId().getFarmId(),is(farmId));
-        assertThat(result.get(1).getId().getFarmId(),is(farmId));
+        assertThat(result, notNullValue());
+        assertThat(result, everyItem(hasProperty("id", hasProperty("farmId", is(1)))));
     }
 
     @Test
@@ -54,6 +57,7 @@ public class LandparcelRepositoryIT {
 
         // Then
         assertThat(result.size(),is(0));
+        assertThat(result, is(empty()));
     }
 
     @Test
@@ -83,6 +87,62 @@ public class LandparcelRepositoryIT {
 
         // Then
         assertThat(exists, is(false));
+    }
+
+    @Test
+    public void testExistsByFarmAndName() {
+        //given
+        Farm farm = entityManager.find(Farm.class, 1);
+        Landparcel existingLandparcel = entityManager.getEntityManager()
+            .createQuery("SELECT l FROM Landparcel l WHERE l.id.farmId = 1 AND l.id.id = 1", Landparcel.class)
+            .getSingleResult();
+
+        String name = existingLandparcel.getName();
+
+        // When
+        Boolean exists = landparcelRepository.existsByFarmAndName(farm, name);
+
+        // Then
+        assertThat(exists, is(true));
+    }
+
+    @Test
+    public void testDoesNotExistsByFarmAndName() {
+        //given
+        Farm farm = entityManager.find(Farm.class, 1);
+        
+        // When
+        Boolean exists = landparcelRepository.existsByFarmAndName(farm, "nameUnknown");
+
+        // Then
+        assertThat(exists, is(false));
+    }
+
+    @Test
+    public void testfindByFarmIdAndIsAvailableTrue() {
+        //given
+        Integer farmId = 1;
+        Long countActive = entityManager.getEntityManager()
+                .createQuery("SELECT COUNT(l) FROM Landparcel l WHERE l.id.farmId = 1 AND l.isAvailable = true", Long.class)
+                .getSingleResult();
+        
+        // When
+        List<Landparcel> result = landparcelRepository.findByFarmIdAndIsAvailableTrue(farmId);
+
+        // Then
+        assertThat(result.size(), is(countActive.intValue()));
+        assertThat(result, notNullValue());
+        assertThat(result, everyItem(hasProperty("id", hasProperty("farmId", is(1)))));
+    }
+
+    @Test
+    public void testfindByFarmIdAndIsAvailableTrueEmptyForUnknownFarmId() {
+        // When
+        List<Landparcel> result = landparcelRepository.findByFarmIdAndIsAvailableTrue(999); 
+
+        // Then
+        assertThat(result.size(),is(0));
+        assertThat(result, is(empty()));
     }
 
     @Test
@@ -132,7 +192,7 @@ public class LandparcelRepositoryIT {
         Integer nextFreeId = landparcelRepository.findNextFreeIdForFarm(farm.getId());
 
         // Then
-        assertThat(nextFreeId, is(maxIdForFarm + 1) ); // Next ID should be 3 since we have IDs 1 and 2
+        assertThat(nextFreeId, is(maxIdForFarm + 1) );
     }
 
     @Test

@@ -73,6 +73,7 @@ public class LandparcelControllerIT {
     void testAddingNewLandparcel() throws Exception {
         //given
         AddLandparcelRequest addLandparcelRequest = new AddLandparcelRequest();
+        addLandparcelRequest.setName("Dzialka1");
         addLandparcelRequest.setLandOwnershipStatus("STATUS_PRIVATELY_OWNED"); 
         addLandparcelRequest.setVoivodeship("Lubelskie");
         addLandparcelRequest.setDistrict("district");
@@ -94,21 +95,22 @@ public class LandparcelControllerIT {
 }
 
     @Test
-    void testAddingExistingLandparcel() throws Exception {
+    void testAddingExistingLandparcelByFarm() throws Exception {
         //given
         LandparcelId landparcelId = new LandparcelId(1, 1);
         Landparcel existingLandparcel = entityManager.find(Landparcel.class, landparcelId);
 
         AddLandparcelRequest addLandparcelRequest = new AddLandparcelRequest();
-        addLandparcelRequest.setLandOwnershipStatus(existingLandparcel.getLandOwnershipStatus().getOwnershipStatus().toString());
-        addLandparcelRequest.setVoivodeship(existingLandparcel.getVoivodeship());
-        addLandparcelRequest.setDistrict(existingLandparcel.getDistrict());
-        addLandparcelRequest.setCommune(existingLandparcel.getCommune());
-        addLandparcelRequest.setGeodesyDistrictNumber(existingLandparcel.getGeodesyDistrictNumber());
-        addLandparcelRequest.setLandparcelNumber(existingLandparcel.getLandparcelNumber());
-        addLandparcelRequest.setLongitude(existingLandparcel.getLongitude());
-        addLandparcelRequest.setLatitude(existingLandparcel.getLatitude());
-        addLandparcelRequest.setArea(existingLandparcel.getArea());
+        addLandparcelRequest.setName("Dzialka1");
+        addLandparcelRequest.setLandOwnershipStatus("STATUS_PRIVATELY_OWNED"); 
+        addLandparcelRequest.setVoivodeship("Lubelskie");
+        addLandparcelRequest.setDistrict("district");
+        addLandparcelRequest.setCommune("commune");
+        addLandparcelRequest.setGeodesyDistrictNumber("GRD1");
+        addLandparcelRequest.setLandparcelNumber("LP1");
+        addLandparcelRequest.setLongitude(21.0122);
+        addLandparcelRequest.setLatitude(52.2297);
+        addLandparcelRequest.setArea(500.0);
 	addLandparcelRequest.setGeodesyLandparcelNumber(existingLandparcel.getGeodesyLandparcelNumber());
 
         //when
@@ -118,6 +120,34 @@ public class LandparcelControllerIT {
         //then
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Działka o powyższych danych geodezyjnych już istnieje!"));
+    }
+
+    @Test
+    void testAddingLandparcelWithExistingName() throws Exception {
+        //given
+        LandparcelId landparcelId = new LandparcelId(1, 1);
+        Landparcel existingLandparcel = entityManager.find(Landparcel.class, landparcelId);
+
+        AddLandparcelRequest addLandparcelRequest = new AddLandparcelRequest();
+        addLandparcelRequest.setName(existingLandparcel.getName());
+        addLandparcelRequest.setLandOwnershipStatus("STATUS_PRIVATELY_OWNED"); 
+        addLandparcelRequest.setVoivodeship("Lubelskie");
+        addLandparcelRequest.setDistrict("district");
+        addLandparcelRequest.setCommune("commune");
+        addLandparcelRequest.setGeodesyDistrictNumber("GRD1");
+        addLandparcelRequest.setLandparcelNumber("LP1");
+        addLandparcelRequest.setLongitude(21.0122);
+        addLandparcelRequest.setLatitude(52.2297);
+        addLandparcelRequest.setArea(500.0);
+	addLandparcelRequest.setGeodesyLandparcelNumber("12523.02");
+
+        //when
+        mockMvc.perform(post("/api/landparcel/new")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(addLandparcelRequest)))
+        //then
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Działka o podanej nazwie już istnieje!"));
     }
 
     /*
@@ -158,6 +188,7 @@ public class LandparcelControllerIT {
         LandparcelId landparcelId = new LandparcelId(1, 1);
  
         UpdateLandparcelRequest updateRequest = new UpdateLandparcelRequest();
+        updateRequest.setName("Dzialka1");
         updateRequest.setLandOwnershipStatus("STATUS_PRIVATELY_OWNED");
         updateRequest.setLongitude(89.0122);
         updateRequest.setLatitude(1.2297);
@@ -171,12 +202,36 @@ public class LandparcelControllerIT {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Dane działki zostały pomyślnie zaktualizowane"));
     }
+
+    //TODO change to bad request and name already taken when it will be changed in facade
+    @Test
+    void testUpdateToNameThatAlreadyExists() throws Exception {
+        //given
+        LandparcelId landparcelId = new LandparcelId(2, 1);
+        Landparcel existingLandparcel = entityManager.find(Landparcel.class, landparcelId);
+        UpdateLandparcelRequest updateRequest = new UpdateLandparcelRequest();
+        updateRequest.setName(existingLandparcel.getName());
+        updateRequest.setLandOwnershipStatus("STATUS_PRIVATELY_OWNED");
+        updateRequest.setLongitude(89.0122);
+        updateRequest.setLatitude(1.2297);
+        updateRequest.setArea(999.0);
+        Integer idToUpdate = landparcelId.getId()-1;
+
+        //when
+        mockMvc.perform(put("/api/landparcel/" + idToUpdate)
+                .contentType("application/json")
+                .content(objectMapper.writeValueAsString(updateRequest)))
+        //then
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Dane działki zostały pomyślnie zaktualizowane"));
+    }
     
     @Test
     void testUpdateNonExistentLandparcel() throws Exception {
         //given
         Integer nonExistentId = 999;
         UpdateLandparcelRequest updateRequest = new UpdateLandparcelRequest();
+        updateRequest.setName("Dzialka1");
         updateRequest.setLandOwnershipStatus("STATUS_PRIVATELY_OWNED");
         updateRequest.setLongitude(89.0122);
         updateRequest.setLatitude(1.2297);
@@ -200,6 +255,7 @@ public class LandparcelControllerIT {
         entityManager.persist(landparcel);
     
         UpdateLandparcelRequest updateRequest = new UpdateLandparcelRequest();
+        updateRequest.setName("Dzialka1");
         updateRequest.setLandOwnershipStatus("STATUS_PRIVATELY_OWNED");
         updateRequest.setLongitude(89.0122);
         updateRequest.setLatitude(1.2297);

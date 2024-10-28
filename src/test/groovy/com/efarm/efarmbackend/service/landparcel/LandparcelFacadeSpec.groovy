@@ -6,6 +6,7 @@ import com.efarm.efarmbackend.model.landparcel.LandparcelDTO
 import com.efarm.efarmbackend.model.landparcel.LandparcelId
 import com.efarm.efarmbackend.model.landparcel.ELandOwnershipStatus
 import com.efarm.efarmbackend.model.landparcel.LandOwnershipStatus
+import com.efarm.efarmbackend.service.agriculturalrecords.AgriculturalRecordService;
 import com.efarm.efarmbackend.repository.landparcel.LandparcelRepository
 import com.efarm.efarmbackend.payload.request.landparcel.AddLandparcelRequest
 import com.efarm.efarmbackend.payload.request.landparcel.UpdateLandparcelRequest
@@ -20,12 +21,14 @@ class LandparcelFacadeSpec extends Specification {
     def landparcelService = Mock(LandparcelService)
     def landparcelRepository = Mock(LandparcelRepository)
     def userService = Mock(UserService)
+    def agriculturalRecordService = Mock(AgriculturalRecordService)
 
     @Subject
     LandparcelFacade landparcelFacade = new LandparcelFacade(
             landparcelService: landparcelService,
             landparcelRepository: landparcelRepository,
-            userService: userService
+            userService: userService,
+            agriculturalRecordService: agriculturalRecordService
     )
     /*
         addNewLandparcel
@@ -43,7 +46,7 @@ class LandparcelFacadeSpec extends Specification {
         addLandparcelRequest.setLongitude(21.0122)
         addLandparcelRequest.setLatitude(52.2297)
         addLandparcelRequest.setArea(100.0)
-	addLandparcelRequest.setGeodesyLandparcelNumber('25312.05')
+	    addLandparcelRequest.setGeodesyLandparcelNumber('25312.05')
 
         Farm farm = Mock(Farm) {
             getId() >> 1
@@ -52,6 +55,7 @@ class LandparcelFacadeSpec extends Specification {
         userService.getLoggedUserFarm() >> farm
         landparcelRepository.findNextFreeIdForFarm(farm.getId()) >> 1
         landparcelService.isLandparcelAlreadyExistingByFarm(_, farm) >> false
+        landparcelService.isLandparcelNameTaken(addLandparcelRequest.getName(), farm) >> false
 
         when:
         landparcelFacade.addNewLandparcel(addLandparcelRequest)
@@ -59,6 +63,7 @@ class LandparcelFacadeSpec extends Specification {
         then:
         1 * landparcelService.addNewLandparcelData(_, _)
         1 * landparcelRepository.save(_)
+        1 * agriculturalRecordService.createInitialAgriculturalRecordForLandparcel(_, _)
     }
 
     def "should throw exception when land parcel already exists"() {
@@ -68,7 +73,38 @@ class LandparcelFacadeSpec extends Specification {
             voivodeship: 'Lubelskie',
             district: 'district',
             commune: 'commune',
-                setGeodesyDistrictNumber: 'XYZ123',
+            geodesyDistrictNumber: 'XYZ123',
+            landparcelNumber: 'LP-001',
+            longitude: 21.0122,
+            latitude: 52.2297,
+            area: 1500.0,
+	        geodesyLandparcelNumber: '25312.05'
+        )
+        Farm farm = Mock(Farm)
+
+        userService.getLoggedUserFarm() >> farm
+        landparcelRepository.findNextFreeIdForFarm(farm.getId()) >> 123
+        landparcelService.isLandparcelAlreadyExistingByFarm(_, farm) >> true
+
+        when:
+        landparcelFacade.addNewLandparcel(addLandparcelRequest)
+
+        then:
+        Exception e = thrown(Exception)
+        e.message == 'Działka o powyższych danych geodezyjnych już istnieje!'
+
+        0 * landparcelService.addNewLandparcelData(_, _)
+        0 * landparcelRepository.save(_)
+    }
+
+    def "should throw exception when landparcel name is already taken"() {
+        given:
+        AddLandparcelRequest addLandparcelRequest = new AddLandparcelRequest(
+            landOwnershipStatus: 'STATUS_PRIVATELY_OWNED',
+            voivodeship: 'Lubelskie',
+            district: 'district',
+            commune: 'commune',
+            geodesyDistrictNumber: 'XYZ123',
             landparcelNumber: 'LP-001',
             longitude: 21.0122,
             latitude: 52.2297,
@@ -80,15 +116,15 @@ class LandparcelFacadeSpec extends Specification {
 
         userService.getLoggedUserFarm() >> farm
         landparcelRepository.findNextFreeIdForFarm(farm.getId()) >> 123
-
-        landparcelService.isLandparcelAlreadyExistingByFarm(_, farm) >> true
+        landparcelService.isLandparcelAlreadyExistingByFarm(_, farm) >> false
+        landparcelService.isLandparcelNameTaken(addLandparcelRequest.getName(), farm) >> true
 
         when:
         landparcelFacade.addNewLandparcel(addLandparcelRequest)
 
         then:
         Exception e = thrown(Exception)
-        e.message == 'Działka o powyższych danych geodezyjnych już istnieje!'
+        e.message == 'Działka o podanej nazwie już istnieje!'
 
         0 * landparcelService.addNewLandparcelData(_, _)
         0 * landparcelRepository.save(_)
