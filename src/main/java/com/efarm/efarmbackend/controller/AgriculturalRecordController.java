@@ -10,6 +10,7 @@ import com.efarm.efarmbackend.service.agriculturalrecords.CropService;
 import com.efarm.efarmbackend.service.agriculturalrecords.SeasonService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
@@ -37,7 +38,7 @@ public class AgriculturalRecordController {
 
     @GetMapping("/all")
     @PreAuthorize("hasRole('ROLE_FARM_MANAGER') or hasRole('ROLE_FARM_OWNER') or hasRole('ROLE_FARM_EQUIPMENT_OPERATOR')")
-    public ResponseEntity<?> getFarmEquipment(
+    public ResponseEntity<?> getAgriculturalRecords(
             @RequestParam(required = false) String searchQuery,
             @RequestParam(required = false) String season
     ) {
@@ -54,7 +55,7 @@ public class AgriculturalRecordController {
         try {
             validationRequestService.validateRequestWithException(bindingResult);
             agriculturalRecordFacade.addAgriculturalRecord(request);
-            return ResponseEntity.ok(new MessageResponse("Pomyślnie dodano nową uprawę"));
+            return ResponseEntity.status(HttpStatus.CREATED).body(new MessageResponse("Pomyślnie dodano nową uprawę"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
         }
@@ -65,7 +66,7 @@ public class AgriculturalRecordController {
     public ResponseEntity<MessageResponse> generateRecordsForSeason(@RequestParam String seasonName) {
         try {
             agriculturalRecordFacade.createRecordsForNewSeason(seasonName);
-            return ResponseEntity.ok(new MessageResponse("Ewidencje dla nowego sezonu zostały wygenerowane"));
+            return ResponseEntity.status(HttpStatus.CREATED).body(new MessageResponse("Ewidencje dla nowego sezonu zostały wygenerowane"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
         }

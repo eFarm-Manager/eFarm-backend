@@ -8,6 +8,7 @@ import com.efarm.efarmbackend.payload.request.landparcel.AddLandparcelRequest;
 import com.efarm.efarmbackend.payload.request.landparcel.UpdateLandparcelRequest;
 import com.efarm.efarmbackend.repository.landparcel.LandparcelRepository;
 import com.efarm.efarmbackend.service.agriculturalrecords.AgriculturalRecordService;
+import com.efarm.efarmbackend.service.agriculturalrecords.SeasonService;
 import com.efarm.efarmbackend.service.user.UserService;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
@@ -34,6 +35,8 @@ public class LandparcelFacade {
     private AgriculturalRecordService agriculturalRecordService;
 
     private static final Logger logger = LoggerFactory.getLogger(LandparcelFacade.class);
+    @Autowired
+    private SeasonService seasonService;
 
     @Transactional
     public void addNewLandparcel(AddLandparcelRequest addLandparcelRequest) throws Exception {
@@ -51,7 +54,7 @@ public class LandparcelFacade {
 
         landparcelService.addNewLandparcelData(landparcelDTO, landparcel);
         landparcelRepository.save(landparcel);
-        agriculturalRecordService.createInitialAgriculturalRecordForLandparcel(landparcel, loggedUserFarm);
+        agriculturalRecordService.createAgriculturalRecordForLandparcel(landparcel, loggedUserFarm, seasonService.getCurrentSeason());
     }
 
     public LandparcelDTO getLandparcelDetails(Integer id) throws Exception {
@@ -80,6 +83,10 @@ public class LandparcelFacade {
         if (!landparcel.getIsAvailable()) {
             throw new Exception("Wybrana działka już nie istnieje");
         }
+        if (landparcelService.isLandparcelNameTaken(landparcelDTO.getName(), loggedUserFarm)) {
+            throw new Exception("Działka o podanej nazwie już istnieje!");
+        }
+
         landparcelService.updateLandparcelData(landparcelDTO, landparcel);
         landparcelRepository.save(landparcel);
     }

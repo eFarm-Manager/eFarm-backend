@@ -23,9 +23,6 @@ import java.util.stream.Collectors;
 public class AgriculturalRecordService {
 
     @Autowired
-    private SeasonService seasonService;
-
-    @Autowired
     private AgriculturalRecordRepository agriculturalRecordRepository;
 
     @Autowired
@@ -36,27 +33,6 @@ public class AgriculturalRecordService {
 
     @Autowired
     private UserService userService;
-
-    public void createInitialAgriculturalRecordForLandparcel(Landparcel landparcel, Farm loggedUserFarm) throws Exception {
-
-        Season currentSeason = seasonService.getCurrentSeason();
-        Crop currentCrop = cropRepository.findByName("uprawa nieoznaczona");
-
-        AgriculturalRecordId agriculturalRecordId = new AgriculturalRecordId(
-                agriculturalRecordRepository.findNextFreeIdForFarm(loggedUserFarm.getId()),
-                loggedUserFarm.getId()
-        );
-        AgriculturalRecord agriculturalRecord = new AgriculturalRecord(
-                agriculturalRecordId,
-                currentSeason,
-                landparcel,
-                currentCrop,
-                landparcel.getArea(),
-                loggedUserFarm,
-                null
-        );
-        agriculturalRecordRepository.save(agriculturalRecord);
-    }
 
     public List<AgriculturalRecord> filterRecordsBySearchQuery(List<AgriculturalRecord> agriculturalRecords, String searchQuery) {
         if (searchQuery != null && !searchQuery.isEmpty()) {
@@ -158,10 +134,14 @@ public class AgriculturalRecordService {
         agriculturalRecordRepository.save(agriculturalRecord);
     }
 
-    public void deleteAgriculturalRecord(Integer id) {
+    public void deleteAgriculturalRecord(Integer id) throws Exception {
         Farm loggedUserFarm = userService.getLoggedUserFarm();
         AgriculturalRecordId agriculturalRecordId = new AgriculturalRecordId(id, loggedUserFarm.getId());
         //TODO: w przyszłości tutaj należy dorobić usuwanie wszystkich powiązanych zabiegów
-        agriculturalRecordRepository.deleteById(agriculturalRecordId);
+        if (agriculturalRecordRepository.existsById(agriculturalRecordId)) {
+            agriculturalRecordRepository.deleteById(agriculturalRecordId);
+        } else {
+            throw new Exception("Ewidencja, którą próbujesz usunąć nie istnieje!");
+        }
     }
 }
