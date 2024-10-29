@@ -6,7 +6,9 @@ import com.efarm.efarmbackend.model.landparcel.LandparcelDTO
 import com.efarm.efarmbackend.model.landparcel.LandparcelId
 import com.efarm.efarmbackend.model.landparcel.ELandOwnershipStatus
 import com.efarm.efarmbackend.model.landparcel.LandOwnershipStatus
+import com.efarm.efarmbackend.model.agriculturalrecords.Season
 import com.efarm.efarmbackend.service.agriculturalrecords.AgriculturalRecordService;
+import com.efarm.efarmbackend.service.agriculturalrecords.SeasonService;
 import com.efarm.efarmbackend.repository.landparcel.LandparcelRepository
 import com.efarm.efarmbackend.payload.request.landparcel.AddLandparcelRequest
 import com.efarm.efarmbackend.payload.request.landparcel.UpdateLandparcelRequest
@@ -22,13 +24,15 @@ class LandparcelFacadeSpec extends Specification {
     def landparcelRepository = Mock(LandparcelRepository)
     def userService = Mock(UserService)
     def agriculturalRecordService = Mock(AgriculturalRecordService)
+    def seasonService = Mock(SeasonService)
 
     @Subject
     LandparcelFacade landparcelFacade = new LandparcelFacade(
             landparcelService: landparcelService,
             landparcelRepository: landparcelRepository,
             userService: userService,
-            agriculturalRecordService: agriculturalRecordService
+            agriculturalRecordService: agriculturalRecordService,
+            seasonService: seasonService
     )
     /*
         addNewLandparcel
@@ -56,6 +60,7 @@ class LandparcelFacadeSpec extends Specification {
         landparcelRepository.findNextFreeIdForFarm(farm.getId()) >> 1
         landparcelService.isLandparcelAlreadyExistingByFarm(_, farm) >> false
         landparcelService.isLandparcelNameTaken(addLandparcelRequest.getName(), farm) >> false
+        seasonService.getCurrentSeason() >> Mock(Season)
 
         when:
         landparcelFacade.addNewLandparcel(addLandparcelRequest)
@@ -63,7 +68,7 @@ class LandparcelFacadeSpec extends Specification {
         then:
         1 * landparcelService.addNewLandparcelData(_, _)
         1 * landparcelRepository.save(_)
-        1 * agriculturalRecordService.createInitialAgriculturalRecordForLandparcel(_, _)
+        1 * agriculturalRecordService.createAgriculturalRecordForLandparcel(_, _, _)
     }
 
     def "should throw exception when land parcel already exists"() {
@@ -206,6 +211,7 @@ class LandparcelFacadeSpec extends Specification {
         Integer id = 1
         Farm farm = Mock(Farm)
         UpdateLandparcelRequest updateLandparcelRequest = new UpdateLandparcelRequest(
+            name: 'Landparcel',
             longitude: 21.0122,
             latitude: 52.2297,
             area: 1500.0
@@ -217,6 +223,7 @@ class LandparcelFacadeSpec extends Specification {
 
         userService.getLoggedUserFarm() >> farm
         landparcelRepository.findById(landparcelId) >> Optional.of(landparcel)
+        landparcelService.isLandparcelNameTaken(updateLandparcelRequest.getName(), farm) >> false
 
         when:
         landparcelFacade.updateLandparcel(id, updateLandparcelRequest)
@@ -262,6 +269,33 @@ class LandparcelFacadeSpec extends Specification {
         then:
         def exception = thrown(Exception)
         exception.message == 'Wybrana działka już nie istnieje'
+    }
+
+    def "should throw exception when landparcel name taken"() {
+        given:
+        Integer id = 1
+        Farm farm = Mock(Farm)
+        UpdateLandparcelRequest updateLandparcelRequest = new UpdateLandparcelRequest(
+            name: 'Landparcel',
+            longitude: 21.0122,
+            latitude: 52.2297,
+            area: 1500.0
+        )
+        LandparcelId landparcelId = new LandparcelId(id, farm.getId())
+        Landparcel landparcel = new Landparcel()
+        landparcel.setId(landparcelId)
+        landparcel.setIsAvailable(true)
+
+        userService.getLoggedUserFarm() >> farm
+        landparcelRepository.findById(landparcelId) >> Optional.of(landparcel)
+        landparcelService.isLandparcelNameTaken(updateLandparcelRequest.getName(), farm) >> true
+
+        when:
+        landparcelFacade.updateLandparcel(id, updateLandparcelRequest)
+
+        then:
+        Exception ex = thrown(Exception)
+        ex.message == 'Działka o podanej nazwie już istnieje!'
     }
     /*
         deleteLandparcel

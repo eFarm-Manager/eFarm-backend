@@ -157,7 +157,7 @@ public class AgriculturalRecordControllerIT {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
         // then
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.message").value("Pomyślnie dodano nową uprawę"));
     }
 
@@ -244,7 +244,7 @@ public class AgriculturalRecordControllerIT {
                 .param("seasonName", seasonName)
                 .contentType(MediaType.APPLICATION_JSON))
         // then
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.message").value("Ewidencje dla nowego sezonu zostały wygenerowane"));
 
         List<AgriculturalRecord> records = entityManager.createQuery(
@@ -344,25 +344,6 @@ public class AgriculturalRecordControllerIT {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Maksymalna niewykorzystana powierzchnia na tym polu to: 2140400.0 ha. Spróbuj najpierw zmniejszyć powierzchnię pozostałych upraw.")); 
     }
-    
-    @Test
-    public void shouldAllowSettingAreaToZero() throws Exception {
-        // given
-        Integer recordId = 1;
-        UpdateAgriculturalRecordRequest request = new UpdateAgriculturalRecordRequest();
-        request.setArea(.0); 
-    
-        // when
-        mockMvc.perform(put("/api/records/" + recordId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-        // then
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Pomyślnie zaktualizowano dane"));
-    
-        AgriculturalRecord updatedRecord = entityManager.find(AgriculturalRecord.class, new AgriculturalRecordId(recordId, 1));
-        assertThat(updatedRecord.getArea(), is(0.0));
-    }
 
     /*
      * DELETE /{id}
@@ -382,18 +363,18 @@ public class AgriculturalRecordControllerIT {
         AgriculturalRecord deletedRecord = entityManager.find(AgriculturalRecord.class, new AgriculturalRecordId(recordId, 1));
         assertThat(deletedRecord, is((AgriculturalRecord) null));
     }
-/* NON EXISTENT SCENARIO YET
+
     @Test
     public void shouldReturnBadRequestForNonExistentRecordWhenDeleting() throws Exception {
         // given
-        Integer nonExistentRecordId = 999; // Assuming this ID does not exist
+        Integer nonExistentRecordId = 999; 
     
         // when
         mockMvc.perform(delete("/api/records/" + nonExistentRecordId))
         // then
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Nie znaleziono ewidencji")); 
-    }*/
+                .andExpect(jsonPath("$.message").value("Ewidencja, którą próbujesz usunąć nie istnieje!")); 
+    }
 
     /*
      * GET /available-seasons

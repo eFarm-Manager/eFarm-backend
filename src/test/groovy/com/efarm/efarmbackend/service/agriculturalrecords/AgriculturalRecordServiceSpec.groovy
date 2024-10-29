@@ -19,7 +19,6 @@ import spock.lang.Specification
 
 class AgriculturalRecordServiceSpec extends Specification {
 
-    def seasonService = Mock(SeasonService)
     def agriculturalRecordRepository = Mock(AgriculturalRecordRepository)
     def cropRepository = Mock(CropRepository)
     def landparcelRepository = Mock(LandparcelRepository)
@@ -27,55 +26,12 @@ class AgriculturalRecordServiceSpec extends Specification {
 
     @Subject
     AgriculturalRecordService agriculturalRecordService = new AgriculturalRecordService(
-            seasonService: seasonService,
             agriculturalRecordRepository: agriculturalRecordRepository,
             cropRepository: cropRepository,
             landparcelRepository: landparcelRepository,
             userService: userService
     )
-    /*
-    * createInitialAgriculturalRecordForLandparcel
-    */
 
-    def "should create inital agricultural record for landparcel"() {
-        given:
-        Farm farm = Mock(Farm) {
-            getId() >> 1
-        }
-        Landparcel landparcel = Mock(Landparcel)
-        Season season = Mock(Season)
-        String cropName = 'uprawa nieoznaczona'
-        Crop crop = Mock(Crop) {
-            getName() >> cropName
-        }
-
-        seasonService.getCurrentSeason() >> season
-        cropRepository.findByName(cropName) >> crop
-        agriculturalRecordRepository.findNextFreeIdForFarm(farm.getId()) >> 2
-
-        when:
-        agriculturalRecordService.createInitialAgriculturalRecordForLandparcel(landparcel, farm)
-
-        then:
-        1 * agriculturalRecordRepository.save(_ as AgriculturalRecord)
-    }
-
-    def "should not create agricultural record if current season is not found"() {
-        given:
-        Farm farm = Mock(Farm) {
-            getId() >> 1
-        }
-        Landparcel landparcel = Mock(Landparcel)
-        seasonService.getCurrentSeason() >> { throw new Exception('Nie można automatycznie ustawić obecnego sezonu uprawy') }
-
-        when:
-        agriculturalRecordService.createInitialAgriculturalRecordForLandparcel(landparcel, farm)
-
-        then:
-        0 * agriculturalRecordRepository.save(_ as AgriculturalRecord)
-        Exception exception = thrown()
-        exception.message == 'Nie można automatycznie ustawić obecnego sezonu uprawy'
-    }
     /*
     * filterRecordsBySearchQuery
     */
@@ -796,12 +752,32 @@ class AgriculturalRecordServiceSpec extends Specification {
 
         userService.getLoggedUserFarm() >> farm
         agriculturalRecordRepository.findById(agriculturalRecordId) >> Optional.of(agriculturalRecord)
+        agriculturalRecordRepository.existsById(agriculturalRecordId) >> true
 
         when:
         agriculturalRecordService.deleteAgriculturalRecord(agriculturalRecordId.getId())
 
         then:
         1 * agriculturalRecordRepository.deleteById(agriculturalRecordId)
+    }
+
+    def "should throw exception if agricultural record is not found"() {
+        given:
+        Farm farm = Mock(Farm) {
+            getId() >> 1
+        }
+        AgriculturalRecordId agriculturalRecordId = new AgriculturalRecordId(1, 1)
+
+        userService.getLoggedUserFarm() >> farm
+        agriculturalRecordRepository.findById(agriculturalRecordId) >> Optional.empty()
+        agriculturalRecordRepository.existsById(agriculturalRecordId) >> false
+
+        when:
+        agriculturalRecordService.deleteAgriculturalRecord(agriculturalRecordId.getId())
+
+        then:
+        Exception exception = thrown(Exception)
+        exception.message == 'Ewidencja, którą próbujesz usunąć nie istnieje!'
     }
 
 }

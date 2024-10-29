@@ -4,7 +4,7 @@ import com.efarm.efarmbackend.model.agriculturalrecords.Season
 import com.efarm.efarmbackend.repository.agriculturalrecords.SeasonRepository
 
 import java.util.List
-
+import java.time.Clock;
 import spock.lang.Specification
 import spock.lang.Subject
 
@@ -42,9 +42,11 @@ class SeasonServiceSpec extends Specification {
 
     def "should get current season"() {
         given:
+        Clock clock = Clock.fixed(java.time.Instant.parse('2024-10-01T00:00:00Z'), java.time.ZoneId.systemDefault())
+
         Season season = Mock(Season)
 
-        seasonRepository.findById(seasonService.getCurrentSeasonId()) >> Optional.of(season)
+        seasonRepository.findById(seasonService.getCurrentSeasonId(clock)) >> Optional.of(season)
 
         when:
         Season result = seasonService.getCurrentSeason()
@@ -68,13 +70,26 @@ class SeasonServiceSpec extends Specification {
         result == ['2024/2025', '2025/2026']
     }
 
-    // it will stop working after 2024
-    def "should return correct season ID for now"() {
+    def "should return correct season ID for 10 2024"() {
+        given:
+        Clock clock = Clock.fixed(java.time.Instant.parse('2024-10-01T00:00:00Z'), java.time.ZoneId.systemDefault())
+
         when:
-        Integer seasonId = seasonService.getCurrentSeasonId()
+        Integer seasonId = seasonService.getCurrentSeasonId(clock)
 
         then:
         seasonId == 3
+    }
+
+    def "should return correct season ID for 5 2024"() {
+        given:
+        Clock clock = Clock.fixed(java.time.Instant.parse('2024-05-01T00:00:00Z'), java.time.ZoneId.systemDefault())
+
+        when:
+        Integer seasonId = seasonService.getCurrentSeasonId(clock)
+
+        then:
+        seasonId == 2
     }
 
     def "should calculate season ID based on starting year"() {

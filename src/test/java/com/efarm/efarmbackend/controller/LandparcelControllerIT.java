@@ -186,9 +186,9 @@ public class LandparcelControllerIT {
     void testUpdateLandparcelWithValidRequest() throws Exception {
         //given
         LandparcelId landparcelId = new LandparcelId(1, 1);
- 
+        Landparcel existingLandparcel = entityManager.find(Landparcel.class, landparcelId);
         UpdateLandparcelRequest updateRequest = new UpdateLandparcelRequest();
-        updateRequest.setName("Dzialka1");
+        updateRequest.setName(existingLandparcel.getName());
         updateRequest.setLandOwnershipStatus("STATUS_PRIVATELY_OWNED");
         updateRequest.setLongitude(89.0122);
         updateRequest.setLatitude(1.2297);
@@ -203,7 +203,6 @@ public class LandparcelControllerIT {
                 .andExpect(jsonPath("$.message").value("Dane działki zostały pomyślnie zaktualizowane"));
     }
 
-    //TODO change to bad request and name already taken when it will be changed in facade
     @Test
     void testUpdateToNameThatAlreadyExists() throws Exception {
         //given
@@ -222,8 +221,8 @@ public class LandparcelControllerIT {
                 .contentType("application/json")
                 .content(objectMapper.writeValueAsString(updateRequest)))
         //then
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Dane działki zostały pomyślnie zaktualizowane"));
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Działka o podanej nazwie już istnieje!"));
     }
     
     @Test
