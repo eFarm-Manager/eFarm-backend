@@ -87,14 +87,6 @@ jobs:
             ${{ env.DOCKER_IMAGE }}:${{ env.VERSION }}  \
             --cache-to type=gha,mode=max,compression=zstd \
             --cache-from type=gha,mode=max,compression=zstd --push .
-            
-      - name: Cache Trivy DB
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/trivy
-          key: ${{ runner.os }}-trivy-db
-          restore-keys: |
-            ${{ runner.os }}-trivy-db
 
       - name: Scan Docker image for vulnerabilities
         uses: aquasecurity/trivy-action@master
@@ -107,6 +99,7 @@ jobs:
         env:
           TRIVY_SHOW_SUPPRESSED: true
           TRIVY_LOG_LEVEL: DEBUG
+          GITHUB_TOKEN: ${{ secrets.TRIVY_TOKEN }}
           
       - name: Upload Trivy Report
         uses: actions/upload-artifact@v4
