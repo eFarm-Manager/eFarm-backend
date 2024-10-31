@@ -95,7 +95,7 @@ public class TransactionRepositoryIT {
             .getSingleResult();
         PaymentStatus paymentStatus = entityManager.getEntityManager().createQuery(
             "SELECT ps FROM PaymentStatus ps WHERE ps.name = :name", PaymentStatus.class)
-            .setParameter("name", EPaymentStatus.PAID)
+            .setParameter("name", EPaymentStatus.AWAITING_PAYMENT)
             .getSingleResult();
         Double minAmount = 10.0;
         Double maxAmount = 10000.0;

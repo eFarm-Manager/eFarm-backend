@@ -13,10 +13,11 @@ public class LandparcelDTO
 {
     private Integer id;
     private String landOwnershipStatus;
+    private String name;
     private String voivodeship;
     private String district;
     private String commune;
-    private String geodesyRegistrationDistrictNumber;
+    private String geodesyDistrictNumber;
     private String landparcelNumber;
     private String geodesyLandparcelNumber;
     private Double longitude;
@@ -26,10 +27,11 @@ public class LandparcelDTO
     public LandparcelDTO(Landparcel landparcel) {
         this.id = landparcel.getId().getId();
         this.landOwnershipStatus = landparcel.getLandOwnershipStatus().toString();
+        this.name = landparcel.getName();
         this.voivodeship = landparcel.getVoivodeship();
         this.district = landparcel.getDistrict();
         this.commune = landparcel.getCommune();
-        this.geodesyRegistrationDistrictNumber = landparcel.getGeodesyRegistrationDistrictNumber();
+        this.geodesyDistrictNumber = landparcel.getGeodesyDistrictNumber();
         this.landparcelNumber = landparcel.getLandparcelNumber();
         this.geodesyLandparcelNumber = landparcel.getGeodesyLandparcelNumber();
         this.longitude = landparcel.getLongitude();
@@ -39,10 +41,11 @@ public class LandparcelDTO
 
     public LandparcelDTO(AddLandparcelRequest addLandparcelRequest) {
         this.landOwnershipStatus = addLandparcelRequest.getLandOwnershipStatus();
+        this.name = addLandparcelRequest.getName();
         this.voivodeship = addLandparcelRequest.getVoivodeship();
         this.district = addLandparcelRequest.getDistrict();
         this.commune = addLandparcelRequest.getCommune();
-        this.geodesyRegistrationDistrictNumber = addLandparcelRequest.getGeodesyRegistrationDistrictNumber();
+        this.geodesyDistrictNumber = addLandparcelRequest.getGeodesyDistrictNumber();
         this.landparcelNumber = addLandparcelRequest.getLandparcelNumber();
         this.geodesyLandparcelNumber = addLandparcelRequest.getGeodesyLandparcelNumber();
         this.longitude = addLandparcelRequest.getLongitude();
@@ -52,6 +55,7 @@ public class LandparcelDTO
 
     public LandparcelDTO(UpdateLandparcelRequest updateLandparcelRequest) {
         this.landOwnershipStatus = updateLandparcelRequest.getLandOwnershipStatus();
+        this.name = updateLandparcelRequest.getName();
         this.longitude = updateLandparcelRequest.getLongitude();
         this.latitude = updateLandparcelRequest.getLatitude();
         this.area = updateLandparcelRequest.getArea();

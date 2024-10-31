@@ -14,7 +14,12 @@ import java.util.Optional;
 @Repository
 public interface LandparcelRepository extends JpaRepository<Landparcel, LandparcelId> {
     List<Landparcel> findByFarmId(Integer farmId);
-    Boolean existsByDistrictAndCommuneAndGeodesyRegistrationDistrictNumberAndLandparcelNumberAndFarm(String district, String commune, String geodesyRegistrationDistrictNumber, String landparcelNumber, Farm farm);
+
+    Boolean existsByGeodesyLandparcelNumberAndFarm(String geodesyLandparcelNumber, Farm farm);
+
+    Boolean existsByFarmAndName(Farm farm, String name);
+
+    List<Landparcel> findByFarmIdAndIsAvailableTrue(Integer farmId);
 
     @Query("SELECT MAX(l.id.id) FROM Landparcel l WHERE l.id.farmId = :farmId")
     Optional<Integer> findMaxIdForFarm(@Param("farmId") Integer farmId);
