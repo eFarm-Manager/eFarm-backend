@@ -218,6 +218,7 @@ class LandparcelFacadeSpec extends Specification {
         )
         LandparcelId landparcelId = new LandparcelId(id, farm.getId())
         Landparcel landparcel = new Landparcel()
+        landparcel.setName('Landparcel')
         landparcel.setId(landparcelId)
         landparcel.setIsAvailable(true)
 
@@ -276,13 +277,14 @@ class LandparcelFacadeSpec extends Specification {
         Integer id = 1
         Farm farm = Mock(Farm)
         UpdateLandparcelRequest updateLandparcelRequest = new UpdateLandparcelRequest(
-            name: 'Landparcel',
+            name: 'Landparcel1',
             longitude: 21.0122,
             latitude: 52.2297,
             area: 1500.0
         )
         LandparcelId landparcelId = new LandparcelId(id, farm.getId())
         Landparcel landparcel = new Landparcel()
+        landparcel.setName('Landparcel')
         landparcel.setId(landparcelId)
         landparcel.setIsAvailable(true)
 

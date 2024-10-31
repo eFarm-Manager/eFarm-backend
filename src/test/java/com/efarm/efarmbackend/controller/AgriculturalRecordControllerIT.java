@@ -335,14 +335,14 @@ public class AgriculturalRecordControllerIT {
         UpdateAgriculturalRecordRequest request = new UpdateAgriculturalRecordRequest();
         AgriculturalRecord record = entityManager.find(AgriculturalRecord.class, new AgriculturalRecordId(recordId, 1));
         request.setArea(record.getArea() + 10.0); 
-    
+
         // when
         mockMvc.perform(put("/api/records/" + recordId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
         // then
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Maksymalna niewykorzystana powierzchnia na tym polu to: 2140400.0 ha. Spróbuj najpierw zmniejszyć powierzchnię pozostałych upraw.")); 
+                .andExpect(jsonPath("$.message").value("Maksymalna niewykorzystana powierzchnia na tym polu to: "+ record.getArea()+" ha. Spróbuj najpierw zmniejszyć powierzchnię pozostałych upraw.")); 
     }
 
     /*
