@@ -6,6 +6,9 @@ import com.efarm.efarmbackend.model.landparcel.LandparcelDTO
 import com.efarm.efarmbackend.model.landparcel.LandparcelId
 import com.efarm.efarmbackend.model.landparcel.ELandOwnershipStatus
 import com.efarm.efarmbackend.model.landparcel.LandOwnershipStatus
+import com.efarm.efarmbackend.model.agriculturalrecords.Season
+import com.efarm.efarmbackend.service.agriculturalrecords.AgriculturalRecordService;
+import com.efarm.efarmbackend.service.agriculturalrecords.SeasonService;
 import com.efarm.efarmbackend.repository.landparcel.LandparcelRepository
 import com.efarm.efarmbackend.payload.request.landparcel.AddLandparcelRequest
 import com.efarm.efarmbackend.payload.request.landparcel.UpdateLandparcelRequest
@@ -20,12 +23,16 @@ class LandparcelFacadeSpec extends Specification {
     def landparcelService = Mock(LandparcelService)
     def landparcelRepository = Mock(LandparcelRepository)
     def userService = Mock(UserService)
+    def agriculturalRecordService = Mock(AgriculturalRecordService)
+    def seasonService = Mock(SeasonService)
 
     @Subject
     LandparcelFacade landparcelFacade = new LandparcelFacade(
             landparcelService: landparcelService,
             landparcelRepository: landparcelRepository,
-            userService: userService
+            userService: userService,
+            agriculturalRecordService: agriculturalRecordService,
+            seasonService: seasonService
     )
     /*
         addNewLandparcel
@@ -38,12 +45,12 @@ class LandparcelFacadeSpec extends Specification {
         addLandparcelRequest.setVoivodeship('Lubelskie')
         addLandparcelRequest.setDistrict('district')
         addLandparcelRequest.setCommune('commune')
-        addLandparcelRequest.setGeodesyRegistrationDistrictNumber('XYZ123')
+        addLandparcelRequest.setGeodesyDistrictNumber('XYZ123')
         addLandparcelRequest.setLandparcelNumber('LP-001')
         addLandparcelRequest.setLongitude(21.0122)
         addLandparcelRequest.setLatitude(52.2297)
         addLandparcelRequest.setArea(100.0)
-	addLandparcelRequest.setGeodesyLandparcelNumber('25312.05')
+	    addLandparcelRequest.setGeodesyLandparcelNumber('25312.05')
 
         Farm farm = Mock(Farm) {
             getId() >> 1
@@ -52,6 +59,8 @@ class LandparcelFacadeSpec extends Specification {
         userService.getLoggedUserFarm() >> farm
         landparcelRepository.findNextFreeIdForFarm(farm.getId()) >> 1
         landparcelService.isLandparcelAlreadyExistingByFarm(_, farm) >> false
+        landparcelService.isLandparcelNameTaken(addLandparcelRequest.getName(), farm) >> false
+        seasonService.getCurrentSeason() >> Mock(Season)
 
         when:
         landparcelFacade.addNewLandparcel(addLandparcelRequest)
@@ -59,6 +68,7 @@ class LandparcelFacadeSpec extends Specification {
         then:
         1 * landparcelService.addNewLandparcelData(_, _)
         1 * landparcelRepository.save(_)
+        1 * agriculturalRecordService.createAgriculturalRecordForLandparcel(_, _, _)
     }
 
     def "should throw exception when land parcel already exists"() {
@@ -68,7 +78,38 @@ class LandparcelFacadeSpec extends Specification {
             voivodeship: 'Lubelskie',
             district: 'district',
             commune: 'commune',
-            geodesyRegistrationDistrictNumber: 'XYZ123',
+            geodesyDistrictNumber: 'XYZ123',
+            landparcelNumber: 'LP-001',
+            longitude: 21.0122,
+            latitude: 52.2297,
+            area: 1500.0,
+	        geodesyLandparcelNumber: '25312.05'
+        )
+        Farm farm = Mock(Farm)
+
+        userService.getLoggedUserFarm() >> farm
+        landparcelRepository.findNextFreeIdForFarm(farm.getId()) >> 123
+        landparcelService.isLandparcelAlreadyExistingByFarm(_, farm) >> true
+
+        when:
+        landparcelFacade.addNewLandparcel(addLandparcelRequest)
+
+        then:
+        Exception e = thrown(Exception)
+        e.message == 'Działka o powyższych danych geodezyjnych już istnieje!'
+
+        0 * landparcelService.addNewLandparcelData(_, _)
+        0 * landparcelRepository.save(_)
+    }
+
+    def "should throw exception when landparcel name is already taken"() {
+        given:
+        AddLandparcelRequest addLandparcelRequest = new AddLandparcelRequest(
+            landOwnershipStatus: 'STATUS_PRIVATELY_OWNED',
+            voivodeship: 'Lubelskie',
+            district: 'district',
+            commune: 'commune',
+            geodesyDistrictNumber: 'XYZ123',
             landparcelNumber: 'LP-001',
             longitude: 21.0122,
             latitude: 52.2297,
@@ -80,15 +121,15 @@ class LandparcelFacadeSpec extends Specification {
 
         userService.getLoggedUserFarm() >> farm
         landparcelRepository.findNextFreeIdForFarm(farm.getId()) >> 123
-
-        landparcelService.isLandparcelAlreadyExistingByFarm(_, farm) >> true
+        landparcelService.isLandparcelAlreadyExistingByFarm(_, farm) >> false
+        landparcelService.isLandparcelNameTaken(addLandparcelRequest.getName(), farm) >> true
 
         when:
         landparcelFacade.addNewLandparcel(addLandparcelRequest)
 
         then:
         Exception e = thrown(Exception)
-        e.message == 'Działka o powyższych danych geodezyjnych już istnieje!'
+        e.message == 'Działka o podanej nazwie już istnieje!'
 
         0 * landparcelService.addNewLandparcelData(_, _)
         0 * landparcelRepository.save(_)
@@ -170,17 +211,20 @@ class LandparcelFacadeSpec extends Specification {
         Integer id = 1
         Farm farm = Mock(Farm)
         UpdateLandparcelRequest updateLandparcelRequest = new UpdateLandparcelRequest(
+            name: 'Landparcel',
             longitude: 21.0122,
             latitude: 52.2297,
             area: 1500.0
         )
         LandparcelId landparcelId = new LandparcelId(id, farm.getId())
         Landparcel landparcel = new Landparcel()
+        landparcel.setName('Landparcel')
         landparcel.setId(landparcelId)
         landparcel.setIsAvailable(true)
 
         userService.getLoggedUserFarm() >> farm
         landparcelRepository.findById(landparcelId) >> Optional.of(landparcel)
+        landparcelService.isLandparcelNameTaken(updateLandparcelRequest.getName(), farm) >> false
 
         when:
         landparcelFacade.updateLandparcel(id, updateLandparcelRequest)
@@ -226,6 +270,34 @@ class LandparcelFacadeSpec extends Specification {
         then:
         def exception = thrown(Exception)
         exception.message == 'Wybrana działka już nie istnieje'
+    }
+
+    def "should throw exception when landparcel name taken"() {
+        given:
+        Integer id = 1
+        Farm farm = Mock(Farm)
+        UpdateLandparcelRequest updateLandparcelRequest = new UpdateLandparcelRequest(
+            name: 'Landparcel1',
+            longitude: 21.0122,
+            latitude: 52.2297,
+            area: 1500.0
+        )
+        LandparcelId landparcelId = new LandparcelId(id, farm.getId())
+        Landparcel landparcel = new Landparcel()
+        landparcel.setName('Landparcel')
+        landparcel.setId(landparcelId)
+        landparcel.setIsAvailable(true)
+
+        userService.getLoggedUserFarm() >> farm
+        landparcelRepository.findById(landparcelId) >> Optional.of(landparcel)
+        landparcelService.isLandparcelNameTaken(updateLandparcelRequest.getName(), farm) >> true
+
+        when:
+        landparcelFacade.updateLandparcel(id, updateLandparcelRequest)
+
+        then:
+        Exception ex = thrown(Exception)
+        ex.message == 'Działka o podanej nazwie już istnieje!'
     }
     /*
         deleteLandparcel
@@ -300,7 +372,7 @@ class LandparcelFacadeSpec extends Specification {
         landparcel1.setLandOwnershipStatus(ownerStatus)
         landparcel1.setArea(500.0)
         landparcel1.setCommune('CommuneA')
-        landparcel1.setGeodesyRegistrationDistrictNumber('GRD1')
+        landparcel1.setGeodesyDistrictNumber('GRD1')
         landparcel1.setLandparcelNumber('LP1')
 
         Landparcel landparcel2 = new Landparcel()
@@ -308,7 +380,7 @@ class LandparcelFacadeSpec extends Specification {
         landparcel2.setLandOwnershipStatus(ownerStatus)
         landparcel2.setArea(600.0)
         landparcel2.setCommune('CommuneB')
-        landparcel2.setGeodesyRegistrationDistrictNumber('GRD2')
+        landparcel2.setGeodesyDistrictNumber('GRD2')
         landparcel2.setLandparcelNumber('LP2')
 
         List<Landparcel> landparcelList = [landparcel1, landparcel2]
@@ -335,7 +407,7 @@ class LandparcelFacadeSpec extends Specification {
         landparcel1.setLandOwnershipStatus(ownerStatus)
         landparcel1.setArea(500.0)
         landparcel1.setCommune('CommuneA')
-        landparcel1.setGeodesyRegistrationDistrictNumber('GRD1')
+        landparcel1.setGeodesyDistrictNumber('GRD1')
         landparcel1.setLandparcelNumber('LP1')
 
         Landparcel landparcel2 = new Landparcel()
@@ -343,7 +415,7 @@ class LandparcelFacadeSpec extends Specification {
         landparcel2.setLandOwnershipStatus(ownerStatus)
         landparcel2.setArea(600.0)
         landparcel2.setCommune('CommuneB')
-        landparcel2.setGeodesyRegistrationDistrictNumber('GRD2')
+        landparcel2.setGeodesyDistrictNumber('GRD2')
         landparcel2.setLandparcelNumber('LP2')
 
         List<Landparcel> landparcelList = [landparcel1, landparcel2]
@@ -369,7 +441,7 @@ class LandparcelFacadeSpec extends Specification {
         landparcel1.setLandOwnershipStatus(ownerStatus)
         landparcel1.setArea(500.0)
         landparcel1.setCommune('CommuneA')
-        landparcel1.setGeodesyRegistrationDistrictNumber('GRD1')
+        landparcel1.setGeodesyDistrictNumber('GRD1')
         landparcel1.setLandparcelNumber('LP1')
 
         Landparcel landparcel2 = new Landparcel()
@@ -377,7 +449,7 @@ class LandparcelFacadeSpec extends Specification {
         landparcel2.setLandOwnershipStatus(ownerStatus)
         landparcel2.setArea(600.0)
         landparcel2.setCommune('CommuneB')
-        landparcel2.setGeodesyRegistrationDistrictNumber('GRD2')
+        landparcel2.setGeodesyDistrictNumber('GRD2')
         landparcel2.setLandparcelNumber('LP2')
 
         List<Landparcel> landparcelList = [landparcel1, landparcel2]
@@ -403,7 +475,7 @@ class LandparcelFacadeSpec extends Specification {
         landparcel1.setLandOwnershipStatus(ownerStatus)
         landparcel1.setArea(500.0)
         landparcel1.setCommune('CommuneA')
-        landparcel1.setGeodesyRegistrationDistrictNumber('GRD1')
+        landparcel1.setGeodesyDistrictNumber('GRD1')
         landparcel1.setLandparcelNumber('LP1')
 
         Landparcel landparcel2 = new Landparcel()
@@ -411,7 +483,7 @@ class LandparcelFacadeSpec extends Specification {
         landparcel2.setLandOwnershipStatus(ownerStatus)
         landparcel2.setArea(600.0)
         landparcel2.setCommune('CommuneB')
-        landparcel2.setGeodesyRegistrationDistrictNumber('GRD2')
+        landparcel2.setGeodesyDistrictNumber('GRD2')
         landparcel2.setLandparcelNumber('LP2')
 
         List<Landparcel> landparcelList = [landparcel1, landparcel2]
@@ -438,7 +510,7 @@ class LandparcelFacadeSpec extends Specification {
         landparcel1.setLandOwnershipStatus(ownerStatus)
         landparcel1.setArea(500.0)
         landparcel1.setCommune('CommuneA')
-        landparcel1.setGeodesyRegistrationDistrictNumber('GRD1')
+        landparcel1.setGeodesyDistrictNumber('GRD1')
         landparcel1.setLandparcelNumber('LP1')
 
         Landparcel landparcel2 = new Landparcel()
@@ -446,7 +518,7 @@ class LandparcelFacadeSpec extends Specification {
         landparcel2.setLandOwnershipStatus(ownerStatus)
         landparcel2.setArea(600.0)
         landparcel2.setCommune('CommuneB')
-        landparcel2.setGeodesyRegistrationDistrictNumber('GRD2')
+        landparcel2.setGeodesyDistrictNumber('GRD2')
         landparcel2.setLandparcelNumber('LP2')
 
         Landparcel landparcel3 = new Landparcel()
@@ -454,7 +526,7 @@ class LandparcelFacadeSpec extends Specification {
         landparcel3.setLandOwnershipStatus(ownerStatus)
         landparcel3.setArea(700.0)
         landparcel3.setCommune('CommuneC')
-        landparcel3.setGeodesyRegistrationDistrictNumber('GRD3')
+        landparcel3.setGeodesyDistrictNumber('GRD3')
         landparcel3.setLandparcelNumber('LP3')
 
         List<Landparcel> landparcelList = [landparcel1, landparcel2, landparcel3]
@@ -480,7 +552,7 @@ class LandparcelFacadeSpec extends Specification {
         landparcel1.setLandOwnershipStatus(ownerStatus)
         landparcel1.setArea(500.0)
         landparcel1.setCommune('CommuneA')
-        landparcel1.setGeodesyRegistrationDistrictNumber('GRD1')
+        landparcel1.setGeodesyDistrictNumber('GRD1')
         landparcel1.setLandparcelNumber('LP1')
 
         Landparcel landparcel2 = new Landparcel()
@@ -488,7 +560,7 @@ class LandparcelFacadeSpec extends Specification {
         landparcel2.setLandOwnershipStatus(ownerStatus)
         landparcel2.setArea(600.0)
         landparcel2.setCommune('CommuneB')
-        landparcel2.setGeodesyRegistrationDistrictNumber('GRD2')
+        landparcel2.setGeodesyDistrictNumber('GRD2')
         landparcel2.setLandparcelNumber('LP2')
 
         List<Landparcel> landparcelList = [landparcel1, landparcel2]

@@ -1,10 +1,7 @@
 package com.efarm.efarmbackend.service.landparcel;
 
 import com.efarm.efarmbackend.model.farm.Farm;
-import com.efarm.efarmbackend.model.landparcel.ELandOwnershipStatus;
-import com.efarm.efarmbackend.model.landparcel.LandOwnershipStatus;
-import com.efarm.efarmbackend.model.landparcel.Landparcel;
-import com.efarm.efarmbackend.model.landparcel.LandparcelDTO;
+import com.efarm.efarmbackend.model.landparcel.*;
 import com.efarm.efarmbackend.repository.landparcel.LandOwnershipStatusRepository;
 import com.efarm.efarmbackend.repository.landparcel.LandparcelRepository;
 import org.slf4j.Logger;
@@ -40,7 +37,6 @@ public class LandparcelService {
         setCommonFields(landparcel, landparcelDTO);
     }
 
-
     public void updateLandparcelData(LandparcelDTO landparcelDTO, Landparcel landparcel) {
         if (landparcelDTO.getLandOwnershipStatus() != null) {
             ELandOwnershipStatus ownershipStatusEnum;
@@ -62,15 +58,25 @@ public class LandparcelService {
     }
 
     public Boolean isLandparcelAlreadyExistingByFarm(LandparcelDTO landparcelDTO, Farm loggedUserFarm) {
-        return landparcelRepository.existsByDistrictAndCommuneAndGeodesyRegistrationDistrictNumberAndLandparcelNumberAndFarm(
-                landparcelDTO.getDistrict(),
-                landparcelDTO.getCommune(),
-                landparcelDTO.getGeodesyRegistrationDistrictNumber(),
-                landparcelDTO.getLandparcelNumber(),
+        return landparcelRepository.existsByGeodesyLandparcelNumberAndFarm(
+                landparcelDTO.getGeodesyLandparcelNumber(),
                 loggedUserFarm);
     }
 
+    public Boolean isLandparcelNameTaken(String name, Farm loggedUserFarm){
+        return landparcelRepository.existsByFarmAndName(loggedUserFarm, name);
+    }
+
+    public Landparcel findlandparcelByFarm(Integer id, Farm loggedUserFarm) throws Exception {
+        LandparcelId landparcelId = new LandparcelId(id, loggedUserFarm.getId());
+        return landparcelRepository.findById(landparcelId)
+                .orElseThrow(() -> new Exception("Nie znaleziono działki"));
+    }
+
     private void setCommonFields(Landparcel landparcel, LandparcelDTO landparcelDTO) {
+        if (landparcelDTO.getName() != null) {
+            landparcel.setName(landparcelDTO.getName());
+        }
         if (landparcelDTO.getLongitude() != null) {
             landparcel.setLongitude(landparcelDTO.getLongitude());
         }
@@ -92,8 +98,8 @@ public class LandparcelService {
         if (landparcelDTO.getCommune() != null) {
             landparcel.setCommune(landparcelDTO.getCommune());
         }
-        if (landparcelDTO.getGeodesyRegistrationDistrictNumber() != null) {
-            landparcel.setGeodesyRegistrationDistrictNumber(landparcelDTO.getGeodesyRegistrationDistrictNumber());
+        if (landparcelDTO.getGeodesyDistrictNumber() != null) {
+            landparcel.setGeodesyDistrictNumber(landparcelDTO.getGeodesyDistrictNumber());
         }
         if (landparcelDTO.getLandparcelNumber() != null) {
             landparcel.setLandparcelNumber(landparcelDTO.getLandparcelNumber());

@@ -1,40 +1,39 @@
-package com.efarm.efarmbackend.model.farmfield;
+package com.efarm.efarmbackend.model.agriculturalrecords;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.io.Serial;
 import java.util.Objects;
 
 @Getter
 @Setter
-@NoArgsConstructor
 @Embeddable
-public class FarmfieldId implements java.io.Serializable {
+@NoArgsConstructor
+@AllArgsConstructor
+public class AgriculturalRecordId implements java.io.Serializable {
 
-    private static final long serialVersionUID = 2422031663969504233L;
+    @Serial
+    private static final long serialVersionUID = 9111979005692721600L;
 
     @NotNull
-    @Column(name = "idPole", nullable = false)
+    @Column(name = "idEwidencja", nullable = false)
     private Integer id;
 
     @NotNull
     @Column(name = "Gospodarstwo_idGospodarstwo", nullable = false)
     private Integer farmId;
 
-    public FarmfieldId(FarmfieldId id) {
-        this.id = id.id;
-        this.farmId = id.farmId;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        FarmfieldId entity = (FarmfieldId) o;
+        AgriculturalRecordId entity = (AgriculturalRecordId) o;
         return Objects.equals(this.id, entity.id) &&
                 Objects.equals(this.farmId, entity.farmId);
     }

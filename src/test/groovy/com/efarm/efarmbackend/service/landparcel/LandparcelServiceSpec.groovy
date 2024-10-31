@@ -21,6 +21,9 @@ class LandparcelServiceSpec extends Specification {
             landOwnershipStatusRepository: landOwnershipStatusRepository,
             landparcelRepository: landparcelRepository
     )
+    /*
+    * addNewLandparcelData
+    */
 
     def "should set ownership status and call setters when valid status provided"() {
         given:
@@ -29,7 +32,7 @@ class LandparcelServiceSpec extends Specification {
             voivodeship: 'Mazowieckie',
             district: 'Warszawa',
             commune: 'Mokotów',
-            geodesyRegistrationDistrictNumber: 'XYZ123',
+            geodesyDistrictNumber: 'XYZ123',
             landparcelNumber: 'LP-001',
             longitude: 21.0122,
             latitude: 52.2297,
@@ -49,7 +52,7 @@ class LandparcelServiceSpec extends Specification {
         landparcel.getVoivodeship() == landparcelDTO.getVoivodeship()
         landparcel.getDistrict() == landparcelDTO.getDistrict()
         landparcel.getCommune() == landparcelDTO.getCommune()
-        landparcel.getGeodesyRegistrationDistrictNumber() == landparcelDTO.getGeodesyRegistrationDistrictNumber()
+        landparcel.getGeodesyDistrictNumber() == landparcelDTO.getGeodesyDistrictNumber()
         landparcel.getLandparcelNumber() == landparcelDTO.getLandparcelNumber()
         landparcel.getLongitude() == landparcelDTO.getLongitude()
         landparcel.getLatitude() == landparcelDTO.getLatitude()
@@ -63,7 +66,7 @@ class LandparcelServiceSpec extends Specification {
             voivodeship: 'Mazowieckie',
             district: 'Warszawa',
             commune: 'Mokotów',
-            geodesyRegistrationDistrictNumber: 'XYZ123',
+            geodesyDistrictNumber: 'XYZ123',
             landparcelNumber: 'LP-001',
             longitude: 21.0122,
             latitude: 52.2297,
@@ -83,7 +86,7 @@ class LandparcelServiceSpec extends Specification {
         landparcel.getVoivodeship() == landparcelDTO.getVoivodeship()
         landparcel.getDistrict() == landparcelDTO.getDistrict()
         landparcel.getCommune() == landparcelDTO.getCommune()
-        landparcel.getGeodesyRegistrationDistrictNumber() == landparcelDTO.getGeodesyRegistrationDistrictNumber()
+        landparcel.getGeodesyDistrictNumber() == landparcelDTO.getGeodesyDistrictNumber()
         landparcel.getLandparcelNumber() == landparcelDTO.getLandparcelNumber()
         landparcel.getLongitude() == landparcelDTO.getLongitude()
         landparcel.getLatitude() == landparcelDTO.getLatitude()
@@ -97,7 +100,7 @@ class LandparcelServiceSpec extends Specification {
             voivodeship: 'Mazowieckie',
             district: 'Warszawa',
             commune: 'Mokotów',
-            geodesyRegistrationDistrictNumber: 'XYZ123',
+            geodesyDistrictNumber: 'XYZ123',
             landparcelNumber: 'LP-001',
             longitude: 21.0122,
             latitude: 52.2297,
@@ -117,12 +120,15 @@ class LandparcelServiceSpec extends Specification {
         landparcel.getVoivodeship() == landparcelDTO.getVoivodeship()
         landparcel.getDistrict() == landparcelDTO.getDistrict()
         landparcel.getCommune() == landparcelDTO.getCommune()
-        landparcel.getGeodesyRegistrationDistrictNumber() == landparcelDTO.getGeodesyRegistrationDistrictNumber()
+        landparcel.getGeodesyDistrictNumber() == landparcelDTO.getGeodesyDistrictNumber()
         landparcel.getLandparcelNumber() == landparcelDTO.getLandparcelNumber()
         landparcel.getLongitude() == landparcelDTO.getLongitude()
         landparcel.getLatitude() == landparcelDTO.getLatitude()
         landparcel.getArea() == landparcelDTO.getArea()
     }
+    /*
+    * updateLandparcelData
+    */
 
     def "should update common fields when valid data is provided"() {
         given:
@@ -194,6 +200,9 @@ class LandparcelServiceSpec extends Specification {
         landparcel.getLatitude() == landparcelDTO.getLatitude()
         landparcel.getArea() == landparcelDTO.getArea()
     }
+    /*
+    * createDTOtoDisplay
+    */
 
     def "should correctly create DTO from Landparcel"() {
         given:
@@ -204,7 +213,7 @@ class LandparcelServiceSpec extends Specification {
         landparcel.setVoivodeship('Mazowieckie')
         landparcel.setDistrict('Warszawa')
         landparcel.setCommune('Mokotów')
-        landparcel.setGeodesyRegistrationDistrictNumber('XYZ123')
+        landparcel.setGeodesyDistrictNumber('XYZ123')
         landparcel.setLandparcelNumber('LP-001')
         landparcel.setLongitude(21.0122)
         landparcel.setLatitude(52.2297)
@@ -219,28 +228,29 @@ class LandparcelServiceSpec extends Specification {
         landparcelDTO.getVoivodeship() == landparcel.getVoivodeship()
         landparcelDTO.getDistrict() == landparcel.getDistrict()
         landparcelDTO.getCommune() == landparcel.getCommune()
-        landparcelDTO.getGeodesyRegistrationDistrictNumber() == landparcel.getGeodesyRegistrationDistrictNumber()
+        landparcelDTO.getGeodesyDistrictNumber() == landparcel.getGeodesyDistrictNumber()
         landparcelDTO.getLandparcelNumber() == landparcel.getLandparcelNumber()
         landparcelDTO.getLongitude() == landparcel.getLongitude()
         landparcelDTO.getLatitude() == landparcel.getLatitude()
         landparcelDTO.getArea() == landparcel.getArea()
     }
+    /*
+    * isLandparcelAlreadyExistingByFarm
+    */
 
     def "should return true when land parcel already exists"() {
         given:
         LandparcelDTO landparcelDTO = new LandparcelDTO(
             district: 'District',
             commune: 'Commune',
-            geodesyRegistrationDistrictNumber: '987654',
-            landparcelNumber: '12345'
+            geodesyDistrictNumber: '987654',
+            landparcelNumber: '12345',
+            geodesyLandparcelNumber: '25312.05'
         )
 
         Farm farm = Mock(Farm)
-        landparcelRepository.existsByDistrictAndCommuneAndGeodesyRegistrationDistrictNumberAndLandparcelNumberAndFarm(
-            landparcelDTO.getDistrict(),
-            landparcelDTO.getCommune(),
-            landparcelDTO.getGeodesyRegistrationDistrictNumber(),
-            landparcelDTO.getLandparcelNumber(),
+        landparcelRepository.existsByGeodesyLandparcelNumberAndFarm(
+            landparcelDTO.getGeodesyLandparcelNumber(),
             farm
         ) >> true
 
@@ -256,18 +266,13 @@ class LandparcelServiceSpec extends Specification {
         LandparcelDTO landparcelDTO = new LandparcelDTO(
             district: 'District',
             commune: 'Commune',
-            geodesyRegistrationDistrictNumber: '987654',
-            landparcelNumber: '12345'
+            geodesyDistrictNumber: '987654',
+            landparcelNumber: '12345',
+            geodesyLandparcelNumber: '25312.05'
         )
         Farm farm = new Farm()
 
-        landparcelRepository.existsByDistrictAndCommuneAndGeodesyRegistrationDistrictNumberAndLandparcelNumberAndFarm(
-            landparcelDTO.getDistrict(),
-            landparcelDTO.getCommune(),
-            landparcelDTO.getGeodesyRegistrationDistrictNumber(),
-            landparcelDTO.getLandparcelNumber(),
-            farm
-        ) >> false
+        landparcelRepository.existsByGeodesyLandparcelNumberAndFarm(landparcelDTO.getGeodesyLandparcelNumber(), farm) >> false
 
         when:
         Boolean result = landparcelService.isLandparcelAlreadyExistingByFarm(landparcelDTO, farm)
@@ -275,10 +280,44 @@ class LandparcelServiceSpec extends Specification {
         then:
         result == false
     }
+    /*
+    * isLandparcelNameTaken
+    */
+
+    def "should return true when land parcel name is taken"() {
+        given:
+        Farm farm = Mock(Farm)
+        String name = '987654'
+        landparcelRepository.existsByFarmAndName(farm, name) >> true
+
+        when:
+        Boolean result = landparcelService.isLandparcelNameTaken(name, farm)
+
+        then:
+        result == true
+    }
+
+    def "should return false when land parcel name is not taken"() {
+        given:
+        Farm farm = Mock(Farm)
+        String name = '987654'
+        landparcelRepository.existsByFarmAndName(farm, name) >> false
+
+        when:
+        Boolean result = landparcelService.isLandparcelNameTaken(name, farm)
+
+        then:
+        result == false
+    }
+
+    /*
+    * setCommonFields
+    */
 
     def "should set common fields when valid values are provided"() {
         given:
         LandparcelDTO landparcelDTO = new LandparcelDTO(
+            name: 'Landparcel',
             longitude: 21.0122,
             latitude: null,
             area: 1500.0
@@ -289,10 +328,14 @@ class LandparcelServiceSpec extends Specification {
         landparcelService.setCommonFields(landparcel, landparcelDTO)
 
         then:
+        landparcel.getName() == landparcelDTO.getName()
         landparcel.getLongitude() == landparcelDTO.getLongitude()
         landparcel.getLatitude() == null
         landparcel.getArea() == landparcelDTO.getArea()
     }
+    /*
+    * setAdministrativeData
+    */
 
     def "should set all administrative data when all fields are provided"() {
         given:
@@ -300,7 +343,7 @@ class LandparcelServiceSpec extends Specification {
             voivodeship: 'Lubelskie',
             district: 'district',
             commune: null,
-            geodesyRegistrationDistrictNumber: '987654',
+            geodesyDistrictNumber: '987654',
             landparcelNumber: '12345',
             geodesyLandparcelNumber: '25312.05'
         )
@@ -313,7 +356,7 @@ class LandparcelServiceSpec extends Specification {
         landparcel.getVoivodeship() == landparcelDTO.getVoivodeship()
         landparcel.getDistrict() == landparcelDTO.getDistrict()
         landparcel.getCommune() == null
-        landparcel.getGeodesyRegistrationDistrictNumber() == landparcelDTO.getGeodesyRegistrationDistrictNumber()
+        landparcel.getGeodesyDistrictNumber() == landparcelDTO.getGeodesyDistrictNumber()
         landparcel.getLandparcelNumber() == landparcelDTO.getLandparcelNumber()
         landparcel.getGeodesyLandparcelNumber() == landparcelDTO.getGeodesyLandparcelNumber()
     }
