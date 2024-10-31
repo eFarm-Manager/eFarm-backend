@@ -83,7 +83,8 @@ public class LandparcelFacade {
         if (!landparcel.getIsAvailable()) {
             throw new Exception("Wybrana działka już nie istnieje");
         }
-        if (landparcelService.isLandparcelNameTaken(landparcelDTO.getName(), loggedUserFarm)) {
+        if (!landparcel.getName().equals(landparcelDTO.getName()) &&
+                landparcelService.isLandparcelNameTaken(landparcelDTO.getName(), loggedUserFarm)) {
             throw new Exception("Działka o podanej nazwie już istnieje!");
         }
 
