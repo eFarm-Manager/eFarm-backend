@@ -76,7 +76,7 @@ public class AgriculturalRecordFacade {
         }
 
         agriculturalRecordService.validateCropArea(landparcel, season, recordRequest);
-        Crop crop = agriculturalRecordService.validateCrop(landparcel, season, recordRequest.getCropName());
+        Crop crop = agriculturalRecordService.validateCrop(landparcel, season, recordRequest.getCropName(), true);
         AgriculturalRecordId agriculturalRecordId = new AgriculturalRecordId(
                 agriculturalRecordRepository.findNextFreeIdForFarm(loggedUserFarm.getId()),
                 loggedUserFarm.getId()

@@ -23,7 +23,7 @@ public class UpdateLandparcelRequest {
     @DecimalMax(value = "90.0", message = "Szerokość geograficzna musi być w przedziale od -90 do 90")
     private Double latitude;
 
-    @DecimalMin(value = "0.01", message = "Powierzchnia działki musi być większa niż 0")
-    @DecimalMax(value = "1000.0", message = "Powierzchnia działki nie może przekraczać 1000.0")
+    @DecimalMin(value = "0.0001", message = "Nie możesz podać wartości mniejszej niż 0.0001 ha")
+    @Digits(integer = 7, fraction = 4, message = "Możesz podać maksymalnie 4 cyfry po przecinku")
     private Double area;
 }
