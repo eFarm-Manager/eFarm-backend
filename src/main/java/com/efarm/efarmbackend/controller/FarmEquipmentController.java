@@ -59,7 +59,7 @@ public class FarmEquipmentController {
     @PreAuthorize("hasRole('ROLE_FARM_MANAGER') or hasRole('ROLE_FARM_OWNER')")
     public ResponseEntity<MessageResponse> updateFarmEquipment(@PathVariable Integer equipmentId, @Valid @RequestBody AddUpdateFarmEquipmentRequest addUpdateFarmEquipmentRequest, BindingResult bindingResult) {
         try {
-            validationRequestService.validateRequestWithException(bindingResult);
+            validationRequestService.validateRequest(bindingResult);
             return ResponseEntity.ok(farmEquipmentFacade.updateFarmEquipment(equipmentId, addUpdateFarmEquipmentRequest));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
@@ -80,7 +80,7 @@ public class FarmEquipmentController {
     @PreAuthorize("hasRole('ROLE_FARM_MANAGER') or hasRole('ROLE_FARM_OWNER')")
     public ResponseEntity<MessageResponse> addNewFarmEquipment(@Valid @RequestBody AddUpdateFarmEquipmentRequest addUpdateFarmEquipmentRequest, BindingResult bindingResult) {
         try {
-            validationRequestService.validateRequestWithException(bindingResult);
+            validationRequestService.validateRequest(bindingResult);
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(farmEquipmentFacade.addNewFarmEquipment(addUpdateFarmEquipmentRequest));
         } catch (Exception e) {

@@ -42,7 +42,7 @@ public class FarmController {
     @PreAuthorize("hasRole('ROLE_FARM_OWNER')")
     public ResponseEntity<?> updateFarmDetails(@Valid @RequestBody UpdateFarmDetailsRequest updateFarmDetailsRequest, BindingResult bindingResult) {
         try {
-            validationRequestService.validateRequestWithException(bindingResult);
+            validationRequestService.validateRequest(bindingResult);
             return ResponseEntity.ok(farmFacade.updateFarmDetails(updateFarmDetailsRequest));
         }catch (Exception e) {
             return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));

@@ -33,7 +33,7 @@ public class FinanceController {
     @PreAuthorize("hasRole('ROLE_FARM_OWNER')")
     public ResponseEntity<?> addNewTransaction(@Valid @RequestBody NewTransactionRequest newTransactionRequest, BindingResult bindingResult) {
         try {
-            validationRequestService.validateRequestWithException(bindingResult);
+            validationRequestService.validateRequest(bindingResult);
             financeFacade.addNewTransaction(newTransactionRequest);
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(new MessageResponse("Pomyślnie dodano nową transakcję"));
@@ -46,7 +46,7 @@ public class FinanceController {
     @PreAuthorize("hasRole('ROLE_FARM_OWNER')")
     public ResponseEntity<?> updateTransaction(@PathVariable Integer id, @Valid @RequestBody UpdateTransactionRequest updateRequest, BindingResult bindingResult) {
         try {
-            validationRequestService.validateRequestWithException(bindingResult);
+            validationRequestService.validateRequest(bindingResult);
             financeFacade.updateTransaction(id, updateRequest);
             return ResponseEntity.status(HttpStatus.OK)
                     .body(new MessageResponse("Pomyślnie zaktualizowano transakcję"));
