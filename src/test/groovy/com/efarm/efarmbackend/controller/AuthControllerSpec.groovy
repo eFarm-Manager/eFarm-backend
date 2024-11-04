@@ -86,7 +86,7 @@ class AuthControllerSpec extends Specification {
         user.getRole() >> role
         List<String> roles = ['ROLE_FARM_OWNER']
 
-        validationRequestService.validateRequestWithException(bindingResult) >> { }
+        validationRequestService.validateRequest(bindingResult) >> { }
         authService.authenticateUserByLoginRequest(loginRequest) >> userDetails
         Authentication auth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities())
         SecurityContextHolder.getContext().setAuthentication(auth)
@@ -135,7 +135,7 @@ class AuthControllerSpec extends Specification {
         BindingResult bindingResult = Mock(BindingResult)
         bindingResult.hasErrors() >> false
 
-        validationRequestService.validateRequestWithException(bindingResult) >> { }
+        validationRequestService.validateRequest(bindingResult) >> { }
         authService.authenticateUserByLoginRequest(loginRequest) >> userDetails
         userService.getLoggedUserRoles(userDetails) >> roles
         userService.getActiveUserById(userDetails) >> { throw new RuntimeException('Użytkownik jest nieaktywny!') }
@@ -154,7 +154,7 @@ class AuthControllerSpec extends Specification {
         BindingResult bindingResult = Mock(BindingResult)
         bindingResult.hasErrors() >> false
 
-        validationRequestService.validateRequestWithException(bindingResult) >> { }
+        validationRequestService.validateRequest(bindingResult) >> { }
         authService.authenticateUserByLoginRequest(loginRequest) >> { throw new UnauthorizedException('Nieprawidłowe dane logowania') }
 
         when:
@@ -187,7 +187,7 @@ class AuthControllerSpec extends Specification {
         List<String> roles = ['ROLE_FARM_MANAGER']
         BindingResult bindingResult = Mock(BindingResult)
         bindingResult.hasErrors() >> false
-        validationRequestService.validateRequestWithException(bindingResult) >> { }
+        validationRequestService.validateRequest(bindingResult) >> { }
         authService.authenticateUserByLoginRequest(loginRequest) >> userDetails
         userService.getLoggedUserRoles(userDetails) >> roles
         userService.getActiveUserById(userDetails) >> Optional.of(user)
@@ -231,7 +231,7 @@ class AuthControllerSpec extends Specification {
         ActivationCode activationCode = Mock(ActivationCode)
         activationCode.getExpireDate() >> LocalDate.now().plusDays(5)
 
-        validationRequestService.validateRequestWithException(bindingResult) >> { }
+        validationRequestService.validateRequest(bindingResult) >> { }
         authService.authenticateUserByLoginRequest(loginRequest) >> userDetails
         userService.getLoggedUserRoles(userDetails) >> roles
         userService.getActiveUserById(userDetails) >> Optional.of(user)
