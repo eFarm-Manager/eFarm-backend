@@ -338,6 +338,7 @@ class AgriculturalRecordServiceSpec extends Specification {
 
     def "should validate crop correctly"() {
         given:
+        Boolean showAdditionalInfo = true
         String cropName = 'Wheat'
         Crop crop = Mock(Crop) {
             getName() >> cropName
@@ -349,7 +350,7 @@ class AgriculturalRecordServiceSpec extends Specification {
         agriculturalRecordRepository.findByLandparcelAndSeasonAndCrop(landparcel, season, crop) >> []
 
         when:
-        Crop validatedCrop = agriculturalRecordService.validateCrop(landparcel, season, cropName)
+        Crop validatedCrop = agriculturalRecordService.validateCrop(landparcel, season, cropName,showAdditionalInfo)
 
         then:
         validatedCrop == crop
@@ -357,6 +358,7 @@ class AgriculturalRecordServiceSpec extends Specification {
 
     def "should throw exception if crop is not found"() {
         given:
+        Boolean showAdditionalInfo = true
         String cropName = 'Rice'
         Landparcel landparcel = Mock(Landparcel)
         Season season = Mock(Season)
@@ -364,15 +366,16 @@ class AgriculturalRecordServiceSpec extends Specification {
         cropRepository.findByName(cropName) >> null
 
         when:
-        agriculturalRecordService.validateCrop(landparcel, season, cropName)
+        agriculturalRecordService.validateCrop(landparcel, season, cropName, showAdditionalInfo)
 
         then:
         Exception exception = thrown(Exception)
         exception.message == 'Wybrano nieprawidłowy rodzaj uprawy'
     }
 
-    def "should throw exception if crop already exists on landparcel"() {
+    def "should throw exception if crop already exists on landparcel wtih additonal info"() {
         given:
+        Boolean showAdditionalInfo = true
         String cropName = 'Wheat'
         Crop crop = Mock(Crop) {
             getName() >> cropName
@@ -380,15 +383,36 @@ class AgriculturalRecordServiceSpec extends Specification {
         Landparcel landparcel = Mock(Landparcel)
         Season season = Mock(Season)
 
-        cropRepository.findByName(cropName) >> crop // Crop found
+        cropRepository.findByName(cropName) >> crop 
         agriculturalRecordRepository.findByLandparcelAndSeasonAndCrop(landparcel, season, crop) >> [Mock(AgriculturalRecord)]
 
         when:
-        agriculturalRecordService.validateCrop(landparcel, season, cropName)
+        agriculturalRecordService.validateCrop(landparcel, season, cropName, showAdditionalInfo)
 
         then:
         Exception exception = thrown(Exception)
         exception.message == 'Wybrana uprawa już istnieje na tym polu. Możesz zmienić jej powierzchnię zamiast dodawać ją ponownie.'
+    }
+
+    def "should throw exception if crop already exists on landparcel wtihout additonal info"() {
+        given:
+        Boolean showAdditionalInfo = false
+        String cropName = 'Wheat'
+        Crop crop = Mock(Crop) {
+            getName() >> cropName
+        }
+        Landparcel landparcel = Mock(Landparcel)
+        Season season = Mock(Season)
+
+        cropRepository.findByName(cropName) >> crop 
+        agriculturalRecordRepository.findByLandparcelAndSeasonAndCrop(landparcel, season, crop) >> [Mock(AgriculturalRecord)]
+
+        when:
+        agriculturalRecordService.validateCrop(landparcel, season, cropName, showAdditionalInfo)
+
+        then:
+        Exception exception = thrown(Exception)
+        exception.message == 'Wybrana uprawa już istnieje na tym polu.'
     }
     /*
     * validateCropArea
@@ -521,7 +545,9 @@ class AgriculturalRecordServiceSpec extends Specification {
             getId() >> agriculturalRecordId
             getLandparcel() >> landparcel
             getSeason() >> season
-            getCropName() >> crop
+            getCrop() >> Mock(Crop) {
+                getName() >> 'Potato'
+            }
         }
         UpdateAgriculturalRecordRequest request = new UpdateAgriculturalRecordRequest(
             cropName: 'Corn',
@@ -585,6 +611,9 @@ class AgriculturalRecordServiceSpec extends Specification {
             getId() >> agriculturalRecordId
             getLandparcel() >> landparcel
             getSeason() >> season
+            getCrop() >> Mock(Crop) {
+                getName() >> 'Potato'
+            }
         }
         UpdateAgriculturalRecordRequest request = new UpdateAgriculturalRecordRequest(
             cropName: 'Corn',
@@ -602,7 +631,51 @@ class AgriculturalRecordServiceSpec extends Specification {
 
         then:
         Exception exception = thrown(Exception)
-        exception.message == 'Wybrana uprawa już istnieje na tym polu. Możesz zmienić jej powierzchnię zamiast dodawać ją ponownie.'
+        exception.message == 'Wybrana uprawa już istnieje na tym polu.'
+    }
+
+    def "should skip updating crop if name is same of current and update request"() {
+        given:
+        Landparcel landparcel = Mock(Landparcel) {
+            getArea() >> 20.0
+        }
+        Season season = Mock(Season)
+        Crop crop = Mock(Crop)
+        Farm farm = Mock(Farm) {
+            getId() >> 1
+        }
+
+        AgriculturalRecordId agriculturalRecordId = new AgriculturalRecordId(1, 1)
+        AgriculturalRecord agriculturalRecord = Mock(AgriculturalRecord) {
+            getId() >> agriculturalRecordId
+            getLandparcel() >> landparcel
+            getSeason() >> season
+            getCrop() >> Mock(Crop) {
+                getName() >> 'Corn'
+            }
+        }
+        UpdateAgriculturalRecordRequest request = new UpdateAgriculturalRecordRequest(
+            cropName: 'Corn',
+            area: 15.0,
+            description: ''
+        )
+
+        userService.getLoggedUserFarm() >> farm
+        agriculturalRecordRepository.findById(agriculturalRecordId) >> Optional.of(agriculturalRecord)
+        agriculturalRecordRepository.findByLandparcelAndSeasonAndCrop(landparcel, season, crop) >> []
+
+        // //Vaildatation functions mocks
+        // cropRepository.findByName(request.getCropName()) >> crop
+        agriculturalRecordRepository.findByLandparcelAndSeason(landparcel, season) >> []
+
+        when:
+        agriculturalRecordService.updateAgriculturalRecord(agriculturalRecordId.getId(), request)
+
+        then:
+        0 * agriculturalRecord.setCrop(crop)
+        1 * agriculturalRecord.setArea(request.area)
+        1 * agriculturalRecord.setDescription(request.description)
+        1 * agriculturalRecordRepository.save(_ as AgriculturalRecord)
     }
     /*
     * validateUpdatedCropArea
@@ -693,7 +766,7 @@ class AgriculturalRecordServiceSpec extends Specification {
 
         agriculturalRecordRepository.findByLandparcelAndSeason(landparcel, season) >> [
             Mock(AgriculturalRecord) {
-                getId() >> new AgriculturalRecordId(1, 1) // Same ID as the record being updated
+                getId() >> new AgriculturalRecordId(1, 1) 
                 getArea() >> 5.0
             },
             Mock(AgriculturalRecord) {

@@ -52,7 +52,7 @@ public class AddLandparcelRequest {
     private Double latitude;
 
     @NotNull(message = "Powierzchnia nie może być pusta.")
-    @DecimalMin(value = "0.01", message = "Powierzchnia działki musi być większa niż 0")
-    @DecimalMax(value = "1000.0", message = "Powierzchnia działki nie może przekraczać 100000")
+    @DecimalMin(value = "0.0001", message = "Nie możesz podać wartości mniejszej niż 0.0001 ha")
+    @Digits(integer = 7, fraction = 4, message = "Możesz podać maksymalnie 4 cyfry po przecinku")
     private Double area;
 }

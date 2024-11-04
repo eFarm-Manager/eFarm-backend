@@ -230,7 +230,7 @@ class AgriculturalRecordFacadeSpec extends Specification {
         seasonService.getCurrentSeason() >> season
         landparcelService.findlandparcelByFarm(request.getLandparcelId(), farm) >> landparcel
         agriculturalRecordService.validateCropArea(landparcel, season, request) >> { }
-        agriculturalRecordService.validateCrop(landparcel, season, request.getCropName()) >> crop
+        agriculturalRecordService.validateCrop(landparcel, season, request.getCropName(),true) >> crop
         agriculturalRecordRepository.findNextFreeIdForFarm(farm.getId()) >> 1
 
         when:
@@ -262,7 +262,7 @@ class AgriculturalRecordFacadeSpec extends Specification {
         seasonService.getSeasonByName(request.getSeason()) >> specifiedSeason
         landparcelService.findlandparcelByFarm(request.getLandparcelId(), farm) >> landparcel
         agriculturalRecordService.validateCropArea(landparcel, specifiedSeason, request) >> { }
-        agriculturalRecordService.validateCrop(landparcel, specifiedSeason, request.getCropName()) >> crop
+        agriculturalRecordService.validateCrop(landparcel, specifiedSeason, request.getCropName(),true) >> crop
         agriculturalRecordRepository.findNextFreeIdForFarm(farm.getId()) >> 1
 
         when:

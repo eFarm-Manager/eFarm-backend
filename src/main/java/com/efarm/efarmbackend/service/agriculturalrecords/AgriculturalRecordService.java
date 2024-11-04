@@ -51,14 +51,18 @@ public class AgriculturalRecordService {
                 .collect(Collectors.toList());
     }
 
-    public Crop validateCrop(Landparcel landparcel, Season season, String cropName) throws Exception {
+    public Crop validateCrop(Landparcel landparcel, Season season, String cropName, Boolean showAdditionalExceptionInfo) throws Exception {
         Crop crop = cropRepository.findByName(cropName);
         if (crop == null) {
             throw new Exception("Wybrano nieprawidłowy rodzaj uprawy");
         }
         List<AgriculturalRecord> cropsOnLandparcel = agriculturalRecordRepository.findByLandparcelAndSeasonAndCrop(landparcel, season, crop);
         if (!cropsOnLandparcel.isEmpty()) {
-            throw new Exception("Wybrana uprawa już istnieje na tym polu. Możesz zmienić jej powierzchnię zamiast dodawać ją ponownie.");
+            if (showAdditionalExceptionInfo) {
+                throw new Exception("Wybrana uprawa już istnieje na tym polu. Możesz zmienić jej powierzchnię zamiast dodawać ją ponownie.");
+            } else {
+                throw new Exception("Wybrana uprawa już istnieje na tym polu.");
+            }
         }
         return crop;
     }
@@ -69,7 +73,7 @@ public class AgriculturalRecordService {
         double maxAvailableArea = landparcel.getArea() - totalUsedArea;
 
         if (totalUsedArea + recordRequest.getArea() > landparcel.getArea()) {
-            double roundedDownArea = Math.floor(maxAvailableArea * 100) / 100;
+            double roundedDownArea = Math.floor(maxAvailableArea * 10000) / 10000;
             throw new Exception("Maksymalna niewykorzystana powierzchnia na tym polu to: " + roundedDownArea + " ha. Spróbuj najpierw zmniejszyć powierzchnię pozostałych upraw.");
         }
     }
@@ -86,8 +90,11 @@ public class AgriculturalRecordService {
         Season season = recordToUpdate.getSeason();
 
         if (updateRequest.getCropName() != null) {
-            Crop newCrop = validateCrop(landparcel, season, updateRequest.getCropName());
-            recordToUpdate.setCrop(newCrop);
+            String currentCropName = recordToUpdate.getCrop().getName();
+            if (!currentCropName.equals(updateRequest.getCropName())) {
+                Crop newCrop = validateCrop(landparcel, season, updateRequest.getCropName(), false);
+                recordToUpdate.setCrop(newCrop);
+            }
         }
         if (updateRequest.getArea() != null) {
             validateUpdatedCropArea(landparcel, season, updateRequest, recordToUpdate);
@@ -110,12 +117,12 @@ public class AgriculturalRecordService {
         double maxAvailableArea = landparcel.getArea() - totalUsedArea;
 
         if (totalUsedArea + updateRequest.getArea() > landparcel.getArea()) {
-            double roundedDownArea = Math.floor(maxAvailableArea * 100) / 100;
+            double roundedDownArea = Math.floor(maxAvailableArea * 10000) / 10000;
             throw new Exception("Maksymalna niewykorzystana powierzchnia na tym polu to: " + roundedDownArea + " ha. Spróbuj najpierw zmniejszyć powierzchnię pozostałych upraw.");
         }
     }
 
-    public void createAgriculturalRecordForLandparcel(Landparcel landparcel, Farm loggedUserFarm, Season season) throws Exception {
+    public void createAgriculturalRecordForLandparcel(Landparcel landparcel, Farm loggedUserFarm, Season season) {
         Crop currentCrop = cropRepository.findByName("uprawa nieoznaczona");
 
         AgriculturalRecordId agriculturalRecordId = new AgriculturalRecordId(

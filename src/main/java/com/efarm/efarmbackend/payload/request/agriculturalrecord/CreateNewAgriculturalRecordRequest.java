@@ -22,8 +22,8 @@ public class CreateNewAgriculturalRecordRequest {
     private String season;
 
     @NotNull
-    @DecimalMin(value = "0.01", message = "Nie możesz podać wartości mniejszej niż 0.01 ha")
-    @Digits(integer = 7, fraction = 2, message = "Możesz podać maksymalnie dwie cyfry po przecinku")
+    @DecimalMin(value = "0.0001", message = "Nie możesz podać wartości mniejszej niż 0.0001 ha")
+    @Digits(integer = 7, fraction = 4, message = "Możesz podać maksymalnie 4 cyfry po przecinku")
     private Double area;
 
     private String description;
