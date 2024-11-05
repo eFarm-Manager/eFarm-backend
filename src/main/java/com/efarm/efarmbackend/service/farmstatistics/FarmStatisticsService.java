@@ -39,9 +39,9 @@ public class FarmStatisticsService {
         Double privatelyOwnedAvailableArea = landparcelRepository.sumAvailableLandAreaByStatus(loggedUserFarm.getId(), ELandOwnershipStatus.STATUS_PRIVATELY_OWNED);
         Double leaseAvailableArea = landparcelRepository.sumAvailableLandAreaByStatus(loggedUserFarm.getId(), ELandOwnershipStatus.STATUS_LEASE);
 
-        totalAvailableArea = roundToTwoDecimalPlaces(totalAvailableArea);
-        privatelyOwnedAvailableArea = roundToTwoDecimalPlaces(privatelyOwnedAvailableArea);
-        leaseAvailableArea = roundToTwoDecimalPlaces(leaseAvailableArea);
+        totalAvailableArea = roundToFourDecimalPlaces(totalAvailableArea);
+        privatelyOwnedAvailableArea = roundToFourDecimalPlaces(privatelyOwnedAvailableArea);
+        leaseAvailableArea = roundToFourDecimalPlaces(leaseAvailableArea);
 
         return new LandAreaStatisticsResponse(totalAvailableArea, privatelyOwnedAvailableArea, leaseAvailableArea);
     }
@@ -54,18 +54,18 @@ public class FarmStatisticsService {
         return cropStatistics.stream()
                 .map(result -> new CropStatisticsResponse(
                         (String) result[0],
-                        roundToTwoDecimalPlaces((Double) result[1])
+                        roundToFourDecimalPlaces((Double) result[1])
                 ))
                 .sorted((a, b) -> b.getTotalArea().compareTo(a.getTotalArea()))
                 .collect(Collectors.toList());
     }
 
-    private Double roundToTwoDecimalPlaces(Double value) {
+    private Double roundToFourDecimalPlaces(Double value) {
         if (value == null) {
             return null;
         }
         return BigDecimal.valueOf(value)
-                .setScale(2, RoundingMode.HALF_UP)
+                .setScale(4, RoundingMode.HALF_UP)
                 .doubleValue();
     }
 }
