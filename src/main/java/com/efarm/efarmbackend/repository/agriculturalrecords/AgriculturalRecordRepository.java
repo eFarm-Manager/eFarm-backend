@@ -20,6 +20,12 @@ public interface AgriculturalRecordRepository extends JpaRepository<Agricultural
 
     List<AgriculturalRecord> findByLandparcelAndSeasonAndCrop(Landparcel landparcel, Season season, Crop crop);
 
+    @Query("SELECT ar.crop.name, SUM(ar.area) " +
+            "FROM AgriculturalRecord ar " +
+            "WHERE ar.season.id = :seasonId AND ar.landparcel.farm.id = :farmId " +
+            "GROUP BY ar.crop.name")
+    List<Object[]> findCropStatisticsBySeasonAndFarm(@Param("seasonId") Integer seasonId, @Param("farmId") Integer farmId);
+
     @Query("SELECT MAX(ar.id.id) FROM AgriculturalRecord ar WHERE ar.farm.id = :farmId")
     Optional<Integer> findMaxIdForFarm(@Param("farmId") Integer farmId);
 
