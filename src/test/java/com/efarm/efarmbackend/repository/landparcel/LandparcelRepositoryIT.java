@@ -3,6 +3,7 @@ package com.efarm.efarmbackend.repository.landparcel;
 import com.efarm.efarmbackend.model.farm.ActivationCode;
 import com.efarm.efarmbackend.model.farm.Address;
 import com.efarm.efarmbackend.model.farm.Farm;
+import com.efarm.efarmbackend.model.landparcel.ELandOwnershipStatus;
 import com.efarm.efarmbackend.model.landparcel.Landparcel;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
@@ -143,6 +144,49 @@ public class LandparcelRepositoryIT {
         // Then
         assertThat(result.size(),is(0));
         assertThat(result, is(empty()));
+    }
+
+    @Test
+    public void shouldGetSumOfAvailableArea() {
+        //given
+        Integer farmId = 1;
+        Double sumArea = entityManager.getEntityManager()
+            .createQuery("SELECT SUM(l.area) FROM Landparcel l WHERE " + 
+            "l.farm.id = :farmId AND l.isAvailable = true AND " + 
+            "(l.landOwnershipStatus.ownershipStatus = :privatelyOwnedStatus OR " +
+            "l.landOwnershipStatus.ownershipStatus = :leaseStatus)", 
+        Double.class)
+        .setParameter("farmId", farmId)
+        .setParameter("privatelyOwnedStatus", ELandOwnershipStatus.STATUS_PRIVATELY_OWNED)
+        .setParameter("leaseStatus", ELandOwnershipStatus.STATUS_LEASE)
+        .getSingleResult();
+
+        // When
+        Double result = landparcelRepository.sumAvailableLandArea(farmId);
+
+        // Then
+        assertThat(result, is(sumArea));
+    }
+
+    @Test
+    public void shouldReturnSumAvailableLandAreaByStatus() {
+        //given
+        Integer farmId = 1;
+        ELandOwnershipStatus status = ELandOwnershipStatus.STATUS_PRIVATELY_OWNED;
+        Double sumArea = entityManager.getEntityManager()
+            .createQuery("SELECT SUM(l.area) FROM Landparcel l WHERE " + 
+            "l.farm.id = :farmId AND l.isAvailable = true AND " + 
+            "l.landOwnershipStatus.ownershipStatus = :status", 
+        Double.class)
+        .setParameter("farmId", farmId)
+        .setParameter("status", status)
+        .getSingleResult();
+
+        // When
+        Double result = landparcelRepository.sumAvailableLandAreaByStatus(farmId, status);
+
+        // Then
+        assertThat(result, is(sumArea));
     }
 
     @Test

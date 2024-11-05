@@ -85,6 +85,32 @@ public class AgriculturalRecordRepositoryIT {
     }
 
     @Test
+    public void testFindCropStatisticsBySeasonAndFarm() {
+        //given
+        Integer seasonId = 1;
+        Integer farmId = 1;
+        List<Object[]> cropStatistics = entityManager.getEntityManager()
+                .createQuery("SELECT ar.crop.name, SUM(ar.area) " +
+                        "FROM AgriculturalRecord ar " +
+                        "WHERE ar.season.id = :seasonId AND ar.landparcel.farm.id = :farmId " +
+                        "GROUP BY ar.crop.name", Object[].class)
+                .setParameter("seasonId", seasonId)
+                .setParameter("farmId", farmId)
+                .getResultList();
+
+        //when
+        List<Object[]> foundCropStatistics = agriculturalRecordRepository.findCropStatisticsBySeasonAndFarm(seasonId, farmId);
+
+        //then
+        assertThat(foundCropStatistics, notNullValue());
+        assertThat(foundCropStatistics.size(), is(cropStatistics.size()));
+        for (int i = 0; i < foundCropStatistics.size(); i++) {
+            assertThat(foundCropStatistics.get(i)[0], is(cropStatistics.get(i)[0]));
+            assertThat(foundCropStatistics.get(i)[1], is(cropStatistics.get(i)[1]));
+        }
+    }
+
+    @Test
     public void testFindMaxIdForFarm() {
         //given
         Integer farmId = 1;
