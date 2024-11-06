@@ -10,4 +10,4 @@ namespace: backend
 images:
   - name: sprysio/efarm-backend
     newName: sprysio/efarm-backend
-    newTag: develop-297dfd554f2d376506a6b6e43e7b4f9a3dd4c278
+    newTag: develop-a698cad194e801a698962c491fc628aab9ccf97e
