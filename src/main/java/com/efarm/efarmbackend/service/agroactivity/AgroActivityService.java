@@ -59,13 +59,7 @@ public class AgroActivityService {
 
         List<AgroActivity> activities = agroActivityRepository.findByAgriculturalRecord(agriculturalRecord);
         return activities.stream()
-                .map(a -> new AgroActivitySummaryDTO(
-                        a.getId().getId(),
-                        a.getName(),
-                        a.getDate(),
-                        a.getIsCompleted(),
-                        a.getActivityCategory().getName()
-                ))
+                .map(AgroActivitySummaryDTO::new)
                 .collect(Collectors.toList());
     }
 

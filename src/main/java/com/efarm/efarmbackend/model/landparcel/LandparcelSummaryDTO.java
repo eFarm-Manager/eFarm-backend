@@ -3,11 +3,9 @@ package com.efarm.efarmbackend.model.landparcel;
 import com.efarm.efarmbackend.model.agroactivity.AgroActivity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
-@NoArgsConstructor
-@AllArgsConstructor
 @Getter
+@AllArgsConstructor
 public class LandparcelSummaryDTO {
     private Integer id;
     private String name;

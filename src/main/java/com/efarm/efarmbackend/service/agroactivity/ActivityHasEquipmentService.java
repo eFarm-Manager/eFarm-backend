@@ -4,7 +4,7 @@ import com.efarm.efarmbackend.model.agroactivity.ActivityHasEquipment;
 import com.efarm.efarmbackend.model.agroactivity.AgroActivity;
 import com.efarm.efarmbackend.model.equipment.FarmEquipment;
 import com.efarm.efarmbackend.model.equipment.FarmEquipmentId;
-import com.efarm.efarmbackend.model.equipment.FarmEquipmentShortDTO;
+import com.efarm.efarmbackend.model.equipment.EquipmentSummaryDTO;
 import com.efarm.efarmbackend.repository.agroactivity.ActivityHasEquipmentRepository;
 import com.efarm.efarmbackend.repository.equipment.FarmEquipmentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,15 +44,9 @@ public class ActivityHasEquipmentService {
         }
     }
 
-    public List<FarmEquipmentShortDTO> getEquipmentsForAgroActivity(AgroActivity agroActivity) {
+    public List<EquipmentSummaryDTO> getEquipmentsForAgroActivity(AgroActivity agroActivity) {
         return activityHasEquipmentRepository.findActivityHasEquipmentsByAgroActivity(agroActivity).stream()
-                .map(ahe -> new FarmEquipmentShortDTO(
-                        ahe.getFarmEquipment().getId().getId(),
-                        ahe.getFarmEquipment().getEquipmentName(),
-                        ahe.getFarmEquipment().getCategory().getCategoryName(),
-                        ahe.getFarmEquipment().getBrand(),
-                        ahe.getFarmEquipment().getModel()
-                ))
+                .map(EquipmentSummaryDTO::new)
                 .collect(Collectors.toList());
     }
 
