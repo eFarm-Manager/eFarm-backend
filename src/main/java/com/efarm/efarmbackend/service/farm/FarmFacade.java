@@ -4,8 +4,6 @@ import com.efarm.efarmbackend.model.farm.ActivationCode;
 import com.efarm.efarmbackend.model.farm.Address;
 import com.efarm.efarmbackend.model.farm.Farm;
 import com.efarm.efarmbackend.model.farm.FarmDTO;
-import com.efarm.efarmbackend.model.user.User;
-import com.efarm.efarmbackend.model.user.UserDTO;
 import com.efarm.efarmbackend.payload.request.farm.UpdateFarmDetailsRequest;
 import com.efarm.efarmbackend.service.auth.AuthService;
 import com.efarm.efarmbackend.service.user.UserService;
@@ -14,8 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class FarmFacade {
@@ -34,14 +30,6 @@ public class FarmFacade {
 
     @Autowired
     private AddressService addressService;
-
-    public List<UserDTO> getFarmUsersByFarmId() {
-        Farm loggedUserFarm = userService.getLoggedUserFarm();
-        List<User> users = farmService.getUsersByFarmId(loggedUserFarm.getId());
-        return users.stream()
-                .map(UserDTO::new)
-                .collect(Collectors.toList());
-    }
 
     public FarmDTO getFarmDetails() {
         Farm loggedUserFarm = userService.getLoggedUserFarm();

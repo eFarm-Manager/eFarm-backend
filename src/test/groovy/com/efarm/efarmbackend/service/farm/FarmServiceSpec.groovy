@@ -21,13 +21,11 @@ class FarmServiceSpec extends Specification {
 
     def farmRepository = Mock(FarmRepository)
     def activationCodeRepository = Mock(ActivationCodeRepository)
-    def userRepository = Mock(UserRepository)
 
     @Subject
     FarmService farmService = new FarmService(
             farmRepository: farmRepository,
-            activationCodeRepository: activationCodeRepository,
-            userRepository: userRepository
+            activationCodeRepository: activationCodeRepository
     )
 
     def setup() {
@@ -229,32 +227,6 @@ class FarmServiceSpec extends Specification {
         0 * farmRepository.save(farm)
         IllegalArgumentException ex = thrown()
         ex.message == "Wybrana nazwa farmy jest zajęta. Spróbuj wybrać inną"
-    }
-
-    def "should return users from farm"() {
-        given:
-        Farm farm1 = Mock(Farm)
-        farm1.getId() >> 1
-        Farm farm2 = Mock(Farm)
-        farm2.getId() >> 2
-
-        User user1 = Mock(User)
-        user1.getFarm() >> farm1
-        User user2 = Mock(User)
-        user2.getFarm() >> farm1
-        User user3 = Mock(User)
-        user3.getFarm() >> farm2
-
-        userRepository.findByFarmId(1) >> [user1, user2]
-        when:
-        List<User> usersInFarm1 = farmService.getUsersByFarmId(1)
-
-        then:
-        usersInFarm1.size() == 2
-        usersInFarm1.contains(user1)
-        usersInFarm1.contains(user2)
-        !usersInFarm1.contains(user3)
-        usersInFarm1.every { it.getFarm() == farm1 }
     }
 
     def "should return true if farm exists by name"() {

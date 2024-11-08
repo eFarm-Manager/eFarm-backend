@@ -4,11 +4,9 @@ import com.efarm.efarmbackend.model.farm.ActivationCode;
 import com.efarm.efarmbackend.model.farm.Farm;
 import com.efarm.efarmbackend.model.user.ERole;
 import com.efarm.efarmbackend.model.user.Role;
-import com.efarm.efarmbackend.model.user.User;
 import com.efarm.efarmbackend.payload.request.farm.UpdateFarmDetailsRequest;
 import com.efarm.efarmbackend.repository.farm.ActivationCodeRepository;
 import com.efarm.efarmbackend.repository.farm.FarmRepository;
-import com.efarm.efarmbackend.repository.user.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,9 +25,6 @@ public class FarmService {
 
     @Autowired
     private ActivationCodeRepository activationCodeRepository;
-
-    @Autowired
-    private UserRepository userRepository;
 
     private static final Logger logger = LoggerFactory.getLogger(FarmService.class);
 
@@ -87,10 +82,6 @@ public class FarmService {
             loggedUserFarm.setSanitaryRegisterNumber(request.getSanitaryRegisterNumber());
         }
         farmRepository.save(loggedUserFarm);
-    }
-
-    public List<User> getUsersByFarmId(Integer farmId) {
-        return userRepository.findByFarmId(farmId);
     }
 
     private Boolean isFarmNameTaken(String name) {
