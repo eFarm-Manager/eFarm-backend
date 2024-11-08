@@ -161,10 +161,9 @@ class FarmFacadeSpec extends Specification {
         addressRepository.save(address) >> address
 
         when:
-        MessageResponse response = farmFacade.updateFarmDetails(updateFarmDetailsRequest)
+        farmFacade.updateFarmDetails(updateFarmDetailsRequest)
 
         then:
-        response.message == 'Poprawnie zaktualizowamo dane gospodarstwa'
         farm.getFarmName() == 'New Farm'
         address.getStreet() == 'ulica'
     }

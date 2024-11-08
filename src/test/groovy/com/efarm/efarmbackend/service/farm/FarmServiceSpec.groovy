@@ -161,6 +161,7 @@ class FarmServiceSpec extends Specification {
                 feedNumber: "456",
                 sanitaryRegisterNumber: "101"
         )
+        farmRepository.existsByFarmName(updateFarmDetailsRequest.getFarmName()) >> false
 
         when:
         farmService.updateFarmDetails(farm, updateFarmDetailsRequest)
@@ -171,6 +172,63 @@ class FarmServiceSpec extends Specification {
         farm.getFarmNumber() == "202"
         farm.getFeedNumber() == "456"
         farm.getSanitaryRegisterNumber() == "101"
+    }
+
+    def "should update when farm name doesnt change"() {
+        given:
+        Farm farm = new Farm()
+        farm.setId(1)
+        farm.setFarmName("Old Farm")
+        farm.setFarmNumber("123")
+        farm.setFeedNumber("456")
+        farm.setSanitaryRegisterNumber("987")
+        UpdateFarmDetailsRequest updateFarmDetailsRequest = new UpdateFarmDetailsRequest(
+                farmName: "Old Farm",
+                farmNumber: "202",
+                feedNumber: "456",
+                sanitaryRegisterNumber: "101"
+        )
+
+        farmRepository.existsByFarmName(updateFarmDetailsRequest.getFarmName()) >> true
+
+        when:
+        farmService.updateFarmDetails(farm, updateFarmDetailsRequest)
+
+        then:
+        1 * farmRepository.save(farm)
+        farm.getFarmName() == "Old Farm"
+        farm.getFarmNumber() == "202"
+        farm.getFeedNumber() == "456"
+        farm.getSanitaryRegisterNumber() == "101"
+    }
+
+    def "should not update farm details when farm name is already taken"() {
+        given:
+        Farm existingFarm = new Farm()
+        existingFarm.setId(1)
+        existingFarm.setFarmName("New Farm")
+        
+        Farm farm = new Farm()
+        farm.setId(2)
+        farm.setFarmName("Old Farm")
+        farm.setFarmNumber("123")
+        farm.setFeedNumber("456")
+        farm.setSanitaryRegisterNumber("987")
+        UpdateFarmDetailsRequest updateFarmDetailsRequest = new UpdateFarmDetailsRequest(
+                farmName: "New Farm",
+                farmNumber: "202",
+                feedNumber: "456",
+                sanitaryRegisterNumber: "101"
+        )
+        farmRepository.existsByFarmName(updateFarmDetailsRequest.getFarmName()) >> true
+
+        when:
+        farmService.updateFarmDetails(farm, updateFarmDetailsRequest)
+
+        then:
+        0 * farmRepository.save(farm)
+        IllegalArgumentException ex = thrown()
+        ex.message == "Wybrana nazwa farmy jest zajęta. Spróbuj wybrać inną"
     }
 
     def "should return users from farm"() {
@@ -197,5 +255,29 @@ class FarmServiceSpec extends Specification {
         usersInFarm1.contains(user2)
         !usersInFarm1.contains(user3)
         usersInFarm1.every { it.getFarm() == farm1 }
+    }
+
+    def "should return true if farm exists by name"() {
+        given:
+        String farmName = "Farm Name"
+        farmRepository.existsByFarmName(farmName) >> true
+
+        when:
+        boolean result = farmService.isFarmNameTaken(farmName)
+
+        then:
+        result == true
+    }
+
+    def "should return false if farm does not exist by name"() {
+        given:
+        String farmName = "Farm Name"
+        farmRepository.existsByFarmName(farmName) >> false
+
+        when:
+        boolean result = farmService.isFarmNameTaken(farmName)
+
+        then:
+        result == false
     }
 }
