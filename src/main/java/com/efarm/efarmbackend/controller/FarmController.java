@@ -43,8 +43,9 @@ public class FarmController {
     public ResponseEntity<?> updateFarmDetails(@Valid @RequestBody UpdateFarmDetailsRequest updateFarmDetailsRequest, BindingResult bindingResult) {
         try {
             validationRequestService.validateRequest(bindingResult);
-            return ResponseEntity.ok(farmFacade.updateFarmDetails(updateFarmDetailsRequest));
-        }catch (Exception e) {
+            farmFacade.updateFarmDetails(updateFarmDetailsRequest);
+            return ResponseEntity.ok(new MessageResponse("Pomyślnie zaktualizowano dane gospodarstwa"));
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
         }
     }
