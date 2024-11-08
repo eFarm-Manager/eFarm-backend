@@ -87,10 +87,11 @@ public class AuthController {
 
     @PostMapping("/signup")
     @PreAuthorize("hasRole('ROLE_FARM_MANAGER') or hasRole('ROLE_FARM_OWNER')")
-    public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest, BindingResult bindingResult) {
+    public ResponseEntity<MessageResponse> registerUser(@Valid @RequestBody SignupRequest signUpRequest, BindingResult bindingResult) {
         try {
             validationRequestService.validateRequest(bindingResult);
-            return ResponseEntity.ok(authFacade.registerUser(signUpRequest));
+            authFacade.registerUser(signUpRequest);
+            return ResponseEntity.ok(new MessageResponse("Zarejestrowano nowego użytkownika!"));
         } catch (Exception e) {
             Farm farm = userService.getLoggedUserFarm();
             logger.error("Can not create user for farm: {}", farm.getId());
@@ -102,17 +103,19 @@ public class AuthController {
     public ResponseEntity<MessageResponse> registerFarmAndFarmOwner(@Valid @RequestBody SignupFarmRequest signupFarmRequest, BindingResult bindingResult) {
         try {
             validationRequestService.validateRequest(bindingResult);
-            return ResponseEntity.ok(authFacade.registerFarmAndFarmOwner(signupFarmRequest));
+            authFacade.registerFarmAndFarmOwner(signupFarmRequest);
+            return ResponseEntity.ok(new MessageResponse("Pomyślnie zarejestrowano nową farmę!"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
         }
     }
 
     @PostMapping("/update-activation-code")
-    public ResponseEntity<?> updateActivationCode(@Valid @RequestBody UpdateActivationCodeRequest updateActivationCodeRequest, BindingResult bindingResult) {
+    public ResponseEntity<MessageResponse> updateActivationCode(@Valid @RequestBody UpdateActivationCodeRequest updateActivationCodeRequest, BindingResult bindingResult) {
         try {
             validationRequestService.validateRequest(bindingResult);
-            return authFacade.updateActivationCode(updateActivationCodeRequest);
+            authFacade.updateActivationCode(updateActivationCodeRequest);
+            return ResponseEntity.ok(new MessageResponse("Pomyślnie zaktualizowano kod aktywacyjny!"));
         } catch (TooManyRequestsException e) {
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
                     .body(new MessageResponse(e.getMessage()));
@@ -126,10 +129,11 @@ public class AuthController {
 
     @PutMapping("/update-activation-code")
     @PreAuthorize("hasRole('ROLE_FARM_OWNER')")
-    public ResponseEntity<?> updateActivationCodeByLoggedOwner(@Valid @RequestBody UpdateActivationCodeByLoggedOwnerRequest updateActivationCodeByLoggedOwnerRequest, BindingResult bindingResult) {
+    public ResponseEntity<MessageResponse> updateActivationCodeByLoggedOwner(@Valid @RequestBody UpdateActivationCodeByLoggedOwnerRequest updateActivationCodeByLoggedOwnerRequest, BindingResult bindingResult) {
         try {
             validationRequestService.validateRequest(bindingResult);
-            return ResponseEntity.ok(authFacade.updateActivationCodeByLoggedOwner(updateActivationCodeByLoggedOwnerRequest));
+            authFacade.updateActivationCodeByLoggedOwner(updateActivationCodeByLoggedOwnerRequest);
+            return ResponseEntity.ok(new MessageResponse("Pomyślnie zaktualizowano kod aktywacyjny!"));
         } catch (UnauthorizedException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new MessageResponse(e.getMessage()));
         } catch (Exception e) {
@@ -139,10 +143,11 @@ public class AuthController {
 
     @PutMapping("/change-password")
     @PreAuthorize("hasRole('ROLE_FARM_OWNER') or hasRole('ROLE_FARM_MANAGER') or hasRole('ROLE_FARM_EQUIPMENT_OPERATOR')")
-    public ResponseEntity<?> changePassword(@Valid @RequestBody ChangePasswordRequest changePasswordRequest, BindingResult bindingResult) {
+    public ResponseEntity<MessageResponse> changePassword(@Valid @RequestBody ChangePasswordRequest changePasswordRequest, BindingResult bindingResult) {
         try {
             validationRequestService.validateRequest(bindingResult);
-            return ResponseEntity.ok(authFacade.changePassword(changePasswordRequest));
+            authFacade.changePassword(changePasswordRequest);
+            return ResponseEntity.ok(new MessageResponse("Hasło zostało pomyślnie zmienione"));
         } catch (UnauthorizedException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new MessageResponse(e.getMessage()));
         } catch (Exception e) {
@@ -151,7 +156,7 @@ public class AuthController {
     }
 
     @PostMapping("/signout")
-    public ResponseEntity<?> logoutUser() {
+    public ResponseEntity<MessageResponse> logoutUser() {
         ResponseCookie cookie = jwtUtils.getCleanJwtCookie();
         return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .body(new MessageResponse("Wylogowano"));
