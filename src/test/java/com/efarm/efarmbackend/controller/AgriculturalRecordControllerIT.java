@@ -18,6 +18,7 @@ import com.efarm.efarmbackend.model.agriculturalrecords.AgriculturalRecord;
 import com.efarm.efarmbackend.model.agriculturalrecords.AgriculturalRecordDTO;
 import com.efarm.efarmbackend.model.agriculturalrecords.AgriculturalRecordId;
 import com.efarm.efarmbackend.model.agriculturalrecords.Season;
+import com.efarm.efarmbackend.model.agroactivity.AgroActivity;
 import com.efarm.efarmbackend.model.farm.Farm;
 import com.efarm.efarmbackend.model.landparcel.Landparcel;
 import com.efarm.efarmbackend.model.landparcel.LandparcelDTO;
@@ -43,8 +44,10 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -362,6 +365,12 @@ public class AgriculturalRecordControllerIT {
 
         AgriculturalRecord deletedRecord = entityManager.find(AgriculturalRecord.class, new AgriculturalRecordId(recordId, 1));
         assertThat(deletedRecord, is((AgriculturalRecord) null));
+
+        List<AgroActivity> remainingAgroActivities = entityManager.createQuery(
+        "SELECT a FROM AgroActivity a WHERE a.agriculturalRecord.id = :recordId", AgroActivity.class)
+                .setParameter("recordId", new AgriculturalRecordId(recordId, 1))
+                .getResultList();
+        assertThat(remainingAgroActivities, is(empty()));
     }
 
     @Test

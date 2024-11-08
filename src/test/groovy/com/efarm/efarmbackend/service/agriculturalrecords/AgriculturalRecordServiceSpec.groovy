@@ -6,11 +6,15 @@ import com.efarm.efarmbackend.model.agriculturalrecords.Crop
 import com.efarm.efarmbackend.model.agriculturalrecords.Season
 import com.efarm.efarmbackend.model.farm.Farm
 import com.efarm.efarmbackend.model.landparcel.Landparcel
+import com.efarm.efarmbackend.model.agroactivity.AgroActivity;
+import com.efarm.efarmbackend.model.agroactivity.AgroActivityId;
+import com.efarm.efarmbackend.repository.agroactivity.AgroActivityRepository;
+import com.efarm.efarmbackend.repository.landparcel.LandparcelRepository;
+import com.efarm.efarmbackend.service.agroactivity.AgroActivityService;
 import com.efarm.efarmbackend.payload.request.agriculturalrecord.CreateNewAgriculturalRecordRequest
 import com.efarm.efarmbackend.payload.request.agriculturalrecord.UpdateAgriculturalRecordRequest
 import com.efarm.efarmbackend.repository.agriculturalrecords.AgriculturalRecordRepository
 import com.efarm.efarmbackend.repository.agriculturalrecords.CropRepository
-import com.efarm.efarmbackend.repository.landparcel.LandparcelRepository
 import com.efarm.efarmbackend.service.user.UserService
 
 import java.util.List
@@ -23,13 +27,17 @@ class AgriculturalRecordServiceSpec extends Specification {
     def cropRepository = Mock(CropRepository)
     def landparcelRepository = Mock(LandparcelRepository)
     def userService = Mock(UserService)
+    def agroActivityService = Mock(AgroActivityService)
+    def agroActivityRepository = Mock(AgroActivityRepository)
 
     @Subject
     AgriculturalRecordService agriculturalRecordService = new AgriculturalRecordService(
             agriculturalRecordRepository: agriculturalRecordRepository,
             cropRepository: cropRepository,
             landparcelRepository: landparcelRepository,
-            userService: userService
+            userService: userService,
+            agroActivityService: agroActivityService,
+            agroActivityRepository: agroActivityRepository
     )
 
     /*
@@ -526,6 +534,46 @@ class AgriculturalRecordServiceSpec extends Specification {
     }
 
     /*
+    * findAgriculturalRecordById
+    */
+
+    def "should find agricultural record by id"() {
+        given:
+        Farm farm = Mock(Farm) {
+            getId() >> 1
+        }
+        AgriculturalRecordId agriculturalRecordId = new AgriculturalRecordId(1, farm.getId())
+        AgriculturalRecord agriculturalRecord = Mock(AgriculturalRecord) {
+            getId() >> agriculturalRecordId
+        }
+
+        agriculturalRecordRepository.findById(agriculturalRecordId) >> Optional.of(agriculturalRecord)
+
+        when:
+        AgriculturalRecord foundRecord = agriculturalRecordService.findAgriculturalRecordById(agriculturalRecordId.getId(),farm.getId())
+
+        then:
+        foundRecord == agriculturalRecord
+    }
+
+    def "should throw exception for non existing record by id"() {
+        given:
+        Farm farm = Mock(Farm) {
+            getId() >> 1
+        }
+        AgriculturalRecordId agriculturalRecordId = new AgriculturalRecordId(1, farm.getId())
+
+        agriculturalRecordRepository.findById(agriculturalRecordId) >> Optional.empty()
+
+        when:
+        agriculturalRecordService.findAgriculturalRecordById(agriculturalRecordId.getId(),farm.getId())
+
+        then:
+        RuntimeException exception = thrown(RuntimeException)
+        exception.message == 'Nie znaleziono ewidencji'
+    }
+
+    /*
     * updateAgriculturalRecord
     */
 
@@ -817,6 +865,18 @@ class AgriculturalRecordServiceSpec extends Specification {
         Farm farm = Mock(Farm) {
             getId() >> 1
         }
+        AgroActivity agroActivity1 = Mock(AgroActivity) {
+            getId() >> Mock(AgroActivityId) {
+                getId() >> 1
+                getFarmId() >> 1
+            }
+        }
+        AgroActivity agroActivity2 = Mock(AgroActivity) {
+            getId() >> Mock(AgroActivityId) {
+                getId() >> 2
+                getFarmId() >> 1
+            }
+        }
         AgriculturalRecordId agriculturalRecordId = new AgriculturalRecordId(1, 1)
         AgriculturalRecord agriculturalRecord = Mock(AgriculturalRecord) {
             getId() >> agriculturalRecordId
@@ -826,11 +886,14 @@ class AgriculturalRecordServiceSpec extends Specification {
         userService.getLoggedUserFarm() >> farm
         agriculturalRecordRepository.findById(agriculturalRecordId) >> Optional.of(agriculturalRecord)
         agriculturalRecordRepository.existsById(agriculturalRecordId) >> true
+        agroActivityRepository.findByAgriculturalRecordId(agriculturalRecordId) >> [agroActivity1, agroActivity2]
 
         when:
         agriculturalRecordService.deleteAgriculturalRecord(agriculturalRecordId.getId())
 
         then:
+        1 * agroActivityService.deleteAgroActivity(agroActivity1.getId())
+        1 * agroActivityService.deleteAgroActivity(_)
         1 * agriculturalRecordRepository.deleteById(agriculturalRecordId)
     }
 
