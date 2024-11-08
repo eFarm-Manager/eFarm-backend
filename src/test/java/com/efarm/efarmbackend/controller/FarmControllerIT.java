@@ -38,6 +38,7 @@ import jakarta.transaction.Transactional;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
@@ -65,6 +66,9 @@ public class FarmControllerIT {
     public void clearSecurityContext() {
         SecurityContextHolder.clearContext();
     }
+    /*
+     * GET /users
+     */
 
     @Test
     @DisplayName("Test return all users from same farm")
@@ -119,6 +123,9 @@ public class FarmControllerIT {
         mockMvc.perform(get("/api/farm/users"))
                 .andExpect(status().isForbidden());
     }
+    /*
+     * GET /details
+     */
 
     @Test
     @DisplayName("Test return farm, address and code expiration date details")
@@ -153,6 +160,9 @@ public class FarmControllerIT {
         assertEquals(farmAddress.getStreet(), farmDTO.getStreet());
         assertEquals(farmAddress.getCity(), farmDTO.getCity());
     }
+    /*
+     * PUT /details
+     */
 
     @Test
     @DisplayName("Test successfuly update farm and address details")
@@ -213,11 +223,11 @@ public class FarmControllerIT {
     @Test
     @DisplayName("Test successfully update farm and address details with a new user")
     void testUpdateFarmDetailsWithNewUser() throws Exception {
-        // Given: Create a new user
+        // Given
         ActivationCode activationCode = entityManager.createQuery(
                         "SELECT a FROM ActivationCode a WHERE a.isUsed = :used", ActivationCode.class)
                 .setParameter("used", false)
-                .setMaxResults(1)  // Ensures only one result is returned
+                .setMaxResults(1)  
                 .getSingleResult();
 
         User newUser = new User();
@@ -245,7 +255,6 @@ public class FarmControllerIT {
         newUser.setFarm(newFarm);
         entityManager.persist(newUser);
 
-        // Prepare the update request
         UpdateFarmDetailsRequest updateFarmDetailsRequest = new UpdateFarmDetailsRequest();
         updateFarmDetailsRequest.setFarmName("New Farm");
         updateFarmDetailsRequest.setFarmNumber("202");
@@ -256,13 +265,12 @@ public class FarmControllerIT {
         updateFarmDetailsRequest.setFeedNumber("");
         updateFarmDetailsRequest.setZipCode("");
 
-        // Authenticate the new user
         UserDetailsImpl userDetails = UserDetailsImpl.build(newUser);
         UsernamePasswordAuthenticationToken authToken =
                 new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authToken);
 
-        // When: Perform the update operation
+        // When
         mockMvc.perform(put("/api/farm/details")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(updateFarmDetailsRequest)))
@@ -270,7 +278,7 @@ public class FarmControllerIT {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        // Then: Verify the update
+        // Then
         Farm updatedFarm = entityManager.find(Farm.class, newFarm.getId());
         Address updatedAddress = entityManager.find(Address.class, updatedFarm.getIdAddress());
 
@@ -285,6 +293,42 @@ public class FarmControllerIT {
         assertThat("20D", is(updatedAddress.getBuildingNumber()));
         assertThat("", is(updatedAddress.getZipCode()));
         assertThat("Miasto X", is(updatedAddress.getCity()));
+    }
+
+    @Test
+    public void testThatFarmDetailsCantBeUpdatedWhenFarmNameAlreadyExists() throws Exception {
+        // Given
+        User currentUser = entityManager.find(User.class, 1);
+        Farm userFarm = currentUser.getFarm();
+
+        Farm otherFarm = entityManager.createQuery(
+                        "SELECT f FROM Farm f WHERE f.id = :farmId", Farm.class)
+                .setParameter("farmId", userFarm.getId() + 1)
+                .setMaxResults(1)
+                .getSingleResult();
+
+        UpdateFarmDetailsRequest updateFarmDetailsRequest = new UpdateFarmDetailsRequest();
+        updateFarmDetailsRequest.setFarmName(otherFarm.getFarmName());
+        updateFarmDetailsRequest.setFarmNumber("202");
+        updateFarmDetailsRequest.setSanitaryRegisterNumber("101");
+        updateFarmDetailsRequest.setStreet("ulica Y");
+        updateFarmDetailsRequest.setBuildingNumber("20D");
+        updateFarmDetailsRequest.setCity("Miasto X");
+        updateFarmDetailsRequest.setFeedNumber(userFarm.getFeedNumber());
+        updateFarmDetailsRequest.setZipCode("");
+
+        UserDetailsImpl userDetails = UserDetailsImpl.build(currentUser);
+        UsernamePasswordAuthenticationToken authToken =
+                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authToken);
+
+        // When
+        mockMvc.perform(put("/api/farm/details")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(updateFarmDetailsRequest)))
+        //then
+                        .andExpect(status().isBadRequest())
+                        .andExpect(jsonPath("$.message").value("Wybrana nazwa farmy jest zajęta. Spróbuj wybrać inną"));
     }
 
 }

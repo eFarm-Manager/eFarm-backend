@@ -17,4 +17,14 @@ public class UserDTO {
     private String lastName;
     private String phone;
     private Boolean isActive;
+
+    public UserDTO(User user) {
+        this.username = user.getUsername();
+        this.role = user.getRole().toString();
+        this.email = user.getEmail();
+        this.firstName = user.getFirstName();
+        this.lastName = user.getLastName();
+        this.phone = user.getPhoneNumber();
+        this.isActive = user.getIsActive();
+    }
 }

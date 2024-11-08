@@ -57,39 +57,43 @@ public class FarmService {
         }
     }
 
-    public void checkFarmDeactivation(Farm userFarm, Role role) throws Exception{
+    public void checkFarmDeactivation(Farm userFarm, Role role) throws Exception {
         if (!userFarm.getIsActive()) {
             if (role.getName() == ERole.ROLE_FARM_EQUIPMENT_OPERATOR ||
                     role.getName() == ERole.ROLE_FARM_MANAGER) {
                 throw new AccessDeniedException("Gospodarstwo jest nieaktywne. Kod aktywacyjny wygasł.");
             }
-
             if (role.getName() == ERole.ROLE_FARM_OWNER) {
                 throw new AccessDeniedException("Gospodarstwo jest nieaktywne. Podaj nowy kod aktywacyjny.");
             }
         }
     }
 
-    public void updateFarmDetails(Farm loggedUserFarm , UpdateFarmDetailsRequest updateFarmDetailsRequest) {
-        if (updateFarmDetailsRequest.getFarmName() != null) {
-            loggedUserFarm.setFarmName(updateFarmDetailsRequest.getFarmName());
+    public void updateFarmDetails(Farm loggedUserFarm, UpdateFarmDetailsRequest request) {
+        if (!loggedUserFarm.getFarmName().equals(request.getFarmName()) &&
+                isFarmNameTaken(request.getFarmName())
+        ) {
+            throw new IllegalArgumentException("Wybrana nazwa farmy jest zajęta. Spróbuj wybrać inną");
+        } else if (request.getFarmName() != null) {
+            loggedUserFarm.setFarmName(request.getFarmName());
         }
-        if (updateFarmDetailsRequest.getFarmNumber() != null) {
-            loggedUserFarm.setFarmNumber(updateFarmDetailsRequest.getFarmNumber());
+        if (request.getFarmNumber() != null) {
+            loggedUserFarm.setFarmNumber(request.getFarmNumber());
         }
-        if (updateFarmDetailsRequest.getFeedNumber() != null) {
-            loggedUserFarm.setFeedNumber(updateFarmDetailsRequest.getFeedNumber());
+        if (request.getFeedNumber() != null) {
+            loggedUserFarm.setFeedNumber(request.getFeedNumber());
         }
-        if (updateFarmDetailsRequest.getSanitaryRegisterNumber() != null) {
-            loggedUserFarm.setSanitaryRegisterNumber(updateFarmDetailsRequest.getSanitaryRegisterNumber());
+        if (request.getSanitaryRegisterNumber() != null) {
+            loggedUserFarm.setSanitaryRegisterNumber(request.getSanitaryRegisterNumber());
         }
-
         farmRepository.save(loggedUserFarm);
     }
 
     public List<User> getUsersByFarmId(Integer farmId) {
         return userRepository.findByFarmId(farmId);
     }
+
+    private Boolean isFarmNameTaken(String name) {
+        return farmRepository.existsByFarmName(name);
+    }
 }
-
-
