@@ -10,6 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UserDTO {
+    private Integer id;
     private String username;
     private String role;
     private String email;
@@ -19,6 +20,7 @@ public class UserDTO {
     private Boolean isActive;
 
     public UserDTO(User user) {
+        this.id = user.getId();
         this.username = user.getUsername();
         this.role = user.getRole().toString();
         this.email = user.getEmail();

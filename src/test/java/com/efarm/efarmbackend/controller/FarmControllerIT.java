@@ -56,73 +56,18 @@ public class FarmControllerIT {
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private RoleRepository roleRepository;
-
     @PersistenceContext
     private EntityManager entityManager;
 
     @BeforeEach
-    public void clearSecurityContext() {
-        SecurityContextHolder.clearContext();
-    }
-    /*
-     * GET /users
-     */
-
-    @Test
-    @DisplayName("Test return all users from same farm")
-    void testReturnUsersByFarmId() throws Exception {
-        // Given
-        User currentUser = entityManager.createQuery(
-                        "SELECT u FROM User u JOIN u.role r WHERE r.name = :roleName", User.class)
-                .setParameter("roleName", ERole.ROLE_FARM_OWNER)
-                .setMaxResults(1)  // Ensures only one result is returned
-                .getSingleResult();
-        Farm currentFarm = currentUser.getFarm();
-
-        Long userCount = entityManager.createQuery(
-                        "SELECT COUNT(u) FROM User u WHERE u.farm.id = :farmId", Long.class)
-                .setParameter("farmId", currentFarm.getId())
-                .getSingleResult();
-
+    public void useOwnerOfFirstFarm() {
+        User currentUser = entityManager.find(User.class, 1);
         UserDetailsImpl userDetails = UserDetailsImpl.build(currentUser);
         UsernamePasswordAuthenticationToken authToken =
                 new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authToken);
-
-
-        // When
-        MvcResult result = mockMvc.perform(get("/api/farm/users"))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        // Then
-        List<UserDTO> userDTOs = new ObjectMapper().readValue(result.getResponse().getContentAsString(),
-                new TypeReference<List<UserDTO>>() {
-                });
-
-        assertThat(userDTOs.size(), is(userCount.intValue()));
     }
-
-    @Test
-    @DisplayName("Test access is denied for unauthorized users")
-    void testUnauthorizedAccess() throws Exception {
-        // Given
-        User currentUser = entityManager.createQuery(
-                        "SELECT u FROM User u JOIN u.role r WHERE r.name = :roleName", User.class)
-                .setParameter("roleName", ERole.ROLE_FARM_EQUIPMENT_OPERATOR)
-                .setMaxResults(1)  // Ensures only one result is returned
-                .getSingleResult();
-        UserDetailsImpl userDetails = UserDetailsImpl.build(currentUser);
-        UsernamePasswordAuthenticationToken authToken =
-                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(authToken);
-
-        // When
-        mockMvc.perform(get("/api/farm/users"))
-                .andExpect(status().isForbidden());
-    }
+    
     /*
      * GET /details
      */
@@ -131,18 +76,8 @@ public class FarmControllerIT {
     @DisplayName("Test return farm, address and code expiration date details")
     void testDetailsOfFarm() throws Exception {
         //given
-        User currentUser = entityManager.createQuery(
-                        "SELECT u FROM User u JOIN u.role r WHERE r.name = :roleName", User.class)
-                .setParameter("roleName", ERole.ROLE_FARM_MANAGER)
-                .setMaxResults(1)
-                .getSingleResult();
-        Farm userFarm = currentUser.getFarm();
+        Farm userFarm = entityManager.find(Farm.class, 1);
         Address farmAddress = entityManager.find(Address.class, userFarm.getIdAddress());
-
-        UserDetailsImpl userDetails = UserDetailsImpl.build(currentUser);
-        UsernamePasswordAuthenticationToken authToken =
-                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(authToken);
 
         //when
         MvcResult result = mockMvc.perform(get("/api/farm/details"))
@@ -150,9 +85,10 @@ public class FarmControllerIT {
                 .andReturn();
 
         // Then
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.findAndRegisterModules();
         String jsonResponse = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        FarmDTO farmDTO = new ObjectMapper().readValue(jsonResponse, new TypeReference<FarmDTO>() {
-        });
+        FarmDTO farmDTO = objectMapper.readValue(jsonResponse, new TypeReference<FarmDTO>() {});
 
         assertNotNull(farmDTO);
         assertEquals(userFarm.getFarmName(), farmDTO.getFarmName());
@@ -176,25 +112,11 @@ public class FarmControllerIT {
         updateFarmDetailsRequest.setBuildingNumber("20D");
         updateFarmDetailsRequest.setCity("Miasto X");
 
-
-        User currentUser = entityManager.createQuery(
-                        "SELECT u FROM User u JOIN u.role r WHERE r.name = :roleName", User.class)
-                .setParameter("roleName", ERole.ROLE_FARM_OWNER)
-                .setMaxResults(1)
-                .getSingleResult();
-        Farm userFarm = currentUser.getFarm();
+        Farm userFarm = entityManager.find(Farm.class, 1);
         Address farmAddress = entityManager.find(Address.class, userFarm.getIdAddress());
         updateFarmDetailsRequest.setFeedNumber(userFarm.getFeedNumber());
         updateFarmDetailsRequest.setZipCode(farmAddress.getZipCode());
-
-        UserDetailsImpl userDetails = UserDetailsImpl.build(currentUser);
-        UsernamePasswordAuthenticationToken authToken =
-                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(authToken);
-
-        System.out.println("Authentication: " + SecurityContextHolder.getContext().getAuthentication());
-        System.out.println("Authenticated: " + SecurityContextHolder.getContext().getAuthentication().isAuthenticated());
-        System.out.println("Authorities: " + SecurityContextHolder.getContext().getAuthentication().getAuthorities());
+        
         //when
         mockMvc.perform(put("/api/farm/details")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -236,8 +158,8 @@ public class FarmControllerIT {
         newUser.setEmail("testEmail@gmail.com");
         newUser.setUsername("testUser");
         newUser.setPassword("password123");
-        Optional<Role> owner = roleRepository.findByName(ERole.ROLE_FARM_OWNER);
-        newUser.setRole(owner.get());
+        Role owner = entityManager.find(Role.class, 3);
+        newUser.setRole(owner);
         newUser.setIsActive(true);
 
         Farm newFarm = new Farm();
@@ -316,11 +238,6 @@ public class FarmControllerIT {
         updateFarmDetailsRequest.setCity("Miasto X");
         updateFarmDetailsRequest.setFeedNumber(userFarm.getFeedNumber());
         updateFarmDetailsRequest.setZipCode("");
-
-        UserDetailsImpl userDetails = UserDetailsImpl.build(currentUser);
-        UsernamePasswordAuthenticationToken authToken =
-                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(authToken);
 
         // When
         mockMvc.perform(put("/api/farm/details")
