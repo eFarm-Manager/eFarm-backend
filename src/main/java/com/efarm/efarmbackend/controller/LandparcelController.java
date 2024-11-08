@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/landparcel")
+@RequestMapping("/landparcel")
 public class LandparcelController {
 
     @Autowired
