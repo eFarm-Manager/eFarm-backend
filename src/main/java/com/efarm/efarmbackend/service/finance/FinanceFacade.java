@@ -8,8 +8,6 @@ import com.efarm.efarmbackend.payload.response.BalanceResponse;
 import com.efarm.efarmbackend.repository.finance.TransactionRepository;
 import com.efarm.efarmbackend.service.user.UserService;
 import jakarta.transaction.Transactional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,9 +26,6 @@ public class FinanceFacade {
 
     @Autowired
     private UserService userService;
-
-    private static final Logger logger = LoggerFactory.getLogger(FinanceFacade.class);
-
 
     @Transactional
     public void addNewTransaction(NewTransactionRequest newTransactionRequest) throws Exception {
