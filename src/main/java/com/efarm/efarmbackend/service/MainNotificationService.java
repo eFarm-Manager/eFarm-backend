@@ -17,7 +17,6 @@ public class MainNotificationService {
         email.setTo(owner.getEmail());
         email.setSubject(subject);
         email.setText(message);
-
         mailSender.send(email);
     }
 }

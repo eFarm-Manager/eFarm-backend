@@ -4,8 +4,6 @@ import com.efarm.efarmbackend.payload.request.auth.LoginRequest;
 import com.efarm.efarmbackend.payload.request.auth.UpdateActivationCodeRequest;
 import com.efarm.efarmbackend.security.services.BruteForceProtectionService;
 import com.efarm.efarmbackend.security.services.UserDetailsImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,8 +18,6 @@ public class AuthService {
 
     @Autowired
     private BruteForceProtectionService bruteForceProtectionService;
-
-    private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
 
     public UserDetailsImpl authenticateUserByLoginRequest(LoginRequest loginRequest) {
 

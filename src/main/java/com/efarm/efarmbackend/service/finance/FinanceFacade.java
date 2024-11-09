@@ -27,7 +27,6 @@ public class FinanceFacade {
     @Autowired
     private UserService userService;
 
-
     @Transactional
     public void addNewTransaction(NewTransactionRequest newTransactionRequest) throws Exception {
         Farm loggedUserFarm = userService.getLoggedUserFarm();
