@@ -3,9 +3,11 @@ package com.efarm.efarmbackend.model.user;
 import com.efarm.efarmbackend.model.agroactivity.ActivityHasOperator;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @AllArgsConstructor
+@NoArgsConstructor
 public class UserSummaryDTO {
     private Integer id;
     private String firstName;

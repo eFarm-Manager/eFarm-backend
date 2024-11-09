@@ -3,9 +3,11 @@ package com.efarm.efarmbackend.model.equipment;
 import com.efarm.efarmbackend.model.agroactivity.ActivityHasEquipment;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @AllArgsConstructor
+@NoArgsConstructor
 public class EquipmentSummaryDTO {
 
     private Integer equipmentId;

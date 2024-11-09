@@ -27,17 +27,17 @@ class LandparcelServiceSpec extends Specification {
 
     def "should set ownership status and call setters when valid status provided"() {
         given:
-        LandparcelDTO landparcelDTO = new LandparcelDTO(
-            landOwnershipStatus: 'STATUS_PRIVATELY_OWNED',
-            voivodeship: 'Mazowieckie',
-            district: 'Warszawa',
-            commune: 'Mokotów',
-            geodesyDistrictNumber: 'XYZ123',
-            landparcelNumber: 'LP-001',
-            longitude: 21.0122,
-            latitude: 52.2297,
-            area: 1500.0
-        )
+        LandparcelDTO landparcelDTO = Mock(LandparcelDTO) {
+            getLandOwnershipStatus() >> 'STATUS_PRIVATELY_OWNED'
+            getVoivodeship() >> 'Mazowieckie'
+            getDistrict() >> 'Warszawa'
+            getCommune() >> 'Mokotów'
+            getGeodesyDistrictNumber() >> 'XYZ123'
+            getLandparcelNumber() >> 'LP-001'
+            getLongitude() >> 21.0122
+            getLatitude() >> 52.2297
+            getArea() >> 1500.0
+        }
         Landparcel landparcel = new Landparcel()
         LandOwnershipStatus ownershipStatus = new LandOwnershipStatus()
         ownershipStatus.setOwnershipStatus(ELandOwnershipStatus.STATUS_PRIVATELY_OWNED)
@@ -61,17 +61,17 @@ class LandparcelServiceSpec extends Specification {
 
     def "should set ownership status to STATUS_LEASE when provided"() {
         given:
-        LandparcelDTO landparcelDTO = new LandparcelDTO(
-            landOwnershipStatus: 'STATUS_LEASE',
-            voivodeship: 'Mazowieckie',
-            district: 'Warszawa',
-            commune: 'Mokotów',
-            geodesyDistrictNumber: 'XYZ123',
-            landparcelNumber: 'LP-001',
-            longitude: 21.0122,
-            latitude: 52.2297,
-            area: 1500.0
-        )
+        LandparcelDTO landparcelDTO = Mock(LandparcelDTO) {
+            getLandOwnershipStatus() >> 'STATUS_LEASE'
+            getVoivodeship() >> 'Mazowieckie'
+            getDistrict() >> 'Warszawa'
+            getCommune() >> 'Mokotów'
+            getGeodesyDistrictNumber() >> 'XYZ123'
+            getLandparcelNumber() >> 'LP-001'
+            getLongitude() >> 21.0122
+            getLatitude() >> 52.2297
+            getArea() >> 1500.0
+        }
         Landparcel landparcel = new Landparcel()
         LandOwnershipStatus ownershipStatus = new LandOwnershipStatus()
         ownershipStatus.setOwnershipStatus(ELandOwnershipStatus.STATUS_LEASE)
@@ -95,17 +95,17 @@ class LandparcelServiceSpec extends Specification {
 
     def "should set ownership status to STATUS_LEASE when invalid provided"() {
         given:
-        LandparcelDTO landparcelDTO = new LandparcelDTO(
-            landOwnershipStatus: 'INVALID',
-            voivodeship: 'Mazowieckie',
-            district: 'Warszawa',
-            commune: 'Mokotów',
-            geodesyDistrictNumber: 'XYZ123',
-            landparcelNumber: 'LP-001',
-            longitude: 21.0122,
-            latitude: 52.2297,
-            area: 1500.0
-        )
+        LandparcelDTO landparcelDTO = Mock(LandparcelDTO) {
+            getLandOwnershipStatus() >> 'INVALID'
+            getVoivodeship() >> 'Mazowieckie'
+            getDistrict() >> 'Warszawa'
+            getCommune() >> 'Mokotów'
+            getGeodesyDistrictNumber() >> 'XYZ123'
+            getLandparcelNumber() >> 'LP-001'
+            getLongitude() >> 21.0122
+            getLatitude() >> 52.2297
+            getArea() >> 1500.0
+        }
         Landparcel landparcel = new Landparcel()
         LandOwnershipStatus ownershipStatus = new LandOwnershipStatus()
         ownershipStatus.setOwnershipStatus(ELandOwnershipStatus.STATUS_LEASE)
@@ -132,11 +132,11 @@ class LandparcelServiceSpec extends Specification {
 
     def "should update common fields when valid data is provided"() {
         given:
-        LandparcelDTO landparcelDTO = new LandparcelDTO(
-            longitude: 21.0122,
-            latitude: 52.2297,
-            area: 1500.0
-        )
+        LandparcelDTO landparcelDTO = Mock(LandparcelDTO) {
+            getLongitude() >> 21.0122
+            getLatitude() >> 52.2297
+            getArea() >> 1500.0
+        }
         Landparcel landparcel = new Landparcel()
         landparcel.setArea(750)
         landparcel.setLongitude(22)
@@ -158,9 +158,9 @@ class LandparcelServiceSpec extends Specification {
 
     def "should update ownership status when different valid status is provided"() {
         given:
-        LandparcelDTO landparcelDTO = new LandparcelDTO(
-            landOwnershipStatus: 'STATUS_LEASE'
-        )
+        LandparcelDTO landparcelDTO = Mock(LandparcelDTO) {
+            getLandOwnershipStatus() >> 'STATUS_LEASE'
+        }
         Landparcel landparcel = new Landparcel()
         LandOwnershipStatus currentOwnershipStatus = new LandOwnershipStatus()
         currentOwnershipStatus.setOwnershipStatus(ELandOwnershipStatus.STATUS_PRIVATELY_OWNED)
@@ -180,12 +180,12 @@ class LandparcelServiceSpec extends Specification {
 
     def "should handle invalid ownership status gracefully"() {
         given:
-        LandparcelDTO landparcelDTO = new LandparcelDTO(
-            landOwnershipStatus: 'INVALID_STATUS',
-            longitude: 21.0122,
-            latitude: 52.2297,
-            area: 1500.0
-        )
+        LandparcelDTO landparcelDTO = Mock(LandparcelDTO) {
+            getLandOwnershipStatus() >> 'INVALID_STATUS'
+            getLongitude() >> 21.0122
+            getLatitude() >> 52.2297
+            getArea() >> 1500.0
+        }
         Landparcel landparcel = new Landparcel()
         LandOwnershipStatus currentOwnershipStatus = new LandOwnershipStatus()
         currentOwnershipStatus.setOwnershipStatus(ELandOwnershipStatus.STATUS_PRIVATELY_OWNED)
@@ -240,13 +240,13 @@ class LandparcelServiceSpec extends Specification {
 
     def "should return true when land parcel already exists"() {
         given:
-        LandparcelDTO landparcelDTO = new LandparcelDTO(
-            district: 'District',
-            commune: 'Commune',
-            geodesyDistrictNumber: '987654',
-            landparcelNumber: '12345',
-            geodesyLandparcelNumber: '25312.05'
-        )
+        LandparcelDTO landparcelDTO = Mock(LandparcelDTO){
+            getDistrict() >> 'District'
+            getCommune() >> 'Commune'
+            getGeodesyDistrictNumber() >> '987654'
+            getLandparcelNumber() >> '12345'
+            getGeodesyLandparcelNumber() >> '25312.05'
+        }
 
         Farm farm = Mock(Farm)
         landparcelRepository.existsByGeodesyLandparcelNumberAndFarm(
@@ -263,13 +263,13 @@ class LandparcelServiceSpec extends Specification {
 
     def "should return false when land parcel does not exist"() {
         given:
-        LandparcelDTO landparcelDTO = new LandparcelDTO(
-            district: 'District',
-            commune: 'Commune',
-            geodesyDistrictNumber: '987654',
-            landparcelNumber: '12345',
-            geodesyLandparcelNumber: '25312.05'
-        )
+        LandparcelDTO landparcelDTO = Mock(LandparcelDTO){
+            getDistrict() >> 'District'
+            getCommune() >> 'Commune'
+            getGeodesyDistrictNumber() >> '987654'
+            getLandparcelNumber() >> '12345'
+            getGeodesyLandparcelNumber() >> '25312.05'
+        }
         Farm farm = new Farm()
 
         landparcelRepository.existsByGeodesyLandparcelNumberAndFarm(landparcelDTO.getGeodesyLandparcelNumber(), farm) >> false
@@ -316,12 +316,12 @@ class LandparcelServiceSpec extends Specification {
 
     def "should set common fields when valid values are provided"() {
         given:
-        LandparcelDTO landparcelDTO = new LandparcelDTO(
-            name: 'Landparcel',
-            longitude: 21.0122,
-            latitude: null,
-            area: 1500.0
-        )
+        LandparcelDTO landparcelDTO = Mock(LandparcelDTO){
+            getName() >> 'Landparcel'
+            getLongitude() >> 21.0122
+            getLatitude() >> null
+            getArea() >> 1500.0
+        }
         Landparcel landparcel = new Landparcel()
 
         when:
@@ -339,14 +339,14 @@ class LandparcelServiceSpec extends Specification {
 
     def "should set all administrative data when all fields are provided"() {
         given:
-        LandparcelDTO landparcelDTO = new LandparcelDTO(
-            voivodeship: 'Lubelskie',
-            district: 'district',
-            commune: null,
-            geodesyDistrictNumber: '987654',
-            landparcelNumber: '12345',
-            geodesyLandparcelNumber: '25312.05'
-        )
+        LandparcelDTO landparcelDTO = Mock(LandparcelDTO){
+            getVoivodeship() >> 'Lubelskie'
+            getDistrict() >> 'district'
+            getCommune() >> null
+            getGeodesyDistrictNumber() >> '987654'
+            getLandparcelNumber() >> '12345'
+            getGeodesyLandparcelNumber() >> '25312.05'
+        }
         Landparcel landparcel = new Landparcel()
 
         when:

@@ -4,9 +4,11 @@ import com.efarm.efarmbackend.payload.request.landparcel.AddLandparcelRequest;
 import com.efarm.efarmbackend.payload.request.landparcel.UpdateLandparcelRequest;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @AllArgsConstructor
+@NoArgsConstructor
 public class LandparcelDTO {
     private Integer id;
     private String landOwnershipStatus;
