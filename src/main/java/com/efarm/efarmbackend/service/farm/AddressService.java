@@ -16,7 +16,7 @@ public class AddressService {
                 .orElseThrow(() -> new RuntimeException("Activation code not found for id: " + codeId));
     }
 
-    public void updateFarmAddress(Address address , UpdateFarmDetailsRequest updateFarmDetailsRequest) {
+    public void updateFarmAddress(Address address, UpdateFarmDetailsRequest updateFarmDetailsRequest) {
         if (updateFarmDetailsRequest.getStreet() != null) {
             address.setStreet(updateFarmDetailsRequest.getStreet());
         }
@@ -29,7 +29,6 @@ public class AddressService {
         if (updateFarmDetailsRequest.getCity() != null) {
             address.setCity(updateFarmDetailsRequest.getCity());
         }
-
         addressRepository.save(address);
     }
 }
