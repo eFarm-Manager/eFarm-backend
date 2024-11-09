@@ -11,8 +11,6 @@ import com.efarm.efarmbackend.service.agriculturalrecords.AgriculturalRecordServ
 import com.efarm.efarmbackend.service.agriculturalrecords.SeasonService;
 import com.efarm.efarmbackend.service.user.UserService;
 import jakarta.transaction.Transactional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -34,7 +32,6 @@ public class LandparcelFacade {
     @Autowired
     private AgriculturalRecordService agriculturalRecordService;
 
-    private static final Logger logger = LoggerFactory.getLogger(LandparcelFacade.class);
     @Autowired
     private SeasonService seasonService;
 

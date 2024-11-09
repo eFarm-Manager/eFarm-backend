@@ -4,8 +4,6 @@ import com.efarm.efarmbackend.model.farm.Farm;
 import com.efarm.efarmbackend.model.landparcel.*;
 import com.efarm.efarmbackend.repository.landparcel.LandOwnershipStatusRepository;
 import com.efarm.efarmbackend.repository.landparcel.LandparcelRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,8 +17,6 @@ public class LandparcelService {
 
     @Autowired
     private LandparcelRepository landparcelRepository;
-
-    private static final Logger logger = LoggerFactory.getLogger(LandparcelService.class);
 
     public void addNewLandparcelData(LandparcelDTO landparcelDTO, Landparcel landparcel) {
         ELandOwnershipStatus ownershipStatusEnum;
@@ -63,7 +59,7 @@ public class LandparcelService {
                 loggedUserFarm);
     }
 
-    public Boolean isLandparcelNameTaken(String name, Farm loggedUserFarm){
+    public Boolean isLandparcelNameTaken(String name, Farm loggedUserFarm) {
         return landparcelRepository.existsByFarmAndName(loggedUserFarm, name);
     }
 

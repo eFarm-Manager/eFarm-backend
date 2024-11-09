@@ -67,8 +67,6 @@ public class AuthFacade {
             throw new RuntimeException("Podana nazwa użytkownika jest już zajęta!");
         }
         User user = userService.createFarmUser(signUpRequest);
-
-        // Set the same farmId as currently logged user
         Farm currentUserFarm = userService.getLoggedUserFarm();
         user.setFarm(currentUserFarm);
         userRepository.save(user);
@@ -89,11 +87,11 @@ public class AuthFacade {
         User user = userService.createFarmOwner(signUpFarmRequest);
         Optional<ActivationCode> activationCodeOpt = activationCodeRepository.findByCode(signUpFarmRequest.getActivationCode());
         activationCodeService.validateActivationCode(signUpFarmRequest.getActivationCode());
-
         Address address = new Address();
         addressRepository.save(address);
         Farm farm = farmService.createFarm(signUpFarmRequest.getFarmName(), address.getId(), activationCodeOpt.get().getId());
         user.setFarm(farm);
+
         userRepository.save(user);
         activationCodeService.markActivationCodeAsUsed(signUpFarmRequest.getActivationCode());
     }
