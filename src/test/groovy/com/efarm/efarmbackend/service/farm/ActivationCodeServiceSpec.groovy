@@ -31,6 +31,9 @@ class ActivationCodeServiceSpec extends Specification {
     def setup() {
         SecurityContextHolder.clearContext()
     }
+    /*
+    * validateActivationCode
+    */
 
     def "should handle correct code"() {
         given:
@@ -99,6 +102,10 @@ class ActivationCodeServiceSpec extends Specification {
         ex.message == 'Podany kod aktywacyjny został już wykorzystany!'
     }
 
+    /*
+    * markActivationCodeAsUsed
+    */
+
     def "should handle using code correctly"() {
         given:
         String activationCodeName = 'validCode'
@@ -129,6 +136,10 @@ class ActivationCodeServiceSpec extends Specification {
         then:
         thrown(RuntimeException)
     }
+
+    /*
+    * generateExpireCodeInfo
+    */
 
     def "should sign in with expire code info for owner"() {
         given:
@@ -180,6 +191,10 @@ class ActivationCodeServiceSpec extends Specification {
         response == null
     }
 
+    /*
+    * findActivationCodeByFarmId
+    */
+
     def "find activation code by farm id"() {
         given:
         String activationCodeName = 'validCode'
@@ -221,6 +236,10 @@ class ActivationCodeServiceSpec extends Specification {
         thrown(RuntimeException)
     }
 
+    /*
+    * findActivationCodeById
+    */
+
     def "shpuld find activation code by id"() {
         given:
         ActivationCode activationCode = Mock(ActivationCode)
@@ -246,6 +265,10 @@ class ActivationCodeServiceSpec extends Specification {
         thrown(RuntimeException)
     }
 
+    /*
+    * updateActivationCodeForFarm
+    */
+
     def "should update activation code for farm"() {
         given:
         String newActivationCode = 'newCode'
@@ -269,13 +292,12 @@ class ActivationCodeServiceSpec extends Specification {
         activationCodeRepository.findById(farm.getIdActivationCode()) >> Optional.of(currentCode)
 
         when:
-        MessageResponse response = activationCodeService.updateActivationCodeForFarm(newActivationCode, farm.getId(), username)
+        activationCodeService.updateActivationCodeForFarm(newActivationCode, farm.getId(), username)
 
         then:
         1 * activationCodeRepository.delete(currentCode)
         1 * farmRepository.save(farm)
         1 * activationCodeRepository.save(newActivationCodeEntity)
-        response.message == 'Pomyślnie zaktualizowano kod aktywacyjny!'
     }
 
     def "should catch new code as not ok in here used"() {
