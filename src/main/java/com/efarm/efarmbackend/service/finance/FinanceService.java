@@ -8,8 +8,6 @@ import com.efarm.efarmbackend.payload.response.BalanceResponse;
 import com.efarm.efarmbackend.repository.finance.FinancialCategoryRepository;
 import com.efarm.efarmbackend.repository.finance.PaymentStatusRepository;
 import com.efarm.efarmbackend.repository.finance.TransactionRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,8 +27,6 @@ public class FinanceService {
 
     @Autowired
     private TransactionRepository transactionRepository;
-
-    private static final Logger logger = LoggerFactory.getLogger(FinanceService.class);
 
     public Transaction addNewTransactionData(TransactionId transactionId, Farm loggedUserFarm, NewTransactionRequest newTransactionRequest) {
         Transaction transaction = new Transaction(
@@ -147,13 +143,11 @@ public class FinanceService {
                 totalExpense += transaction.getAmount();
             }
 
-            // Sum to pay (UNPAID, EXPENSE)
             if (transaction.getPaymentStatus().getName() == EPaymentStatus.UNPAID &&
                     transaction.getFinancialCategory().getName() == EFinancialCategory.EXPENSE) {
                 toPay += transaction.getAmount();
             }
 
-            // Sum to recive (UNPAID, INCOME)
             if (transaction.getPaymentStatus().getName() == EPaymentStatus.UNPAID &&
                     transaction.getFinancialCategory().getName() == EFinancialCategory.INCOME) {
                 toReceive += transaction.getAmount();

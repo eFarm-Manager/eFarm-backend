@@ -38,7 +38,6 @@ public class UserDetailsImpl implements UserDetails {
         this.username = username;
         this.email = email;
         this.password = password;
-        //ensure that once the authorities are set, they cannot be modified
         this.authorities = authorities != null ? Collections.unmodifiableCollection(new HashSet<>(authorities)) : Collections.emptySet();
     }
 
@@ -54,7 +53,6 @@ public class UserDetailsImpl implements UserDetails {
                 authorities);
     }
 
-    //ensure that the returned collection cannot be modified by external code
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.unmodifiableList(new ArrayList<>(authorities));
