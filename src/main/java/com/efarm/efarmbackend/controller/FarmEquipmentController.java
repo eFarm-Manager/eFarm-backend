@@ -1,7 +1,7 @@
 package com.efarm.efarmbackend.controller;
 
 import com.efarm.efarmbackend.model.equipment.EquipmentCategoryDTO;
-import com.efarm.efarmbackend.model.equipment.FarmEquipmentShortDTO;
+import com.efarm.efarmbackend.model.equipment.EquipmentSummaryDTO;
 import com.efarm.efarmbackend.model.user.User;
 import com.efarm.efarmbackend.payload.request.equipment.AddUpdateFarmEquipmentRequest;
 import com.efarm.efarmbackend.payload.response.MessageResponse;
@@ -37,7 +37,7 @@ public class FarmEquipmentController {
 
     @GetMapping("/all")
     @PreAuthorize("hasRole('ROLE_FARM_MANAGER') or hasRole('ROLE_FARM_OWNER')")
-    public ResponseEntity<List<FarmEquipmentShortDTO>> getFarmEquipment(
+    public ResponseEntity<List<EquipmentSummaryDTO>> getFarmEquipment(
             @RequestParam(required = false) String searchQuery
     ) {
         return ResponseEntity.ok(farmEquipmentFacade.getFarmEquipment(searchQuery));

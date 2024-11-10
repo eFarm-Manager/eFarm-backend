@@ -5,7 +5,7 @@ import com.efarm.efarmbackend.model.agroactivity.ActivityCategory;
 import com.efarm.efarmbackend.model.agroactivity.AgroActivity;
 import com.efarm.efarmbackend.model.agroactivity.AgroActivityDetailDTO;
 import com.efarm.efarmbackend.model.agroactivity.AgroActivityId;
-import com.efarm.efarmbackend.model.equipment.FarmEquipmentShortDTO;
+import com.efarm.efarmbackend.model.equipment.EquipmentSummaryDTO;
 import com.efarm.efarmbackend.model.landparcel.LandparcelSummaryDTO;
 import com.efarm.efarmbackend.model.user.UserSummaryDTO;
 import com.efarm.efarmbackend.payload.request.agroactivity.NewAgroActivityRequest;
@@ -49,7 +49,6 @@ public class AgroActivityFacade {
 
         AgriculturalRecord agriculturalRecord = agriculturalRecordService.findAgriculturalRecordById(request.getAgriculturalRecordId(), loggedUserFarmId);
         AgroActivity agroActivity = agroActivityService.createNewAgroActivity(request, activityCategory, agriculturalRecord, loggedUserFarmId);
-
         activityHasOperatorService.addOperatorsToActivity(agroActivity, request.getOperatorIds(), loggedUserFarmId);
         activityHasEquipmentService.addEquipmentToActivity(request.getEquipmentIds(), agroActivity, loggedUserFarmId);
     }
@@ -59,10 +58,9 @@ public class AgroActivityFacade {
 
         Integer loggedUserFarmId = userService.getLoggedUserFarm().getId();
         AgroActivity agroActivity = agroActivityService.findAgroActivityWithDetails(id, loggedUserFarmId);
-
         LandparcelSummaryDTO landparcelSummaryDTO = new LandparcelSummaryDTO(agroActivity);
         List<UserSummaryDTO> operators = activityHasOperatorService.getOperatorsForAgroActivity(agroActivity);
-        List<FarmEquipmentShortDTO> equipments = activityHasEquipmentService.getEquipmentsForAgroActivity(agroActivity);
+        List<EquipmentSummaryDTO> equipments = activityHasEquipmentService.getEquipmentsForAgroActivity(agroActivity);
 
         return new AgroActivityDetailDTO(agroActivity, landparcelSummaryDTO, operators, equipments);
     }

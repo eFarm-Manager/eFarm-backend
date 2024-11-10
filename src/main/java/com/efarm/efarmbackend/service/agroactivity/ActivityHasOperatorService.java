@@ -56,12 +56,7 @@ public class ActivityHasOperatorService {
 
     public List<UserSummaryDTO> getOperatorsForAgroActivity(AgroActivity agroActivity) {
         return activityHasOperatorRepository.findActivityHasOperatorsByAgroActivity(agroActivity).stream()
-                .map(aho -> new UserSummaryDTO(
-                        aho.getUser().getId(),
-                        aho.getUser().getFirstName(),
-                        aho.getUser().getLastName(),
-                        aho.getUser().getRole().getName().toString()
-                ))
+                .map(UserSummaryDTO::new)
                 .collect(Collectors.toList());
     }
 

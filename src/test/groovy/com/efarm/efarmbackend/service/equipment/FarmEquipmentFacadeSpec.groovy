@@ -11,7 +11,7 @@ import com.efarm.efarmbackend.repository.equipment.FarmEquipmentRepository
 import com.efarm.efarmbackend.service.equipment.EquipmentDisplayDataService
 import com.efarm.efarmbackend.service.equipment.FarmEquipmentService
 import com.efarm.efarmbackend.repository.equipment.EquipmentCategoryRepository;
-import com.efarm.efarmbackend.model.equipment.FarmEquipmentShortDTO;
+import com.efarm.efarmbackend.model.equipment.EquipmentSummaryDTO;
 import com.efarm.efarmbackend.service.ValidationRequestService;
 import com.efarm.efarmbackend.service.user.UserService
 import org.springframework.http.HttpStatus
@@ -71,7 +71,7 @@ class FarmEquipmentFacadeSpec extends Specification {
         farmEquipmentRepository.findByFarmIdFarm_Id(farmId) >> [equipment1, equipment2]
 
         when:
-        List<FarmEquipmentShortDTO> result = farmEquipmentFacade.getFarmEquipment(searchQuery)
+        List<EquipmentSummaryDTO> result = farmEquipmentFacade.getFarmEquipment(searchQuery)
 
         then:
         result.size() == 1
@@ -110,7 +110,7 @@ class FarmEquipmentFacadeSpec extends Specification {
         farmEquipmentRepository.findByFarmIdFarm_Id(farmId) >> [equipment1, equipment2]
 
         when:
-        List<FarmEquipmentShortDTO> result = farmEquipmentFacade.getFarmEquipment(searchQuery)
+        List<EquipmentSummaryDTO> result = farmEquipmentFacade.getFarmEquipment(searchQuery)
 
         then:
         result.size() == 1
@@ -149,7 +149,7 @@ class FarmEquipmentFacadeSpec extends Specification {
         farmEquipmentRepository.findByFarmIdFarm_Id(farmId) >> [equipment1, equipment2]
 
         when:
-        List<FarmEquipmentShortDTO> result = farmEquipmentFacade.getFarmEquipment(searchQuery)
+        List<EquipmentSummaryDTO> result = farmEquipmentFacade.getFarmEquipment(searchQuery)
 
         then:
         result.size() == 0

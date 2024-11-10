@@ -1,17 +1,15 @@
 package com.efarm.efarmbackend.service.equipment;
 
 import com.efarm.efarmbackend.model.equipment.EquipmentCategoryDTO;
+import com.efarm.efarmbackend.model.equipment.EquipmentSummaryDTO;
 import com.efarm.efarmbackend.model.equipment.FarmEquipment;
 import com.efarm.efarmbackend.model.equipment.FarmEquipmentId;
-import com.efarm.efarmbackend.model.equipment.FarmEquipmentShortDTO;
 import com.efarm.efarmbackend.model.farm.Farm;
 import com.efarm.efarmbackend.payload.request.equipment.AddUpdateFarmEquipmentRequest;
 import com.efarm.efarmbackend.repository.equipment.EquipmentCategoryRepository;
 import com.efarm.efarmbackend.repository.equipment.FarmEquipmentRepository;
 import com.efarm.efarmbackend.service.user.UserService;
 import jakarta.transaction.Transactional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -37,9 +35,7 @@ public class FarmEquipmentFacade {
     @Autowired
     private EquipmentCategoryRepository equipmentCategoryRepository;
 
-    private static final Logger logger = LoggerFactory.getLogger(FarmEquipmentFacade.class);
-
-    public List<FarmEquipmentShortDTO> getFarmEquipment(String searchQuery) {
+    public List<EquipmentSummaryDTO> getFarmEquipment(String searchQuery) {
         List<FarmEquipment> equipmentList = farmEquipmentRepository.findByFarmIdFarm_Id(userService.getLoggedUserFarm().getId());
 
         return equipmentList.stream()
@@ -49,13 +45,7 @@ public class FarmEquipmentFacade {
                                 equipment.getCategory().getCategoryName().toLowerCase(Locale.ROOT).contains(searchQuery.toLowerCase(Locale.ROOT))
                         ) && (equipment.getIsAvailable())
                 )
-                .map(equipment -> new FarmEquipmentShortDTO(
-                        equipment.getId().getId(),
-                        equipment.getEquipmentName(),
-                        equipment.getCategory().getCategoryName(),
-                        equipment.getBrand(),
-                        equipment.getModel()
-                ))
+                .map(EquipmentSummaryDTO::new)
                 .collect(Collectors.toList());
     }
 
