@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 
-@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/finance")
 public class FinanceController {
@@ -87,8 +86,8 @@ public class FinanceController {
     @GetMapping("/balance")
     @PreAuthorize("hasRole('ROLE_FARM_OWNER')")
     public ResponseEntity<BalanceResponse> getBalance() {
-            BalanceResponse balanceResponse = financeFacade.getBalanceForLastYear();
-            return ResponseEntity.status(HttpStatus.OK)
-                    .body(balanceResponse);
+        BalanceResponse balanceResponse = financeFacade.getBalanceForLastYear();
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(balanceResponse);
     }
 }
