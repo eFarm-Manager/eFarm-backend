@@ -82,11 +82,10 @@ class AuthFacadeSpec extends Specification {
         userService.getLoggedUserFarm() >> farm
 
         when:
-        MessageResponse response = authFacade.registerUser(signUpRequest)
+        authFacade.registerUser(signUpRequest)
 
         then:
         1 * userRepository.save(_)
-        response.message == 'Zarejestrowano nowego użytkownika!'
     }
 
     def "should return error if username already exists"() {
@@ -166,12 +165,11 @@ class AuthFacadeSpec extends Specification {
         activationCodeService.markActivationCodeAsUsed(signUpFarmRequest.getActivationCode()) >> { }
 
         when:
-        MessageResponse response = authFacade.registerFarmAndFarmOwner(signUpFarmRequest)
+        authFacade.registerFarmAndFarmOwner(signUpFarmRequest)
 
         then:
         1 * addressRepository.save(_)
         1 * userRepository.save(_)
-        response.message == 'Pomyślnie zarejestrowano nową farmę!'
     }
 
     def "should return bad request when username is already taken"() {
@@ -329,15 +327,12 @@ class AuthFacadeSpec extends Specification {
         authService.authenticateUserByUpdateCodeRequest(updateActivationCodeRequest) >> userDetails
         userService.getLoggedUserRoles(userDetails) >> roles
         userService.getUserFarmById(Long.valueOf(userDetails.getId())) >> farm
-        activationCodeService.updateActivationCodeForFarm(updateActivationCodeRequest.getNewActivationCode(), farm.getId(), userDetails.getUsername()) >>
-                new MessageResponse('Pomyślnie zaktualizowano kod aktywacyjny!')
 
         when:
-        ResponseEntity<?> response = authFacade.updateActivationCode(updateActivationCodeRequest)
+        authFacade.updateActivationCode(updateActivationCodeRequest)
 
         then:
-        response.getStatusCode() == HttpStatus.OK
-        response.getBody().message.contains('Pomyślnie zaktualizowano kod aktywacyjny!')
+        1 * activationCodeService.updateActivationCodeForFarm(updateActivationCodeRequest.getNewActivationCode(), farm.getId(), userDetails.getUsername())
     }
 
     def "should return UNAUTHORIZED if user is not a farm owner"() {
@@ -408,13 +403,11 @@ class AuthFacadeSpec extends Specification {
         userService.getLoggedUserFarm() >> farm
         userService.getLoggedUser() >> Mock(User) { getUsername() >> username }
 
-        activationCodeService.updateActivationCodeForFarm(request.getNewActivationCode(), farmId, username) >> new MessageResponse('Pomyślnie zaktualizowano kod aktywacyjny!')
-
         when:
-        MessageResponse response = authFacade.updateActivationCodeByLoggedOwner(request)
+        authFacade.updateActivationCodeByLoggedOwner(request)
 
         then:
-        response.message == 'Pomyślnie zaktualizowano kod aktywacyjny!'
+        1 * activationCodeService.updateActivationCodeForFarm(request.getNewActivationCode(), farmId, username)
     }
 
     def "should return unauthorized when password is invalid"() {
@@ -450,10 +443,10 @@ class AuthFacadeSpec extends Specification {
         userService.isPasswordValidForLoggedUser(currentPassword) >> true
 
         when:
-        MessageResponse response = authFacade.changePassword(request)
+        authFacade.changePassword(request)
 
         then:
-        response.message == 'Hasło zostało pomyślnie zmienione'
+        1 * userService.updatePasswordForLoggedUser(request.getNewPassword())
     }
 
     def "should return unauthorized if current password is invalid"() {

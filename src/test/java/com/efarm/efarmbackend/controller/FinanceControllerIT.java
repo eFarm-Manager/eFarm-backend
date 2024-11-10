@@ -81,7 +81,7 @@ public class FinanceControllerIT {
         newTransactionRequest.setTransactionName("Maize sales");
         newTransactionRequest.setFinancialCategory("INCOME");
         // When
-        mockMvc.perform(post("/api/finance/new")
+        mockMvc.perform(post("/finance/new")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(newTransactionRequest)))
         //then
@@ -92,27 +92,27 @@ public class FinanceControllerIT {
     void testAddingExistingTransaction() throws Exception {
         //given
         Transaction existingTransaction= entityManager.find(Transaction.class, new TransactionId(1, 1));
-NewTransactionRequest newTransactionRequest = new NewTransactionRequest();
-newTransactionRequest.setAmount(existingTransaction.getAmount());
-newTransactionRequest.setPaymentStatus(existingTransaction.getPaymentStatus().getName().toString());
-newTransactionRequest.setTransactionDate(existingTransaction.getTransactionDate());
-newTransactionRequest.setPaymentDate(existingTransaction.getPaymentDate());
-newTransactionRequest.setDescription(existingTransaction.getDescription());
-newTransactionRequest.setTransactionName(existingTransaction.getTransactionName());
-newTransactionRequest.setFinancialCategory(existingTransaction.getFinancialCategory().getName().toString());
+        NewTransactionRequest newTransactionRequest = new NewTransactionRequest();
+        newTransactionRequest.setAmount(existingTransaction.getAmount());
+        newTransactionRequest.setPaymentStatus(existingTransaction.getPaymentStatus().getName().toString());
+        newTransactionRequest.setTransactionDate(existingTransaction.getTransactionDate());
+        newTransactionRequest.setPaymentDate(existingTransaction.getPaymentDate());
+        newTransactionRequest.setDescription(existingTransaction.getDescription());
+        newTransactionRequest.setTransactionName(existingTransaction.getTransactionName());
+        newTransactionRequest.setFinancialCategory(existingTransaction.getFinancialCategory().getName().toString());
 
         //when
-        mockMvc.perform(post("/api/finance/new")
+        mockMvc.perform(post("/finance/new")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(newTransactionRequest)))
         //then
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Transakcja o podanej nazwie już istnieje!"));
     }
-	/*
-	* PUT /{id}
-	*/
-	@Test
+    /*
+    * PUT /{id}
+    */
+    @Test
     public void testUpdateExistingTransaction() throws Exception {
         //given
         UpdateTransactionRequest updateTransactionRequest = new UpdateTransactionRequest();
@@ -122,16 +122,14 @@ newTransactionRequest.setFinancialCategory(existingTransaction.getFinancialCateg
         updateTransactionRequest.setPaymentDate(null);
         updateTransactionRequest.setDescription("Sales of 20 bags of maize");
         updateTransactionRequest.setTransactionName("Maize sales");
-        updateTransactionRequest.setFinancialCategory("INCOME");
-
+        updateTransactionRequest.setFinancialCategory("INCOME");                
         //when
-        mockMvc.perform(put("/api/finance/1")
+        mockMvc.perform(put("/finance/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updateTransactionRequest)))
         //then
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Pomyślnie zaktualizowano transakcję"));
-
+                .andExpect(jsonPath("$.message").value("Pomyślnie zaktualizowano transakcję"));         
         Transaction updatedTransaction = entityManager.find(Transaction.class, new TransactionId(1, 1));
         assertThat(updatedTransaction.getAmount(), is(2000.00));
         assertThat(updatedTransaction.getPaymentStatus().getName().toString(), is("PAID"));
@@ -152,7 +150,7 @@ newTransactionRequest.setFinancialCategory(existingTransaction.getFinancialCateg
         updateTransactionRequest.setFinancialCategory("INCOME");
 
         //when
-                mockMvc.perform(put("/api/finance/1")
+                mockMvc.perform(put("/finance/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updateTransactionRequest)))
         //then
@@ -173,7 +171,7 @@ newTransactionRequest.setFinancialCategory(existingTransaction.getFinancialCateg
         updateTransactionRequest.setFinancialCategory("INCOME");
 
         //when
-                mockMvc.perform(put("/api/finance/9999")
+                mockMvc.perform(put("/finance/9999")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updateTransactionRequest)))
         //then
@@ -187,7 +185,7 @@ newTransactionRequest.setFinancialCategory(existingTransaction.getFinancialCateg
     @Test
     public void testDeleteExisting() throws Exception {
        //when
-       mockMvc.perform(delete("/api/finance/1"))
+       mockMvc.perform(delete("/finance/1"))
        //then
        .andExpect(status().isOk())
        .andExpect(jsonPath("$.message").value("Transakcja została usunięta"));
@@ -200,7 +198,7 @@ newTransactionRequest.setFinancialCategory(existingTransaction.getFinancialCateg
         //given
         Integer nonExistentTransactionId = 999;
         //when
-        mockMvc.perform(delete("/api/finance/" + nonExistentTransactionId))
+        mockMvc.perform(delete("/finance/" + nonExistentTransactionId))
         //then
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.message").value("Transakcja nie została znaleziona"));
@@ -220,7 +218,7 @@ newTransactionRequest.setFinancialCategory(existingTransaction.getFinancialCateg
                 .getSingleResult();
     
         //when
-        MvcResult result = mockMvc.perform(get("/api/finance/all"))
+        MvcResult result = mockMvc.perform(get("/finance/all"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andReturn();
@@ -246,7 +244,7 @@ newTransactionRequest.setFinancialCategory(existingTransaction.getFinancialCateg
                 .getSingleResult();
 
         //when
-        MvcResult result = mockMvc.perform(get("/api/finance/all")
+        MvcResult result = mockMvc.perform(get("/finance/all")
                         .param("minDate", LocalDate.now().minusYears(3).toString())
                         .param("maxDate", LocalDate.now().toString()))
                 .andDo(print())
@@ -269,7 +267,7 @@ newTransactionRequest.setFinancialCategory(existingTransaction.getFinancialCateg
     @Test
     public void testGetBalance() throws Exception {
         //when
-        MvcResult result = mockMvc.perform(get("/api/finance/balance"))
+        MvcResult result = mockMvc.perform(get("/finance/balance"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andReturn();

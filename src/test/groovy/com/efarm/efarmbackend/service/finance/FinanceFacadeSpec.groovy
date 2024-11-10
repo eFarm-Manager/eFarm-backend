@@ -274,37 +274,4 @@ class FinanceFacadeSpec extends Specification {
         result == balanceResponse
     }
 
-	/*
-	* The test below is a unit test for the mapToDTO method in the FinanceFacade class.
-	*/
-	
-    def "should map transaction to DTO successfully"() {
-        given:
-        TransactionId transactionId = new TransactionId(1, 1)
-        FinancialCategory financialCategory = new FinancialCategory(name: EFinancialCategory.EXPENSE)
-        PaymentStatus paymentStatus = new PaymentStatus(name: EPaymentStatus.PAID)
-        Transaction transaction = new Transaction(
-            id: transactionId,
-            transactionName: "Test Transaction",
-            amount: 100.0,
-            financialCategory: financialCategory,
-            paymentStatus: paymentStatus,
-            transactionDate: LocalDate.of(2023, 1, 1),
-            paymentDate: LocalDate.of(2023, 1, 2),
-            description: "Test Description"
-        )
-
-        when:
-        TransactionDTO result = financeFacade.mapToDTO(transaction)
-
-        then:
-        result.id == transactionId.getId()
-        result.transactionName == "Test Transaction"
-        result.amount == 100.0
-        result.financialCategory == "EXPENSE"
-        result.paymentStatus == "PAID"
-        result.transactionDate == LocalDate.of(2023, 1, 1)
-        result.paymentDate == LocalDate.of(2023, 1, 2)
-        result.description == "Test Description"
-    }
 }

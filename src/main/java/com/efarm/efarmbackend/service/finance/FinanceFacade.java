@@ -66,12 +66,11 @@ public class FinanceFacade {
         Farm loggedUserFarm = userService.getLoggedUserFarm();
         FinancialCategory financialCategory = financeService.getFinancialCategoryForFiltering(financialCategoryString);
         PaymentStatus paymentStatus = financeService.getPaymentStatusForFiltering(paymentStatusString);
-
         List<Transaction> transactions = transactionRepository.findFilteredTransactions(
                 loggedUserFarm.getId(), searchQuery, minDate, maxDate, financialCategory, paymentStatus, minAmount, maxAmount);
 
         return transactions.stream()
-                .map(this::mapToDTO)
+                .map(TransactionDTO::new)
                 .collect(Collectors.toList());
     }
 
@@ -80,18 +79,5 @@ public class FinanceFacade {
         LocalDate oneYearAgo = LocalDate.now().minusYears(1);
         List<Transaction> transactions = financeService.getTransactionsByFarmAndDate(farmId, oneYearAgo, LocalDate.now());
         return financeService.calculateFarmBalance(transactions);
-    }
-
-    private TransactionDTO mapToDTO(Transaction transaction) {
-        TransactionDTO dto = new TransactionDTO();
-        dto.setId(transaction.getId().getId());
-        dto.setTransactionName(transaction.getTransactionName());
-        dto.setAmount(transaction.getAmount());
-        dto.setFinancialCategory(String.valueOf(transaction.getFinancialCategory().getName()));
-        dto.setPaymentStatus(String.valueOf(transaction.getPaymentStatus().getName()));
-        dto.setTransactionDate(transaction.getTransactionDate());
-        dto.setPaymentDate(transaction.getPaymentDate());
-        dto.setDescription(transaction.getDescription());
-        return dto;
     }
 }

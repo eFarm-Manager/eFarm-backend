@@ -20,7 +20,7 @@ import java.util.List;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
-@RequestMapping("/api/finance")
+@RequestMapping("/finance")
 public class FinanceController {
 
     @Autowired
@@ -31,7 +31,7 @@ public class FinanceController {
 
     @PostMapping("/new")
     @PreAuthorize("hasRole('ROLE_FARM_OWNER')")
-    public ResponseEntity<?> addNewTransaction(@Valid @RequestBody NewTransactionRequest newTransactionRequest, BindingResult bindingResult) {
+    public ResponseEntity<MessageResponse> addNewTransaction(@Valid @RequestBody NewTransactionRequest newTransactionRequest, BindingResult bindingResult) {
         try {
             validationRequestService.validateRequest(bindingResult);
             financeFacade.addNewTransaction(newTransactionRequest);
@@ -44,7 +44,7 @@ public class FinanceController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_FARM_OWNER')")
-    public ResponseEntity<?> updateTransaction(@PathVariable Integer id, @Valid @RequestBody UpdateTransactionRequest updateRequest, BindingResult bindingResult) {
+    public ResponseEntity<MessageResponse> updateTransaction(@PathVariable Integer id, @Valid @RequestBody UpdateTransactionRequest updateRequest, BindingResult bindingResult) {
         try {
             validationRequestService.validateRequest(bindingResult);
             financeFacade.updateTransaction(id, updateRequest);
@@ -57,7 +57,7 @@ public class FinanceController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_FARM_OWNER')")
-    public ResponseEntity<?> deleteTransaction(@PathVariable Integer id) {
+    public ResponseEntity<MessageResponse> deleteTransaction(@PathVariable Integer id) {
         try {
             financeFacade.deleteTransaction(id);
             return ResponseEntity.status(HttpStatus.OK)

@@ -12,8 +12,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import com.efarm.efarmbackend.repository.user.RoleRepository;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -23,10 +21,8 @@ import com.efarm.efarmbackend.model.farm.ActivationCode;
 import com.efarm.efarmbackend.model.farm.Address;
 import com.efarm.efarmbackend.model.farm.Farm;
 import com.efarm.efarmbackend.model.farm.FarmDTO;
-import com.efarm.efarmbackend.model.user.ERole;
 import com.efarm.efarmbackend.model.user.Role;
 import com.efarm.efarmbackend.model.user.User;
-import com.efarm.efarmbackend.model.user.UserDTO;
 import com.efarm.efarmbackend.payload.request.farm.UpdateFarmDetailsRequest;
 import com.efarm.efarmbackend.security.services.UserDetailsImpl;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -43,8 +39,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Optional;
 
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -80,7 +74,7 @@ public class FarmControllerIT {
         Address farmAddress = entityManager.find(Address.class, userFarm.getIdAddress());
 
         //when
-        MvcResult result = mockMvc.perform(get("/api/farm/details"))
+        MvcResult result = mockMvc.perform(get("/farm/details"))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -118,7 +112,7 @@ public class FarmControllerIT {
         updateFarmDetailsRequest.setZipCode(farmAddress.getZipCode());
         
         //when
-        mockMvc.perform(put("/api/farm/details")
+        mockMvc.perform(put("/farm/details")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(updateFarmDetailsRequest)))
                 .andDo(print())
@@ -193,7 +187,7 @@ public class FarmControllerIT {
         SecurityContextHolder.getContext().setAuthentication(authToken);
 
         // When
-        mockMvc.perform(put("/api/farm/details")
+        mockMvc.perform(put("/farm/details")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(updateFarmDetailsRequest)))
                 .andDo(print())
@@ -240,7 +234,7 @@ public class FarmControllerIT {
         updateFarmDetailsRequest.setZipCode("");
 
         // When
-        mockMvc.perform(put("/api/farm/details")
+        mockMvc.perform(put("/farm/details")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(updateFarmDetailsRequest)))
         //then

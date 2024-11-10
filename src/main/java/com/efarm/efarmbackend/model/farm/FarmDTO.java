@@ -3,14 +3,13 @@ package com.efarm.efarmbackend.model.farm;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.time.LocalDate;
 
+
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Setter
 public class FarmDTO {
     private String farmName;
     private String farmNumber;
