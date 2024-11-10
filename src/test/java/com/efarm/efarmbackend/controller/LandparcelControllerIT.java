@@ -72,26 +72,42 @@ public class LandparcelControllerIT {
     @Test
     void testAddingNewLandparcel() throws Exception {
         //given
-        AddLandparcelRequest addLandparcelRequest = new AddLandparcelRequest();
-        addLandparcelRequest.setName("Dzialka1");
-        addLandparcelRequest.setLandOwnershipStatus("STATUS_PRIVATELY_OWNED"); 
-        addLandparcelRequest.setVoivodeship("Lubelskie");
-        addLandparcelRequest.setDistrict("district");
-        addLandparcelRequest.setCommune("commune");
-        addLandparcelRequest.setGeodesyDistrictNumber("GRD1");
-        addLandparcelRequest.setLandparcelNumber("LP1");
-        addLandparcelRequest.setLongitude(21.0122);
-        addLandparcelRequest.setLatitude(52.2297);
-        addLandparcelRequest.setArea(500.0);
-        addLandparcelRequest.setGeodesyLandparcelNumber("12523.02");
+        AddLandparcelRequest request = new AddLandparcelRequest();
+        request.setName("Dzialka1");
+        request.setLandOwnershipStatus("STATUS_PRIVATELY_OWNED"); 
+        request.setVoivodeship("Lubelskie");
+        request.setDistrict("district");
+        request.setCommune("commune");
+        request.setGeodesyDistrictNumber("GRD1");
+        request.setLandparcelNumber("LP1");
+        request.setLongitude(21.0122);
+        request.setLatitude(52.2297);
+        request.setArea(500.0);
+        request.setGeodesyLandparcelNumber("12523.02");
 
         //when
         mockMvc.perform(post("/landparcel/new")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(addLandparcelRequest)))
+                .content(objectMapper.writeValueAsString(request)))
         //then
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.message").value("Pomyślnie dodano nową działkę"));
+
+        Landparcel newLandparcel = entityManager.createQuery("SELECT lp FROM Landparcel lp WHERE lp.name = :name AND lp.id.farmId = :farmId", Landparcel.class)
+                .setParameter("name", request.getName())
+                .setParameter("farmId", 1)
+                .getSingleResult();
+
+        assertThat(newLandparcel.getLandOwnershipStatus().getOwnershipStatus().toString(), is(request.getLandOwnershipStatus()));
+        assertThat(newLandparcel.getVoivodeship(), is(request.getVoivodeship()));
+        assertThat(newLandparcel.getDistrict(), is(request.getDistrict()));
+        assertThat(newLandparcel.getCommune(), is(request.getCommune()));
+        assertThat(newLandparcel.getGeodesyDistrictNumber(), is(request.getGeodesyDistrictNumber()));
+        assertThat(newLandparcel.getLandparcelNumber(), is(request.getLandparcelNumber()));
+        assertThat(newLandparcel.getLongitude(), is(request.getLongitude()));
+        assertThat(newLandparcel.getLatitude(), is(request.getLatitude()));
+        assertThat(newLandparcel.getArea(), is(request.getArea()));
+        assertThat(newLandparcel.getGeodesyLandparcelNumber(), is(request.getGeodesyLandparcelNumber()));
 }
 
     @Test
@@ -201,6 +217,12 @@ public class LandparcelControllerIT {
         //then
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Dane działki zostały pomyślnie zaktualizowane"));
+        
+        Landparcel updatedLandparcel = entityManager.find(Landparcel.class, landparcelId);
+        assertThat(updatedLandparcel.getLandOwnershipStatus().getOwnershipStatus().toString(), is(updateRequest.getLandOwnershipStatus()));
+        assertThat(updatedLandparcel.getLongitude(), is(updateRequest.getLongitude()));
+        assertThat(updatedLandparcel.getLatitude(), is(updateRequest.getLatitude()));
+        assertThat(updatedLandparcel.getArea(), is(updateRequest.getArea()));
     }
 
     @Test
@@ -480,8 +502,7 @@ public class LandparcelControllerIT {
                 });
     
         assertThat(landparcelDTOs.size(), is(landparcelCount.intValue()));
-    }
-    
+    } 
 
 }
     
