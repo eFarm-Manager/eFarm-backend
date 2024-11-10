@@ -1,7 +1,6 @@
 package com.efarm.efarmbackend.controller;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -19,18 +18,12 @@ import com.efarm.efarmbackend.model.agriculturalrecords.AgriculturalRecordDTO;
 import com.efarm.efarmbackend.model.agriculturalrecords.AgriculturalRecordId;
 import com.efarm.efarmbackend.model.agriculturalrecords.Season;
 import com.efarm.efarmbackend.model.agroactivity.AgroActivity;
-import com.efarm.efarmbackend.model.farm.Farm;
 import com.efarm.efarmbackend.model.landparcel.Landparcel;
-import com.efarm.efarmbackend.model.landparcel.LandparcelDTO;
 import com.efarm.efarmbackend.model.landparcel.LandparcelId;
 import com.efarm.efarmbackend.model.user.User;
 import com.efarm.efarmbackend.payload.request.agriculturalrecord.CreateNewAgriculturalRecordRequest;
 import com.efarm.efarmbackend.payload.request.agriculturalrecord.UpdateAgriculturalRecordRequest;
-import com.efarm.efarmbackend.payload.request.landparcel.AddLandparcelRequest;
-import com.efarm.efarmbackend.payload.request.landparcel.UpdateLandparcelRequest;
-import com.efarm.efarmbackend.repository.agriculturalrecords.SeasonRepository;
 import com.efarm.efarmbackend.security.services.UserDetailsImpl;
-import com.efarm.efarmbackend.service.agriculturalrecords.SeasonService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -47,10 +40,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -97,7 +87,7 @@ public class AgriculturalRecordControllerIT {
                 .getSingleResult();
 
         // when
-        MvcResult mvcResult = mockMvc.perform(get("/api/records/all"))
+        MvcResult mvcResult = mockMvc.perform(get("/records/all"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andReturn();
@@ -125,7 +115,7 @@ public class AgriculturalRecordControllerIT {
                 .getSingleResult();
 
         // when
-        MvcResult mvcResult = mockMvc.perform(get("/api/records/all")
+        MvcResult mvcResult = mockMvc.perform(get("/records/all")
                 .param("season", seasonName))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -156,7 +146,7 @@ public class AgriculturalRecordControllerIT {
         entityManager.merge(landparcel);
 
         // when
-        mockMvc.perform(post("/api/records/add-new-record")
+        mockMvc.perform(post("/records/add-new-record")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
         // then
@@ -181,7 +171,7 @@ public class AgriculturalRecordControllerIT {
         entityManager.merge(landparcel);
     
         // when
-        mockMvc.perform(post("/api/records/add-new-record")
+        mockMvc.perform(post("/records/add-new-record")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
         // then
@@ -200,7 +190,7 @@ public class AgriculturalRecordControllerIT {
         request.setDescription("test description");
     
         // when
-        mockMvc.perform(post("/api/records/add-new-record")
+        mockMvc.perform(post("/records/add-new-record")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
         // then
@@ -224,7 +214,7 @@ public class AgriculturalRecordControllerIT {
         entityManager.merge(landparcel);
     
         // when
-        mockMvc.perform(post("/api/records/add-new-record")
+        mockMvc.perform(post("/records/add-new-record")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
         // then
@@ -243,7 +233,7 @@ public class AgriculturalRecordControllerIT {
         season.setName(seasonName);
         entityManager.persist(season);
         // when
-        mockMvc.perform(post("/api/records/generate-records-for-new-season")
+        mockMvc.perform(post("/records/generate-records-for-new-season")
                 .param("seasonName", seasonName)
                 .contentType(MediaType.APPLICATION_JSON))
         // then
@@ -264,7 +254,7 @@ public class AgriculturalRecordControllerIT {
         String nonExistentSeasonName = "non-existent season"; 
     
         // when
-        mockMvc.perform(post("/api/records/generate-records-for-new-season")
+        mockMvc.perform(post("/records/generate-records-for-new-season")
                 .param("seasonName", nonExistentSeasonName)
                 .contentType(MediaType.APPLICATION_JSON))
         // then
@@ -286,7 +276,7 @@ public class AgriculturalRecordControllerIT {
         request.setDescription("updated description");
     
         // when
-        mockMvc.perform(put("/api/records/" + recordId)
+        mockMvc.perform(put("/records/" + recordId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
         // then
@@ -307,7 +297,7 @@ public class AgriculturalRecordControllerIT {
         request.setCropName("ziemniak");
     
         // when
-        mockMvc.perform(put("/api/records/" + nonExistentRecordId)
+        mockMvc.perform(put("/records/" + nonExistentRecordId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
         // then
@@ -323,7 +313,7 @@ public class AgriculturalRecordControllerIT {
         request.setCropName("invalid_crop"); 
     
         // when
-        mockMvc.perform(put("/api/records/" + recordId)
+        mockMvc.perform(put("/records/" + recordId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
         // then
@@ -340,7 +330,7 @@ public class AgriculturalRecordControllerIT {
         request.setArea(record.getArea() + 10.0); 
 
         // when
-        mockMvc.perform(put("/api/records/" + recordId)
+        mockMvc.perform(put("/records/" + recordId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
         // then
@@ -358,7 +348,7 @@ public class AgriculturalRecordControllerIT {
         Integer recordId = 1;
     
         // when
-        mockMvc.perform(delete("/api/records/" + recordId))
+        mockMvc.perform(delete("/records/" + recordId))
         // then
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Pomyślnie usunięto wskazaną ewidencję"));
@@ -379,7 +369,7 @@ public class AgriculturalRecordControllerIT {
         Integer nonExistentRecordId = 999; 
     
         // when
-        mockMvc.perform(delete("/api/records/" + nonExistentRecordId))
+        mockMvc.perform(delete("/records/" + nonExistentRecordId))
         // then
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Ewidencja, którą próbujesz usunąć nie istnieje!")); 
@@ -397,7 +387,7 @@ public class AgriculturalRecordControllerIT {
                 .getResultList();
     
         // when
-        MvcResult mvcResult = mockMvc.perform(get("/api/records/available-seasons"))
+        MvcResult mvcResult = mockMvc.perform(get("/records/available-seasons"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andReturn();
@@ -419,7 +409,7 @@ public class AgriculturalRecordControllerIT {
                 .getResultList();
     
         // when
-        MvcResult mvcResult = mockMvc.perform(get("/api/records/available-crops"))
+        MvcResult mvcResult = mockMvc.perform(get("/records/available-crops"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andReturn();

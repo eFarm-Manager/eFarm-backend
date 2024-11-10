@@ -206,7 +206,7 @@ public class FarmStatisticsControllerIT {
         //given
 
         //when
-        MvcResult mvcResult = mockMvc.perform(get("/api/statistics/land-area"))
+        MvcResult mvcResult = mockMvc.perform(get("/statistics/land-area"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andReturn();
@@ -228,7 +228,7 @@ public class FarmStatisticsControllerIT {
         //given
 
         //when
-        MvcResult mvcResult = mockMvc.perform(get("/api/statistics/crop-area"))
+        MvcResult mvcResult = mockMvc.perform(get("/statistics/crop-area"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andReturn();

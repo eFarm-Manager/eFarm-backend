@@ -85,7 +85,7 @@ public class UserControllerIT {
                 .getSingleResult();
 
         // When
-        MvcResult result = mockMvc.perform(get("/api/users/all"))
+        MvcResult result = mockMvc.perform(get("/users/all"))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -114,7 +114,7 @@ public class UserControllerIT {
 
 
         // When
-        MvcResult result = mockMvc.perform(get("/api/users/active"))
+        MvcResult result = mockMvc.perform(get("/users/active"))
                 .andExpect(status().isOk())
                 .andReturn();
 
