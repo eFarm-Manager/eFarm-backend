@@ -31,7 +31,7 @@ public class FarmController {
 
     @PutMapping("/details")
     @PreAuthorize("hasRole('ROLE_FARM_OWNER')")
-    public ResponseEntity<?> updateFarmDetails(@Valid @RequestBody UpdateFarmDetailsRequest updateFarmDetailsRequest, BindingResult bindingResult) {
+    public ResponseEntity<MessageResponse> updateFarmDetails(@Valid @RequestBody UpdateFarmDetailsRequest updateFarmDetailsRequest, BindingResult bindingResult) {
         try {
             validationRequestService.validateRequest(bindingResult);
             farmFacade.updateFarmDetails(updateFarmDetailsRequest);

@@ -6,7 +6,6 @@ import com.efarm.efarmbackend.model.equipment.FarmEquipmentId;
 import com.efarm.efarmbackend.model.equipment.FarmEquipmentShortDTO;
 import com.efarm.efarmbackend.model.farm.Farm;
 import com.efarm.efarmbackend.payload.request.equipment.AddUpdateFarmEquipmentRequest;
-import com.efarm.efarmbackend.payload.response.MessageResponse;
 import com.efarm.efarmbackend.repository.equipment.EquipmentCategoryRepository;
 import com.efarm.efarmbackend.repository.equipment.FarmEquipmentRepository;
 import com.efarm.efarmbackend.service.user.UserService;
@@ -80,7 +79,7 @@ public class FarmEquipmentFacade {
     }
 
     @Transactional
-    public MessageResponse addNewFarmEquipment(AddUpdateFarmEquipmentRequest addUpdateFarmEquipmentRequest) throws RuntimeException {
+    public void addNewFarmEquipment(AddUpdateFarmEquipmentRequest addUpdateFarmEquipmentRequest) throws RuntimeException {
 
         Farm loggedUserFarm = userService.getLoggedUserFarm();
         FarmEquipmentId farmEquipmentId = new FarmEquipmentId(farmEquipmentRepository.findNextFreeIdForFarm(loggedUserFarm.getId()), loggedUserFarm.getId());
@@ -92,11 +91,10 @@ public class FarmEquipmentFacade {
         farmEquipmentService.setCommonFieldsForCategory(addUpdateFarmEquipmentRequest, equipment);
         farmEquipmentService.setSpecificFieldsForCategory(addUpdateFarmEquipmentRequest, equipment, addUpdateFarmEquipmentRequest.getCategory());
         farmEquipmentRepository.save(equipment);
-        return new MessageResponse("Pomyślnie dodano nową maszynę");
     }
 
     @Transactional
-    public MessageResponse updateFarmEquipment(Integer equipmentId, AddUpdateFarmEquipmentRequest addUpdateFarmEquipmentRequest) throws RuntimeException {
+    public void updateFarmEquipment(Integer equipmentId, AddUpdateFarmEquipmentRequest addUpdateFarmEquipmentRequest) throws RuntimeException {
         Farm loggedUserFarm = userService.getLoggedUserFarm();
         FarmEquipmentId farmEquipmentId = new FarmEquipmentId(equipmentId, loggedUserFarm.getId());
 
@@ -113,11 +111,9 @@ public class FarmEquipmentFacade {
         } else {
             throw new RuntimeException("Wybrany sprzęt już nie istnieje");
         }
-        return new MessageResponse("Pomyślnie zaktualizowane dane maszyny.");
     }
 
-    public MessageResponse deleteFarmEquipment(Integer equipmentId) {
-
+    public void deleteFarmEquipment(Integer equipmentId) {
         FarmEquipmentId farmEquipmentId = new FarmEquipmentId(equipmentId, userService.getLoggedUserFarm().getId());
         FarmEquipment equipment = farmEquipmentRepository.findById(farmEquipmentId)
                 .orElseThrow(() -> new RuntimeException("Nie znaleziono maszyny o id: " + equipmentId));
@@ -125,7 +121,6 @@ public class FarmEquipmentFacade {
         if (equipment.getIsAvailable()) {
             equipment.setIsAvailable(false);
             farmEquipmentRepository.save(equipment);
-            return new MessageResponse("Pomyślnie usunięto maszynę");
         } else {
             throw new RuntimeException("Wybrana maszyna została już usunięta");
         }
