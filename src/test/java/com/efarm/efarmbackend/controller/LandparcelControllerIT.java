@@ -86,7 +86,7 @@ public class LandparcelControllerIT {
         addLandparcelRequest.setGeodesyLandparcelNumber("12523.02");
 
         //when
-        mockMvc.perform(post("/api/landparcel/new")
+        mockMvc.perform(post("/landparcel/new")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(addLandparcelRequest)))
         //then
@@ -114,7 +114,7 @@ public class LandparcelControllerIT {
 	addLandparcelRequest.setGeodesyLandparcelNumber(existingLandparcel.getGeodesyLandparcelNumber());
 
         //when
-        mockMvc.perform(post("/api/landparcel/new")
+        mockMvc.perform(post("/landparcel/new")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(addLandparcelRequest)))
         //then
@@ -142,7 +142,7 @@ public class LandparcelControllerIT {
 	addLandparcelRequest.setGeodesyLandparcelNumber("12523.02");
 
         //when
-        mockMvc.perform(post("/api/landparcel/new")
+        mockMvc.perform(post("/landparcel/new")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(addLandparcelRequest)))
         //then
@@ -162,7 +162,7 @@ public class LandparcelControllerIT {
 
 
         //when
-        MvcResult result = mockMvc.perform(get("/api/landparcel/1"))
+        MvcResult result = mockMvc.perform(get("/landparcel/1"))
         //then
             .andExpect(status().isOk())
             .andReturn();
@@ -195,7 +195,7 @@ public class LandparcelControllerIT {
         updateRequest.setArea(999.0);
 
         //when
-        mockMvc.perform(put("/api/landparcel/" + landparcelId.getId())
+        mockMvc.perform(put("/landparcel/" + landparcelId.getId())
                 .contentType("application/json")
                 .content(objectMapper.writeValueAsString(updateRequest)))
         //then
@@ -217,7 +217,7 @@ public class LandparcelControllerIT {
         Integer idToUpdate = landparcelId.getId()-1;
 
         //when
-        mockMvc.perform(put("/api/landparcel/" + idToUpdate)
+        mockMvc.perform(put("/landparcel/" + idToUpdate)
                 .contentType("application/json")
                 .content(objectMapper.writeValueAsString(updateRequest)))
         //then
@@ -237,7 +237,7 @@ public class LandparcelControllerIT {
         updateRequest.setArea(999.0);
     
         //when
-        mockMvc.perform(put("/api/landparcel/" + nonExistentId)
+        mockMvc.perform(put("/landparcel/" + nonExistentId)
                 .contentType("application/json")
                 .content(objectMapper.writeValueAsString(updateRequest)))
         //then
@@ -261,7 +261,7 @@ public class LandparcelControllerIT {
         updateRequest.setArea(999.0);
     
         //when
-        mockMvc.perform(put("/api/landparcel/" + landparcelId.getId())
+        mockMvc.perform(put("/landparcel/" + landparcelId.getId())
                 .contentType("application/json")
                 .content(objectMapper.writeValueAsString(updateRequest)))
         //then
@@ -278,7 +278,7 @@ public class LandparcelControllerIT {
         LandparcelId landparcelId = new LandparcelId(1, 1);
 
         //when
-        mockMvc.perform(delete("/api/landparcel/" + landparcelId.getId())
+        mockMvc.perform(delete("/landparcel/" + landparcelId.getId())
                 .contentType(MediaType.APPLICATION_JSON))
         //then
                 .andExpect(status().isOk())
@@ -294,7 +294,7 @@ public class LandparcelControllerIT {
         Integer nonExistentLandparcelId = 999; 
     
         //when
-        mockMvc.perform(delete("/api/landparcel/" + nonExistentLandparcelId)
+        mockMvc.perform(delete("/landparcel/" + nonExistentLandparcelId)
                 .contentType(MediaType.APPLICATION_JSON))
         //then
                 .andExpect(status().isBadRequest())
@@ -311,7 +311,7 @@ public class LandparcelControllerIT {
         entityManager.persist(existingLandparcel);
     
         //when
-        mockMvc.perform(delete("/api/landparcel/" + landparcelId.getId())
+        mockMvc.perform(delete("/landparcel/" + landparcelId.getId())
                 .contentType(MediaType.APPLICATION_JSON))
         //then
                 .andExpect(status().isBadRequest())
@@ -336,7 +336,7 @@ public class LandparcelControllerIT {
                 .getSingleResult();
     
         //when
-        MvcResult result = mockMvc.perform(get("/api/landparcel/all")
+        MvcResult result = mockMvc.perform(get("/landparcel/all")
                         .param("searchString", searchString)
                         .param("minArea", minArea != null ? String.valueOf(minArea) : "")
                         .param("maxArea", maxArea != null ? String.valueOf(maxArea) : ""))
@@ -370,7 +370,7 @@ public class LandparcelControllerIT {
                 .getSingleResult();
     
         // when
-        MvcResult result = mockMvc.perform(get("/api/landparcel/all")
+        MvcResult result = mockMvc.perform(get("/landparcel/all")
                         .param("minArea", String.valueOf(minArea)))
                 .andExpect(status().isOk())
                 .andReturn();
@@ -401,7 +401,7 @@ public class LandparcelControllerIT {
                 .getSingleResult();
     
         // when
-        MvcResult result = mockMvc.perform(get("/api/landparcel/all")
+        MvcResult result = mockMvc.perform(get("/landparcel/all")
                         .param("maxArea", String.valueOf(maxArea)))
                 .andExpect(status().isOk())
                 .andReturn();
@@ -432,7 +432,7 @@ public class LandparcelControllerIT {
                 .getSingleResult();
     
         // when
-        MvcResult result = mockMvc.perform(get("/api/landparcel/all")
+        MvcResult result = mockMvc.perform(get("/landparcel/all")
                         .param("searchString", searchString))
                 .andExpect(status().isOk())
                 .andReturn();
@@ -467,7 +467,7 @@ public class LandparcelControllerIT {
                 .getSingleResult();
     
         // when
-        MvcResult result = mockMvc.perform(get("/api/landparcel/all")
+        MvcResult result = mockMvc.perform(get("/landparcel/all")
                         .param("searchString", searchString)
                         .param("minArea", String.valueOf(minArea))
                         .param("maxArea", String.valueOf(maxArea)))
