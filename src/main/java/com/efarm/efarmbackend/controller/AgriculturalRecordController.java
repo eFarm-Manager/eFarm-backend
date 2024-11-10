@@ -33,6 +33,7 @@ public class AgriculturalRecordController {
 
     @Autowired
     private CropService cropService;
+
     @Autowired
     private AgriculturalRecordService agriculturalRecordService;
 
