@@ -15,7 +15,9 @@ import java.util.Optional;
 
 @Repository
 public interface FarmEquipmentRepository extends JpaRepository<FarmEquipment, FarmEquipmentId> {
+
     List<FarmEquipment> findByFarmIdFarm_Id(Integer farmId);
+
     Boolean existsByEquipmentNameAndFarmIdFarm(@Size(max = 60) @NotNull String equipmentName, Farm farmIdFarm);
 
     @Query("SELECT MAX(f.id.id) FROM FarmEquipment f WHERE f.farmIdFarm.id = :farmId")

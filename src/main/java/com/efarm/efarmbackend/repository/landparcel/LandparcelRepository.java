@@ -14,6 +14,7 @@ import java.util.Optional;
 
 @Repository
 public interface LandparcelRepository extends JpaRepository<Landparcel, LandparcelId> {
+
     List<Landparcel> findByFarmId(Integer farmId);
 
     Boolean existsByGeodesyLandparcelNumberAndFarm(String geodesyLandparcelNumber, Farm farm);
