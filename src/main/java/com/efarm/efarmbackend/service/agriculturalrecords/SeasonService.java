@@ -44,7 +44,7 @@ public class SeasonService {
     }
 
     private Integer calculateSeasonId(int startingYear) {
-        int baseYear = 2023;  // basePoint, season 08.2023-07.2024 with id=2
+        int baseYear = 2023;
         int baseId = 2;
         return baseId + (startingYear - baseYear);
     }

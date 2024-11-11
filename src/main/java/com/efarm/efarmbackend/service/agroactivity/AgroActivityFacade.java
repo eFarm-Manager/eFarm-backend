@@ -53,7 +53,6 @@ public class AgroActivityFacade {
         activityHasEquipmentService.addEquipmentToActivity(request.getEquipmentIds(), agroActivity, loggedUserFarmId);
     }
 
-
     public AgroActivityDetailDTO getAgroActivityDetails(Integer id) {
 
         Integer loggedUserFarmId = userService.getLoggedUserFarm().getId();
@@ -75,7 +74,7 @@ public class AgroActivityFacade {
 
         agroActivityService.updateAgroActivity(request, agroActivity, activityCategory);
         activityHasOperatorService.updateOperatorInActivity(request.getOperatorIds(), agroActivity, loggedUserFarmId);
-        activityHasEquipmentService.updateEqipmentInActivity(request.getEquipmentIds(), agroActivity, loggedUserFarmId);
+        activityHasEquipmentService.updateEquipmentInActivity(request.getEquipmentIds(), agroActivity, loggedUserFarmId);
     }
 
     @Transactional

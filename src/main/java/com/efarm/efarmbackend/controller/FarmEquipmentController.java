@@ -61,7 +61,7 @@ public class FarmEquipmentController {
         try {
             validationRequestService.validateRequest(bindingResult);
             farmEquipmentFacade.updateFarmEquipment(equipmentId, addUpdateFarmEquipmentRequest);
-            return ResponseEntity.ok(new MessageResponse("Pomyślnie zaktualizowane dane maszyny."));
+            return ResponseEntity.ok(new MessageResponse("Pomyślnie zaktualizowane dane maszyny"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
         }

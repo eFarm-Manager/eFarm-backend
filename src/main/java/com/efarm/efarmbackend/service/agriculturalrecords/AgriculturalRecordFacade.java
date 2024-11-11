@@ -61,7 +61,7 @@ public class AgriculturalRecordFacade {
 
         Landparcel landparcel = landparcelService.findlandparcelByFarm(recordRequest.getLandparcelId(), loggedUserFarm);
         if (!landparcel.getIsAvailable()) {
-            throw new Exception("Wybrane pole jest niedostępne!");
+            throw new Exception("Wybrane pole jest niedostępne");
         }
 
         agriculturalRecordService.validateCropArea(landparcel, season, recordRequest);
@@ -88,7 +88,7 @@ public class AgriculturalRecordFacade {
         Farm loggedUserFarm = userService.getLoggedUserFarm();
         Season season = seasonService.getSeasonByName(seasonName);
         if (season == null) {
-            throw new Exception("Podany sezon nie istnieje.");
+            throw new Exception("Podany sezon nie istnieje");
         }
 
         List<Landparcel> activeLandparcels = landparcelRepository.findByFarmIdAndIsAvailableTrue(loggedUserFarm.getId());
