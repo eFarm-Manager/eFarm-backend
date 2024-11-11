@@ -8,5 +8,6 @@ import java.util.Optional;
 
 @Repository
 public interface ActivityCategoryRepository extends JpaRepository<ActivityCategory, Integer> {
+
     Optional<ActivityCategory> findByName(String name);
 }
