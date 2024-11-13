@@ -48,4 +48,15 @@ public class ScheduledTasks {
         logger.info("Start checking Unpaid Financials");
         financeNotificationService.checkPaymentDueDateNotifications();
     }
+
+    //Every monday at midnight
+    @Scheduled(cron = "0 0 0 * * 1", zone = "Europe/Warsaw")
+    public void checkFarmsForDelete() {
+        logger.info("Start checking farms to delete");
+        try {
+            farmService.deleteInactiveFarms();
+        } catch (Exception e) {
+            logger.error("Can not delete farms with error {}", e.getMessage());
+        }
+    }
 }

@@ -48,8 +48,11 @@ public class Farm {
     @Column(name = "czyAktywne", nullable = false)
     private Boolean isActive;
 
-    public Farm(String farmName) {
+    public Farm(String farmName, Integer idAddress, Integer idActivationCode, Boolean isActive) {
         this.farmName = farmName;
+        this.idAddress = idAddress;
+        this.idActivationCode = idActivationCode;
+        this.isActive = isActive;
     }
 
     public Farm(Farm other) {

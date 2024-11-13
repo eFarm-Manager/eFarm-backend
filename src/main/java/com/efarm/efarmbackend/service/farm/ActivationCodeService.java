@@ -115,4 +115,3 @@ public class ActivationCodeService {
         activationCodeRepository.save(newActivationCodeEntity);
     }
 }
-

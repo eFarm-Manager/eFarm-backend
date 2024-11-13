@@ -36,28 +36,58 @@ public class FarmNotificationService {
 
     public void checkActivationCodeDueDateNotifications() {
         LocalDate today = LocalDate.now();
-
         List<Farm> farms = farmRepository.findByIsActiveTrue();
         for (Farm farm : farms) {
-            checkAndNotifyForActivationCode(farm, today);
+            if (farm.getIsActive()) {
+                checkAndNotifyForActivationCode(farm, today);
+            } else {
+                checkAndNotifyForFarmDeletion(farm, today);
+            }
         }
     }
 
     private void checkAndNotifyForActivationCode(Farm farm, LocalDate today) {
         if (farm.getIdActivationCode() != null) {
             Optional<ActivationCode> currentActivationCode = activationCodeRepository.findById(farm.getIdActivationCode());
-            long daysUntilExpire = ChronoUnit.DAYS.between(today, currentActivationCode.get().getExpireDate());
+            if (currentActivationCode.isPresent()) {
+                long daysUntilExpire = ChronoUnit.DAYS.between(today, currentActivationCode.get().getExpireDate());
 
-            if (daysUntilExpire == 14 || daysUntilExpire == 5 || daysUntilExpire == 1) {
-                String message = String.format(
-                        "Termin ważności kodu aktywacyjnego dla Twojej farmy %s upływa za %d dni.", farm.getFarmName(), daysUntilExpire
-                );
+                if (daysUntilExpire == 14 || daysUntilExpire == 5 || daysUntilExpire == 1) {
+                    String message = String.format(
+                            "Termin ważności kodu aktywacyjnego dla Twojej farmy %s upływa za %d dni.", farm.getFarmName(), daysUntilExpire
+                    );
 
-                List<User> owners = userService.getAllOwnersForFarm(farm.getId());
-                for (User owner : owners) {
-                    if (owner.getIsActive()) {
-                        mainNotificationService.sendNotificationToOwner(owner, message, "Niedługo wygasa kod aktywacyjny Twojej wirtualnej Farmy!");
-                        logger.info("Sending expireCode info to owner: {}", owner.getEmail());
+                    List<User> owners = userService.getAllOwnersForFarm(farm.getId());
+                    for (User owner : owners) {
+                        if (owner.getIsActive()) {
+                            mainNotificationService.sendNotificationToOwner(owner, message, "Niedługo wygasa kod aktywacyjny Twojej wirtualnej Farmy!");
+                            logger.info("Sending expireCode info to owner: {}", owner.getEmail());
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void checkAndNotifyForFarmDeletion(Farm farm, LocalDate today) {
+        if (farm.getIdActivationCode() != null) {
+            Optional<ActivationCode> currentActivationCode = activationCodeRepository.findById(farm.getIdActivationCode());
+            if (currentActivationCode.isPresent()) {
+                long daysSinceExpiration = ChronoUnit.DAYS.between(currentActivationCode.get().getExpireDate(), today);
+                long daysUntilDeletion = 365 - daysSinceExpiration;
+                if (daysUntilDeletion == 3 || daysUntilDeletion == 2 || daysUntilDeletion == 1) {
+                    String message = String.format(
+                            "Twoja farma %s zostanie trwale usunięta za %d dni. Zaktualizuj swój kod aktywacyjny, aby temu zapobiec.",
+                            farm.getFarmName(), daysUntilDeletion
+                    );
+
+                    List<User> owners = userService.getAllOwnersForFarm(farm.getId());
+                    for (User owner : owners) {
+                        if (owner.getIsActive()) {
+                            mainNotificationService.sendNotificationToOwner(owner, message, "Twoja farma zostanie wkrótce usunięta!"
+                            );
+                            logger.info("Notification about farm deletion has been sent to the owner:: {}", owner.getEmail());
+                        }
                     }
                 }
             }

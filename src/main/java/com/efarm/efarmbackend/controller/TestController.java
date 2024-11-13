@@ -1,7 +1,11 @@
 package com.efarm.efarmbackend.controller;
 
+import com.efarm.efarmbackend.model.farm.Farm;
 import com.efarm.efarmbackend.payload.response.MessageResponse;
+import com.efarm.efarmbackend.repository.farm.FarmRepository;
 import com.efarm.efarmbackend.service.equipment.FarmEquipmentNotificationService;
+import com.efarm.efarmbackend.service.farm.FarmNotificationService;
+import com.efarm.efarmbackend.service.farm.FarmService;
 import com.efarm.efarmbackend.service.finance.FinanceNotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -9,6 +13,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/test")
@@ -19,6 +25,15 @@ public class TestController {
 
     @Autowired
     private FinanceNotificationService financeNotificationService;
+
+    @Autowired
+    private FarmNotificationService farmNotificationService;
+
+    @Autowired
+    private FarmService farmService;
+
+    @Autowired
+    private FarmRepository farmRepository;
 
     @GetMapping("/all")
     public String allAccess() {
@@ -53,5 +68,22 @@ public class TestController {
     public ResponseEntity<?> runFinanceJobManually() {
         financeNotificationService.checkPaymentDueDateNotifications();
         return ResponseEntity.ok().body(new MessageResponse("Manual CRON job executed"));
+    }
+
+    @GetMapping("/runActivationCodeCronJob")
+    public ResponseEntity<?> runActivationCodeManually() {
+        farmNotificationService.checkActivationCodeDueDateNotifications();
+        return ResponseEntity.ok().body(new MessageResponse("Manual CRON job executed"));
+    }
+
+    @GetMapping("/deleteFarm")
+    public ResponseEntity<?> deleteFarmTest() {
+        try {
+            Optional<Farm> farm = farmRepository.findById(10);
+            farmService.deleteFarm(farm.get());
+            return ResponseEntity.ok().body(new MessageResponse("Farm deleted."));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
+        }
     }
 }

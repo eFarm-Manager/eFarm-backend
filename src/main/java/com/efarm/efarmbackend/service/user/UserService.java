@@ -7,6 +7,7 @@ import com.efarm.efarmbackend.payload.request.auth.SignupRequest;
 import com.efarm.efarmbackend.repository.user.RoleRepository;
 import com.efarm.efarmbackend.repository.user.UserRepository;
 import com.efarm.efarmbackend.security.services.UserDetailsImpl;
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -133,6 +134,12 @@ public class UserService {
         return users.stream()
                 .map(UserSummaryDTO::new)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void deleteAllUsersForFarm(Farm farm) {
+        List<User> users = getUsersByFarmId(farm.getId());
+        userRepository.deleteAll(users);
     }
 
     private List<User> getUsersByFarmId(Integer farmId) {

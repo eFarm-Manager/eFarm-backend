@@ -1,7 +1,10 @@
 package com.efarm.efarmbackend.service.equipment;
 
 import com.efarm.efarmbackend.model.equipment.FarmEquipment;
+import com.efarm.efarmbackend.model.farm.Farm;
 import com.efarm.efarmbackend.payload.request.equipment.AddUpdateFarmEquipmentRequest;
+import com.efarm.efarmbackend.repository.equipment.FarmEquipmentRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +15,9 @@ public class FarmEquipmentService {
 
     @Autowired
     private EquipmentDisplayDataService equipmentDisplayDataService;
+
+    @Autowired
+    private FarmEquipmentRepository farmEquipmentRepository;
 
     public static AddUpdateFarmEquipmentRequest createFarmEquipmentDTOtoDisplay(FarmEquipment equipment, List<String> fieldsToDisplay) {
         AddUpdateFarmEquipmentRequest equipmentDetailDTO = new AddUpdateFarmEquipmentRequest(
@@ -78,14 +84,20 @@ public class FarmEquipmentService {
     }
 
     public void setCommonFieldsForCategory(AddUpdateFarmEquipmentRequest addUpdateFarmEquipmentRequest, FarmEquipment equipment) {
-        if(addUpdateFarmEquipmentRequest.getEquipmentName() != null) {
+        if (addUpdateFarmEquipmentRequest.getEquipmentName() != null) {
             equipment.setEquipmentName(addUpdateFarmEquipmentRequest.getEquipmentName());
         }
-        if(addUpdateFarmEquipmentRequest.getBrand() != null) {
+        if (addUpdateFarmEquipmentRequest.getBrand() != null) {
             equipment.setBrand(addUpdateFarmEquipmentRequest.getBrand());
         }
-        if(addUpdateFarmEquipmentRequest.getModel() != null) {
+        if (addUpdateFarmEquipmentRequest.getModel() != null) {
             equipment.setModel(addUpdateFarmEquipmentRequest.getModel());
         }
+    }
+
+    @Transactional
+    public void deleteAllEquipmentForFarm(Farm farm) {
+        List<FarmEquipment> equipments = farmEquipmentRepository.findByFarmIdFarm_Id(farm.getId());
+        farmEquipmentRepository.deleteAll(equipments);
     }
 }
