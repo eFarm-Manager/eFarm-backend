@@ -7,6 +7,8 @@ import com.efarm.efarmbackend.model.farm.Farm;
 import com.efarm.efarmbackend.model.user.Role;
 import com.efarm.efarmbackend.model.user.User;
 import com.efarm.efarmbackend.payload.request.auth.*;
+import com.efarm.efarmbackend.payload.request.farm.UpdateActivationCodeByLoggedOwnerRequest;
+import com.efarm.efarmbackend.payload.request.user.ChangePasswordRequest;
 import com.efarm.efarmbackend.payload.response.MessageResponse;
 import com.efarm.efarmbackend.payload.response.UserInfoResponse;
 import com.efarm.efarmbackend.security.jwt.JwtUtils;
@@ -86,10 +88,10 @@ public class AuthController {
 
     @PostMapping("/signup")
     @PreAuthorize("hasRole('ROLE_FARM_MANAGER') or hasRole('ROLE_FARM_OWNER')")
-    public ResponseEntity<MessageResponse> registerUser(@Valid @RequestBody SignupRequest signUpRequest, BindingResult bindingResult) {
+    public ResponseEntity<MessageResponse> registerUser(@Valid @RequestBody SignupUserRequest signUpUserRequest, BindingResult bindingResult) {
         try {
             validationRequestService.validateRequest(bindingResult);
-            authFacade.registerUser(signUpRequest);
+            authFacade.registerUser(signUpUserRequest);
             return ResponseEntity.ok(new MessageResponse("Zarejestrowano nowego użytkownika!"));
         } catch (Exception e) {
             Farm farm = userService.getLoggedUserFarm();

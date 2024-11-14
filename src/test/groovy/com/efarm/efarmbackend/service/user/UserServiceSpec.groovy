@@ -5,7 +5,7 @@ import com.efarm.efarmbackend.model.user.ERole
 import com.efarm.efarmbackend.model.user.Role
 import com.efarm.efarmbackend.model.user.User
 import com.efarm.efarmbackend.payload.request.auth.SignupFarmRequest
-import com.efarm.efarmbackend.payload.request.auth.SignupRequest
+import com.efarm.efarmbackend.payload.request.auth.SignupUserRequest
 import com.efarm.efarmbackend.model.user.*;
 import com.efarm.efarmbackend.repository.user.RoleRepository
 import com.efarm.efarmbackend.repository.user.UserRepository
@@ -91,7 +91,7 @@ class UserServiceSpec extends Specification {
 
     def "should handle create farm user"() {
         given:
-        SignupRequest signUpRequest = new SignupRequest(
+        SignupUserRequest signUpRequest = new SignupUserRequest(
                 firstName: 'John',
                 lastName: 'Doe',
                 username: 'newUser',

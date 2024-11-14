@@ -18,11 +18,11 @@ import com.efarm.efarmbackend.model.farm.Farm;
 import com.efarm.efarmbackend.model.user.ERole;
 import com.efarm.efarmbackend.model.user.Role;
 import com.efarm.efarmbackend.model.user.User;
-import com.efarm.efarmbackend.payload.request.auth.ChangePasswordRequest;
+import com.efarm.efarmbackend.payload.request.user.ChangePasswordRequest;
 import com.efarm.efarmbackend.payload.request.auth.LoginRequest;
 import com.efarm.efarmbackend.payload.request.auth.SignupFarmRequest;
-import com.efarm.efarmbackend.payload.request.auth.SignupRequest;
-import com.efarm.efarmbackend.payload.request.auth.UpdateActivationCodeByLoggedOwnerRequest;
+import com.efarm.efarmbackend.payload.request.auth.SignupUserRequest;
+import com.efarm.efarmbackend.payload.request.farm.UpdateActivationCodeByLoggedOwnerRequest;
 import com.efarm.efarmbackend.payload.request.auth.UpdateActivationCodeRequest;
 import com.efarm.efarmbackend.security.services.UserDetailsImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,10 +31,8 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 
-import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -248,14 +246,14 @@ public class AuthControllerIT {
     @DisplayName("Test successful registration of a new user by manager")
     void testUserRegistrationByManager() throws Exception {
         // Given
-        SignupRequest signUpRequest = new SignupRequest();
-        signUpRequest.setFirstName("John");
-        signUpRequest.setLastName("Doe");
-        signUpRequest.setUsername("newUser");
-        signUpRequest.setEmail("newuser@example.com");
-        signUpRequest.setPassword("password");
-        signUpRequest.setPhoneNumber("");
-        signUpRequest.setRole("ROLE_FARM_MANAGER");
+        SignupUserRequest signUpUserRequest = new SignupUserRequest();
+        signUpUserRequest.setFirstName("John");
+        signUpUserRequest.setLastName("Doe");
+        signUpUserRequest.setUsername("newUser");
+        signUpUserRequest.setEmail("newuser@example.com");
+        signUpUserRequest.setPassword("password");
+        signUpUserRequest.setPhoneNumber("");
+        signUpUserRequest.setRole("ROLE_FARM_MANAGER");
 
         User currentUser = entityManager.createQuery(
                         "SELECT u FROM User u JOIN u.role r WHERE r.name = :roleName", User.class)
@@ -271,7 +269,7 @@ public class AuthControllerIT {
         // When
         mockMvc.perform(post("/auth/signup")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(signUpRequest)))
+                        .content(objectMapper.writeValueAsString(signUpUserRequest)))
         // Then
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Zarejestrowano nowego użytkownika!"));
@@ -282,14 +280,14 @@ public class AuthControllerIT {
     @DisplayName("Tests user registration by operator")
     void testUserRegistrationByOperator() throws Exception {
         // Given
-        SignupRequest signUpRequest = new SignupRequest();
-        signUpRequest.setFirstName("John");
-        signUpRequest.setLastName("Doe");
-        signUpRequest.setUsername("newUser");
-        signUpRequest.setEmail("newuser@example.com");
-        signUpRequest.setPassword("password");
-        signUpRequest.setPhoneNumber("123456789");
-        signUpRequest.setRole("ROLE_FARM_MANAGER");
+        SignupUserRequest signUpUserRequest = new SignupUserRequest();
+        signUpUserRequest.setFirstName("John");
+        signUpUserRequest.setLastName("Doe");
+        signUpUserRequest.setUsername("newUser");
+        signUpUserRequest.setEmail("newuser@example.com");
+        signUpUserRequest.setPassword("password");
+        signUpUserRequest.setPhoneNumber("123456789");
+        signUpUserRequest.setRole("ROLE_FARM_MANAGER");
 
         User currentUser = entityManager.createQuery(
                         "SELECT u FROM User u JOIN u.role r WHERE r.name = :roleName", User.class)
@@ -305,7 +303,7 @@ public class AuthControllerIT {
         // When
         mockMvc.perform(post("/auth/signup")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(signUpRequest)))
+                        .content(objectMapper.writeValueAsString(signUpUserRequest)))
         // Then
                 .andExpect(status().isForbidden());
     }
@@ -314,13 +312,13 @@ public class AuthControllerIT {
     @DisplayName("Test registration failure when username is already taken")
     void testUserRegistrationUsernameTaken() throws Exception {
         // Given
-        SignupRequest signUpRequest = new SignupRequest();
-        signUpRequest.setFirstName("John");
-        signUpRequest.setLastName("Doe");
-        signUpRequest.setEmail("newuser@example.com");
-        signUpRequest.setPassword("password");
-        signUpRequest.setPhoneNumber("");
-        signUpRequest.setRole("ROLE_FARM_MANAGER");
+        SignupUserRequest signUpUserRequest = new SignupUserRequest();
+        signUpUserRequest.setFirstName("John");
+        signUpUserRequest.setLastName("Doe");
+        signUpUserRequest.setEmail("newuser@example.com");
+        signUpUserRequest.setPassword("password");
+        signUpUserRequest.setPhoneNumber("");
+        signUpUserRequest.setRole("ROLE_FARM_MANAGER");
         User currentUser = entityManager.createQuery(
                         "SELECT u FROM User u JOIN u.role r WHERE r.name = :roleName", User.class)
                 .setParameter("roleName", ERole.ROLE_FARM_MANAGER)
@@ -331,11 +329,11 @@ public class AuthControllerIT {
                 new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authToken);
 
-        signUpRequest.setUsername(userDetails.getUsername());
+        signUpUserRequest.setUsername(userDetails.getUsername());
         // When
         mockMvc.perform(post("/auth/signup")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(signUpRequest)))
+                        .content(objectMapper.writeValueAsString(signUpUserRequest)))
         // Then
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Podana nazwa użytkownika jest już zajęta!"));
