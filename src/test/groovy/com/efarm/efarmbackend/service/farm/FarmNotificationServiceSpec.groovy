@@ -33,10 +33,12 @@ class FarmNotificationServiceSpec extends Specification {
         Farm farm1 = Mock(Farm) {
             getId() >> 1
             idActivationCode >> 10
+            isActive >> true
         }
         Farm farm2 = Mock(Farm) {
             getId() >> 2
             idActivationCode >> 11
+            isActive >> true
         }
         farmRepository.findByIsActiveTrue() >> [farm1, farm2]
 
