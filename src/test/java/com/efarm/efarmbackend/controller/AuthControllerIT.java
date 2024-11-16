@@ -279,14 +279,14 @@ public class AuthControllerIT {
 
         User newUser = entityManager.createQuery(
                         "SELECT u FROM User u WHERE u.username = :username", User.class)
-                .setParameter("username", signUpRequest.getUsername())
+                .setParameter("username", signUpUserRequest.getUsername())
                 .getSingleResult();
         
         assertThat(newUser.getRole().getName(), is(ERole.ROLE_FARM_MANAGER));
-        assertThat(newUser.getFirstName(), is(signUpRequest.getFirstName()));
-        assertThat(newUser.getLastName(), is(signUpRequest.getLastName()));
-        assertThat(newUser.getEmail(), is(signUpRequest.getEmail()));
-        assertThat(newUser.getPhoneNumber(),is(signUpRequest.getPhoneNumber()));
+        assertThat(newUser.getFirstName(), is(signUpUserRequest.getFirstName()));
+        assertThat(newUser.getLastName(), is(signUpUserRequest.getLastName()));
+        assertThat(newUser.getEmail(), is(signUpUserRequest.getEmail()));
+        assertThat(newUser.getPhoneNumber(),is(signUpUserRequest.getPhoneNumber()));
     }
 
     @Test
@@ -475,7 +475,7 @@ public class AuthControllerIT {
         signUpFarmRequest.setPassword("password");
         signUpFarmRequest.setPhoneNumber("");
         signUpFarmRequest.setFarmName("farmName");
-        signUpFarmRequest.setActivationCode("invalidActivationCode");
+        signUpFarmRequest.setActivationCode("invalidActCode");
 
         // When
         mockMvc.perform(post("/auth/signupfarm")
