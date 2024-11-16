@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<suppressions>
+    <suppress>
+        <cvssBelow>9.0</cvssBelow>
+        <dependency>
+            <name>spring-web</name>
+            <version>6.1.15</version>
+        </dependency>
+    </suppress>
+</suppression>

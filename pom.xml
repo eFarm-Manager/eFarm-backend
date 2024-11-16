@@ -39,17 +39,10 @@
         <maven-surefire-plugin.version>3.2.2</maven-surefire-plugin.version>
         <maven-failsafe-plugin.version>3.0.0-M5</maven-failsafe-plugin.version>
         <spotbugs-maven-plugin.version>4.8.6.0</spotbugs-maven-plugin.version>
-        <dependency-check-maven.version>10.0.3</dependency-check-maven.version>
+        <dependency-check-maven.version>11.1.0</dependency-check-maven.version>
     </properties>
 
     <dependencies>
-        <!-- https://mvnrepository.com/artifact/org.springframework/spring-web -->
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-web</artifactId>
-            <version>6.1.15</version>
-        </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
@@ -256,10 +249,10 @@
                         <format>HTML</format>
                         <failBuildOnCVSS>8</failBuildOnCVSS>
                         <nvdApiKey>${NVD_API_KEY}</nvdApiKey>
-                        <!-- <suppressionFile>owasp-suppressions.xml</suppressionFile> -->
                         <assemblyAnalyzerEnabled>false</assemblyAnalyzerEnabled>
                         <nugetconfAnalyzerEnabled>false</nugetconfAnalyzerEnabled>
                         <nuspecAnalyzerEnabled>false</nuspecAnalyzerEnabled>
+                        <suppressionFile>owasp-suppressions.xml</suppressionFile>
                     </configuration>
                     <executions>
                         <execution>
