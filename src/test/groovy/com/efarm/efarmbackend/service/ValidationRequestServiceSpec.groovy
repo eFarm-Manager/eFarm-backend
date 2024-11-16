@@ -20,7 +20,7 @@ class ValidationRequestServiceSpec extends Specification {
         ]
 
         when:
-        validationRequestService.validateRequestWithException(bindingResult)
+        validationRequestService.validateRequest(bindingResult)
 
         then:
         def e = thrown(Exception)
@@ -33,7 +33,7 @@ class ValidationRequestServiceSpec extends Specification {
         bindingResult.hasErrors() >> false
 
         when:
-        validationRequestService.validateRequestWithException(bindingResult)
+        validationRequestService.validateRequest(bindingResult)
 
         then:
         noExceptionThrown()

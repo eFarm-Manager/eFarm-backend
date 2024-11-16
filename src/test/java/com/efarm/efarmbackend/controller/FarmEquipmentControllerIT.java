@@ -23,24 +23,30 @@ import com.efarm.efarmbackend.model.user.User;
 import com.efarm.efarmbackend.security.services.UserDetailsImpl;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.efarm.efarmbackend.model.equipment.FarmEquipmentShortDTO;
+import com.efarm.efarmbackend.model.agroactivity.AgroActivity;
+import com.efarm.efarmbackend.model.equipment.EquipmentSummaryDTO;
 
 import java.util.List;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.Size;
 
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -68,7 +74,7 @@ public class FarmEquipmentControllerIT {
         SecurityContextHolder.getContext().setAuthentication(authToken);
     }
     /*
-        /all
+      *  GET /all
      */
 
     @Test
@@ -83,14 +89,14 @@ public class FarmEquipmentControllerIT {
                 .getSingleResult();
 
         //when
-        MvcResult result = mockMvc.perform(get("/api/equipment/all")
+        MvcResult result = mockMvc.perform(get("/equipment/all")
                         .param("searchQuery", searchQuery))
                 .andExpect(status().isOk())
                 .andReturn();
 
         //then
-        List<FarmEquipmentShortDTO> equipmentDTOs = new ObjectMapper().readValue(result.getResponse().getContentAsString(),
-                new TypeReference<List<FarmEquipmentShortDTO>>() {
+        List<EquipmentSummaryDTO> equipmentDTOs = new ObjectMapper().readValue(result.getResponse().getContentAsString(),
+                new TypeReference<List<EquipmentSummaryDTO>>() {
                 });
 
         assertThat(equipmentDTOs.size(), is(equipmentCount.intValue()));
@@ -112,20 +118,20 @@ public class FarmEquipmentControllerIT {
                 .getSingleResult();
 
         //when
-        MvcResult result = mockMvc.perform(get("/api/equipment/all")
+        MvcResult result = mockMvc.perform(get("/equipment/all")
                         .param("searchQuery", searchQuery))
                 .andExpect(status().isOk())
                 .andReturn();
 
         //then
-        List<FarmEquipmentShortDTO> equipmentDTOs = new ObjectMapper().readValue(result.getResponse().getContentAsString(),
-                new TypeReference<List<FarmEquipmentShortDTO>>() {
+        List<EquipmentSummaryDTO> equipmentDTOs = new ObjectMapper().readValue(result.getResponse().getContentAsString(),
+                new TypeReference<List<EquipmentSummaryDTO>>() {
                 });
 
         assertThat(equipmentDTOs.size(), is(equipmentCount.intValue()));
     }
     /*
-       GET /{equipmentId}
+     *  GET /{equipmentId}
     */
 
     @Test
@@ -136,7 +142,7 @@ public class FarmEquipmentControllerIT {
         FarmEquipment firstEquipment = entityManager.find(FarmEquipment.class, farmEquipmentId);
 
         //when
-        MvcResult result = mockMvc.perform(get("/api/equipment/1"))
+        MvcResult result = mockMvc.perform(get("/equipment/1"))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -160,13 +166,16 @@ public class FarmEquipmentControllerIT {
         addUpdateFarmEquipmentRequest.setEquipmentName("Updated Name");
 
         //when
-        mockMvc.perform(put("/api/equipment/{equipmentId}", equipmentId)
+        mockMvc.perform(put("/equipment/{equipmentId}", equipmentId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(addUpdateFarmEquipmentRequest)))
                 .andDo(print())
         //then
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Pomyślnie zaktualizowane dane maszyny."));
+        
+        FarmEquipment updatedFarmEquipment = entityManager.find(FarmEquipment.class, new FarmEquipmentId(equipmentId, 1));
+        assertThat(updatedFarmEquipment.getEquipmentName(), is(addUpdateFarmEquipmentRequest.getEquipmentName()));
     }
 
     @Test
@@ -178,7 +187,7 @@ public class FarmEquipmentControllerIT {
         addUpdateFarmEquipmentRequest.setEquipmentName("Updated Name");
     
         // When
-        mockMvc.perform(put("/api/equipment/{equipmentId}", equipmentId)
+        mockMvc.perform(put("/equipment/{equipmentId}", equipmentId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(addUpdateFarmEquipmentRequest)))
                 .andDo(print())
@@ -213,7 +222,7 @@ public class FarmEquipmentControllerIT {
         SecurityContextHolder.getContext().setAuthentication(authToken);
     
         // When
-        mockMvc.perform(put("/api/equipment/{equipmentId}", farmEquipment.getId().getId())
+        mockMvc.perform(put("/equipment/{equipmentId}", farmEquipment.getId().getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(addUpdateFarmEquipmentRequest)))
                 .andDo(print())
@@ -231,7 +240,7 @@ public class FarmEquipmentControllerIT {
         // Given
         Integer equipmentId = 1;      
         // When 
-        mockMvc.perform(delete("/api/equipment/{equipmentId}", equipmentId)
+        mockMvc.perform(delete("/equipment/{equipmentId}", equipmentId)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
         //then
@@ -266,7 +275,7 @@ public class FarmEquipmentControllerIT {
     
         
         // When
-        mockMvc.perform(delete("/api/equipment/{equipmentId}", farmEquipment.getId().getId())
+        mockMvc.perform(delete("/equipment/{equipmentId}", farmEquipment.getId().getId())
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
         //then
@@ -281,7 +290,7 @@ public class FarmEquipmentControllerIT {
         Integer nonExistentEquipmentId = 9999; 
         
         // When 
-        mockMvc.perform(delete("/api/equipment/{equipmentId}", nonExistentEquipmentId)
+        mockMvc.perform(delete("/equipment/{equipmentId}", nonExistentEquipmentId)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
         //then
@@ -297,22 +306,45 @@ public class FarmEquipmentControllerIT {
     @DisplayName("Test successfully adding new farm equipment")
     public void testAddNewFarmEquipmentSuccess() throws Exception {
         // Given
-        AddUpdateFarmEquipmentRequest addUpdateFarmEquipmentRequest = new AddUpdateFarmEquipmentRequest();
-        addUpdateFarmEquipmentRequest.setEquipmentName("Tractor X");
-        addUpdateFarmEquipmentRequest.setCategory("Ciągniki rolnicze");
-        addUpdateFarmEquipmentRequest.setBrand("Brand X");
-        addUpdateFarmEquipmentRequest.setModel("Model X");
-        addUpdateFarmEquipmentRequest.setPower(120);
-        addUpdateFarmEquipmentRequest.setWorkingWidth(5.5);
+        AddUpdateFarmEquipmentRequest request = new AddUpdateFarmEquipmentRequest();
+        request.setEquipmentName("Tractor X Test");
+        request.setCategory("Ciągniki rolnicze");
+        request.setBrand("Brand X");
+        request.setModel("Model X");
+        request.setPower(120);
+        request.setCapacity(50.5d);
+        request.setWorkingWidth(5.5d);
+        request.setInsurancePolicyNumber("1234567890");
+        request.setInsuranceExpirationDate(LocalDate.now().plusDays(10));
+        request.setInspectionExpireDate(LocalDate.now().plusDays(20));
     
         // When
-        mockMvc.perform(post("/api/equipment/new")
+        mockMvc.perform(post("/equipment/new")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(addUpdateFarmEquipmentRequest)))
+                .content(objectMapper.writeValueAsString(request)))
                 .andDo(print())
         //then
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.message").value("Pomyślnie dodano nową maszynę"));
+        
+        FarmEquipment createdFarmEquipment = entityManager.createQuery(
+        "SELECT fe FROM FarmEquipment fe WHERE fe.equipmentName = :name AND fe.id.farmId =:farmId", FarmEquipment.class)
+                .setParameter("name", "Tractor X Test")
+                .setParameter("farmId", 1)
+                .getSingleResult();
+
+        assertThat(createdFarmEquipment, is(notNullValue()));
+        assertThat(createdFarmEquipment.getEquipmentName(), is(request.getEquipmentName()));
+        assertThat(createdFarmEquipment.getCategory().getCategoryName(), is(request.getCategory()));
+        assertThat(createdFarmEquipment.getBrand(), is(request.getBrand()));
+        assertThat(createdFarmEquipment.getModel(), is(request.getModel()));
+        assertThat(createdFarmEquipment.getPower(), is(request.getPower()));
+        //assertThat(createdFarmEquipment.getCapacity(), is(request.getCapacity()));
+        assertThat(createdFarmEquipment.getInsurancePolicyNumber(),is(request.getInsurancePolicyNumber()));
+        assertThat(createdFarmEquipment.getInsuranceExpirationDate(), is(request.getInsuranceExpirationDate()));
+        //assertThat(createdFarmEquipment.getWorkingWidth(), is(request.getWorkingWidth()));
+
+
     }  
 
     @Test
@@ -326,7 +358,7 @@ public class FarmEquipmentControllerIT {
         addUpdateFarmEquipmentRequest.setCategory("Ciągniki rolnicze");
         
         // When 
-        mockMvc.perform(post("/api/equipment/new")
+        mockMvc.perform(post("/equipment/new")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(addUpdateFarmEquipmentRequest)))
                 .andDo(print())
@@ -337,15 +369,14 @@ public class FarmEquipmentControllerIT {
     /*
      *  GET /categories
      */
-
-        @Test
-        @DisplayName("Test retrieving all equipment categories without manually checking every category")
-        public void testGetAllCategoriesWithFieldsLargeList() throws Exception {
-            mockMvc.perform(get("/api/equipment/categories")
-                    .contentType(MediaType.APPLICATION_JSON))
-                    .andDo(print())
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.length()").value(61));
-        }
+    @Test 
+    @DisplayName("Test retrieving all equipment categories without manually checking every category")
+    public void testGetAllCategoriesWithFieldsLargeList() throws Exception { 
+        mockMvc.perform(get("/equipment/categories")
+              .contentType(MediaType.APPLICATION_JSON))   
+              .andDo(print())
+              .andExpect(status().isOk()) 
+              .andExpect(jsonPath("$.length()").value(61));
+}
     
 }

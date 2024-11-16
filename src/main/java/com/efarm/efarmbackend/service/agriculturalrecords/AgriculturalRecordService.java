@@ -4,13 +4,16 @@ import com.efarm.efarmbackend.model.agriculturalrecords.AgriculturalRecord;
 import com.efarm.efarmbackend.model.agriculturalrecords.AgriculturalRecordId;
 import com.efarm.efarmbackend.model.agriculturalrecords.Crop;
 import com.efarm.efarmbackend.model.agriculturalrecords.Season;
+import com.efarm.efarmbackend.model.agroactivity.AgroActivity;
 import com.efarm.efarmbackend.model.farm.Farm;
 import com.efarm.efarmbackend.model.landparcel.Landparcel;
 import com.efarm.efarmbackend.payload.request.agriculturalrecord.CreateNewAgriculturalRecordRequest;
 import com.efarm.efarmbackend.payload.request.agriculturalrecord.UpdateAgriculturalRecordRequest;
 import com.efarm.efarmbackend.repository.agriculturalrecords.AgriculturalRecordRepository;
 import com.efarm.efarmbackend.repository.agriculturalrecords.CropRepository;
+import com.efarm.efarmbackend.repository.agroactivity.AgroActivityRepository;
 import com.efarm.efarmbackend.repository.landparcel.LandparcelRepository;
+import com.efarm.efarmbackend.service.agroactivity.AgroActivityService;
 import com.efarm.efarmbackend.service.user.UserService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +37,12 @@ public class AgriculturalRecordService {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private AgroActivityService agroActivityService;
+
+    @Autowired
+    private AgroActivityRepository agroActivityRepository;
+
     public List<AgriculturalRecord> filterRecordsBySearchQuery(List<AgriculturalRecord> agriculturalRecords, String searchQuery) {
         if (searchQuery != null && !searchQuery.isEmpty()) {
             agriculturalRecords = agriculturalRecords.stream()
@@ -51,14 +60,18 @@ public class AgriculturalRecordService {
                 .collect(Collectors.toList());
     }
 
-    public Crop validateCrop(Landparcel landparcel, Season season, String cropName) throws Exception {
+    public Crop validateCrop(Landparcel landparcel, Season season, String cropName, Boolean showAdditionalExceptionInfo) throws Exception {
         Crop crop = cropRepository.findByName(cropName);
         if (crop == null) {
             throw new Exception("Wybrano nieprawidłowy rodzaj uprawy");
         }
         List<AgriculturalRecord> cropsOnLandparcel = agriculturalRecordRepository.findByLandparcelAndSeasonAndCrop(landparcel, season, crop);
         if (!cropsOnLandparcel.isEmpty()) {
-            throw new Exception("Wybrana uprawa już istnieje na tym polu. Możesz zmienić jej powierzchnię zamiast dodawać ją ponownie.");
+            if (showAdditionalExceptionInfo) {
+                throw new Exception("Wybrana uprawa już istnieje na tym polu. Możesz zmienić jej powierzchnię zamiast dodawać ją ponownie.");
+            } else {
+                throw new Exception("Wybrana uprawa już istnieje na tym polu.");
+            }
         }
         return crop;
     }
@@ -69,10 +82,17 @@ public class AgriculturalRecordService {
         double maxAvailableArea = landparcel.getArea() - totalUsedArea;
 
         if (totalUsedArea + recordRequest.getArea() > landparcel.getArea()) {
-            double roundedDownArea = Math.floor(maxAvailableArea * 100) / 100;
+            double roundedDownArea = Math.floor(maxAvailableArea * 10000) / 10000;
             throw new Exception("Maksymalna niewykorzystana powierzchnia na tym polu to: " + roundedDownArea + " ha. Spróbuj najpierw zmniejszyć powierzchnię pozostałych upraw.");
         }
     }
+
+    public AgriculturalRecord findAgriculturalRecordById(Integer id, Integer loggedUserFarmId) throws RuntimeException {
+        AgriculturalRecordId agriculturalRecordId = new AgriculturalRecordId(id, loggedUserFarmId);
+        return agriculturalRecordRepository.findById(agriculturalRecordId)
+                .orElseThrow(() -> new RuntimeException("Nie znaleziono ewidencji"));
+    }
+
 
     @Transactional
     public void updateAgriculturalRecord(Integer id, UpdateAgriculturalRecordRequest updateRequest) throws Exception {
@@ -86,8 +106,11 @@ public class AgriculturalRecordService {
         Season season = recordToUpdate.getSeason();
 
         if (updateRequest.getCropName() != null) {
-            Crop newCrop = validateCrop(landparcel, season, updateRequest.getCropName());
-            recordToUpdate.setCrop(newCrop);
+            String currentCropName = recordToUpdate.getCrop().getName();
+            if (!currentCropName.equals(updateRequest.getCropName())) {
+                Crop newCrop = validateCrop(landparcel, season, updateRequest.getCropName(), false);
+                recordToUpdate.setCrop(newCrop);
+            }
         }
         if (updateRequest.getArea() != null) {
             validateUpdatedCropArea(landparcel, season, updateRequest, recordToUpdate);
@@ -110,12 +133,12 @@ public class AgriculturalRecordService {
         double maxAvailableArea = landparcel.getArea() - totalUsedArea;
 
         if (totalUsedArea + updateRequest.getArea() > landparcel.getArea()) {
-            double roundedDownArea = Math.floor(maxAvailableArea * 100) / 100;
+            double roundedDownArea = Math.floor(maxAvailableArea * 10000) / 10000;
             throw new Exception("Maksymalna niewykorzystana powierzchnia na tym polu to: " + roundedDownArea + " ha. Spróbuj najpierw zmniejszyć powierzchnię pozostałych upraw.");
         }
     }
 
-    public void createAgriculturalRecordForLandparcel(Landparcel landparcel, Farm loggedUserFarm, Season season) throws Exception {
+    public void createAgriculturalRecordForLandparcel(Landparcel landparcel, Farm loggedUserFarm, Season season) {
         Crop currentCrop = cropRepository.findByName("uprawa nieoznaczona");
 
         AgriculturalRecordId agriculturalRecordId = new AgriculturalRecordId(
@@ -134,11 +157,15 @@ public class AgriculturalRecordService {
         agriculturalRecordRepository.save(agriculturalRecord);
     }
 
+    @Transactional
     public void deleteAgriculturalRecord(Integer id) throws Exception {
         Farm loggedUserFarm = userService.getLoggedUserFarm();
         AgriculturalRecordId agriculturalRecordId = new AgriculturalRecordId(id, loggedUserFarm.getId());
-        //TODO: w przyszłości tutaj należy dorobić usuwanie wszystkich powiązanych zabiegów
         if (agriculturalRecordRepository.existsById(agriculturalRecordId)) {
+            List<AgroActivity> agroActivities = agroActivityRepository.findByAgriculturalRecordId(agriculturalRecordId);
+            for (AgroActivity agroActivity : agroActivities) {
+                agroActivityService.deleteAgroActivity(agroActivity.getId());
+            }
             agriculturalRecordRepository.deleteById(agriculturalRecordId);
         } else {
             throw new Exception("Ewidencja, którą próbujesz usunąć nie istnieje!");

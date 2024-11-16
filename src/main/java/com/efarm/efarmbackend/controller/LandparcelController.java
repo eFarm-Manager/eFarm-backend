@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/landparcel")
+@RequestMapping("/landparcel")
 public class LandparcelController {
 
     @Autowired
@@ -28,9 +28,9 @@ public class LandparcelController {
 
     @PostMapping("/new")
     @PreAuthorize("hasRole('ROLE_FARM_MANAGER') or hasRole('ROLE_FARM_OWNER')")
-    public ResponseEntity<?> addNewLandparcel(@Valid @RequestBody AddLandparcelRequest addLandparcelRequest, BindingResult bindingResult) {
+    public ResponseEntity<MessageResponse> addNewLandparcel(@Valid @RequestBody AddLandparcelRequest addLandparcelRequest, BindingResult bindingResult) {
         try {
-            validationRequestService.validateRequestWithException(bindingResult);
+            validationRequestService.validateRequest(bindingResult);
             landparcelFacade.addNewLandparcel(addLandparcelRequest);
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(new MessageResponse("Pomyślnie dodano nową działkę"));
@@ -52,9 +52,9 @@ public class LandparcelController {
 
     @PutMapping("/{landparcelId}")
     @PreAuthorize("hasRole('ROLE_FARM_MANAGER') or hasRole('ROLE_FARM_OWNER')")
-    public ResponseEntity<?> updateLandparcel(@PathVariable Integer landparcelId, @Valid @RequestBody UpdateLandparcelRequest updateLandparcelRequest, BindingResult bindingResult) {
+    public ResponseEntity<MessageResponse> updateLandparcel(@PathVariable Integer landparcelId, @Valid @RequestBody UpdateLandparcelRequest updateLandparcelRequest, BindingResult bindingResult) {
         try {
-            validationRequestService.validateRequestWithException(bindingResult);
+            validationRequestService.validateRequest(bindingResult);
             landparcelFacade.updateLandparcel(landparcelId, updateLandparcelRequest);
             return ResponseEntity.ok(new MessageResponse("Dane działki zostały pomyślnie zaktualizowane"));
         } catch (Exception e) {
@@ -64,7 +64,7 @@ public class LandparcelController {
 
     @DeleteMapping("/{landparcelId}")
     @PreAuthorize("hasRole('ROLE_FARM_MANAGER') or hasRole('ROLE_FARM_OWNER')")
-    public ResponseEntity<?> deleteLandparcel(@PathVariable Integer landparcelId) {
+    public ResponseEntity<MessageResponse> deleteLandparcel(@PathVariable Integer landparcelId) {
         try {
             landparcelFacade.deleteLandparcel(landparcelId);
             return ResponseEntity.ok(new MessageResponse("Działka została pomyślnie usunięta"));

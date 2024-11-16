@@ -3,14 +3,13 @@ package com.efarm.efarmbackend.model.farm;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.time.LocalDate;
 
+
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Setter
 public class FarmDTO {
     private String farmName;
     private String farmNumber;
@@ -24,15 +23,15 @@ public class FarmDTO {
 
     private LocalDate activationCodeExpireDate;
 
-
-    public FarmDTO(String farmName, String farmNumber, String feedNumber, String sanitaryRegisterNumber, String street, String buildingNumber, String zipCode, String city) {
-        this.farmName = farmName;
-        this.farmNumber = farmNumber;
-        this.feedNumber = feedNumber;
-        this.sanitaryRegisterNumber = sanitaryRegisterNumber;
-        this.street = street;
-        this.buildingNumber = buildingNumber;
-        this.zipCode = zipCode;
-        this.city = city;
+    public FarmDTO(Farm farm, Address address, LocalDate activationCodeExpireDate) {
+        this.farmName = farm.getFarmName();
+        this.farmNumber = farm.getFarmNumber();
+        this.feedNumber = farm.getFeedNumber();
+        this.sanitaryRegisterNumber = farm.getSanitaryRegisterNumber();
+        this.street = address.getStreet();
+        this.buildingNumber = address.getBuildingNumber();
+        this.zipCode = address.getZipCode();
+        this.city = address.getCity();
+        this.activationCodeExpireDate = activationCodeExpireDate;
     }
 }

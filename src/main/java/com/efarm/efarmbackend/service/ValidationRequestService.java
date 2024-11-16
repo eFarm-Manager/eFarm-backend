@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 @Service
 public class ValidationRequestService {
 
-    public void validateRequestWithException(BindingResult bindingResult) throws Exception {
+    public void validateRequest(BindingResult bindingResult) throws Exception {
         if (bindingResult.hasErrors()) {
             List<String> errorMessages = bindingResult.getFieldErrors().stream()
                     .map(error -> error.getField() + ": " + error.getDefaultMessage())

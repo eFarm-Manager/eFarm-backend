@@ -72,26 +72,42 @@ public class LandparcelControllerIT {
     @Test
     void testAddingNewLandparcel() throws Exception {
         //given
-        AddLandparcelRequest addLandparcelRequest = new AddLandparcelRequest();
-        addLandparcelRequest.setName("Dzialka1");
-        addLandparcelRequest.setLandOwnershipStatus("STATUS_PRIVATELY_OWNED"); 
-        addLandparcelRequest.setVoivodeship("Lubelskie");
-        addLandparcelRequest.setDistrict("district");
-        addLandparcelRequest.setCommune("commune");
-        addLandparcelRequest.setGeodesyDistrictNumber("GRD1");
-        addLandparcelRequest.setLandparcelNumber("LP1");
-        addLandparcelRequest.setLongitude(21.0122);
-        addLandparcelRequest.setLatitude(52.2297);
-        addLandparcelRequest.setArea(500.0);
-        addLandparcelRequest.setGeodesyLandparcelNumber("12523.02");
+        AddLandparcelRequest request = new AddLandparcelRequest();
+        request.setName("Dzialka1");
+        request.setLandOwnershipStatus("STATUS_PRIVATELY_OWNED"); 
+        request.setVoivodeship("Lubelskie");
+        request.setDistrict("district");
+        request.setCommune("commune");
+        request.setGeodesyDistrictNumber("GRD1");
+        request.setLandparcelNumber("LP1");
+        request.setLongitude(21.0122);
+        request.setLatitude(52.2297);
+        request.setArea(500.0);
+        request.setGeodesyLandparcelNumber("12523.02");
 
         //when
-        mockMvc.perform(post("/api/landparcel/new")
+        mockMvc.perform(post("/landparcel/new")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(addLandparcelRequest)))
+                .content(objectMapper.writeValueAsString(request)))
         //then
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.message").value("Pomyślnie dodano nową działkę"));
+
+        Landparcel newLandparcel = entityManager.createQuery("SELECT lp FROM Landparcel lp WHERE lp.name = :name AND lp.id.farmId = :farmId", Landparcel.class)
+                .setParameter("name", request.getName())
+                .setParameter("farmId", 1)
+                .getSingleResult();
+
+        assertThat(newLandparcel.getLandOwnershipStatus().getOwnershipStatus().toString(), is(request.getLandOwnershipStatus()));
+        assertThat(newLandparcel.getVoivodeship(), is(request.getVoivodeship()));
+        assertThat(newLandparcel.getDistrict(), is(request.getDistrict()));
+        assertThat(newLandparcel.getCommune(), is(request.getCommune()));
+        assertThat(newLandparcel.getGeodesyDistrictNumber(), is(request.getGeodesyDistrictNumber()));
+        assertThat(newLandparcel.getLandparcelNumber(), is(request.getLandparcelNumber()));
+        assertThat(newLandparcel.getLongitude(), is(request.getLongitude()));
+        assertThat(newLandparcel.getLatitude(), is(request.getLatitude()));
+        assertThat(newLandparcel.getArea(), is(request.getArea()));
+        assertThat(newLandparcel.getGeodesyLandparcelNumber(), is(request.getGeodesyLandparcelNumber()));
 }
 
     @Test
@@ -114,7 +130,7 @@ public class LandparcelControllerIT {
 	addLandparcelRequest.setGeodesyLandparcelNumber(existingLandparcel.getGeodesyLandparcelNumber());
 
         //when
-        mockMvc.perform(post("/api/landparcel/new")
+        mockMvc.perform(post("/landparcel/new")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(addLandparcelRequest)))
         //then
@@ -142,7 +158,7 @@ public class LandparcelControllerIT {
 	addLandparcelRequest.setGeodesyLandparcelNumber("12523.02");
 
         //when
-        mockMvc.perform(post("/api/landparcel/new")
+        mockMvc.perform(post("/landparcel/new")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(addLandparcelRequest)))
         //then
@@ -162,7 +178,7 @@ public class LandparcelControllerIT {
 
 
         //when
-        MvcResult result = mockMvc.perform(get("/api/landparcel/1"))
+        MvcResult result = mockMvc.perform(get("/landparcel/1"))
         //then
             .andExpect(status().isOk())
             .andReturn();
@@ -195,12 +211,18 @@ public class LandparcelControllerIT {
         updateRequest.setArea(999.0);
 
         //when
-        mockMvc.perform(put("/api/landparcel/" + landparcelId.getId())
+        mockMvc.perform(put("/landparcel/" + landparcelId.getId())
                 .contentType("application/json")
                 .content(objectMapper.writeValueAsString(updateRequest)))
         //then
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Dane działki zostały pomyślnie zaktualizowane"));
+        
+        Landparcel updatedLandparcel = entityManager.find(Landparcel.class, landparcelId);
+        assertThat(updatedLandparcel.getLandOwnershipStatus().getOwnershipStatus().toString(), is(updateRequest.getLandOwnershipStatus()));
+        assertThat(updatedLandparcel.getLongitude(), is(updateRequest.getLongitude()));
+        assertThat(updatedLandparcel.getLatitude(), is(updateRequest.getLatitude()));
+        assertThat(updatedLandparcel.getArea(), is(updateRequest.getArea()));
     }
 
     @Test
@@ -217,7 +239,7 @@ public class LandparcelControllerIT {
         Integer idToUpdate = landparcelId.getId()-1;
 
         //when
-        mockMvc.perform(put("/api/landparcel/" + idToUpdate)
+        mockMvc.perform(put("/landparcel/" + idToUpdate)
                 .contentType("application/json")
                 .content(objectMapper.writeValueAsString(updateRequest)))
         //then
@@ -237,7 +259,7 @@ public class LandparcelControllerIT {
         updateRequest.setArea(999.0);
     
         //when
-        mockMvc.perform(put("/api/landparcel/" + nonExistentId)
+        mockMvc.perform(put("/landparcel/" + nonExistentId)
                 .contentType("application/json")
                 .content(objectMapper.writeValueAsString(updateRequest)))
         //then
@@ -261,7 +283,7 @@ public class LandparcelControllerIT {
         updateRequest.setArea(999.0);
     
         //when
-        mockMvc.perform(put("/api/landparcel/" + landparcelId.getId())
+        mockMvc.perform(put("/landparcel/" + landparcelId.getId())
                 .contentType("application/json")
                 .content(objectMapper.writeValueAsString(updateRequest)))
         //then
@@ -278,7 +300,7 @@ public class LandparcelControllerIT {
         LandparcelId landparcelId = new LandparcelId(1, 1);
 
         //when
-        mockMvc.perform(delete("/api/landparcel/" + landparcelId.getId())
+        mockMvc.perform(delete("/landparcel/" + landparcelId.getId())
                 .contentType(MediaType.APPLICATION_JSON))
         //then
                 .andExpect(status().isOk())
@@ -294,7 +316,7 @@ public class LandparcelControllerIT {
         Integer nonExistentLandparcelId = 999; 
     
         //when
-        mockMvc.perform(delete("/api/landparcel/" + nonExistentLandparcelId)
+        mockMvc.perform(delete("/landparcel/" + nonExistentLandparcelId)
                 .contentType(MediaType.APPLICATION_JSON))
         //then
                 .andExpect(status().isBadRequest())
@@ -311,7 +333,7 @@ public class LandparcelControllerIT {
         entityManager.persist(existingLandparcel);
     
         //when
-        mockMvc.perform(delete("/api/landparcel/" + landparcelId.getId())
+        mockMvc.perform(delete("/landparcel/" + landparcelId.getId())
                 .contentType(MediaType.APPLICATION_JSON))
         //then
                 .andExpect(status().isBadRequest())
@@ -336,7 +358,7 @@ public class LandparcelControllerIT {
                 .getSingleResult();
     
         //when
-        MvcResult result = mockMvc.perform(get("/api/landparcel/all")
+        MvcResult result = mockMvc.perform(get("/landparcel/all")
                         .param("searchString", searchString)
                         .param("minArea", minArea != null ? String.valueOf(minArea) : "")
                         .param("maxArea", maxArea != null ? String.valueOf(maxArea) : ""))
@@ -370,7 +392,7 @@ public class LandparcelControllerIT {
                 .getSingleResult();
     
         // when
-        MvcResult result = mockMvc.perform(get("/api/landparcel/all")
+        MvcResult result = mockMvc.perform(get("/landparcel/all")
                         .param("minArea", String.valueOf(minArea)))
                 .andExpect(status().isOk())
                 .andReturn();
@@ -401,7 +423,7 @@ public class LandparcelControllerIT {
                 .getSingleResult();
     
         // when
-        MvcResult result = mockMvc.perform(get("/api/landparcel/all")
+        MvcResult result = mockMvc.perform(get("/landparcel/all")
                         .param("maxArea", String.valueOf(maxArea)))
                 .andExpect(status().isOk())
                 .andReturn();
@@ -432,7 +454,7 @@ public class LandparcelControllerIT {
                 .getSingleResult();
     
         // when
-        MvcResult result = mockMvc.perform(get("/api/landparcel/all")
+        MvcResult result = mockMvc.perform(get("/landparcel/all")
                         .param("searchString", searchString))
                 .andExpect(status().isOk())
                 .andReturn();
@@ -467,7 +489,7 @@ public class LandparcelControllerIT {
                 .getSingleResult();
     
         // when
-        MvcResult result = mockMvc.perform(get("/api/landparcel/all")
+        MvcResult result = mockMvc.perform(get("/landparcel/all")
                         .param("searchString", searchString)
                         .param("minArea", String.valueOf(minArea))
                         .param("maxArea", String.valueOf(maxArea)))
@@ -480,8 +502,7 @@ public class LandparcelControllerIT {
                 });
     
         assertThat(landparcelDTOs.size(), is(landparcelCount.intValue()));
-    }
-    
+    } 
 
 }
     

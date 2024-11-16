@@ -3,10 +3,8 @@ package com.efarm.efarmbackend.service.farm;
 import com.efarm.efarmbackend.exception.TooManyRequestsException;
 import com.efarm.efarmbackend.model.farm.ActivationCode;
 import com.efarm.efarmbackend.model.farm.Farm;
-import com.efarm.efarmbackend.payload.response.MessageResponse;
 import com.efarm.efarmbackend.repository.farm.ActivationCodeRepository;
 import com.efarm.efarmbackend.repository.farm.FarmRepository;
-import com.efarm.efarmbackend.security.jwt.JwtUtils;
 import com.efarm.efarmbackend.security.services.BruteForceProtectionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,7 +88,7 @@ public class ActivationCodeService {
                 .orElseThrow(() -> new RuntimeException("Activation code not found for id: " + codeId));
     }
 
-    public MessageResponse updateActivationCodeForFarm(String newActivationCode, Integer farmId, String username) throws Exception {
+    public void updateActivationCodeForFarm(String newActivationCode, Integer farmId, String username) {
 
         if (bruteForceProtectionService.isBlocked(username)) {
             throw new TooManyRequestsException("Zbyt wiele nieudanych prób logowania! Spróbuj ponownie później.");
@@ -115,8 +113,6 @@ public class ActivationCodeService {
         farmRepository.save(farm);
         newActivationCodeEntity.setIsUsed(true);
         activationCodeRepository.save(newActivationCodeEntity);
-
-        return new MessageResponse("Pomyślnie zaktualizowano kod aktywacyjny!");
     }
 }
 

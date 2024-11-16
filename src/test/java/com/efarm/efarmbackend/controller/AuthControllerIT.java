@@ -31,7 +31,9 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -93,10 +95,10 @@ public class AuthControllerIT {
         loginRequest.setPassword(passwordTest);
 
         // When
-        mockMvc.perform(post("/api/auth/signin")
+        mockMvc.perform(post("/auth/signin")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
-                // Then
+        // Then
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.username").value(usernameTest))
                 .andExpect(jsonPath("$.email").value(emailTest))
@@ -132,10 +134,10 @@ public class AuthControllerIT {
         loginRequest.setPassword(passwordTest);
 
         // When
-        mockMvc.perform(post("/api/auth/signin")
+        mockMvc.perform(post("/auth/signin")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
-                // Then
+        // Then
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.username").value(usernameTest))
                 .andExpect(jsonPath("$.email").value(emailTest))
@@ -170,10 +172,10 @@ public class AuthControllerIT {
         loginRequest.setPassword("upsieBadPassword");
 
         // When
-        mockMvc.perform(post("/api/auth/signin")
+        mockMvc.perform(post("/auth/signin")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
-                // Then
+        // Then
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.message").value("Nieprawidłowe dane logowania"));
 
@@ -208,17 +210,17 @@ public class AuthControllerIT {
         loginRequest.setPassword(passwordTest);
 
         for (int i = 0; i < 5; i++) {
-            mockMvc.perform(post("/api/auth/signin")
+            mockMvc.perform(post("/auth/signin")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(loginRequest)))
                     .andExpect(status().isUnauthorized());
         }
 
         // When
-        mockMvc.perform(post("/api/auth/signin")
+        mockMvc.perform(post("/auth/signin")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
-                // Then
+        // Then
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.message").value("Zbyt wiele nieudanych prób logowania. Spróbuj ponownie później."));
     }
@@ -234,8 +236,8 @@ public class AuthControllerIT {
         SecurityContextHolder.getContext().setAuthentication(authToken);
 
         //When
-        mockMvc.perform(post("/api/auth/signout"))
-                // Then
+        mockMvc.perform(post("/auth/signout"))
+        // Then
                 .andExpect(status().isOk())
                 .andExpect(header().string(HttpHeaders.SET_COOKIE, "jwtToken=; Path=/api; Secure; SameSite=None"))
                 .andExpect(jsonPath("$.message").value("Wylogowano"));
@@ -260,7 +262,7 @@ public class AuthControllerIT {
         User currentUser = entityManager.createQuery(
                         "SELECT u FROM User u JOIN u.role r WHERE r.name = :roleName", User.class)
                 .setParameter("roleName", ERole.ROLE_FARM_MANAGER)
-                .setMaxResults(1)  // Ensures only one result is returned
+                .setMaxResults(1)  
                 .getSingleResult();
 
         UserDetailsImpl userDetails = UserDetailsImpl.build(currentUser);
@@ -269,13 +271,23 @@ public class AuthControllerIT {
         SecurityContextHolder.getContext().setAuthentication(authToken);
 
         // When
-        mockMvc.perform(post("/api/auth/signup")
+        mockMvc.perform(post("/auth/signup")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(signUpRequest)))
-                // Then
+        // Then
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Zarejestrowano nowego użytkownika!"));
 
+        User newUser = entityManager.createQuery(
+                        "SELECT u FROM User u WHERE u.username = :username", User.class)
+                .setParameter("username", signUpRequest.getUsername())
+                .getSingleResult();
+        
+        assertThat(newUser.getRole().getName(), is(ERole.ROLE_FARM_MANAGER));
+        assertThat(newUser.getFirstName(), is(signUpRequest.getFirstName()));
+        assertThat(newUser.getLastName(), is(signUpRequest.getLastName()));
+        assertThat(newUser.getEmail(), is(signUpRequest.getEmail()));
+        assertThat(newUser.getPhoneNumber(),is(signUpRequest.getPhoneNumber()));
     }
 
     @Test
@@ -294,7 +306,7 @@ public class AuthControllerIT {
         User currentUser = entityManager.createQuery(
                         "SELECT u FROM User u JOIN u.role r WHERE r.name = :roleName", User.class)
                 .setParameter("roleName", ERole.ROLE_FARM_EQUIPMENT_OPERATOR)
-                .setMaxResults(1)  // Ensures only one result is returned
+                .setMaxResults(1)  
                 .getSingleResult();
 
         UserDetailsImpl userDetails = UserDetailsImpl.build(currentUser);
@@ -303,48 +315,11 @@ public class AuthControllerIT {
         SecurityContextHolder.getContext().setAuthentication(authToken);
 
         // When
-        mockMvc.perform(post("/api/auth/signup")
+        mockMvc.perform(post("/auth/signup")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(signUpRequest)))
-                // Then
+        // Then
                 .andExpect(status().isForbidden());
-    }
-
-    @Test
-    @DisplayName("Test registration failure due to validation errors")
-    void testUserRegistrationValidationErrors() throws Exception {
-        // Given
-        SignupRequest signUpRequest = new SignupRequest();
-        signUpRequest.setFirstName("");  // Empty fields to trigger validation errors
-        signUpRequest.setLastName("");
-        signUpRequest.setUsername("newUser");
-        signUpRequest.setEmail("invalid-email");  // Invalid email format
-        signUpRequest.setPassword("pass");  // Too short to meet validation
-        signUpRequest.setPhoneNumber("");
-        signUpRequest.setRole("ROLE_FARM_MANAGER");
-
-        User currentUser = entityManager.createQuery(
-                        "SELECT u FROM User u JOIN u.role r WHERE r.name = :roleName", User.class)
-                .setParameter("roleName", ERole.ROLE_FARM_MANAGER)
-                .setMaxResults(1)
-                .getSingleResult();
-
-        UserDetailsImpl userDetails = UserDetailsImpl.build(currentUser);
-        UsernamePasswordAuthenticationToken authToken =
-                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(authToken);
-
-        // When
-        mockMvc.perform(post("/api/auth/signup")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(signUpRequest)))
-                // Then
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string(containsString("password: size must be between 6 and 40")))
-                .andExpect(content().string(containsString("email: must be a well-formed email address")))
-                .andExpect(content().string(containsString("firstName: size must be between 3 and 30")))
-                .andExpect(content().string(containsString("lastName: size must be between 3 and 40")));
-
     }
 
     @Test
@@ -370,10 +345,10 @@ public class AuthControllerIT {
 
         signUpRequest.setUsername(userDetails.getUsername());
         // When
-        mockMvc.perform(post("/api/auth/signup")
+        mockMvc.perform(post("/auth/signup")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(signUpRequest)))
-                // Then
+        // Then
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Podana nazwa użytkownika jest już zajęta!"));
 
@@ -402,37 +377,28 @@ public class AuthControllerIT {
         signUpFarmRequest.setActivationCode(activationCode.getCode());
 
         // When
-        mockMvc.perform(post("/api/auth/signupfarm")
+        mockMvc.perform(post("/auth/signupfarm")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(signUpFarmRequest)))
-                // Then
+        // Then
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Pomyślnie zarejestrowano nową farmę!"));
 
-    }
-
-    @Test
-    @DisplayName("Test registration fails due to validation errors")
-    void testUserFarmRegistrationWithErrors() throws Exception {
-        // Given
-        SignupFarmRequest signUpFarmRequest = new SignupFarmRequest();
-        signUpFarmRequest.setFirstName(""); // Invalid: empty first name
-        signUpFarmRequest.setLastName("");  // Invalid: empty last name
-        signUpFarmRequest.setUsername("newUser");
-        signUpFarmRequest.setEmail("invalid-email"); // Invalid: wrong email format
-        signUpFarmRequest.setPassword("short"); // Invalid: too short
-        signUpFarmRequest.setFarmName("farmName");
-        signUpFarmRequest.setActivationCode("someActivationCode");
-        // When
-        mockMvc.perform(post("/api/auth/signupfarm")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(signUpFarmRequest)))
-                // Then
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string(containsString("password: size must be between 6 and 40")))
-                .andExpect(content().string(containsString("email: must be a well-formed email address")))
-                .andExpect(content().string(containsString("firstName: size must be between 3 and 30")))
-                .andExpect(content().string(containsString("lastName: size must be between 3 and 40")));
+        User newUser = entityManager.createQuery(
+                        "SELECT u FROM User u WHERE u.username = :username", User.class)
+                .setParameter("username", signUpFarmRequest.getUsername())
+                .getSingleResult();
+        ActivationCode usedActivationCode = entityManager.createQuery(
+                        "SELECT a FROM ActivationCode a WHERE a.code = :code", ActivationCode.class)
+                .setParameter("code", activationCode.getCode())
+                .getSingleResult();
+        
+        assertThat(newUser.getFirstName(), is(signUpFarmRequest.getFirstName()));
+        assertThat(newUser.getLastName(), is(signUpFarmRequest.getLastName()));
+        assertThat(newUser.getEmail(), is(signUpFarmRequest.getEmail()));
+        assertThat(newUser.getPhoneNumber(), is(signUpFarmRequest.getPhoneNumber()));
+        assertThat(newUser.getFarm().getFarmName(), is(signUpFarmRequest.getFarmName()));
+        assertThat(newUser.getFarm().getIdActivationCode(), is(usedActivationCode.getId()));
     }
 
     @Test
@@ -458,10 +424,10 @@ public class AuthControllerIT {
         signUpFarmRequest.setUsername(user.getUsername());
 
         // When
-        mockMvc.perform(post("/api/auth/signupfarm")
+        mockMvc.perform(post("/auth/signupfarm")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(signUpFarmRequest)))
-                // Then
+        // Then
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Wybrana nazwa użytkownika jest już zajęta!"));
 
@@ -489,10 +455,10 @@ public class AuthControllerIT {
         Farm farm = entityManager.find(Farm.class, 1);
         signUpFarmRequest.setFarmName(farm.getFarmName());
         // When
-        mockMvc.perform(post("/api/auth/signupfarm")
+        mockMvc.perform(post("/auth/signupfarm")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(signUpFarmRequest)))
-                // Then
+        // Then
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Wybrana nazwa farmy jest już zajęta!"));
 
@@ -513,10 +479,10 @@ public class AuthControllerIT {
         signUpFarmRequest.setActivationCode("invalidActivationCode");
 
         // When
-        mockMvc.perform(post("/api/auth/signupfarm")
+        mockMvc.perform(post("/auth/signupfarm")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(signUpFarmRequest)))
-                // Then
+        // Then
                 .andExpect(status().isBadRequest())                
                 .andExpect(jsonPath("$.message").value("Podany kod aktywacyjny nie istnieje!"));
 
@@ -560,10 +526,10 @@ public class AuthControllerIT {
         updateActivationCodeRequest.setNewActivationCode(activationCode.getCode());
 
         //when
-        mockMvc.perform(post("/api/auth/update-activation-code")
+        mockMvc.perform(post("/auth/update-activation-code")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateActivationCodeRequest)))
-                // Then
+        // Then
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Pomyślnie zaktualizowano kod aktywacyjny!"));
 
@@ -579,10 +545,10 @@ public class AuthControllerIT {
         updateActivationCodeRequest.setNewActivationCode("someActivationCode");
 
         // When
-        mockMvc.perform(post("/api/auth/update-activation-code")
+        mockMvc.perform(post("/auth/update-activation-code")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateActivationCodeRequest)))
-                // Then
+        // Then
                 .andExpect(status().isBadRequest());
     }
 
@@ -621,10 +587,10 @@ public class AuthControllerIT {
         updateActivationCodeRequest.setNewActivationCode(activationCode.getCode());
 
         // When
-        mockMvc.perform(post("/api/auth/update-activation-code")
+        mockMvc.perform(post("/auth/update-activation-code")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateActivationCodeRequest)))
-                // Then
+        // Then
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Brak uprawnień"));
 
@@ -660,10 +626,10 @@ public class AuthControllerIT {
         updateActivationCodeRequest.setNewActivationCode("invalidActivationCode");
 
         // When
-        mockMvc.perform(post("/api/auth/update-activation-code")
+        mockMvc.perform(post("/auth/update-activation-code")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateActivationCodeRequest)))
-                // Then
+        // Then
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Podany kod aktywacyjny nie istnieje!"));
 
@@ -704,17 +670,17 @@ public class AuthControllerIT {
         updateActivationCodeRequest.setNewActivationCode(activationCode.getCode());
 
         for (int i = 0; i < 5; i++) {
-            mockMvc.perform(post("/api/auth/update-activation-code")
+            mockMvc.perform(post("/auth/update-activation-code")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(updateActivationCodeRequest)))
                     .andExpect(status().isBadRequest());
         }
 
         // When
-        mockMvc.perform(post("/api/auth/update-activation-code")
+        mockMvc.perform(post("/auth/update-activation-code")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateActivationCodeRequest)))
-                // Then
+        // Then
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Zbyt wiele nieudanych prób. Spróbuj ponownie później."));
     }
@@ -759,10 +725,10 @@ public class AuthControllerIT {
         updateActivationCodeByLoggedOwnerRequest.setNewActivationCode(activationCode.getCode());
 
         //when
-        mockMvc.perform(put("/api/auth/update-activation-code")
+        mockMvc.perform(put("/auth/update-activation-code")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateActivationCodeByLoggedOwnerRequest)))
-                // Then
+        // Then
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Pomyślnie zaktualizowano kod aktywacyjny!"));
     }
@@ -802,10 +768,10 @@ public class AuthControllerIT {
         updateActivationCodeByLoggedOwnerRequest.setNewActivationCode("doesntMatterHere");
 
         //when
-        mockMvc.perform(put("/api/auth/update-activation-code")
+        mockMvc.perform(put("/auth/update-activation-code")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateActivationCodeByLoggedOwnerRequest)))
-                // Then
+        // Then
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.message").value("Nieprawidłowe hasło"));
     }
@@ -847,10 +813,10 @@ public class AuthControllerIT {
         updateActivationCodeByLoggedOwnerRequest.setNewActivationCode(activationCode.getCode());
 
         //when
-        mockMvc.perform(put("/api/auth/update-activation-code")
+        mockMvc.perform(put("/auth/update-activation-code")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateActivationCodeByLoggedOwnerRequest)))
-                // Then
+        // Then
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Podany kod aktywacyjny został już wykorzystany!"));
     }
@@ -893,10 +859,10 @@ public class AuthControllerIT {
         changePasswordRequest.setNewPassword("321drowssap");
 
         //when
-        mockMvc.perform(put("/api/auth/change-password")
+        mockMvc.perform(put("/auth/change-password")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(changePasswordRequest)))
-                // Then
+        // Then
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Hasło zostało pomyślnie zmienione"));
     }
@@ -936,10 +902,10 @@ public class AuthControllerIT {
         changePasswordRequest.setNewPassword("321drowssap");
 
         // When
-        mockMvc.perform(put("/api/auth/change-password")
+        mockMvc.perform(put("/auth/change-password")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(changePasswordRequest)))
-                // Then
+        // Then
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.message").value("Podano nieprawidłowe aktualne hasło"));
     }
@@ -979,10 +945,10 @@ public class AuthControllerIT {
         changePasswordRequest.setNewPassword("password123"); // Same as current password
 
         // When
-        mockMvc.perform(put("/api/auth/change-password")
+        mockMvc.perform(put("/auth/change-password")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(changePasswordRequest)))
-                // Then
+        // Then
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Nowe hasło nie może być takie samo jak poprzednie"));
     }

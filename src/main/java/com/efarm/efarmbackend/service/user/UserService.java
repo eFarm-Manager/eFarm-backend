@@ -1,9 +1,7 @@
 package com.efarm.efarmbackend.service.user;
 
 import com.efarm.efarmbackend.model.farm.Farm;
-import com.efarm.efarmbackend.model.user.ERole;
-import com.efarm.efarmbackend.model.user.Role;
-import com.efarm.efarmbackend.model.user.User;
+import com.efarm.efarmbackend.model.user.*;
 import com.efarm.efarmbackend.payload.request.auth.SignupFarmRequest;
 import com.efarm.efarmbackend.payload.request.auth.SignupRequest;
 import com.efarm.efarmbackend.repository.user.RoleRepository;
@@ -45,12 +43,10 @@ public class UserService {
                 encoder.encode(signUpFarmRequest.getPassword()),
                 signUpFarmRequest.getPhoneNumber()
         );
-
         Role managerRole = roleRepository.findByName(ERole.ROLE_FARM_OWNER)
                 .orElseThrow(() -> new RuntimeException("Error: Role ROLE_FARM_OWNER is not found."));
 
         user.setRole(managerRole);
-
         return user;
     }
 
@@ -65,7 +61,6 @@ public class UserService {
 
         Role assignedRole = assignUserRole(signUpRequest.getRole());
         user.setRole(assignedRole);
-
         return user;
     }
 
@@ -93,7 +88,6 @@ public class UserService {
     public Farm getUserFarmById(Long userId) {
         User currentUser = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Error: User with ID " + userId + " not found."));
-
         return currentUser.getFarm();
     }
 
@@ -119,10 +113,34 @@ public class UserService {
 
     public Optional<User> getActiveUserById(UserDetailsImpl userDetails) throws RuntimeException {
         Optional<User> loggingUser = userRepository.findById(Long.valueOf(userDetails.getId()));
-        if (loggingUser.isPresent() && !loggingUser.get().getIsActive()) {
+        if (!loggingUser.isPresent() || !loggingUser.get().getIsActive()) {
             throw new RuntimeException("Użytkownik jest nieaktywny!");
         }
         return loggingUser;
+    }
+
+    public List<UserDTO> getFarmUsersByFarmId() {
+        Farm loggedUserFarm = getLoggedUserFarm();
+        List<User> users = getUsersByFarmId(loggedUserFarm.getId());
+        return users.stream()
+                .map(UserDTO::new)
+                .collect(Collectors.toList());
+    }
+
+    public List<UserSummaryDTO> getActiveFarmUsersByFarmId() {
+        Farm loggedUserFarm = getLoggedUserFarm();
+        List<User> users = getActiveUsersByFarmId(loggedUserFarm.getId());
+        return users.stream()
+                .map(UserSummaryDTO::new)
+                .collect(Collectors.toList());
+    }
+
+    private List<User> getUsersByFarmId(Integer farmId) {
+        return userRepository.findByFarmId(farmId);
+    }
+
+    private List<User> getActiveUsersByFarmId(Integer farmId) {
+        return userRepository.findByFarmIdAndIsActive(farmId, true);
     }
 
     private Role assignUserRole(String strRole) {

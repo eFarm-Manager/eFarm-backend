@@ -2,15 +2,14 @@ package com.efarm.efarmbackend.model.landparcel;
 
 import com.efarm.efarmbackend.payload.request.landparcel.AddLandparcelRequest;
 import com.efarm.efarmbackend.payload.request.landparcel.UpdateLandparcelRequest;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
-@Setter
+@AllArgsConstructor
 @NoArgsConstructor
-public class LandparcelDTO
-{
+public class LandparcelDTO {
     private Integer id;
     private String landOwnershipStatus;
     private String name;

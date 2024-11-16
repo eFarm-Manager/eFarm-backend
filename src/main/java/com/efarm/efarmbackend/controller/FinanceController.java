@@ -18,9 +18,8 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 
-@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
-@RequestMapping("/api/finance")
+@RequestMapping("/finance")
 public class FinanceController {
 
     @Autowired
@@ -31,9 +30,9 @@ public class FinanceController {
 
     @PostMapping("/new")
     @PreAuthorize("hasRole('ROLE_FARM_OWNER')")
-    public ResponseEntity<?> addNewTransaction(@Valid @RequestBody NewTransactionRequest newTransactionRequest, BindingResult bindingResult) {
+    public ResponseEntity<MessageResponse> addNewTransaction(@Valid @RequestBody NewTransactionRequest newTransactionRequest, BindingResult bindingResult) {
         try {
-            validationRequestService.validateRequestWithException(bindingResult);
+            validationRequestService.validateRequest(bindingResult);
             financeFacade.addNewTransaction(newTransactionRequest);
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(new MessageResponse("Pomyślnie dodano nową transakcję"));
@@ -44,9 +43,9 @@ public class FinanceController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_FARM_OWNER')")
-    public ResponseEntity<?> updateTransaction(@PathVariable Integer id, @Valid @RequestBody UpdateTransactionRequest updateRequest, BindingResult bindingResult) {
+    public ResponseEntity<MessageResponse> updateTransaction(@PathVariable Integer id, @Valid @RequestBody UpdateTransactionRequest updateRequest, BindingResult bindingResult) {
         try {
-            validationRequestService.validateRequestWithException(bindingResult);
+            validationRequestService.validateRequest(bindingResult);
             financeFacade.updateTransaction(id, updateRequest);
             return ResponseEntity.status(HttpStatus.OK)
                     .body(new MessageResponse("Pomyślnie zaktualizowano transakcję"));
@@ -57,7 +56,7 @@ public class FinanceController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_FARM_OWNER')")
-    public ResponseEntity<?> deleteTransaction(@PathVariable Integer id) {
+    public ResponseEntity<MessageResponse> deleteTransaction(@PathVariable Integer id) {
         try {
             financeFacade.deleteTransaction(id);
             return ResponseEntity.status(HttpStatus.OK)
@@ -87,8 +86,8 @@ public class FinanceController {
     @GetMapping("/balance")
     @PreAuthorize("hasRole('ROLE_FARM_OWNER')")
     public ResponseEntity<BalanceResponse> getBalance() {
-            BalanceResponse balanceResponse = financeFacade.getBalanceForLastYear();
-            return ResponseEntity.status(HttpStatus.OK)
-                    .body(balanceResponse);
+        BalanceResponse balanceResponse = financeFacade.getBalanceForLastYear();
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(balanceResponse);
     }
 }

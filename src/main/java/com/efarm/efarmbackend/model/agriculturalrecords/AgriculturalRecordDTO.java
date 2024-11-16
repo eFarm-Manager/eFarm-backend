@@ -2,12 +2,8 @@ package com.efarm.efarmbackend.model.agriculturalrecords;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
-@Setter
-@NoArgsConstructor
 @AllArgsConstructor
 public class AgriculturalRecordDTO {
     private Integer recordId;
@@ -16,5 +12,13 @@ public class AgriculturalRecordDTO {
     private String cropName;
     private double area;
     private String description;
-}
 
+    public AgriculturalRecordDTO(AgriculturalRecord record) {
+        this.recordId = record.getId().getId();
+        this.landparcelName = record.getLandparcel().getName();
+        this.landparcelId = record.getLandparcel().getId().getId();
+        this.cropName = record.getCrop().getName();
+        this.area = record.getArea();
+        this.description = record.getDescription();
+    }
+}

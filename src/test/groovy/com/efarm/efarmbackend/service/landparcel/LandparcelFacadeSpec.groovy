@@ -151,9 +151,10 @@ class LandparcelFacadeSpec extends Specification {
 
         userService.getLoggedUserFarm() >> farm
         landparcelRepository.findById(landparcelId) >> Optional.of(landparcel)
-        LandparcelDTO landparcelDTO = new LandparcelDTO()
-        landparcelDTO.setId(id)
-        landparcelDTO.setArea(landparcel.getArea())
+        LandparcelDTO landparcelDTO = Mock(LandparcelDTO){
+            getId() >> id
+            getArea() >> landparcel.getArea()
+        }
 
         landparcelService.createDTOtoDisplay(landparcel) >> landparcelDTO
 

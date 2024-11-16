@@ -15,6 +15,7 @@ import java.util.Optional;
 
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, TransactionId> {
+
     List<Transaction> findByFarmId(Integer farmId);
 
     Boolean existsByTransactionNameAndFarmId(String transactionName, Integer farmId);

@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/records")
+@RequestMapping("/records")
 public class AgriculturalRecordController {
 
     @Autowired
@@ -33,6 +33,7 @@ public class AgriculturalRecordController {
 
     @Autowired
     private CropService cropService;
+
     @Autowired
     private AgriculturalRecordService agriculturalRecordService;
 
@@ -53,7 +54,7 @@ public class AgriculturalRecordController {
     @PreAuthorize("hasRole('ROLE_FARM_MANAGER') or hasRole('ROLE_FARM_OWNER')")
     public ResponseEntity<MessageResponse> addAgriculturalRecord(@RequestBody @Valid CreateNewAgriculturalRecordRequest request, BindingResult bindingResult) {
         try {
-            validationRequestService.validateRequestWithException(bindingResult);
+            validationRequestService.validateRequest(bindingResult);
             agriculturalRecordFacade.addAgriculturalRecord(request);
             return ResponseEntity.status(HttpStatus.CREATED).body(new MessageResponse("Pomyślnie dodano nową uprawę"));
         } catch (Exception e) {
@@ -76,7 +77,7 @@ public class AgriculturalRecordController {
     @PreAuthorize("hasRole('ROLE_FARM_MANAGER') or hasRole('ROLE_FARM_OWNER')")
     public ResponseEntity<MessageResponse> updateAgriculturalRecord(@PathVariable Integer id, @RequestBody @Valid UpdateAgriculturalRecordRequest updateRequest, BindingResult bindingResult) {
         try {
-            validationRequestService.validateRequestWithException(bindingResult);
+            validationRequestService.validateRequest(bindingResult);
             agriculturalRecordService.updateAgriculturalRecord(id, updateRequest);
             return ResponseEntity.ok(new MessageResponse("Pomyślnie zaktualizowano dane"));
         } catch (Exception e) {

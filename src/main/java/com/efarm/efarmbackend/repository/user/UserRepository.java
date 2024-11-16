@@ -11,13 +11,14 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
+
     Optional<User> findByUsername(String username);
 
     Boolean existsByUsername(String username);
 
-    Boolean existsByEmail(String email);
-
     List<User> findByFarmId(Integer farmId);
+
+    List<User> findByFarmIdAndIsActive(Integer farmId, Boolean isActive);
 
     @Query("SELECT u FROM User u WHERE u.role.name = 'ROLE_FARM_OWNER' AND u.farm.id = :farmId")
     List<User> findOwnersForFarm(@Param("farmId") Integer farmId);
