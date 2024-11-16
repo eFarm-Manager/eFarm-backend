@@ -392,7 +392,7 @@ class UserServiceSpec extends Specification {
 
         then:
         RuntimeException ex = thrown(RuntimeException)
-        ex.message == 'Użytkownik jest nieaktywny!'
+        ex.message == 'Użytkownik jest nieaktywny'
     }
 
     def "should throw runtime exception when user not found"() {
@@ -407,7 +407,7 @@ class UserServiceSpec extends Specification {
 
         then:
         RuntimeException ex = thrown(RuntimeException)
-        ex.message == 'Użytkownik jest nieaktywny!'
+        ex.message == 'Użytkownik jest nieaktywny'
     }
 
     /*
@@ -439,9 +439,7 @@ class UserServiceSpec extends Specification {
         user2.getLastName() >> 'Smith'
         user2.getPhoneNumber() >> ''
         user2.getIsActive() >> false
-        user2.getRole() >> Mock(Role) {
-            toString() >> 'ROLE_FARM_EQUIPMENT_OPERATOR'
-        }
+        user2.getRole() >> class_role_operator
         user2.getFarm() >> farm1
 
         User user3 = Mock(User)

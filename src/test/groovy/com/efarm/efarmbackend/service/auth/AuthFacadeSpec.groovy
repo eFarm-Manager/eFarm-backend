@@ -106,7 +106,7 @@ class AuthFacadeSpec extends Specification {
 
         then:
         RuntimeException exception = thrown()
-        exception.message == 'Podana nazwa użytkownika jest już zajęta!'
+        exception.message == 'Podana nazwa użytkownika jest już zajęta'
     }
 
     def "should return error if farm retrieval fails"() {
@@ -191,7 +191,7 @@ class AuthFacadeSpec extends Specification {
 
         then:
         RuntimeException exception = thrown()
-        exception.message == 'Wybrana nazwa użytkownika jest już zajęta!'
+        exception.message == 'Wybrana nazwa użytkownika jest już zajęta'
     }
 
     def "should return bad request when farm name is already taken"() {
@@ -214,7 +214,7 @@ class AuthFacadeSpec extends Specification {
 
         then:
         RuntimeException exception = thrown()
-        exception.message == 'Wybrana nazwa farmy jest już zajęta!'
+        exception.message == 'Wybrana nazwa farmy jest już zajęta'
     }
 
     def "should return bad request when activation code does not exist"() {

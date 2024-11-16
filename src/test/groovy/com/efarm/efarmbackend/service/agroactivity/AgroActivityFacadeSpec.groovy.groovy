@@ -206,7 +206,7 @@ class AgroActivityFacadeSpec extends Specification {
         then:
         1 * agroActivityService.updateAgroActivity(request, agroActivity, activityCategory);
         1 * activityHasOperatorService.updateOperatorInActivity(request.getOperatorIds(), agroActivity, farmId);
-        1 * activityHasEquipmentService.updateEqipmentInActivity(request.getEquipmentIds(), agroActivity, farmId);
+        1 * activityHasEquipmentService.updateEquipmentInActivity(request.getEquipmentIds(), agroActivity, farmId);
     }
 
     def "should throw runtime exception when activity category is not found"() {

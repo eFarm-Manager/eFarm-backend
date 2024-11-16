@@ -104,7 +104,7 @@ public class AgroActivityControllerIT {
             .content(objectMapper.writeValueAsString(request)))
         // then
             .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.message").value("Pomyślnie dodano nowy zabieg agrotechniczny."));
+            .andExpect(jsonPath("$.message").value("Pomyślnie dodano nowy zabieg agrotechniczny"));
 
             AgroActivity agroActivity = entityManager.createQuery(
         "SELECT a FROM AgroActivity a WHERE a.name = :name", AgroActivity.class)
@@ -198,7 +198,6 @@ public class AgroActivityControllerIT {
             .andExpect(jsonPath("$.message").value("Nie znaleziono użytkownika o ID: 999"));
     }
 
-    //TODO: make this test work when validation will be fixed
     @Test
     public void testAddAgroActivityWithNonExistentEquipment() throws Exception {
         //given
@@ -219,10 +218,10 @@ public class AgroActivityControllerIT {
         //when
         mockMvc.perform(post("/agro-activities/new")
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(request)));
+            .content(objectMapper.writeValueAsString(request)))
         // then
-            //.andExpect(status().isBadRequest())
-            //.andExpect(jsonPath("$.message").value("Nie znaleziono sprzętu o ID: 999"));
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.message").value("Sprzęty o następujących identyfikatorach nie istnieją: [999]"));
     }
 
     @Test
@@ -248,7 +247,7 @@ public class AgroActivityControllerIT {
             .content(objectMapper.writeValueAsString(request)))
         // then
             .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.message").value("Użytkownik o ID: 2 nie należy do tej farmy."));
+            .andExpect(jsonPath("$.message").value("Użytkownik o ID: 2 nie należy do tej farmy"));
     }
 
     @Test
@@ -401,7 +400,7 @@ public class AgroActivityControllerIT {
             .content(objectMapper.writeValueAsString(request)))
         // then
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.message").value("Pomyślnie zaktualizowano zabieg agrotechniczny."));
+            .andExpect(jsonPath("$.message").value("Pomyślnie zaktualizowano zabieg agrotechniczny"));
 
         AgroActivity updatedAgroActivity = entityManager.find(AgroActivity.class, new AgroActivityId(1,1));
         assertThat(updatedAgroActivity.getName(), is("Zaktualizowany zabieg"));
@@ -474,7 +473,7 @@ public class AgroActivityControllerIT {
             .contentType(MediaType.APPLICATION_JSON))
         // then
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.message").value("Pomyślnie usunięto zabieg agrotechniczny."));
+            .andExpect(jsonPath("$.message").value("Pomyślnie usunięto zabieg agrotechniczny"));
 
         AgroActivity deletedAgroActivity = entityManager.find(AgroActivity.class, new AgroActivityId(1,1));
         assertThat(deletedAgroActivity, is(nullValue()));
