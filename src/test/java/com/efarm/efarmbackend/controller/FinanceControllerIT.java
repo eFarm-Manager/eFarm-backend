@@ -87,6 +87,20 @@ public class FinanceControllerIT {
         //then
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.message").value("Pomyślnie dodano nową transakcję"));
+
+        Transaction newTransaction = entityManager.createQuery(
+                "SELECT t FROM Transaction t WHERE t.id.farmId = :farmId AND t.transactionName = :transactionName",
+                Transaction.class)
+                .setParameter("farmId", 1)
+                .setParameter("transactionName", "Maize sales")
+                .getSingleResult();
+        
+        assertThat(newTransaction.getAmount(), is(1000.00));
+        assertThat(newTransaction.getPaymentStatus().getName().toString(), is("PAID"));
+        assertThat(newTransaction.getTransactionDate(), is(LocalDate.now().plusDays(1)));
+        assertThat(newTransaction.getPaymentDate(), is(nullValue()));
+        assertThat(newTransaction.getDescription(), is("Sales of 10 bags of maize"));
+        assertThat(newTransaction.getFinancialCategory().getName().toString(), is("INCOME"));
     }
     @Test
     void testAddingExistingTransaction() throws Exception {
@@ -119,7 +133,7 @@ public class FinanceControllerIT {
         updateTransactionRequest.setAmount(2000.00);
         updateTransactionRequest.setPaymentStatus("PAID");
         updateTransactionRequest.setTransactionDate(LocalDate.now().plusDays(1));
-        updateTransactionRequest.setPaymentDate(null);
+        updateTransactionRequest.setPaymentDate(LocalDate.now().plusDays(29));
         updateTransactionRequest.setDescription("Sales of 20 bags of maize");
         updateTransactionRequest.setTransactionName("Maize sales");
         updateTransactionRequest.setFinancialCategory("INCOME");                
@@ -134,6 +148,10 @@ public class FinanceControllerIT {
         assertThat(updatedTransaction.getAmount(), is(2000.00));
         assertThat(updatedTransaction.getPaymentStatus().getName().toString(), is("PAID"));
         assertThat(updatedTransaction.getTransactionDate(), is(LocalDate.now().plusDays(1)));
+        assertThat(updatedTransaction.getPaymentDate(), is(updateTransactionRequest.getPaymentDate()));
+        assertThat(updatedTransaction.getDescription(), is("Sales of 20 bags of maize"));
+        assertThat(updatedTransaction.getFinancialCategory().getName().toString(), is("INCOME"));
+        assertThat(updatedTransaction.getTransactionName(), is("Maize sales"));
     }
 
     @Test

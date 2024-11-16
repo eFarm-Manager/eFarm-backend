@@ -23,6 +23,7 @@ import com.efarm.efarmbackend.model.user.User;
 import com.efarm.efarmbackend.security.services.UserDetailsImpl;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.efarm.efarmbackend.model.agroactivity.AgroActivity;
 import com.efarm.efarmbackend.model.equipment.EquipmentSummaryDTO;
 
 import java.util.List;
@@ -30,17 +31,22 @@ import java.util.List;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.Size;
 
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -167,6 +173,9 @@ public class FarmEquipmentControllerIT {
         //then
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Pomyślnie zaktualizowane dane maszyny."));
+        
+        FarmEquipment updatedFarmEquipment = entityManager.find(FarmEquipment.class, new FarmEquipmentId(equipmentId, 1));
+        assertThat(updatedFarmEquipment.getEquipmentName(), is(addUpdateFarmEquipmentRequest.getEquipmentName()));
     }
 
     @Test
@@ -297,22 +306,45 @@ public class FarmEquipmentControllerIT {
     @DisplayName("Test successfully adding new farm equipment")
     public void testAddNewFarmEquipmentSuccess() throws Exception {
         // Given
-        AddUpdateFarmEquipmentRequest addUpdateFarmEquipmentRequest = new AddUpdateFarmEquipmentRequest();
-        addUpdateFarmEquipmentRequest.setEquipmentName("Tractor X");
-        addUpdateFarmEquipmentRequest.setCategory("Ciągniki rolnicze");
-        addUpdateFarmEquipmentRequest.setBrand("Brand X");
-        addUpdateFarmEquipmentRequest.setModel("Model X");
-        addUpdateFarmEquipmentRequest.setPower(120);
-        addUpdateFarmEquipmentRequest.setWorkingWidth(5.5);
+        AddUpdateFarmEquipmentRequest request = new AddUpdateFarmEquipmentRequest();
+        request.setEquipmentName("Tractor X Test");
+        request.setCategory("Ciągniki rolnicze");
+        request.setBrand("Brand X");
+        request.setModel("Model X");
+        request.setPower(120);
+        request.setCapacity(50.5d);
+        request.setWorkingWidth(5.5d);
+        request.setInsurancePolicyNumber("1234567890");
+        request.setInsuranceExpirationDate(LocalDate.now().plusDays(10));
+        request.setInspectionExpireDate(LocalDate.now().plusDays(20));
     
         // When
         mockMvc.perform(post("/equipment/new")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(addUpdateFarmEquipmentRequest)))
+                .content(objectMapper.writeValueAsString(request)))
                 .andDo(print())
         //then
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.message").value("Pomyślnie dodano nową maszynę"));
+        
+        FarmEquipment createdFarmEquipment = entityManager.createQuery(
+        "SELECT fe FROM FarmEquipment fe WHERE fe.equipmentName = :name AND fe.id.farmId =:farmId", FarmEquipment.class)
+                .setParameter("name", "Tractor X Test")
+                .setParameter("farmId", 1)
+                .getSingleResult();
+
+        assertThat(createdFarmEquipment, is(notNullValue()));
+        assertThat(createdFarmEquipment.getEquipmentName(), is(request.getEquipmentName()));
+        assertThat(createdFarmEquipment.getCategory().getCategoryName(), is(request.getCategory()));
+        assertThat(createdFarmEquipment.getBrand(), is(request.getBrand()));
+        assertThat(createdFarmEquipment.getModel(), is(request.getModel()));
+        assertThat(createdFarmEquipment.getPower(), is(request.getPower()));
+        //assertThat(createdFarmEquipment.getCapacity(), is(request.getCapacity()));
+        assertThat(createdFarmEquipment.getInsurancePolicyNumber(),is(request.getInsurancePolicyNumber()));
+        assertThat(createdFarmEquipment.getInsuranceExpirationDate(), is(request.getInsuranceExpirationDate()));
+        //assertThat(createdFarmEquipment.getWorkingWidth(), is(request.getWorkingWidth()));
+
+
     }  
 
     @Test

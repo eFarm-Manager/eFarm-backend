@@ -31,6 +31,9 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -274,6 +277,16 @@ public class AuthControllerIT {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Zarejestrowano nowego użytkownika!"));
 
+        User newUser = entityManager.createQuery(
+                        "SELECT u FROM User u WHERE u.username = :username", User.class)
+                .setParameter("username", signUpRequest.getUsername())
+                .getSingleResult();
+        
+        assertThat(newUser.getRole().getName(), is(ERole.ROLE_FARM_MANAGER));
+        assertThat(newUser.getFirstName(), is(signUpRequest.getFirstName()));
+        assertThat(newUser.getLastName(), is(signUpRequest.getLastName()));
+        assertThat(newUser.getEmail(), is(signUpRequest.getEmail()));
+        assertThat(newUser.getPhoneNumber(),is(signUpRequest.getPhoneNumber()));
     }
 
     @Test
@@ -370,6 +383,21 @@ public class AuthControllerIT {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Pomyślnie zarejestrowano nową farmę!"));
 
+        User newUser = entityManager.createQuery(
+                        "SELECT u FROM User u WHERE u.username = :username", User.class)
+                .setParameter("username", signUpFarmRequest.getUsername())
+                .getSingleResult();
+        ActivationCode usedActivationCode = entityManager.createQuery(
+                        "SELECT a FROM ActivationCode a WHERE a.code = :code", ActivationCode.class)
+                .setParameter("code", activationCode.getCode())
+                .getSingleResult();
+        
+        assertThat(newUser.getFirstName(), is(signUpFarmRequest.getFirstName()));
+        assertThat(newUser.getLastName(), is(signUpFarmRequest.getLastName()));
+        assertThat(newUser.getEmail(), is(signUpFarmRequest.getEmail()));
+        assertThat(newUser.getPhoneNumber(), is(signUpFarmRequest.getPhoneNumber()));
+        assertThat(newUser.getFarm().getFarmName(), is(signUpFarmRequest.getFarmName()));
+        assertThat(newUser.getFarm().getIdActivationCode(), is(usedActivationCode.getId()));
     }
 
     @Test
