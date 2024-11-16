@@ -40,7 +40,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
-
+import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -131,7 +131,7 @@ public class AgriculturalRecordControllerIT {
      */
 
     @Test
-    public void shouldAddNewRecord() throws Exception {
+    public void testAddNewRecord() throws Exception {
         // given
         CreateNewAgriculturalRecordRequest request = new CreateNewAgriculturalRecordRequest();
         request.setSeason(returnCurrentSeason().getName());
@@ -152,10 +152,22 @@ public class AgriculturalRecordControllerIT {
         // then
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.message").value("Pomyślnie dodano nową uprawę"));
+        
+                AgriculturalRecord createdAgriculturalRecord = entityManager.createQuery(
+        "SELECT ar FROM AgriculturalRecord ar WHERE ar.description = :description", AgriculturalRecord.class)
+                .setParameter("description", "test description")
+                .getSingleResult();
+
+        assertThat(createdAgriculturalRecord, is(notNullValue()));
+        assertThat(createdAgriculturalRecord.getSeason().getName(), is(request.getSeason()));
+        assertThat(createdAgriculturalRecord.getLandparcel().getId().getId(), is(request.getLandparcelId()));
+        assertThat(createdAgriculturalRecord.getArea(), is(request.getArea()));
+        assertThat(createdAgriculturalRecord.getCrop().getName(), is(request.getCropName()));
+        
     }
 
     @Test
-    public void shouldThrowExceptionForUnavailableLandparcel() throws Exception {
+    public void testThrowExceptionForUnavailableLandparcel() throws Exception {
         // given
         CreateNewAgriculturalRecordRequest request = new CreateNewAgriculturalRecordRequest();
         request.setLandparcelId(1);
