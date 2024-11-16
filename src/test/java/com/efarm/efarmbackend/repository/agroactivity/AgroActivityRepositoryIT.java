@@ -122,7 +122,6 @@ public class AgroActivityRepositoryIT {
         Optional<Integer> maxIdFound = agroActivityRepository.findMaxIdForFarm(farm.getId());
 
         //then
-        System.out.println(maxId);
         assertThat(maxIdFound.get(),is(maxId));
     }
 
