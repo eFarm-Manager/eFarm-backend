@@ -5,12 +5,14 @@ import com.efarm.efarmbackend.model.landparcel.LandparcelSummaryDTO;
 import com.efarm.efarmbackend.model.user.UserSummaryDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 import java.util.List;
 
 @Getter
 @AllArgsConstructor
+@NoArgsConstructor
 public class AgroActivityDetailDTO {
     private Integer id;
     private String name;
