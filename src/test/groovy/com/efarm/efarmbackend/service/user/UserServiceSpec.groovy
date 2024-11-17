@@ -523,6 +523,32 @@ class UserServiceSpec extends Specification {
     }
 
     /*
+    * deleteAllUsersForFarm
+    */
+
+    def "should delete all users for a given farm"() {
+        given:
+        Farm farm = Mock(Farm) {
+            getId() >> 1
+        }
+        User user1 = Mock(User) {
+            getFarm() >> farm
+        }
+        User user2 = Mock(User) {
+            getFarm() >> farm
+        }
+        userRepository.findByFarmId(farm.getId()) >> [user1, user2]
+
+        when:
+        userService.deleteAllUsersForFarm(farm)
+
+        then:
+        1 * userRepository.deleteAll({ List<User> users -> 
+            users.contains(user1) && users.contains(user2)
+        })
+    }
+
+    /*
     *  getUsersByFarmId
     */
 

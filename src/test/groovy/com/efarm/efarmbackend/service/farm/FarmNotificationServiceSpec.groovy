@@ -28,7 +28,7 @@ class FarmNotificationServiceSpec extends Specification {
             mainNotificationService: mainNotificationService
     )
 
-    void "shouldCallCheckActivationCodeForEachFarm"() {
+    void "should Call Check Activation Code For Each Farm"() {
         given:
         Farm farm1 = Mock(Farm) {
             getId() >> 1

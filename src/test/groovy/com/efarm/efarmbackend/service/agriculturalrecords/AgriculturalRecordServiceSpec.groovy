@@ -916,4 +916,64 @@ class AgriculturalRecordServiceSpec extends Specification {
         exception.message == 'Ewidencja, którą próbujesz usunąć nie istnieje!'
     }
 
+    /*
+    * deleteAllAgriculturalRecordsForFarm
+    */
+
+    def "should delete all agricultural records for farm"() {
+        given:
+        Farm farm = Mock(Farm) {
+            getId() >> 1
+        }
+        AgriculturalRecordId agriculturalRecordId1 = new AgriculturalRecordId(1, 1)
+        AgriculturalRecordId agriculturalRecordId2 = new AgriculturalRecordId(2, 1)
+        AgriculturalRecord agriculturalRecord1 = Mock(AgriculturalRecord) {
+            getId() >> agriculturalRecordId1
+            getFarm() >> farm
+        }
+        AgriculturalRecord agriculturalRecord2 = Mock(AgriculturalRecord) {
+            getId() >> agriculturalRecordId2
+            getFarm() >> farm
+        }
+        AgroActivity agroActivity1 = Mock(AgroActivity) {
+            getId() >> Mock(AgroActivityId) {
+                getId() >> 1
+                getFarmId() >> 1
+            }
+            getAgriculturalRecord() >> agriculturalRecord1
+        }
+        AgroActivity agroActivity2 = Mock(AgroActivity) {
+            getId() >> Mock(AgroActivityId) {
+                getId() >> 2
+                getFarmId() >> 1
+            }
+            getAgriculturalRecord() >> agriculturalRecord1
+        }
+        AgroActivity agroActivity3 = Mock(AgroActivity) {
+            getId() >> Mock(AgroActivityId) {
+                getId() >> 2
+                getFarmId() >> 1
+            }
+            getAgriculturalRecord() >> agriculturalRecord2
+        }
+
+        userService.getLoggedUserFarm() >> farm
+        agriculturalRecordRepository.findAgriculturalRecordByFarm(farm) >> [agriculturalRecord1, agriculturalRecord2]
+        agriculturalRecordRepository.existsById(agriculturalRecordId1) >> true
+        agriculturalRecordRepository.existsById(agriculturalRecordId2) >> true
+        agroActivityRepository.findByAgriculturalRecordId(agriculturalRecordId1) >> [agroActivity1, agroActivity2]
+        agroActivityRepository.findByAgriculturalRecordId(agriculturalRecordId2) >> [agroActivity3]
+
+        when:
+        agriculturalRecordService.deleteAllAgriculturalRecordsForFarm(farm)
+
+        then:
+        1 * agroActivityService.deleteAgroActivity(agroActivity1.getId())
+        1 * agroActivityService.deleteAgroActivity(agroActivity2.getId())
+        1 * agriculturalRecordRepository.deleteById(agriculturalRecordId1)
+
+        1 * agroActivityService.deleteAgroActivity(agroActivity3.getId())
+        1 * agriculturalRecordRepository.deleteById(agriculturalRecordId2)
+    }
+
 }
