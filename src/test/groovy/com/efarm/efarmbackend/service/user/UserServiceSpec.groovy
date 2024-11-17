@@ -6,6 +6,8 @@ import com.efarm.efarmbackend.model.user.Role
 import com.efarm.efarmbackend.model.user.User
 import com.efarm.efarmbackend.payload.request.auth.SignupFarmRequest
 import com.efarm.efarmbackend.payload.request.auth.SignupUserRequest
+import com.efarm.efarmbackend.payload.request.user.UpdateUserRequest;
+import com.efarm.efarmbackend.payload.request.user.ChangeUserPasswordRequest;
 import com.efarm.efarmbackend.model.user.*;
 import com.efarm.efarmbackend.repository.user.RoleRepository
 import com.efarm.efarmbackend.repository.user.UserRepository
@@ -520,6 +522,322 @@ class UserServiceSpec extends Specification {
         response.size() == 1
         response[0].firstName == 'John'
         response[0].lastName == 'Doe'
+    }
+
+    /*
+    * toggleUserActiveStatus
+    */
+
+    def "should toggle user active status"() {
+        given:
+        Farm farm = Mock(Farm) {
+            getId() >> 1
+        }
+        User loggedUser = Mock(User) {
+            getId() >> 1
+            getUsername() >> 'user1'
+            getEmail() >> 'test@gmail.com'
+            getPassword() >> 'fwafwafa312z'
+            getRole() >> class_role_manager
+            getIsActive() >> true
+            getFarm() >> farm
+        }
+        User user = Mock(User) {
+            getId() >> 2
+            getIsActive() >> true
+            getFarm() >> farm
+        }
+
+        UserDetailsImpl currentUserDetails = UserDetailsImpl.build(loggedUser)
+
+        Authentication authentication = Mock(Authentication) {
+            getPrincipal() >> currentUserDetails
+        }
+        SecurityContextHolder.getContext().setAuthentication(authentication)
+        userRepository.findById(Long.valueOf(user.getId())) >> Optional.of(user)
+        userRepository.findById(Long.valueOf(loggedUser.getId())) >> Optional.of(loggedUser)
+
+        when:
+        userService.toggleUserActiveStatus(user.getId())
+
+        then:
+        1 * user.setIsActive(false)
+        1 * userRepository.save(_ as User)
+    }
+
+    def "should not allow logged in user to toggle status of other user"() {
+        given:
+        Farm farm1 = Mock(Farm) {
+            getId() >> 1
+        }
+        Farm farm2 = Mock(Farm) {
+            getId() >> 2
+        }
+        User loggedUser = Mock(User) {
+            getId() >> 1
+            getUsername() >> 'user1'
+            getEmail() >> 'test@gmail.com'
+            getPassword() >> 'fwafwafa312z'
+            getRole() >> class_role_manager
+            getIsActive() >> true
+            getFarm() >> farm1
+        }
+        User user = Mock(User) {
+            getId() >> 2
+            getIsActive() >> true
+            getFarm() >> farm2
+        }
+
+        UserDetailsImpl currentUserDetails = UserDetailsImpl.build(loggedUser)
+
+        Authentication authentication = Mock(Authentication) {
+            getPrincipal() >> currentUserDetails
+        }
+        SecurityContextHolder.getContext().setAuthentication(authentication)
+        userRepository.findById(Long.valueOf(user.getId())) >> Optional.of(user)
+        userRepository.findById(Long.valueOf(loggedUser.getId())) >> Optional.of(loggedUser)
+
+        when:
+        userService.toggleUserActiveStatus(user.getId())
+
+        then:
+        RuntimeException ex = thrown()
+        ex.message == 'Nie masz dostępu do edycji tego użytkownika'
+    }
+
+    /*
+    * updateUserDetails
+    */
+
+    def "should update user details"() {
+        given:
+        UpdateUserRequest request = new UpdateUserRequest(
+                firstName: 'John',
+                lastName: 'Doe',
+                email: 'email123@gmail.com'
+        )
+        Integer userId = 2
+
+        Farm farm = Mock(Farm) {
+            getId() >> 1
+        }
+        User loggedUser = Mock(User) {
+            getId() >> 1
+            getUsername() >> 'user1'
+            getEmail() >> 'test@gmail.com'
+            getPassword() >> 'fwafwafa312z'
+            getRole() >> class_role_manager
+            getIsActive() >> true
+            getFarm() >> farm
+        }
+        User user = Mock(User) {
+            getId() >> userId
+            getIsActive() >> true
+            getFarm() >> farm
+        }
+
+        UserDetailsImpl currentUserDetails = UserDetailsImpl.build(loggedUser)
+
+        Authentication authentication = Mock(Authentication) {
+            getPrincipal() >> currentUserDetails
+        }
+        SecurityContextHolder.getContext().setAuthentication(authentication)
+        userRepository.findById(Long.valueOf(user.getId())) >> Optional.of(user)
+        userRepository.findById(Long.valueOf(loggedUser.getId())) >> Optional.of(loggedUser)
+    
+        when:
+        userService.updateUserDetails(userId, request)
+
+        then:
+        1 * user.setFirstName(request.getFirstName())
+        1 * user.setLastName(request.getLastName())
+        1 * user.setEmail(request.getEmail())
+    }
+
+    def "should throw runtime exception when user doesnt exist during update details"() {
+        given:
+        UpdateUserRequest request = new UpdateUserRequest(
+                firstName: 'John',
+                lastName: 'Doe',
+        )
+        Integer userId = 2
+        User user = Mock(User) {
+            getId() >> userId
+            getIsActive() >> true
+        }
+
+        userRepository.findById(Long.valueOf(user.getId())) >> Optional.empty()
+
+        when:
+        userService.updateUserDetails(userId, request)
+
+        then:
+        RuntimeException ex = thrown()
+        ex.message == 'Użytkownik o ID 2 nie istnieje.'
+    }
+
+    def "should not allow for updating other user details"() {
+        given:
+        UpdateUserRequest request = new UpdateUserRequest(
+                firstName: 'John',
+                lastName: 'Doe',
+        )
+        Integer userId = 2
+
+        Farm farm1 = Mock(Farm) {
+            getId() >> 1
+        }
+        Farm farm2 = Mock(Farm) {
+            getId() >> 2
+        }
+
+        User loggedUser = Mock(User) {
+            getId() >> 1
+            getUsername() >> 'user1'
+            getEmail() >> 'test@gmail.com'
+            getPassword() >> 'fwafwafa312z'
+            getRole() >> class_role_manager
+            getIsActive() >> true
+            getFarm() >> farm1
+        }
+        User user = Mock(User) {
+            getId() >> userId
+            getIsActive() >> true
+            getFarm() >> farm2
+        }
+
+        UserDetailsImpl currentUserDetails = UserDetailsImpl.build(loggedUser)
+
+        Authentication authentication = Mock(Authentication) {
+            getPrincipal() >> currentUserDetails
+        }
+        SecurityContextHolder.getContext().setAuthentication(authentication)
+
+        userRepository.findById(Long.valueOf(user.getId())) >> Optional.of(user)
+        userRepository.findById(Long.valueOf(loggedUser.getId())) >> Optional.of(loggedUser)
+
+        when:
+        userService.updateUserDetails(userId, request)
+
+        then:
+        RuntimeException ex = thrown()
+        ex.message == 'Nie masz dostępu do edycji tego użytkownika.'
+    }
+
+    //skiping updateUserProperties since its just a 1 big setter
+
+    /*
+    * changeUserPassword
+    */
+
+    def "should change user password"() {
+        given:
+        ChangeUserPasswordRequest request = new ChangeUserPasswordRequest(
+                newPassword: 'newPassword'
+        )
+        Integer userId = 2
+        Farm farm = Mock(Farm) {
+            getId() >> 1
+        }
+        User loggedUser = Mock(User) {
+            getId() >> 1
+            getUsername() >> 'user1'
+            getEmail() >> 'test@gmail.com'
+            getPassword() >> 'fwafwafa312z'
+            getRole() >> class_role_manager
+            getIsActive() >> true
+            getFarm() >> farm
+        }
+        User user = Mock(User) {
+            getId() >> userId
+            getIsActive() >> true
+            getFarm() >> farm
+        }
+
+        UserDetailsImpl currentUserDetails = UserDetailsImpl.build(loggedUser)
+
+        Authentication authentication = Mock(Authentication) {
+            getPrincipal() >> currentUserDetails
+        }
+        SecurityContextHolder.getContext().setAuthentication(authentication)
+        userRepository.findById(Long.valueOf(user.getId())) >> Optional.of(user)
+        userRepository.findById(Long.valueOf(loggedUser.getId())) >> Optional.of(loggedUser)
+    
+        when:
+        userService.updateUserPassword(userId, request)
+
+        then:
+        1 * encoder.encode(request.getNewPassword())
+        1 * user.setPassword(_)
+        1 * userRepository.save(user)
+    }
+
+    def "should throw runtime exception when user doesnt exist during password change"() {
+        given:
+        ChangeUserPasswordRequest request = new ChangeUserPasswordRequest(
+                newPassword: 'newPassword'
+        )
+        Integer userId = 2
+        User user = Mock(User) {
+            getId() >> userId
+            getIsActive() >> true
+        }
+
+        userRepository.findById(Long.valueOf(user.getId())) >> Optional.empty()
+
+        when:
+        userService.updateUserPassword(userId, request)
+
+        then:
+        RuntimeException ex = thrown()
+        ex.message == 'Użytkownik o ID 2 nie istnieje.'
+    }
+
+    def "should not allow for updating other user details"() {
+        given:
+        ChangeUserPasswordRequest request = new ChangeUserPasswordRequest(
+                newPassword: 'newPassword'
+        )
+        Integer userId = 2
+
+        Farm farm1 = Mock(Farm) {
+            getId() >> 1
+        }
+        Farm farm2 = Mock(Farm) {
+            getId() >> 2
+        }
+
+        User loggedUser = Mock(User) {
+            getId() >> 1
+            getUsername() >> 'user1'
+            getEmail() >> 'test@gmail.com'
+            getPassword() >> 'fwafwafa312z'
+            getRole() >> class_role_manager
+            getIsActive() >> true
+            getFarm() >> farm1
+        }
+        User user = Mock(User) {
+            getId() >> userId
+            getIsActive() >> true
+            getFarm() >> farm2
+        }
+
+        UserDetailsImpl currentUserDetails = UserDetailsImpl.build(loggedUser)
+
+        Authentication authentication = Mock(Authentication) {
+            getPrincipal() >> currentUserDetails
+        }
+        SecurityContextHolder.getContext().setAuthentication(authentication)
+
+        userRepository.findById(Long.valueOf(user.getId())) >> Optional.of(user)
+        userRepository.findById(Long.valueOf(loggedUser.getId())) >> Optional.of(loggedUser)
+
+        when:
+        userService.updateUserPassword(userId, request)
+
+        then:
+        RuntimeException ex = thrown()
+        ex.message == 'Nie masz dostępu do edycji tego użytkownika.'
     }
 
     /*
