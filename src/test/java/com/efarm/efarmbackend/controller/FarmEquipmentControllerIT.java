@@ -172,7 +172,7 @@ public class FarmEquipmentControllerIT {
                 .andDo(print())
         //then
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Pomyślnie zaktualizowane dane maszyny."));
+                .andExpect(jsonPath("$.message").value("Pomyślnie zaktualizowane dane maszyny"));
         
         FarmEquipment updatedFarmEquipment = entityManager.find(FarmEquipment.class, new FarmEquipmentId(equipmentId, 1));
         assertThat(updatedFarmEquipment.getEquipmentName(), is(addUpdateFarmEquipmentRequest.getEquipmentName()));

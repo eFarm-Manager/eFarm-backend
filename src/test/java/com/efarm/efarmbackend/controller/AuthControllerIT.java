@@ -275,7 +275,7 @@ public class AuthControllerIT {
                         .content(objectMapper.writeValueAsString(signUpUserRequest)))
         // Then
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Zarejestrowano nowego użytkownika!"));
+                .andExpect(jsonPath("$.message").value("Pomyślnie zarejestrowano nowego użytkownika"));
 
         User newUser = entityManager.createQuery(
                         "SELECT u FROM User u WHERE u.username = :username", User.class)
@@ -349,7 +349,7 @@ public class AuthControllerIT {
                         .content(objectMapper.writeValueAsString(signUpUserRequest)))
         // Then
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Podana nazwa użytkownika jest już zajęta!"));
+                .andExpect(jsonPath("$.message").value("Podana nazwa użytkownika jest już zajęta"));
 
     }
     /*
@@ -381,7 +381,7 @@ public class AuthControllerIT {
                         .content(objectMapper.writeValueAsString(signUpFarmRequest)))
         // Then
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Pomyślnie zarejestrowano nową farmę!"));
+                .andExpect(jsonPath("$.message").value("Pomyślnie zarejestrowano nową farmę"));
 
         User newUser = entityManager.createQuery(
                         "SELECT u FROM User u WHERE u.username = :username", User.class)
@@ -428,7 +428,7 @@ public class AuthControllerIT {
                         .content(objectMapper.writeValueAsString(signUpFarmRequest)))
         // Then
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Wybrana nazwa użytkownika jest już zajęta!"));
+                .andExpect(jsonPath("$.message").value("Wybrana nazwa użytkownika jest już zajęta"));
 
     }
 
@@ -459,7 +459,7 @@ public class AuthControllerIT {
                         .content(objectMapper.writeValueAsString(signUpFarmRequest)))
         // Then
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Wybrana nazwa farmy jest już zajęta!"));
+                .andExpect(jsonPath("$.message").value("Wybrana nazwa farmy jest już zajęta"));
 
     }
 
@@ -483,7 +483,7 @@ public class AuthControllerIT {
                         .content(objectMapper.writeValueAsString(signUpFarmRequest)))
         // Then
                 .andExpect(status().isBadRequest())                
-                .andExpect(jsonPath("$.message").value("Podany kod aktywacyjny nie istnieje!"));
+                .andExpect(jsonPath("$.message").value("Podany kod aktywacyjny nie istnieje"));
 
     }
     /*
@@ -530,7 +530,7 @@ public class AuthControllerIT {
                         .content(objectMapper.writeValueAsString(updateActivationCodeRequest)))
         // Then
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Pomyślnie zaktualizowano kod aktywacyjny!"));
+                .andExpect(jsonPath("$.message").value("Pomyślnie zaktualizowano kod aktywacyjny"));
 
     }
 
@@ -630,7 +630,7 @@ public class AuthControllerIT {
                         .content(objectMapper.writeValueAsString(updateActivationCodeRequest)))
         // Then
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Podany kod aktywacyjny nie istnieje!"));
+                .andExpect(jsonPath("$.message").value("Podany kod aktywacyjny nie istnieje"));
 
     }
 
@@ -729,7 +729,7 @@ public class AuthControllerIT {
                         .content(objectMapper.writeValueAsString(updateActivationCodeByLoggedOwnerRequest)))
         // Then
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Pomyślnie zaktualizowano kod aktywacyjny!"));
+                .andExpect(jsonPath("$.message").value("Pomyślnie zaktualizowano kod aktywacyjny"));
     }
 
     @Test
@@ -817,7 +817,7 @@ public class AuthControllerIT {
                         .content(objectMapper.writeValueAsString(updateActivationCodeByLoggedOwnerRequest)))
         // Then
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Podany kod aktywacyjny został już wykorzystany!"));
+                .andExpect(jsonPath("$.message").value("Podany kod aktywacyjny został już wykorzystany"));
     }
     /*
      * PUT /change-password

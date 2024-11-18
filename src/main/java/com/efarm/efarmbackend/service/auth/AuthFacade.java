@@ -66,7 +66,7 @@ public class AuthFacade {
 
         logger.info("Received signup User request: {}", signUpUserRequest);
         if (userRepository.existsByUsername(signUpUserRequest.getUsername())) {
-            throw new RuntimeException("Podana nazwa użytkownika jest już zajęta!");
+            throw new RuntimeException("Podana nazwa użytkownika jest już zajęta");
         }
         User user = userService.createFarmUser(signUpUserRequest);
         Farm currentUserFarm = userService.getLoggedUserFarm();
@@ -79,11 +79,11 @@ public class AuthFacade {
 
         logger.info("Received signup Farm request: {}", signUpFarmRequest);
         if (userRepository.existsByUsername(signUpFarmRequest.getUsername())) {
-            throw new RuntimeException("Wybrana nazwa użytkownika jest już zajęta!");
+            throw new RuntimeException("Wybrana nazwa użytkownika jest już zajęta");
         }
 
         if (farmRepository.existsByFarmName(signUpFarmRequest.getFarmName())) {
-            throw new RuntimeException("Wybrana nazwa farmy jest już zajęta!");
+            throw new RuntimeException("Wybrana nazwa farmy jest już zajęta");
         }
 
         User user = userService.createFarmOwner(signUpFarmRequest);
@@ -116,7 +116,7 @@ public class AuthFacade {
     }
 
     @Transactional
-    public void updateActivationCodeByLoggedOwner(UpdateActivationCodeByLoggedOwnerRequest updateActivationCodeByLoggedOwnerRequest) throws Exception {
+    public void updateActivationCodeByLoggedOwner(UpdateActivationCodeByLoggedOwnerRequest updateActivationCodeByLoggedOwnerRequest) throws UnauthorizedException {
         if (userService.isPasswordValidForLoggedUser(updateActivationCodeByLoggedOwnerRequest.getPassword())) {
             activationCodeService.updateActivationCodeForFarm(
                     updateActivationCodeByLoggedOwnerRequest.getNewActivationCode(),

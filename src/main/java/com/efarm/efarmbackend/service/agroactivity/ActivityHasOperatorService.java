@@ -7,7 +7,9 @@ import com.efarm.efarmbackend.model.user.UserSummaryDTO;
 import com.efarm.efarmbackend.repository.agroactivity.ActivityHasOperatorRepository;
 import com.efarm.efarmbackend.repository.user.UserRepository;
 import com.efarm.efarmbackend.service.user.UserService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,8 +25,12 @@ public class ActivityHasOperatorService {
     private UserService userService;
 
     @Autowired
+    private ApplicationContext applicationContext;
+
+    @Autowired
     private ActivityHasOperatorRepository activityHasOperatorRepository;
 
+    @Transactional
     public void addOperatorsToActivity(AgroActivity agroActivity, List<Integer> operatorIds, Integer loggedUserFarmId) {
         List<User> operators;
         if (operatorIds != null && !operatorIds.isEmpty()) {
@@ -37,7 +43,7 @@ public class ActivityHasOperatorService {
                             throw new IllegalStateException("Użytkownik " + user.getFirstName() + " " + user.getLastName() + " jest niedostępny");
                         }
                         if (!user.getFarm().getId().equals(loggedUserFarmId)) {
-                            throw new IllegalStateException("Użytkownik o ID: " + user.getId() + " nie należy do tej farmy.");
+                            throw new IllegalStateException("Użytkownik o ID: " + user.getId() + " nie należy do tej farmy");
                         }
                     })
                     .collect(Collectors.toList());
@@ -62,6 +68,7 @@ public class ActivityHasOperatorService {
 
     public void updateOperatorInActivity(List<Integer> operatorsIds, AgroActivity agroActivity, Integer loggedUserFarmId) {
         activityHasOperatorRepository.deleteActivityHasOperatorsByAgroActivity(agroActivity);
-        addOperatorsToActivity(agroActivity, operatorsIds, loggedUserFarmId);
+        ActivityHasOperatorService self = applicationContext.getBean(ActivityHasOperatorService.class);
+        self.addOperatorsToActivity(agroActivity, operatorsIds, loggedUserFarmId);
     }
 }

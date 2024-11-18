@@ -135,7 +135,7 @@ public class LandparcelControllerIT {
                 .content(objectMapper.writeValueAsString(addLandparcelRequest)))
         //then
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Działka o powyższych danych geodezyjnych już istnieje!"));
+                .andExpect(jsonPath("$.message").value("Działka o powyższych danych geodezyjnych już istnieje"));
     }
 
     @Test
@@ -163,7 +163,7 @@ public class LandparcelControllerIT {
                 .content(objectMapper.writeValueAsString(addLandparcelRequest)))
         //then
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Działka o podanej nazwie już istnieje!"));
+                .andExpect(jsonPath("$.message").value("Działka o podanej nazwie już istnieje"));
     }
 
     /*
@@ -244,7 +244,7 @@ public class LandparcelControllerIT {
                 .content(objectMapper.writeValueAsString(updateRequest)))
         //then
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Działka o podanej nazwie już istnieje!"));
+                .andExpect(jsonPath("$.message").value("Działka o podanej nazwie już istnieje"));
     }
     
     @Test
@@ -337,7 +337,7 @@ public class LandparcelControllerIT {
                 .contentType(MediaType.APPLICATION_JSON))
         //then
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Wybrana działka już nie istnieje!"));
+                .andExpect(jsonPath("$.message").value("Wybrana działka już nie istnieje"));
     }
     /*
      * GET /all

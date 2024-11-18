@@ -47,7 +47,7 @@ public class UserService {
                 signUpFarmRequest.getPhoneNumber()
         );
         Role managerRole = roleRepository.findByName(ERole.ROLE_FARM_OWNER)
-                .orElseThrow(() -> new RuntimeException("Error: Role ROLE_FARM_OWNER is not found."));
+                .orElseThrow(() -> new RuntimeException("Nie znaleziono roli: " + ERole.ROLE_FARM_OWNER));
 
         user.setRole(managerRole);
         return user;
@@ -72,15 +72,15 @@ public class UserService {
 
         if (authentication == null) {
             logger.error("Authentication object is null. No user is authenticated.");
-            throw new RuntimeException("No authentication found. User may not be logged in.");
+            throw new RuntimeException("Nie znaleziono uwierzytelnienia. Prawdopodobnie nie jesteś zalogowany.");
         }
 
         Object principal = authentication.getPrincipal();
         if (principal instanceof UserDetailsImpl currentUserDetails) {
             return userRepository.findById(Long.valueOf(currentUserDetails.getId()))
-                    .orElseThrow(() -> new RuntimeException("Error: Current user not found."));
+                    .orElseThrow(() -> new RuntimeException("Nie znaleziono użytkownika"));
         } else {
-            throw new RuntimeException("Error: Unexpected principal type.");
+            throw new RuntimeException("Nieoczekiwany typ podmiotu zabezpieczeń");
         }
     }
 
@@ -90,7 +90,7 @@ public class UserService {
 
     public Farm getUserFarmById(Long userId) {
         User currentUser = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Error: User with ID " + userId + " not found."));
+                .orElseThrow(() -> new RuntimeException("Użytkownik o id: " + userId + " nie został znaleziony"));
         return currentUser.getFarm();
     }
 
@@ -117,7 +117,7 @@ public class UserService {
     public Optional<User> getActiveUserById(UserDetailsImpl userDetails) throws RuntimeException {
         Optional<User> loggingUser = userRepository.findById(Long.valueOf(userDetails.getId()));
         if (!loggingUser.isPresent() || !loggingUser.get().getIsActive()) {
-            throw new RuntimeException("Użytkownik jest nieaktywny!");
+            throw new RuntimeException("Użytkownik jest nieaktywny");
         }
         return loggingUser;
     }
@@ -199,12 +199,11 @@ public class UserService {
     private Role assignUserRole(String strRole) {
         return switch (strRole) {
             case "ROLE_FARM_OWNER" -> roleRepository.findByName(ERole.ROLE_FARM_OWNER)
-                    .orElseThrow(() -> new RuntimeException("Error: Role ROLE_FARM_OWNER is not found."));
+                    .orElseThrow(() -> new RuntimeException("Rola: ROLE_FARM_OWNER nie została znaleziona"));
             case "ROLE_FARM_MANAGER" -> roleRepository.findByName(ERole.ROLE_FARM_MANAGER)
-                    .orElseThrow(() -> new RuntimeException("Error: Role ROLE_FARM_MANAGER is not found."));
+                    .orElseThrow(() -> new RuntimeException("Rola: ROLE_FARM_MANAGER nie została znaleziona"));
             default -> roleRepository.findByName(ERole.ROLE_FARM_EQUIPMENT_OPERATOR)
-                    .orElseThrow(() -> new RuntimeException("Error: Role ROLE_FARM_EQUIPMENT_OPERATOR is not found."));
+                    .orElseThrow(() -> new RuntimeException("Rola: ROLE_FARM_EQUIPMENT_OPERATOR nie została znaleziona"));
         };
     }
 }
-

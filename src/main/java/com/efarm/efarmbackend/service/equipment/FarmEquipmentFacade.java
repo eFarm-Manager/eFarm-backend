@@ -60,7 +60,7 @@ public class FarmEquipmentFacade {
 
             return FarmEquipmentService.createFarmEquipmentDTOtoDisplay(equipment, fieldsToDisplay);
         } else {
-            throw new RuntimeException("Sprzęt jest niedostępny!");
+            throw new RuntimeException("Sprzęt jest niedostępny");
         }
     }
 

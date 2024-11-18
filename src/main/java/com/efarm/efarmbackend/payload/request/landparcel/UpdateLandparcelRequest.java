@@ -2,14 +2,12 @@ package com.efarm.efarmbackend.payload.request.landparcel;
 
 import jakarta.validation.constraints.*;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
-@NoArgsConstructor
 public class UpdateLandparcelRequest {
-    @Pattern(regexp = "STATUS_LEASE|STATUS_PRIVATELY_OWNED", message = "Status własności musi być jednym z: STATUS_LEASE, STATUS_PRIVATELY_OWNED")
+    @Pattern(regexp = "STATUS_LEASE|STATUS_PRIVATELY_OWNED", message = "Nieprawidłowy status własności")
     private String landOwnershipStatus;
 
     @Size(min = 3, max = 60, message = "Nazwa musi zawierać od 3 do 60 znaków")

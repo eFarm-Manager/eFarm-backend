@@ -420,7 +420,7 @@ class AgriculturalRecordServiceSpec extends Specification {
 
         then:
         Exception exception = thrown(Exception)
-        exception.message == 'Wybrana uprawa już istnieje na tym polu.'
+        exception.message == 'Wybrana uprawa już istnieje na tym polu'
     }
     /*
     * validateCropArea
@@ -473,7 +473,7 @@ class AgriculturalRecordServiceSpec extends Specification {
 
         then:
         Exception exception = thrown(Exception)
-        exception.message == 'Maksymalna niewykorzystana powierzchnia na tym polu to: 20.0 ha. Spróbuj najpierw zmniejszyć powierzchnię pozostałych upraw.'
+        exception.message == 'Maksymalna niewykorzystana powierzchnia na tym polu to: 20.0 ha. Spróbuj najpierw zmniejszyć powierzchnię pozostałych upraw'
     }
 
     def "should validate successfully if requested area exactly matches remaining space"() {
@@ -679,7 +679,7 @@ class AgriculturalRecordServiceSpec extends Specification {
 
         then:
         Exception exception = thrown(Exception)
-        exception.message == 'Wybrana uprawa już istnieje na tym polu.'
+        exception.message == 'Wybrana uprawa już istnieje na tym polu'
     }
 
     def "should skip updating crop if name is same of current and update request"() {
