@@ -260,7 +260,7 @@ class FarmServiceSpec extends Specification {
         then:
         0 * farmRepository.save(farm)
         IllegalArgumentException ex = thrown()
-        ex.message == "Wybrana nazwa farmy jest zajęta. Spróbuj wybrać inną"
+        ex.message == "Wybrana nazwa farmy jest zajęta. Spróbuj wybrać inną."
     }
 
     /*

@@ -338,7 +338,7 @@ class AgriculturalRecordFacadeSpec extends Specification {
 
         then:
         Exception e = thrown()
-        e.message == 'Podany sezon nie istnieje.'
+        e.message == 'Podany sezon nie istnieje'
     }
 
     def "should not create records if no active land parcels are available"() {

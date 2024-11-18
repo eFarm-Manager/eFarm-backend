@@ -96,7 +96,7 @@ public class FinanceService {
 
     public void checkTransactionAlreadyExistsByName(Farm loggedUserFarm, String transactionName) throws Exception {
         if (transactionRepository.existsByTransactionNameAndFarmId(transactionName, loggedUserFarm.getId())) {
-            throw new Exception("Transakcja o podanej nazwie już istnieje!");
+            throw new Exception("Transakcja o podanej nazwie już istnieje");
         }
     }
 

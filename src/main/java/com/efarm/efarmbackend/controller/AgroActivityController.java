@@ -40,7 +40,7 @@ public class AgroActivityController {
         try {
             validationRequestService.validateRequest(bindingResult);
             agroActivityFacade.addAgroActivity(request);
-            return ResponseEntity.status(HttpStatus.CREATED).body(new MessageResponse("Pomyślnie dodano nowy zabieg agrotechniczny."));
+            return ResponseEntity.status(HttpStatus.CREATED).body(new MessageResponse("Pomyślnie dodano nowy zabieg agrotechniczny"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
         }
@@ -74,7 +74,7 @@ public class AgroActivityController {
         try {
             validationRequestService.validateRequest(bindingResult);
             agroActivityFacade.updateAgroActivity(agroActivityId, request);
-            return ResponseEntity.ok(new MessageResponse("Pomyślnie zaktualizowano zabieg agrotechniczny."));
+            return ResponseEntity.ok(new MessageResponse("Pomyślnie zaktualizowano zabieg agrotechniczny"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
         }
@@ -85,7 +85,7 @@ public class AgroActivityController {
     public ResponseEntity<MessageResponse> deleteAgroActivity(@PathVariable Integer agroActivityId) {
         try {
             agroActivityFacade.deleteAgroActivity(agroActivityId);
-            return ResponseEntity.ok(new MessageResponse("Pomyślnie usunięto zabieg agrotechniczny."));
+            return ResponseEntity.ok(new MessageResponse("Pomyślnie usunięto zabieg agrotechniczny"));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse(e.getMessage()));
         }

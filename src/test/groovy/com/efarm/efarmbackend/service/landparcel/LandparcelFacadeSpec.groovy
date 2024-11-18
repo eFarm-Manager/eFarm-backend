@@ -96,7 +96,7 @@ class LandparcelFacadeSpec extends Specification {
 
         then:
         Exception e = thrown(Exception)
-        e.message == 'Działka o powyższych danych geodezyjnych już istnieje!'
+        e.message == 'Działka o powyższych danych geodezyjnych już istnieje'
 
         0 * landparcelService.addNewLandparcelData(_, _)
         0 * landparcelRepository.save(_)
@@ -129,7 +129,7 @@ class LandparcelFacadeSpec extends Specification {
 
         then:
         Exception e = thrown(Exception)
-        e.message == 'Działka o podanej nazwie już istnieje!'
+        e.message == 'Działka o podanej nazwie już istnieje'
 
         0 * landparcelService.addNewLandparcelData(_, _)
         0 * landparcelRepository.save(_)
@@ -298,7 +298,7 @@ class LandparcelFacadeSpec extends Specification {
 
         then:
         Exception ex = thrown(Exception)
-        ex.message == 'Działka o podanej nazwie już istnieje!'
+        ex.message == 'Działka o podanej nazwie już istnieje'
     }
     /*
         deleteLandparcel
@@ -357,7 +357,7 @@ class LandparcelFacadeSpec extends Specification {
 
         then:
         def ex = thrown(Exception)
-        ex.message == 'Wybrana działka już nie istnieje!'
+        ex.message == 'Wybrana działka już nie istnieje'
     }
     /*
         getLandparcels

@@ -239,7 +239,7 @@ public class FarmControllerIT {
                         .content(new ObjectMapper().writeValueAsString(updateFarmDetailsRequest)))
         //then
                         .andExpect(status().isBadRequest())
-                        .andExpect(jsonPath("$.message").value("Wybrana nazwa farmy jest zajęta. Spróbuj wybrać inną"));
+                        .andExpect(jsonPath("$.message").value("Wybrana nazwa farmy jest zajęta. Spróbuj wybrać inną."));
     }
 
 }

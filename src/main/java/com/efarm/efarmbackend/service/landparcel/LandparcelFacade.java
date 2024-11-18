@@ -43,10 +43,10 @@ public class LandparcelFacade {
 
         LandparcelDTO landparcelDTO = new LandparcelDTO(addLandparcelRequest);
         if (landparcelService.isLandparcelAlreadyExistingByFarm(landparcelDTO, loggedUserFarm)) {
-            throw new Exception("Działka o powyższych danych geodezyjnych już istnieje!");
+            throw new Exception("Działka o powyższych danych geodezyjnych już istnieje");
         }
         if (landparcelService.isLandparcelNameTaken(landparcelDTO.getName(), loggedUserFarm)) {
-            throw new Exception("Działka o podanej nazwie już istnieje!");
+            throw new Exception("Działka o podanej nazwie już istnieje");
         }
 
         landparcelService.addNewLandparcelData(landparcelDTO, landparcel);
@@ -82,7 +82,7 @@ public class LandparcelFacade {
         }
         if (!landparcel.getName().equals(landparcelDTO.getName()) &&
                 landparcelService.isLandparcelNameTaken(landparcelDTO.getName(), loggedUserFarm)) {
-            throw new Exception("Działka o podanej nazwie już istnieje!");
+            throw new Exception("Działka o podanej nazwie już istnieje");
         }
 
         landparcelService.updateLandparcelData(landparcelDTO, landparcel);
@@ -99,7 +99,7 @@ public class LandparcelFacade {
             landparcel.setIsAvailable(false);
             landparcelRepository.save(landparcel);
         } else {
-            throw new Exception("Wybrana działka już nie istnieje!");
+            throw new Exception("Wybrana działka już nie istnieje");
         }
     }
 

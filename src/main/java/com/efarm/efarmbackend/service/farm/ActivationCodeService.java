@@ -37,15 +37,15 @@ public class ActivationCodeService {
     public void validateActivationCode(String activationCode) throws RuntimeException {
         Optional<ActivationCode> activationCodeOpt = activationCodeRepository.findByCode(activationCode);
         if (activationCodeOpt.isEmpty()) {
-            throw new RuntimeException("Podany kod aktywacyjny nie istnieje!");
+            throw new RuntimeException("Podany kod aktywacyjny nie istnieje");
         }
 
         if (activationCodeOpt.get().getExpireDate().isBefore(LocalDate.now())) {
-            throw new RuntimeException("Kod aktywacyjny wygasł!");
+            throw new RuntimeException("Kod aktywacyjny wygasł");
         }
 
         if (activationCodeOpt.get().getIsUsed()) {
-            throw new RuntimeException("Podany kod aktywacyjny został już wykorzystany!");
+            throw new RuntimeException("Podany kod aktywacyjny został już wykorzystany");
         }
     }
 
@@ -67,7 +67,7 @@ public class ActivationCodeService {
             long daysToExpiration = ChronoUnit.DAYS.between(LocalDate.now(), activationCode.getExpireDate());
 
             if (daysToExpiration <= daysToShowExpireActivationCodeNotification && daysToExpiration >= 0) {
-                return "Kod aktywacyjny wygasa za " + daysToExpiration + " dni.";
+                return "Kod aktywacyjny wygasa za " + daysToExpiration + " dni";
             }
         }
         return null;
@@ -75,23 +75,23 @@ public class ActivationCodeService {
 
     public ActivationCode findActivationCodeByFarmId(Integer farmId) {
         Farm farm = farmRepository.findById(farmId)
-                .orElseThrow(() -> new RuntimeException("Farm with ID " + farmId + " not found."));
+                .orElseThrow(() -> new RuntimeException("Farma o ID " + farmId + " nie została znaleziona"));
 
         Integer activationCodeId = farm.getIdActivationCode();
 
         return activationCodeRepository.findById(activationCodeId)
-                .orElseThrow(() -> new RuntimeException("Activation code with ID " + activationCodeId + " not found."));
+                .orElseThrow(() -> new RuntimeException("Kod aktywacyjny o id" + activationCodeId + " nie został znaleziony"));
     }
 
     public ActivationCode findActivationCodeById(Integer codeId) {
         return activationCodeRepository.findById(codeId)
-                .orElseThrow(() -> new RuntimeException("Activation code not found for id: " + codeId));
+                .orElseThrow(() -> new RuntimeException("Nie znaleziono kodu aktywacyjnego o id" + codeId));
     }
 
     public void updateActivationCodeForFarm(String newActivationCode, Integer farmId, String username) {
 
         if (bruteForceProtectionService.isBlocked(username)) {
-            throw new TooManyRequestsException("Zbyt wiele nieudanych prób logowania! Spróbuj ponownie później.");
+            throw new TooManyRequestsException("Zbyt wiele nieudanych prób logowania! Spróbuj ponownie później");
         }
 
         validateActivationCode(newActivationCode);
@@ -100,7 +100,7 @@ public class ActivationCodeService {
         ActivationCode newActivationCodeEntity = activationCodeOpt.get();
 
         Farm farm = farmRepository.findById(farmId)
-                .orElseThrow(() -> new RuntimeException("Farm not found for id: " + farmId));
+                .orElseThrow(() -> new RuntimeException("Nie znaleziono kodu aktywacyjnego o id: " + farmId));
 
         Optional<ActivationCode> currentActivationCodeOpt = activationCodeRepository.findById(farm.getIdActivationCode());
         if (currentActivationCodeOpt.isPresent()) {

@@ -90,7 +90,7 @@ public class AuthController {
         try {
             validationRequestService.validateRequest(bindingResult);
             authFacade.registerUser(signUpRequest);
-            return ResponseEntity.ok(new MessageResponse("Zarejestrowano nowego użytkownika!"));
+            return ResponseEntity.ok(new MessageResponse("Pomyślnie zarejestrowano nowego użytkownika"));
         } catch (Exception e) {
             Farm farm = userService.getLoggedUserFarm();
             logger.error("Can not create user for farm: {}", farm.getId());
@@ -103,7 +103,7 @@ public class AuthController {
         try {
             validationRequestService.validateRequest(bindingResult);
             authFacade.registerFarmAndFarmOwner(signupFarmRequest);
-            return ResponseEntity.ok(new MessageResponse("Pomyślnie zarejestrowano nową farmę!"));
+            return ResponseEntity.ok(new MessageResponse("Pomyślnie zarejestrowano nową farmę"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
         }
@@ -114,7 +114,7 @@ public class AuthController {
         try {
             validationRequestService.validateRequest(bindingResult);
             authFacade.updateActivationCode(updateActivationCodeRequest);
-            return ResponseEntity.ok(new MessageResponse("Pomyślnie zaktualizowano kod aktywacyjny!"));
+            return ResponseEntity.ok(new MessageResponse("Pomyślnie zaktualizowano kod aktywacyjny"));
         } catch (TooManyRequestsException e) {
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
                     .body(new MessageResponse(e.getMessage()));
@@ -132,7 +132,7 @@ public class AuthController {
         try {
             validationRequestService.validateRequest(bindingResult);
             authFacade.updateActivationCodeByLoggedOwner(updateActivationCodeByLoggedOwnerRequest);
-            return ResponseEntity.ok(new MessageResponse("Pomyślnie zaktualizowano kod aktywacyjny!"));
+            return ResponseEntity.ok(new MessageResponse("Pomyślnie zaktualizowano kod aktywacyjny"));
         } catch (UnauthorizedException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new MessageResponse(e.getMessage()));
         } catch (Exception e) {

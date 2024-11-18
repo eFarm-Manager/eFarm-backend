@@ -66,7 +66,7 @@ public class FarmService {
 
         for (Farm farm : activeFarms) {
             ActivationCode activationCode = activationCodeRepository.findById(farm.getIdActivationCode())
-                    .orElseThrow(() -> new RuntimeException("Activation code not found for farm: " + farm.getId()));
+                    .orElseThrow(() -> new RuntimeException("Nie znaleziono kodu aktywacyjnego dla farmy o id: " + farm.getId()));
 
             if (activationCode.getExpireDate().isBefore(LocalDate.now())) {
                 logger.info("Deactivating farm: {}", farm.getId());
@@ -92,7 +92,7 @@ public class FarmService {
         if (!loggedUserFarm.getFarmName().equals(request.getFarmName()) &&
                 isFarmNameTaken(request.getFarmName())
         ) {
-            throw new IllegalArgumentException("Wybrana nazwa farmy jest zajęta. Spróbuj wybrać inną");
+            throw new IllegalArgumentException("Wybrana nazwa farmy jest zajęta. Spróbuj wybrać inną.");
         } else if (request.getFarmName() != null) {
             loggedUserFarm.setFarmName(request.getFarmName());
         }

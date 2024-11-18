@@ -3,15 +3,11 @@ package com.efarm.efarmbackend.payload.request.agriculturalrecord;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
 public class CreateNewAgriculturalRecordRequest {
     @NotNull
     private Integer landparcelId;

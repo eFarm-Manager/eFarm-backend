@@ -188,7 +188,7 @@ public class AgriculturalRecordControllerIT {
                 .content(objectMapper.writeValueAsString(request)))
         // then
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Wybrane pole jest niedostępne!"));
+                .andExpect(jsonPath("$.message").value("Wybrane pole jest niedostępne"));
     }
 
     @Test
@@ -207,7 +207,7 @@ public class AgriculturalRecordControllerIT {
                 .content(objectMapper.writeValueAsString(request)))
         // then
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Maksymalna niewykorzystana powierzchnia na tym polu to: 0.0 ha. Spróbuj najpierw zmniejszyć powierzchnię pozostałych upraw.")); 
+                .andExpect(jsonPath("$.message").value("Maksymalna niewykorzystana powierzchnia na tym polu to: 0.0 ha. Spróbuj najpierw zmniejszyć powierzchnię pozostałych upraw")); 
     }
 
     @Test
@@ -271,7 +271,7 @@ public class AgriculturalRecordControllerIT {
                 .contentType(MediaType.APPLICATION_JSON))
         // then
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Podany sezon nie istnieje.")); 
+                .andExpect(jsonPath("$.message").value("Podany sezon nie istnieje")); 
     }
 
     /*

@@ -70,7 +70,7 @@ public class AgriculturalRecordService {
             if (showAdditionalExceptionInfo) {
                 throw new Exception("Wybrana uprawa już istnieje na tym polu. Możesz zmienić jej powierzchnię zamiast dodawać ją ponownie.");
             } else {
-                throw new Exception("Wybrana uprawa już istnieje na tym polu.");
+                throw new Exception("Wybrana uprawa już istnieje na tym polu");
             }
         }
         return crop;
@@ -83,7 +83,7 @@ public class AgriculturalRecordService {
 
         if (totalUsedArea + recordRequest.getArea() > landparcel.getArea()) {
             double roundedDownArea = Math.floor(maxAvailableArea * 10000) / 10000;
-            throw new Exception("Maksymalna niewykorzystana powierzchnia na tym polu to: " + roundedDownArea + " ha. Spróbuj najpierw zmniejszyć powierzchnię pozostałych upraw.");
+            throw new Exception("Maksymalna niewykorzystana powierzchnia na tym polu to: " + roundedDownArea + " ha. Spróbuj najpierw zmniejszyć powierzchnię pozostałych upraw");
         }
     }
 
