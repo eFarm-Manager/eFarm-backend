@@ -171,4 +171,12 @@ public class AgriculturalRecordService {
             throw new Exception("Ewidencja, którą próbujesz usunąć nie istnieje!");
         }
     }
+
+    @Transactional
+    public void deleteAllAgriculturalRecordsForFarm(Farm farm) throws Exception {
+        List<AgriculturalRecord> allRecords = agriculturalRecordRepository.findAgriculturalRecordByFarm(farm);
+        for (AgriculturalRecord record : allRecords) {
+            deleteAgriculturalRecord(record.getId().getId());
+        }
+    }
 }

@@ -139,6 +139,12 @@ public class UserService {
     }
 
     @Transactional
+    public void deleteAllUsersForFarm(Farm farm) {
+        List<User> users = getUsersByFarmId(farm.getId());
+        userRepository.deleteAll(users);
+    }
+
+    @Transactional
     public void toggleUserActiveStatus(Integer userId) {
         Farm loggedUserFarm = getLoggedUserFarm();
         User user = userRepository.findByIdAndFarmId(userId, loggedUserFarm.getId())

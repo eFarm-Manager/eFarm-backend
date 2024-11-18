@@ -8,6 +8,7 @@ import com.efarm.efarmbackend.payload.response.BalanceResponse;
 import com.efarm.efarmbackend.repository.finance.FinancialCategoryRepository;
 import com.efarm.efarmbackend.repository.finance.PaymentStatusRepository;
 import com.efarm.efarmbackend.repository.finance.TransactionRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -128,6 +129,12 @@ public class FinanceService {
 
     public List<Transaction> getTransactionsByFarmAndDate(Integer farmId, LocalDate startDate, LocalDate endDate) {
         return transactionRepository.findByFarmAndDate(farmId, startDate, endDate);
+    }
+
+    @Transactional
+    public void deleteAllTransactionsForFarm(Farm farm) {
+        List<Transaction> transactions = transactionRepository.findByFarmId(farm.getId());
+        transactionRepository.deleteAll(transactions);
     }
 
     public BalanceResponse calculateFarmBalance(List<Transaction> transactions) {

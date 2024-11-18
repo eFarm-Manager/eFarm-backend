@@ -311,6 +311,69 @@ class LandparcelServiceSpec extends Specification {
     }
 
     /*
+    * findlandparcelByFarm
+    */
+
+    def "should find landparcel by current farm"() {
+        given:
+        Integer id = 1
+        Farm farm = Mock(Farm) {
+            getId() >> 1
+        }
+        LandparcelId landparcelId = new LandparcelId(id, farm.getId())
+        Landparcel landparcel = Mock(Landparcel) {
+            getId() >> landparcelId
+        }
+        landparcelRepository.findById(landparcelId) >> Optional.of(landparcel) 
+
+        when:
+        Landparcel result = landparcelService.findlandparcelByFarm(id, farm)
+
+        then:
+        result.getId().getId() == landparcelId.getId()
+        result.getId().getFarmId() == landparcelId.getFarmId()
+    }
+
+    def "should return null when landparcel does not exist"() {
+        given:
+        Integer id = 1
+        Farm farm = Mock(Farm) {
+            getId() >> 1
+        }
+        LandparcelId landparcelId = new LandparcelId(id, farm.getId())
+        landparcelRepository.findById(landparcelId) >> Optional.empty()
+
+        when:
+        Landparcel result = landparcelService.findlandparcelByFarm(id, farm)
+
+        then:
+        Exception e = thrown()
+        e.message == 'Nie znaleziono działki'
+    }
+
+    /*
+    * deleteAllLandparcelsForFarm
+    */
+
+    def "should delete all landparcels for a farm"() {
+        given:
+        Farm farm = Mock(Farm) {
+            getId() >> 1
+        }
+        Landparcel landparcel1 = Mock(Landparcel)
+        Landparcel landparcel2 = Mock(Landparcel)
+        landparcelRepository.findByFarmId(farm.getId()) >> [landparcel1, landparcel2]
+
+        when:
+        landparcelService.deleteAllLandparcelsForFarm(farm)
+
+        then:
+        1 * landparcelRepository.deleteAll({ List<Landparcel> landparcels ->
+            landparcels.contains(landparcel1) && landparcels.contains(landparcel2)
+        })
+    }
+
+    /*
     * setCommonFields
     */
 

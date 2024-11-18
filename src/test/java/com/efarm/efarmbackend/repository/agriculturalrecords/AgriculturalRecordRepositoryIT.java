@@ -85,6 +85,24 @@ public class AgriculturalRecordRepositoryIT {
     }
 
     @Test
+    public void testFindAgriculturalRecordByFarm() {
+        //given
+        Farm farm = entityManager.find(Farm.class, 1);
+        Long count = entityManager.getEntityManager()
+                .createQuery("SELECT COUNT(ar) FROM AgriculturalRecord ar WHERE ar.id.farmId = :farmId", Long.class)
+                .setParameter("farmId", farm.getId())
+                .getSingleResult();
+
+        //when
+        List<AgriculturalRecord> foundRecords = agriculturalRecordRepository.findAgriculturalRecordByFarm(farm);
+
+        //then
+        assertThat(foundRecords.size(), is(count.intValue()));
+        assertThat(foundRecords, notNullValue());
+        assertThat(foundRecords, everyItem(hasProperty("id", hasProperty("farmId", is(farm.getId())))));
+    }
+
+    @Test
     public void testFindCropStatisticsBySeasonAndFarm() {
         //given
         Integer seasonId = 1;
