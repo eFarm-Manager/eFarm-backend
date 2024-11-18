@@ -59,7 +59,7 @@ public class AgroActivityController {
     }
 
     @GetMapping("/details/{agroActivityId}")
-    @PreAuthorize("hasRole('ROLE_FARM_MANAGER') or hasRole('ROLE_FARM_OWNER')")
+    @PreAuthorize("hasRole('ROLE_FARM_MANAGER') or hasRole('ROLE_FARM_OWNER')or hasRole('ROLE_FARM_EQUIPMENT_OPERATOR')")
     public ResponseEntity<?> getAgroActivityDetails(@PathVariable Integer agroActivityId) {
         try {
             AgroActivityDetailDTO detail = agroActivityFacade.getAgroActivityDetails(agroActivityId);
