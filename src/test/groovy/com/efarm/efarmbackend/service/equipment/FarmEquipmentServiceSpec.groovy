@@ -1,9 +1,11 @@
 package com.efarm.efarmbackend.service
 
+import com.efarm.efarmbackend.model.farm.Farm;
 import com.efarm.efarmbackend.model.equipment.FarmEquipment
 import com.efarm.efarmbackend.model.equipment.FarmEquipmentId
 import com.efarm.efarmbackend.model.equipment.EquipmentCategory
 import com.efarm.efarmbackend.payload.request.equipment.AddUpdateFarmEquipmentRequest
+import com.efarm.efarmbackend.repository.equipment.FarmEquipmentRepository;
 import com.efarm.efarmbackend.service.equipment.FarmEquipmentService
 import com.efarm.efarmbackend.service.equipment.EquipmentDisplayDataService
 import spock.lang.Specification
@@ -13,10 +15,12 @@ import java.time.LocalDate
 class FarmEquipmentServiceSpec extends Specification {
 
     def equipmentDisplayDataService = Mock(EquipmentDisplayDataService)
+    def farmEquipmentRepository = Mock(FarmEquipmentRepository)
 
     @Subject
     FarmEquipmentService farmEquipmentService = new FarmEquipmentService(
-        equipmentDisplayDataService: equipmentDisplayDataService
+        equipmentDisplayDataService: equipmentDisplayDataService,
+        farmEquipmentRepository: farmEquipmentRepository
     )
 
     FarmEquipment equipment = Mock(FarmEquipment)
@@ -167,6 +171,35 @@ class FarmEquipmentServiceSpec extends Specification {
         equipment.getEquipmentName() == 'Tractor X'
         equipment.getBrand() == null
         equipment.getModel() == 'Model X'
+    }
+
+    /*
+    *   deleteAllEquipmentForFarm
+    */
+
+    def "should delete all equipment for farm"() {
+        given:
+        Farm farm = Mock(Farm) {
+            getId() >> 1
+        }
+
+        FarmEquipment farmEquipment1 = Mock(FarmEquipment) {
+            getId() >> new FarmEquipmentId(1,farm.getId())
+        }
+        FarmEquipment farmEquipment2 = Mock(FarmEquipment) {
+            getId() >> new FarmEquipmentId(2,farm.getId())
+        }
+
+        farmEquipmentRepository.findByFarmIdFarm_Id(farm.getId()) >> [farmEquipment1, farmEquipment2]
+
+        when:
+        farmEquipmentService.deleteAllEquipmentForFarm(farm)
+
+        then:
+        1 * farmEquipmentRepository.deleteAll({ List<FarmEquipment> equipments ->
+            equipments.contains(farmEquipment1) && equipments.contains(farmEquipment2)
+        })
+
     }
 
 }

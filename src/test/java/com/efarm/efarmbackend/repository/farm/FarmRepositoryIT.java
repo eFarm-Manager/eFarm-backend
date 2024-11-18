@@ -67,11 +67,27 @@ public class FarmRepositoryIT {
                 .getSingleResult();
 
         // when
-        List<Farm> activeFarms = farmRepository.findByIsActiveTrue();
+        List<Farm> activeFarms = farmRepository.findByIsActive(true);
 
         // then
         assertThat(activeFarms, not(empty()));
         assertThat(countActive.intValue(), is(activeFarms.size()));
         assertThat(activeFarms, everyItem(hasProperty("isActive", is(true))));
+    }
+
+    @Test
+    public void testFindActiveFalse() {
+        //given
+        Long countInactive = entityManager.getEntityManager()
+                .createQuery("SELECT COUNT(f) FROM Farm f WHERE f.isActive = false", Long.class)
+                .getSingleResult();
+
+        // when
+        List<Farm> nonActiveFarms = farmRepository.findByIsActive(false);
+
+        // then
+        assertThat(nonActiveFarms, not(empty()));
+        assertThat(countInactive.intValue(), is(nonActiveFarms.size()));
+        assertThat(nonActiveFarms, everyItem(hasProperty("isActive", is(false))));
     }
 }

@@ -4,9 +4,11 @@ import com.efarm.efarmbackend.model.farm.Farm;
 import com.efarm.efarmbackend.model.landparcel.*;
 import com.efarm.efarmbackend.repository.landparcel.LandOwnershipStatusRepository;
 import com.efarm.efarmbackend.repository.landparcel.LandparcelRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Locale;
 
 @Service
@@ -67,6 +69,12 @@ public class LandparcelService {
         LandparcelId landparcelId = new LandparcelId(id, loggedUserFarm.getId());
         return landparcelRepository.findById(landparcelId)
                 .orElseThrow(() -> new Exception("Nie znaleziono działki"));
+    }
+
+    @Transactional
+    public void deleteAllLandparcelsForFarm(Farm farm) {
+        List<Landparcel> landparcels = landparcelRepository.findByFarmId(farm.getId());
+        landparcelRepository.deleteAll(landparcels);
     }
 
     private void setCommonFields(Landparcel landparcel, LandparcelDTO landparcelDTO) {
