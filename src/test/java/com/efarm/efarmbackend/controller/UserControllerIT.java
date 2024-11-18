@@ -164,7 +164,7 @@ public class UserControllerIT {
         mockMvc.perform(patch("/users/toggle-active/{userId}", userId))
                 .andExpect(status().isBadRequest())
         //then
-                .andExpect(jsonPath("$.message").value("Użytkownik o ID " + userId + " nie istnieje na Twojej farmie"));
+                .andExpect(jsonPath("$.message").value("Wybrany użytkownik nie istnieje"));
     }
 
     @Test 
@@ -179,7 +179,7 @@ public class UserControllerIT {
         mockMvc.perform(patch("/users/toggle-active/{userId}", user.getId()))
                 .andExpect(status().isBadRequest())
         //then
-                .andExpect(jsonPath("$.message").value("Nie masz dostępu do edycji tego użytkownika"));
+                .andExpect(jsonPath("$.message").value("Wybrany użytkownik nie istnieje"));
     }
 
     /*
@@ -199,7 +199,7 @@ public class UserControllerIT {
         updateUserRequest.setFirstName("NewFirstName");
         updateUserRequest.setLastName("NewLastName");
         updateUserRequest.setEmail("newEmail@gmial.com");
-        updateUserRequest.setPhoneNumber("123456789"); //TODO: change to empty string
+        updateUserRequest.setPhoneNumber(""); 
         updateUserRequest.setRole("ROLE_FARM_OWNER");
 
         // When
@@ -226,7 +226,7 @@ public class UserControllerIT {
         updateUserRequest.setFirstName("NewFirstName");
         updateUserRequest.setLastName("NewLastName");
         updateUserRequest.setEmail("newEmail@gmial.com");
-        updateUserRequest.setPhoneNumber("123456789"); //TODO: change to empty string
+        updateUserRequest.setPhoneNumber(""); 
         updateUserRequest.setRole("ROLE_FARM_OWNER");
 
         // When
@@ -235,7 +235,7 @@ public class UserControllerIT {
                 .content(new ObjectMapper().writeValueAsString(updateUserRequest)))
         // Then
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Użytkownik o ID " + userId + " nie istnieje."));
+                .andExpect(jsonPath("$.message").value("Wybrany użytkownik nie istnieje"));
     }
 
     @Test
@@ -250,7 +250,7 @@ public class UserControllerIT {
         updateUserRequest.setFirstName("NewFirstName");
         updateUserRequest.setLastName("NewLastName");
         updateUserRequest.setEmail("newEmail@gmial.com");
-        updateUserRequest.setPhoneNumber("123456789"); //TODO: change to empty string
+        updateUserRequest.setPhoneNumber("");
         updateUserRequest.setRole("ROLE_FARM_OWNER");
 
         // When
@@ -259,7 +259,7 @@ public class UserControllerIT {
                 .content(new ObjectMapper().writeValueAsString(updateUserRequest)))
         // Then
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Nie masz dostępu do edycji tego użytkownika."));
+                .andExpect(jsonPath("$.message").value("Wybrany użytkownik nie istnieje"));
     }
     
     /*
@@ -305,7 +305,7 @@ public class UserControllerIT {
                 .content(new ObjectMapper().writeValueAsString(request)))
         // Then
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Użytkownik o ID " + userId + " nie istnieje."));
+                .andExpect(jsonPath("$.message").value("Wybrany użytkownik nie istnieje"));
     }
 
     @Test
@@ -325,6 +325,6 @@ public class UserControllerIT {
                 .content(new ObjectMapper().writeValueAsString(request)))
         // Then
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Nie masz dostępu do edycji tego użytkownika."));
+                .andExpect(jsonPath("$.message").value("Wybrany użytkownik nie istnieje"));
     }
 }

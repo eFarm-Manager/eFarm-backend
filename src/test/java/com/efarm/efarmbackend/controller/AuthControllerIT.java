@@ -362,7 +362,7 @@ public class AuthControllerIT {
         ActivationCode activationCode = entityManager.createQuery(
                         "SELECT a FROM ActivationCode a WHERE a.isUsed = :used", ActivationCode.class)
                 .setParameter("used", false)
-                .setMaxResults(1)  // Ensures only one result is returned
+                .setMaxResults(1)  
                 .getSingleResult();
 
         SignupFarmRequest signUpFarmRequest = new SignupFarmRequest();

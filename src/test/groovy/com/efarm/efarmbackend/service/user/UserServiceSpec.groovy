@@ -552,8 +552,9 @@ class UserServiceSpec extends Specification {
             getPrincipal() >> currentUserDetails
         }
         SecurityContextHolder.getContext().setAuthentication(authentication)
-        userRepository.findById(Long.valueOf(user.getId())) >> Optional.of(user)
+
         userRepository.findById(Long.valueOf(loggedUser.getId())) >> Optional.of(loggedUser)
+        userRepository.findByIdAndFarmId(user.getId(), loggedUser.getFarm().getId()) >> Optional.of(user)
 
         when:
         userService.toggleUserActiveStatus(user.getId())
@@ -562,6 +563,45 @@ class UserServiceSpec extends Specification {
         1 * user.setIsActive(false)
         1 * userRepository.save(_ as User)
     }
+
+        def "should throw runtime exception when user doesnt exist during toggle"() {
+        given:
+        UpdateUserRequest request = new UpdateUserRequest(
+                firstName: 'John',
+                lastName: 'Doe',
+        )
+        Integer userId = 2
+        Farm farm = Mock(Farm) {
+            getId() >> 1
+        }
+        User loggedUser = Mock(User) {
+            getId() >> 1
+            getUsername() >> 'user1'
+            getEmail() >> 'test@gmail.com'
+            getPassword() >> 'fwafwafa312z'
+            getRole() >> class_role_manager
+            getIsActive() >> true
+            getFarm() >> farm
+        }
+        UserDetailsImpl currentUserDetails = UserDetailsImpl.build(loggedUser)
+
+        Authentication authentication = Mock(Authentication) {
+            getPrincipal() >> currentUserDetails
+        }
+        SecurityContextHolder.getContext().setAuthentication(authentication)
+
+        userRepository.findById(Long.valueOf(loggedUser.getId())) >> Optional.of(loggedUser)
+        userRepository.findByIdAndFarmId(userId, loggedUser.getFarm().getId()) >> Optional.empty()
+
+        when:
+        userService.toggleUserActiveStatus(userId)
+
+        then:
+        RuntimeException ex = thrown()
+        ex.message == 'Wybrany użytkownik nie istnieje'
+    }
+
+
 
     def "should not allow logged in user to toggle status of other user"() {
         given:
@@ -592,15 +632,16 @@ class UserServiceSpec extends Specification {
             getPrincipal() >> currentUserDetails
         }
         SecurityContextHolder.getContext().setAuthentication(authentication)
-        userRepository.findById(Long.valueOf(user.getId())) >> Optional.of(user)
+
         userRepository.findById(Long.valueOf(loggedUser.getId())) >> Optional.of(loggedUser)
+        userRepository.findByIdAndFarmId(user.getId(), loggedUser.getFarm().getId()) >> Optional.empty()
 
         when:
         userService.toggleUserActiveStatus(user.getId())
 
         then:
         RuntimeException ex = thrown()
-        ex.message == 'Nie masz dostępu do edycji tego użytkownika'
+        ex.message == 'Wybrany użytkownik nie istnieje'
     }
 
     /*
@@ -640,8 +681,9 @@ class UserServiceSpec extends Specification {
             getPrincipal() >> currentUserDetails
         }
         SecurityContextHolder.getContext().setAuthentication(authentication)
-        userRepository.findById(Long.valueOf(user.getId())) >> Optional.of(user)
+
         userRepository.findById(Long.valueOf(loggedUser.getId())) >> Optional.of(loggedUser)
+        userRepository.findByIdAndFarmId(userId, loggedUser.getFarm().getId()) >> Optional.of(user)
     
         when:
         userService.updateUserDetails(userId, request)
@@ -659,19 +701,34 @@ class UserServiceSpec extends Specification {
                 lastName: 'Doe',
         )
         Integer userId = 2
-        User user = Mock(User) {
-            getId() >> userId
-            getIsActive() >> true
+        Farm farm = Mock(Farm) {
+            getId() >> 1
         }
+        User loggedUser = Mock(User) {
+            getId() >> 1
+            getUsername() >> 'user1'
+            getEmail() >> 'test@gmail.com'
+            getPassword() >> 'fwafwafa312z'
+            getRole() >> class_role_manager
+            getIsActive() >> true
+            getFarm() >> farm
+        }
+        UserDetailsImpl currentUserDetails = UserDetailsImpl.build(loggedUser)
 
-        userRepository.findById(Long.valueOf(user.getId())) >> Optional.empty()
+        Authentication authentication = Mock(Authentication) {
+            getPrincipal() >> currentUserDetails
+        }
+        SecurityContextHolder.getContext().setAuthentication(authentication)
+
+        userRepository.findById(Long.valueOf(loggedUser.getId())) >> Optional.of(loggedUser)
+        userRepository.findByIdAndFarmId(userId, loggedUser.getFarm().getId()) >> Optional.empty()
 
         when:
         userService.updateUserDetails(userId, request)
 
         then:
         RuntimeException ex = thrown()
-        ex.message == 'Użytkownik o ID 2 nie istnieje.'
+        ex.message == 'Wybrany użytkownik nie istnieje'
     }
 
     def "should not allow for updating other user details"() {
@@ -711,15 +768,15 @@ class UserServiceSpec extends Specification {
         }
         SecurityContextHolder.getContext().setAuthentication(authentication)
 
-        userRepository.findById(Long.valueOf(user.getId())) >> Optional.of(user)
         userRepository.findById(Long.valueOf(loggedUser.getId())) >> Optional.of(loggedUser)
+        userRepository.findByIdAndFarmId(userId, loggedUser.getFarm().getId()) >> Optional.empty()
 
         when:
         userService.updateUserDetails(userId, request)
 
         then:
         RuntimeException ex = thrown()
-        ex.message == 'Nie masz dostępu do edycji tego użytkownika.'
+        ex.message == 'Wybrany użytkownik nie istnieje'
     }
 
     //skiping updateUserProperties since its just a 1 big setter
@@ -758,8 +815,9 @@ class UserServiceSpec extends Specification {
             getPrincipal() >> currentUserDetails
         }
         SecurityContextHolder.getContext().setAuthentication(authentication)
-        userRepository.findById(Long.valueOf(user.getId())) >> Optional.of(user)
+
         userRepository.findById(Long.valueOf(loggedUser.getId())) >> Optional.of(loggedUser)
+        userRepository.findByIdAndFarmId(userId, loggedUser.getFarm().getId()) >> Optional.of(user)
     
         when:
         userService.updateUserPassword(userId, request)
@@ -776,19 +834,34 @@ class UserServiceSpec extends Specification {
                 newPassword: 'newPassword'
         )
         Integer userId = 2
-        User user = Mock(User) {
-            getId() >> userId
-            getIsActive() >> true
+        Farm farm = Mock(Farm) {
+            getId() >> 1
         }
+        User loggedUser = Mock(User) {
+            getId() >> 1
+            getUsername() >> 'user1'
+            getEmail() >> 'test@gmail.com'
+            getPassword() >> 'fwafwafa312z'
+            getRole() >> class_role_manager
+            getIsActive() >> true
+            getFarm() >> farm
+        }
+        UserDetailsImpl currentUserDetails = UserDetailsImpl.build(loggedUser)
 
-        userRepository.findById(Long.valueOf(user.getId())) >> Optional.empty()
+        Authentication authentication = Mock(Authentication) {
+            getPrincipal() >> currentUserDetails
+        }
+        SecurityContextHolder.getContext().setAuthentication(authentication)
+
+        userRepository.findById(Long.valueOf(loggedUser.getId())) >> Optional.of(loggedUser)
+        userRepository.findByIdAndFarmId(userId, loggedUser.getFarm().getId()) >> Optional.empty()
 
         when:
         userService.updateUserPassword(userId, request)
 
         then:
         RuntimeException ex = thrown()
-        ex.message == 'Użytkownik o ID 2 nie istnieje.'
+        ex.message == 'Wybrany użytkownik nie istnieje'
     }
 
     def "should not allow for updating other user details"() {
@@ -827,15 +900,15 @@ class UserServiceSpec extends Specification {
         }
         SecurityContextHolder.getContext().setAuthentication(authentication)
 
-        userRepository.findById(Long.valueOf(user.getId())) >> Optional.of(user)
         userRepository.findById(Long.valueOf(loggedUser.getId())) >> Optional.of(loggedUser)
+        userRepository.findByIdAndFarmId(userId, loggedUser.getFarm().getId()) >> Optional.empty()
 
         when:
         userService.updateUserPassword(userId, request)
 
         then:
         RuntimeException ex = thrown()
-        ex.message == 'Nie masz dostępu do edycji tego użytkownika.'
+        ex.message == 'Wybrany użytkownik nie istnieje'
     }
 
     /*
