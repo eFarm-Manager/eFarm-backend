@@ -13,7 +13,7 @@ public class AddressService {
 
     public Address findAddressById(Integer codeId) {
         return addressRepository.findById(codeId)
-                .orElseThrow(() -> new RuntimeException("Activation code not found for id: " + codeId));
+                .orElseThrow(() -> new RuntimeException("Nie znaleziono kodu aktywacyjnego o id: " + codeId));
     }
 
     public void updateFarmAddress(Address address, UpdateFarmDetailsRequest updateFarmDetailsRequest) {

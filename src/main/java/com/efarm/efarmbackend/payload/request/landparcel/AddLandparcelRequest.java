@@ -2,15 +2,13 @@ package com.efarm.efarmbackend.payload.request.landparcel;
 
 import jakarta.validation.constraints.*;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
-@NoArgsConstructor
 public class AddLandparcelRequest {
     @NotBlank(message = "Status własności nie może być pusty")
-    @Pattern(regexp = "STATUS_LEASE|STATUS_PRIVATELY_OWNED", message = "Status własności musi być jednym z: STATUS_LEASE, STATUS_PRIVATELY_OWNED")
+    @Pattern(regexp = "STATUS_LEASE|STATUS_PRIVATELY_OWNED", message = "Nieprawidłowy status własności")
     private String landOwnershipStatus;
 
     @NotBlank(message = "Nazwa nie może być pusta")

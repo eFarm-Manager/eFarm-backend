@@ -34,5 +34,4 @@ public class SignupRequest {
 
     @Size(max = 12)
     private String phoneNumber;
-
 }

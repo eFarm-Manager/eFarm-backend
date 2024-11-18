@@ -121,7 +121,7 @@ public class FinanceControllerIT {
                 .content(objectMapper.writeValueAsString(newTransactionRequest)))
         //then
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Transakcja o podanej nazwie już istnieje!"));
+                .andExpect(jsonPath("$.message").value("Transakcja o podanej nazwie już istnieje"));
     }
     /*
     * PUT /{id}
@@ -173,7 +173,7 @@ public class FinanceControllerIT {
                 .content(objectMapper.writeValueAsString(updateTransactionRequest)))
         //then
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Transakcja o podanej nazwie już istnieje!"));
+                .andExpect(jsonPath("$.message").value("Transakcja o podanej nazwie już istnieje"));
     }
 
     @Test

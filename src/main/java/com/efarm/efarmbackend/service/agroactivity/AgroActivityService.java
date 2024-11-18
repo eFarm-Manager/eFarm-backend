@@ -96,7 +96,7 @@ public class AgroActivityService {
 
     public void deleteAgroActivity(AgroActivityId agroActivityId) {
         AgroActivity agroActivity = agroActivityRepository.findById(agroActivityId)
-                .orElseThrow(() -> new IllegalArgumentException("Nie znaleziono zabiegu agrotechnicznego o ID: " + agroActivityId));
+                .orElseThrow(() -> new IllegalArgumentException("Nie znaleziono zabiegu agrotechnicznego o ID: " + agroActivityId.getId()));
 
         activityHasOperatorRepository.deleteActivityHasOperatorsByAgroActivity(agroActivity);
         activityHasEquipmentRepository.deleteActivityHasEquipmentsByAgroActivity(agroActivity);
