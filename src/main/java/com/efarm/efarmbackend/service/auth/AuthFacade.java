@@ -6,6 +6,8 @@ import com.efarm.efarmbackend.model.farm.Address;
 import com.efarm.efarmbackend.model.farm.Farm;
 import com.efarm.efarmbackend.model.user.User;
 import com.efarm.efarmbackend.payload.request.auth.*;
+import com.efarm.efarmbackend.payload.request.farm.UpdateActivationCodeByLoggedOwnerRequest;
+import com.efarm.efarmbackend.payload.request.user.ChangePasswordRequest;
 import com.efarm.efarmbackend.repository.farm.ActivationCodeRepository;
 import com.efarm.efarmbackend.repository.farm.AddressRepository;
 import com.efarm.efarmbackend.repository.farm.FarmRepository;
@@ -60,13 +62,13 @@ public class AuthFacade {
 
 
     @Transactional
-    public void registerUser(SignupRequest signUpRequest) throws RuntimeException {
+    public void registerUser(SignupUserRequest signUpUserRequest) throws RuntimeException {
 
-        logger.info("Received signup User request: {}", signUpRequest);
-        if (userRepository.existsByUsername(signUpRequest.getUsername())) {
+        logger.info("Received signup User request: {}", signUpUserRequest);
+        if (userRepository.existsByUsername(signUpUserRequest.getUsername())) {
             throw new RuntimeException("Podana nazwa użytkownika jest już zajęta");
         }
-        User user = userService.createFarmUser(signUpRequest);
+        User user = userService.createFarmUser(signUpUserRequest);
         Farm currentUserFarm = userService.getLoggedUserFarm();
         user.setFarm(currentUserFarm);
         userRepository.save(user);

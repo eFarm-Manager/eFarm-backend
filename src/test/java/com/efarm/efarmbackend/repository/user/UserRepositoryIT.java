@@ -114,6 +114,57 @@ public class UserRepositoryIT {
     }
 
     @Test
+    public void testFindByIdAndFarmId() {
+        // Given
+        User user = entityManager.find(User.class, 1);
+        Integer farmId = user.getFarm().getId();
+
+        // When
+        Optional<User> foundUser = userRepository.findByIdAndFarmId(1, farmId);
+
+        // Then
+        assertThat(foundUser.isPresent(), is(true));
+        assertThat(foundUser.get().getFarm().getId(), is(farmId));
+    }
+
+    @Test
+    public void testFindByIdAndFarmIdNotExistingUser() {
+        // Given
+        Integer farmId = 1;
+
+        // When
+        Optional<User> foundUser = userRepository.findByIdAndFarmId(999, farmId);
+
+        // Then
+        assertThat(foundUser.isPresent(), is(false));
+    }
+
+    @Test
+    public void testFindByIdAndFarmIdNotExistingFarm() {
+        // Given
+        User user = entityManager.find(User.class, 1);
+
+        // When
+        Optional<User> foundUser = userRepository.findByIdAndFarmId(1, 999);
+
+        // Then
+        assertThat(foundUser.isPresent(), is(false));
+    }
+
+    @Test
+    public void testFindByIdAndFarmIdNotMatchingFarm() {
+        // Given
+        User user = entityManager.find(User.class, 1);
+        Integer farmId = user.getFarm().getId() + 1;
+
+        // When
+        Optional<User> foundUser = userRepository.findByIdAndFarmId(1, farmId);
+
+        // Then
+        assertThat(foundUser.isPresent(), is(false));
+    }
+
+    @Test
     @DisplayName("Tests that user existing in db exists by username")
     public void testUserExistsByUsername() {
         //given
