@@ -140,26 +140,18 @@ public class UserService {
 
     @Transactional
     public void toggleUserActiveStatus(Integer userId) {
-        User user = userRepository.findById(Long.valueOf(userId))
-                .orElseThrow(() -> new RuntimeException("Użytkownik o ID " + userId + " nie istnieje na Twojej farmie"));
-
         Farm loggedUserFarm = getLoggedUserFarm();
-        if (!user.getFarm().getId().equals(loggedUserFarm.getId())) {
-            throw new RuntimeException("Nie masz dostępu do edycji tego użytkownika");
-        }
+        User user = userRepository.findByIdAndFarmId(userId, loggedUserFarm.getId())
+                .orElseThrow(() -> new RuntimeException("Wybrany użytkownik nie istnieje"));
         user.setIsActive(!user.getIsActive());
         userRepository.save(user);
     }
 
     @Transactional
     public void updateUserDetails(Integer userId, UpdateUserRequest updateUserRequest) {
-        User user = userRepository.findById(Long.valueOf(userId))
-                .orElseThrow(() -> new RuntimeException("Użytkownik o ID " + userId + " nie istnieje."));
-
         Farm loggedUserFarm = getLoggedUserFarm();
-        if (!user.getFarm().getId().equals(loggedUserFarm.getId())) {
-            throw new RuntimeException("Nie masz dostępu do edycji tego użytkownika.");
-        }
+        User user = userRepository.findByIdAndFarmId(userId, loggedUserFarm.getId())
+                .orElseThrow(() -> new RuntimeException("Wybrany użytkownik nie istnieje"));
 
         updateUserProperties(user, updateUserRequest);
         userRepository.save(user);
@@ -187,13 +179,10 @@ public class UserService {
 
     @Transactional
     public void updateUserPassword(Integer userId, ChangeUserPasswordRequest updatePasswordRequest) {
-        User user = userRepository.findById(Long.valueOf(userId))
-                .orElseThrow(() -> new RuntimeException("Użytkownik o ID " + userId + " nie istnieje."));
-
         Farm loggedUserFarm = getLoggedUserFarm();
-        if (!user.getFarm().getId().equals(loggedUserFarm.getId())) {
-            throw new RuntimeException("Nie masz dostępu do edycji tego użytkownika.");
-        }
+        User user = userRepository.findByIdAndFarmId(userId, loggedUserFarm.getId())
+                .orElseThrow(() -> new RuntimeException("Wybrany użytkownik nie istnieje"));
+
         user.setPassword(encoder.encode(updatePasswordRequest.getNewPassword()));
         userRepository.save(user);
     }

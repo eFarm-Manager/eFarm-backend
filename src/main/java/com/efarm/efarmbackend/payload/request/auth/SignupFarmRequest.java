@@ -31,7 +31,7 @@ public class SignupFarmRequest {
     @Size(min = 6, max = 40, message = "Hasło musi mieć od 6 do 40 znaków")
     private String password;
 
-    @Pattern(regexp = "^\\+?[0-9\\-]{9,12}$", message = "Niepoprawny format numeru telefonu")
+    @Pattern(regexp = "^$|^\\+?[0-9\\-]{9,12}$", message = "Niepoprawny format numeru telefonu")
     @Size(max = 12, message = "Numer telefonu może mieć maksymalnie 12 znaków")
     private String phoneNumber;
 

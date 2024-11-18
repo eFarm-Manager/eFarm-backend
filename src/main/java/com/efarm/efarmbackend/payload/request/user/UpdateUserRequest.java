@@ -12,19 +12,19 @@ import lombok.Setter;
 public class UpdateUserRequest {
 
     @NotBlank(message = "Imię nie może być puste")
-    @Size(min = 3, max = 30, message = "Imię musi mieć od 2 do 45 znaków")
+    @Size(min = 3, max = 30, message = "Imię musi mieć od 3 do 30 znaków")
     private String firstName;
 
     @NotBlank(message = "Nazwisko nie może być puste")
-    @Size(min = 3, max = 40, message = "Nazwisko musi mieć od 2 do 45 znaków")
+    @Size(min = 3, max = 40, message = "Nazwisko musi mieć od 3 do 40 znaków")
     private String lastName;
 
     @NotBlank(message = "Adres email nie może być pusty")
     @Email(message = "Niepoprawny format adresu email")
-    @Size(max = 50, message = "Adres email może mieć maksymalnie 80 znaków")
+    @Size(max = 50, message = "Adres email może mieć maksymalnie 50 znaków")
     private String email;
 
-    @Pattern(regexp = "^\\+?[0-9\\-]{9,11}$", message = "Niepoprawny format numeru telefonu")
+    @Pattern(regexp = "^$|^\\+?[0-9\\-]{9,12}$", message = "Niepoprawny format numeru telefonu")
     private String phoneNumber;
 
     @NotBlank(message = "Rola użytkownika nie może być pusta")
