@@ -6,6 +6,7 @@ import com.efarm.efarmbackend.model.agroactivity.ActivityCategory;
 import com.efarm.efarmbackend.model.agroactivity.AgroActivity;
 import com.efarm.efarmbackend.model.agroactivity.AgroActivityId;
 import com.efarm.efarmbackend.model.agroactivity.AgroActivitySummaryDTO;
+import com.efarm.efarmbackend.model.user.User;
 import com.efarm.efarmbackend.payload.request.agroactivity.NewAgroActivityRequest;
 import com.efarm.efarmbackend.payload.request.agroactivity.UpdateAgroActivityRequest;
 import com.efarm.efarmbackend.repository.agriculturalrecords.AgriculturalRecordRepository;
@@ -13,10 +14,12 @@ import com.efarm.efarmbackend.repository.agroactivity.ActivityHasEquipmentReposi
 import com.efarm.efarmbackend.repository.agroactivity.ActivityHasOperatorRepository;
 import com.efarm.efarmbackend.repository.agroactivity.AgroActivityRepository;
 import com.efarm.efarmbackend.service.user.UserService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -101,5 +104,32 @@ public class AgroActivityService {
         activityHasOperatorRepository.deleteActivityHasOperatorsByAgroActivity(agroActivity);
         activityHasEquipmentRepository.deleteActivityHasEquipmentsByAgroActivity(agroActivity);
         agroActivityRepository.delete(agroActivity);
+    }
+
+    @Transactional
+    public List<AgroActivitySummaryDTO> getAssignedIncompleteActivitiesForLoggedUser() {
+        User loggedUser = userService.getLoggedUser();
+        List<AgroActivity> activities = agroActivityRepository.findIncompleteActivitiesAssignedToUser(loggedUser.getId());
+        return activities.stream()
+                .sorted(Comparator.comparing(AgroActivity::getDate))
+                .map(AgroActivitySummaryDTO::new)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void markActivityAsCompleted(Integer activityId) {
+        AgroActivity activity = agroActivityRepository.findById(new AgroActivityId(activityId, userService.getLoggedUserFarm().getId()))
+                .orElseThrow(() -> new RuntimeException("Nie znaleziono zadania"));
+
+        User loggedUser = userService.getLoggedUser();
+        boolean isAssigned = activityHasOperatorRepository.findActivityHasOperatorsByAgroActivity(activity).stream()
+                .anyMatch(operator -> operator.getUser().getId().equals(loggedUser.getId()));
+
+        if (!isAssigned || activity.getIsCompleted()) {
+            throw new RuntimeException("Nie masz dostępu do tego zadania");
+        }
+
+        activity.setIsCompleted(true);
+        agroActivityRepository.save(activity);
     }
 }
