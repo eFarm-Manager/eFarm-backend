@@ -62,7 +62,7 @@ public class FarmService {
     }
 
     public void deactivateFarmsWithExpiredActivationCodes() {
-        List<Farm> activeFarms = farmRepository.findByIsActiveTrue();
+        List<Farm> activeFarms = farmRepository.findByIsActive(true);
 
         for (Farm farm : activeFarms) {
             ActivationCode activationCode = activationCodeRepository.findById(farm.getIdActivationCode())
@@ -110,7 +110,7 @@ public class FarmService {
 
     @Transactional
     public void deleteInactiveFarms() throws Exception {
-        List<Farm> inactiveFarms = farmRepository.findByIsActiveFalse();
+        List<Farm> inactiveFarms = farmRepository.findByIsActive(false);
         LocalDate today = LocalDate.now();
         for (Farm farm : inactiveFarms) {
             Optional<ActivationCode> currentActivationCode = activationCodeRepository.findById(farm.getIdActivationCode());

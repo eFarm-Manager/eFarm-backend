@@ -2,19 +2,17 @@ package com.efarm.efarmbackend.service
 
 import com.efarm.efarmbackend.model.farm.ActivationCode
 import com.efarm.efarmbackend.model.farm.Farm
-import com.efarm.efarmbackend.model.user.User
 import com.efarm.efarmbackend.model.user.Role
 import com.efarm.efarmbackend.model.user.ERole
 import com.efarm.efarmbackend.repository.farm.ActivationCodeRepository
 import com.efarm.efarmbackend.payload.request.farm.UpdateFarmDetailsRequest
-import com.efarm.efarmbackend.repository.farm.AddressRepository;
-import com.efarm.efarmbackend.repository.farm.FarmRepository;
-import com.efarm.efarmbackend.service.agriculturalrecords.AgriculturalRecordService;
-import com.efarm.efarmbackend.service.equipment.FarmEquipmentService;
-import com.efarm.efarmbackend.service.finance.FinanceService;
-import com.efarm.efarmbackend.service.landparcel.LandparcelService;
-import com.efarm.efarmbackend.service.user.UserService;
-import com.efarm.efarmbackend.repository.user.UserRepository
+import com.efarm.efarmbackend.repository.farm.AddressRepository
+import com.efarm.efarmbackend.repository.farm.FarmRepository
+import com.efarm.efarmbackend.service.agriculturalrecords.AgriculturalRecordService
+import com.efarm.efarmbackend.service.equipment.FarmEquipmentService
+import com.efarm.efarmbackend.service.finance.FinanceService
+import com.efarm.efarmbackend.service.landparcel.LandparcelService
+import com.efarm.efarmbackend.service.user.UserService
 import com.efarm.efarmbackend.service.farm.FarmService
 import org.springframework.security.core.context.SecurityContextHolder
 import spock.lang.Specification
@@ -94,7 +92,7 @@ class FarmServiceSpec extends Specification {
         farm2.getFarmName() >> "farm2"
         farm2.getIdActivationCode() >> 2
 
-        farmRepository.findByIsActiveTrue() >> [farm1, farm2]
+        farmRepository.findByIsActive(true) >> [farm1, farm2]
 
         activationCodeRepository.findById(1) >> Optional.of(activationCode1)
         activationCodeRepository.findById(2) >> Optional.of(activationCode2)
@@ -295,7 +293,7 @@ class FarmServiceSpec extends Specification {
             getIdActivationCode() >> 2
         }
 
-        farmRepository.findByIsActiveFalse() >> [farm1, farm3]
+        farmRepository.findByIsActive(false) >> [farm1, farm3]
 
         activationCodeRepository.findById(farm1.getIdActivationCode()) >> Optional.of(activationCode1)
         activationCodeRepository.findById(farm3.getIdActivationCode()) >> Optional.of(activationCode2)

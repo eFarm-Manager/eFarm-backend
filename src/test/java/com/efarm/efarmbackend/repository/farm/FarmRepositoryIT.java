@@ -67,7 +67,7 @@ public class FarmRepositoryIT {
                 .getSingleResult();
 
         // when
-        List<Farm> activeFarms = farmRepository.findByIsActiveTrue();
+        List<Farm> activeFarms = farmRepository.findByIsActive(true);
 
         // then
         assertThat(activeFarms, not(empty()));

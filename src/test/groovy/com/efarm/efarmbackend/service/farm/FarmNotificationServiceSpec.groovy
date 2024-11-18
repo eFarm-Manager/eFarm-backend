@@ -40,7 +40,7 @@ class FarmNotificationServiceSpec extends Specification {
             idActivationCode >> 11
             isActive >> true
         }
-        farmRepository.findByIsActiveTrue() >> [farm1, farm2]
+        farmRepository.findByIsActive(true) >> [farm1, farm2]
 
         activationCodeRepository.findById(farm1.idActivationCode) >> Optional.of(Mock(ActivationCode) {
             getExpireDate() >> LocalDate.now().plusDays(5)

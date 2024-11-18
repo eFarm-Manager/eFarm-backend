@@ -36,7 +36,7 @@ public class FarmNotificationService {
 
     public void checkActivationCodeDueDateNotifications() {
         LocalDate today = LocalDate.now();
-        List<Farm> farms = farmRepository.findByIsActiveTrue();
+        List<Farm> farms = farmRepository.findAll();
         for (Farm farm : farms) {
             if (farm.getIsActive()) {
                 checkAndNotifyForActivationCode(farm, today);
