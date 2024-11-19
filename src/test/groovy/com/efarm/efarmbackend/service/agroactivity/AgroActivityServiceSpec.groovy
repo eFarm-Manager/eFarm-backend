@@ -7,6 +7,7 @@ import com.efarm.efarmbackend.model.agroactivity.AgroActivity;
 import com.efarm.efarmbackend.model.agroactivity.AgroActivityId;
 import com.efarm.efarmbackend.model.agroactivity.AgroActivitySummaryDTO;
 import com.efarm.efarmbackend.model.farm.Farm;
+import com.efarm.efarmbackend.model.user.User;
 import com.efarm.efarmbackend.payload.request.agroactivity.NewAgroActivityRequest;
 import com.efarm.efarmbackend.payload.request.agroactivity.UpdateAgroActivityRequest;
 import com.efarm.efarmbackend.repository.agriculturalrecords.AgriculturalRecordRepository;
@@ -267,5 +268,82 @@ class AgroActivityServiceSpec extends Specification {
         then:
         IllegalArgumentException ex = thrown()
         //ex.message == 'Nie znaleziono zabiegu agrotechnicznego o ID: '
+    }
+
+    /*
+    * getAssignedIncompleteActivitiesForLoggedUser
+    */
+
+    def "should get assigned incomplete activities for logged in user"() {
+        given:
+        User user = Mock(User) {
+            getId() >> 1
+        }
+        AgroActivity agroActivity1 = Mock(AgroActivity) {
+            getId() >> new AgroActivityId(1, 1)
+            getName() >> "Activity1"
+            getDate() >> Instant.parse("2024-01-01T00:00:00Z")
+            getIsCompleted() >> false
+            getActivityCategory() >> Mock(ActivityCategory) {
+                getName() >> "category1"
+            }
+        }
+        AgroActivity agroActivity2 = Mock(AgroActivity) {
+            getId() >> new AgroActivityId(2, 1)
+            getName() >> "Activity2"
+            getDate() >> Instant.parse("2024-01-02T00:00:00Z")
+            getIsCompleted() >> false
+            getActivityCategory() >> Mock(ActivityCategory) {
+                getName() >> "category2"
+            }
+        }
+
+        userService.getLoggedUser() >> user
+        agroActivityRepository.findIncompleteActivitiesAssignedToUser(user.getId()) >> [agroActivity1, agroActivity2]
+
+        when:
+        List<AgroActivitySummaryDTO> result = agroActivityService.getAssignedIncompleteActivitiesForLoggedUser()
+
+        then:
+        result.size() == 2
+        result[0].id == agroActivity1.getId().getId()
+        result[0].name == agroActivity1.getName()
+        result[0].date == agroActivity1.getDate()
+        result[0].isCompleted == agroActivity1.getIsCompleted()
+        result[0].categoryName == agroActivity1.getActivityCategory().getName()
+        result[1].id == agroActivity2.getId().getId()
+        result[1].name == agroActivity2.getName()
+        result[1].date == agroActivity2.getDate()
+        result[1].isCompleted == agroActivity2.getIsCompleted()
+        result[1].categoryName == agroActivity2.getActivityCategory().getName()
+    }
+
+    /*
+    * markActivityAsCompleted
+    */
+
+    def "should successfully mark activity as completed"() {
+        given:
+        Farm farm = Mock(Farm) {
+            getId() >> 1
+        }
+        AgroActivityId agroActivityId = new AgroActivityId(1, farm.getId())
+        AgroActivity agroActivity = Mock(AgroActivity) {
+            getId() >> agroActivityId
+            getIsCompleted() >> false
+        }
+        User user = Mock(User) {
+            getId() >> 1
+        }
+
+        agroActivityRepository.findById(agroActivityId) >> Optional.of(agroActivity)
+        userService.getLoggedUserFarm() >> farm
+        activityHasOperatorRepository.findActivityHasOperatorsByAgroActivity(agroActivity) >> 
+        when:
+        agroActivityService.markActivityAsCompleted(agroActivityId)
+
+        then:
+        1 * agroActivity.setIsCompleted(true)
+        1 * agroActivityRepository.save(agroActivity)
     }
 }
