@@ -15,6 +15,34 @@ class EquipmentDisplayDataServiceSpec extends Specification {
         equipmentCategoryRepository: equipmentCategoryRepository
     )
 
+    def setup() {
+        setField(equipmentDisplayDataService, "categoryFieldsCache", new HashMap<>())
+        setField(equipmentDisplayDataService, "cachedCategoryList", new ArrayList<>())
+    }
+
+    def "should initialize cache with categories and fields"() {
+        given:
+        List<String> categories = ['Ciągniki rolnicze', 'Kosiarki']
+        equipmentCategoryRepository.findAllCategoryNames() >> categories
+
+        equipmentDisplayDataService.metaClass.getFieldsForCategory('Ciągniki rolnicze') >> ['power', 'insurancePolicyNumber', 'insuranceExpirationDate', 'inspectionExpireDate']
+        equipmentDisplayDataService.metaClass.getFieldsForCategory('Kosiarki') >> ['workingWidth']
+
+        when:
+        equipmentDisplayDataService.initializeCache()
+
+        then:
+        equipmentDisplayDataService.categoryFieldsCache.size() == 2
+        equipmentDisplayDataService.categoryFieldsCache['Ciągniki rolnicze'] == ['equipmentName', 'category', 'brand', 'model', 'power', 'insurancePolicyNumber', 'insuranceExpirationDate', 'inspectionExpireDate']
+        equipmentDisplayDataService.categoryFieldsCache['Kosiarki'] == ['equipmentName', 'category', 'brand', 'model', 'workingWidth']
+
+        equipmentDisplayDataService.cachedCategoryList.size() == 2
+        List<EquipmentCategoryDTO> categoryList = equipmentDisplayDataService.cachedCategoryList
+        categoryList.any { it.categoryName == 'Ciągniki rolnicze' && it.fields == ['equipmentName', 'category', 'brand', 'model', 'power', 'insurancePolicyNumber', 'insuranceExpirationDate', 'inspectionExpireDate'] }
+        categoryList.any { it.categoryName == 'Kosiarki' && it.fields == ['equipmentName', 'category', 'brand', 'model', 'workingWidth'] }
+    }
+    
+
     def "should return correct fields for tractors"() {
         given:
         String categoryName = 'Ciągniki rolnicze'
@@ -81,16 +109,17 @@ class EquipmentDisplayDataServiceSpec extends Specification {
         result == []
     }
 
-    def "should get all categoires with fields"() {
+    def "should get all categories with fields"() {
         given:
         List<String> categories = ['Ciągniki rolnicze', 'Kosiarki']
         equipmentCategoryRepository.findAllCategoryNames() >> categories
 
-        equipmentDisplayDataService.getFieldsForCategory('Ciągniki rolnicze') >> ['power', 'insurancePolicyNumber', 'insuranceExpirationDate', 'inspectionExpireDate']
-        equipmentDisplayDataService.getFieldsForCategory('Kosiarki') >> ['workingWidth']
+        equipmentDisplayDataService.metaClass.getFieldsForCategory('Ciągniki rolnicze') >> ['power', 'insurancePolicyNumber', 'insuranceExpirationDate', 'inspectionExpireDate']
+        equipmentDisplayDataService.metaClass.getFieldsForCategory('Kosiarki') >> ['workingWidth']
 
         List<String> commonFields = ['equipmentName', 'category', 'brand', 'model']
 
+        equipmentDisplayDataService.initializeCache()
         when:
         List<EquipmentCategoryDTO> result = equipmentDisplayDataService.getAllCategoriesWithFields()
 
@@ -102,6 +131,15 @@ class EquipmentDisplayDataServiceSpec extends Specification {
 
         result[1].getCategoryName() == 'Kosiarki'
         result[1].getFields() == commonFields + ['workingWidth']
+    }
+
+
+    //helper function
+
+    private void setField(Object target, String fieldName, Object value) {
+        def field = target.getClass().getDeclaredField(fieldName)
+        field.setAccessible(true)
+        field.set(target, value)
     }
 
 }
