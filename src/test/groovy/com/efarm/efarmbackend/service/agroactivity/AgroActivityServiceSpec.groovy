@@ -7,6 +7,8 @@ import com.efarm.efarmbackend.model.agroactivity.AgroActivity;
 import com.efarm.efarmbackend.model.agroactivity.AgroActivityId;
 import com.efarm.efarmbackend.model.agroactivity.AgroActivitySummaryDTO;
 import com.efarm.efarmbackend.model.farm.Farm;
+import com.efarm.efarmbackend.model.user.User;
+import com.efarm.efarmbackend.model.agroactivity.ActivityHasOperator;
 import com.efarm.efarmbackend.payload.request.agroactivity.NewAgroActivityRequest;
 import com.efarm.efarmbackend.payload.request.agroactivity.UpdateAgroActivityRequest;
 import com.efarm.efarmbackend.repository.agriculturalrecords.AgriculturalRecordRepository;
@@ -266,6 +268,178 @@ class AgroActivityServiceSpec extends Specification {
 
         then:
         IllegalArgumentException ex = thrown()
-        //ex.message == 'Nie znaleziono zabiegu agrotechnicznego o ID: '
+        ex.message == 'Nie znaleziono zabiegu agrotechnicznego o ID: 1'
+    }
+
+    /*
+    * getAssignedIncompleteActivitiesForLoggedUser
+    */
+
+    def "should get assigned incomplete activities for logged in user"() {
+        given:
+        User user = Mock(User) {
+            getId() >> 1
+        }
+        AgroActivity agroActivity1 = Mock(AgroActivity) {
+            getId() >> new AgroActivityId(1, 1)
+            getName() >> "Activity1"
+            getDate() >> Instant.parse("2024-01-01T00:00:00Z")
+            getIsCompleted() >> false
+            getActivityCategory() >> Mock(ActivityCategory) {
+                getName() >> "category1"
+            }
+        }
+        AgroActivity agroActivity2 = Mock(AgroActivity) {
+            getId() >> new AgroActivityId(2, 1)
+            getName() >> "Activity2"
+            getDate() >> Instant.parse("2024-01-02T00:00:00Z")
+            getIsCompleted() >> false
+            getActivityCategory() >> Mock(ActivityCategory) {
+                getName() >> "category2"
+            }
+        }
+
+        userService.getLoggedUser() >> user
+        agroActivityRepository.findIncompleteActivitiesAssignedToUser(user.getId()) >> [agroActivity1, agroActivity2]
+
+        when:
+        List<AgroActivitySummaryDTO> result = agroActivityService.getAssignedIncompleteActivitiesForLoggedUser()
+
+        then:
+        result.size() == 2
+        result[0].id == agroActivity1.getId().getId()
+        result[0].name == agroActivity1.getName()
+        result[0].date == agroActivity1.getDate()
+        result[0].isCompleted == agroActivity1.getIsCompleted()
+        result[0].categoryName == agroActivity1.getActivityCategory().getName()
+        result[1].id == agroActivity2.getId().getId()
+        result[1].name == agroActivity2.getName()
+        result[1].date == agroActivity2.getDate()
+        result[1].isCompleted == agroActivity2.getIsCompleted()
+        result[1].categoryName == agroActivity2.getActivityCategory().getName()
+    }
+
+    /*
+    * markActivityAsCompleted
+    */
+
+    def "should successfully mark activity as completed"() {
+        given:
+        Farm farm = Mock(Farm) {
+            getId() >> 1
+        }
+        Integer id = 1;
+        AgroActivityId agroActivityId = new AgroActivityId(id, farm.getId())
+        AgroActivity agroActivity = Mock(AgroActivity) {
+            getId() >> agroActivityId
+            getIsCompleted() >> false
+        }
+        User user = Mock(User) {
+            getId() >> 1
+        }
+        ActivityHasOperator activityHasOperator = Mock(ActivityHasOperator) {
+            getUser() >> user
+            getAgroActivity() >> agroActivity
+        }
+
+        agroActivityRepository.findById(agroActivityId) >> Optional.of(agroActivity)
+        userService.getLoggedUserFarm() >> farm
+        userService.getLoggedUser() >> user
+        activityHasOperatorRepository.findActivityHasOperatorsByAgroActivity(agroActivity) >> [activityHasOperator]
+
+        when:
+        agroActivityService.markActivityAsCompleted(id)
+
+        then:
+        1 * agroActivity.setIsCompleted(true)
+        1 * agroActivityRepository.save(agroActivity)
+    }
+
+    def "should throw runtime exception when activity is not found"() {
+        given:
+        Integer id = 1
+        Farm farm = Mock(Farm) {
+            getId() >> 1
+        }
+        AgroActivityId agroActivityId = new AgroActivityId(id, farm.getId())
+
+        userService.getLoggedUserFarm() >> farm
+        agroActivityRepository.findById(agroActivityId) >> Optional.empty()
+
+        when:
+        agroActivityService.markActivityAsCompleted(id)
+
+        then:
+        RuntimeException ex = thrown()
+        ex.message == 'Nie znaleziono zadania'
+    }
+
+    def "should not allow for marking activity as completed for completed task"() {
+        given:
+        Farm farm = Mock(Farm) {
+            getId() >> 1
+        }
+        Integer id = 1;
+        AgroActivityId agroActivityId = new AgroActivityId(id, farm.getId())
+        AgroActivity agroActivity = Mock(AgroActivity) {
+            getId() >> agroActivityId
+            getIsCompleted() >> true
+        }
+        User user = Mock(User) {
+            getId() >> 1
+        }
+        ActivityHasOperator activityHasOperator = Mock(ActivityHasOperator) {
+            getUser() >> user
+            getAgroActivity() >> agroActivity
+        }
+
+        agroActivityRepository.findById(agroActivityId) >> Optional.of(agroActivity)
+        userService.getLoggedUserFarm() >> farm
+        userService.getLoggedUser() >> user
+        activityHasOperatorRepository.findActivityHasOperatorsByAgroActivity(agroActivity) >> [activityHasOperator]
+
+
+        when:
+        agroActivityService.markActivityAsCompleted(id)
+
+        then:
+        RuntimeException ex = thrown()
+        ex.message == 'Nie masz dostępu do tego zadania'
+    }
+
+    def "should not allow for marking activity as completed for user not assigned in activity"() {
+        given:
+        Farm farm = Mock(Farm) {
+            getId() >> 1
+        }
+        Integer id = 1;
+        AgroActivityId agroActivityId = new AgroActivityId(id, farm.getId())
+        AgroActivity agroActivity = Mock(AgroActivity) {
+            getId() >> agroActivityId
+            getIsCompleted() >> false
+        }
+        User user = Mock(User) {
+            getId() >> 1
+        }
+        User user2 = Mock(User) {
+            getId() >> 2
+        }
+        ActivityHasOperator activityHasOperator = Mock(ActivityHasOperator) {
+            getUser() >> user2
+            getAgroActivity() >> agroActivity
+        }
+
+        agroActivityRepository.findById(agroActivityId) >> Optional.of(agroActivity)
+        userService.getLoggedUserFarm() >> farm
+        userService.getLoggedUser() >> user
+        activityHasOperatorRepository.findActivityHasOperatorsByAgroActivity(agroActivity) >> [activityHasOperator]
+
+
+        when:
+        agroActivityService.markActivityAsCompleted(id)
+
+        then:
+        RuntimeException ex = thrown()
+        ex.message == 'Nie masz dostępu do tego zadania'
     }
 }

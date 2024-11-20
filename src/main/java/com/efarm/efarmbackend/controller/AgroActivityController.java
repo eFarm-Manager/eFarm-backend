@@ -31,6 +31,7 @@ public class AgroActivityController {
 
     @Autowired
     private AgroActivityService agroActivityService;
+
     @Autowired
     private ActivityCategoryService activityCategoryService;
 
@@ -58,7 +59,7 @@ public class AgroActivityController {
     }
 
     @GetMapping("/details/{agroActivityId}")
-    @PreAuthorize("hasRole('ROLE_FARM_MANAGER') or hasRole('ROLE_FARM_OWNER')")
+    @PreAuthorize("hasRole('ROLE_FARM_MANAGER') or hasRole('ROLE_FARM_OWNER')or hasRole('ROLE_FARM_EQUIPMENT_OPERATOR')")
     public ResponseEntity<?> getAgroActivityDetails(@PathVariable Integer agroActivityId) {
         try {
             AgroActivityDetailDTO detail = agroActivityFacade.getAgroActivityDetails(agroActivityId);
@@ -88,6 +89,24 @@ public class AgroActivityController {
             return ResponseEntity.ok(new MessageResponse("Pomyślnie usunięto zabieg agrotechniczny"));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse(e.getMessage()));
+        }
+    }
+
+    @GetMapping("/assigned")
+    @PreAuthorize("hasRole('ROLE_FARM_MANAGER') or hasRole('ROLE_FARM_OWNER') or hasRole('ROLE_FARM_EQUIPMENT_OPERATOR')")
+    public ResponseEntity<List<AgroActivitySummaryDTO>> getAssignedIncompleteAgroActivities() {
+        List<AgroActivitySummaryDTO> activities = agroActivityService.getAssignedIncompleteActivitiesForLoggedUser();
+        return ResponseEntity.ok(activities);
+    }
+
+    @PatchMapping("/complete/{activityId}")
+    @PreAuthorize("hasRole('ROLE_FARM_MANAGER') or hasRole('ROLE_FARM_OWNER') or hasRole('ROLE_FARM_EQUIPMENT_OPERATOR')")
+    public ResponseEntity<MessageResponse> completeAgroActivity(@PathVariable Integer activityId) {
+        try {
+            agroActivityService.markActivityAsCompleted(activityId);
+            return ResponseEntity.ok(new MessageResponse("Zadanie zostało oznaczone jako zakończone"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
         }
     }
 
