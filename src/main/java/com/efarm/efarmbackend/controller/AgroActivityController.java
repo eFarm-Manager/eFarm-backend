@@ -2,12 +2,14 @@ package com.efarm.efarmbackend.controller;
 
 import com.efarm.efarmbackend.model.agroactivity.AgroActivityDetailDTO;
 import com.efarm.efarmbackend.model.agroactivity.AgroActivitySummaryDTO;
+import com.efarm.efarmbackend.payload.request.agroactivity.NeededHelpRequest;
 import com.efarm.efarmbackend.payload.request.agroactivity.NewAgroActivityRequest;
 import com.efarm.efarmbackend.payload.request.agroactivity.UpdateAgroActivityRequest;
 import com.efarm.efarmbackend.payload.response.MessageResponse;
 import com.efarm.efarmbackend.service.ValidationRequestService;
 import com.efarm.efarmbackend.service.agroactivity.ActivityCategoryService;
 import com.efarm.efarmbackend.service.agroactivity.AgroActivityFacade;
+import com.efarm.efarmbackend.service.agroactivity.AgroActivityNotificationService;
 import com.efarm.efarmbackend.service.agroactivity.AgroActivityService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +36,8 @@ public class AgroActivityController {
 
     @Autowired
     private ActivityCategoryService activityCategoryService;
+    @Autowired
+    private AgroActivityNotificationService agroActivityNotificationService;
 
     @PostMapping("/new")
     @PreAuthorize("hasRole('ROLE_FARM_MANAGER') or hasRole('ROLE_FARM_OWNER')")
@@ -109,6 +113,19 @@ public class AgroActivityController {
             return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
         }
     }
+
+    @PostMapping("/needed-help")
+    @PreAuthorize("hasRole('ROLE_FARM_MANAGER') or hasRole('ROLE_FARM_OWNER') or hasRole('ROLE_FARM_EQUIPMENT_OPERATOR')")
+    public ResponseEntity<MessageResponse> requestHelp(@RequestBody NeededHelpRequest neededHelpRequest) {
+        try {
+            agroActivityNotificationService.handleHelpRequest(neededHelpRequest);
+            return ResponseEntity.ok(new MessageResponse("Prośba o pomoc na polu została wysłana"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new MessageResponse(e.getMessage()));
+        }
+    }
+
 
     @GetMapping("/available-category")
     @PreAuthorize("hasRole('ROLE_FARM_MANAGER') or hasRole('ROLE_FARM_OWNER')")

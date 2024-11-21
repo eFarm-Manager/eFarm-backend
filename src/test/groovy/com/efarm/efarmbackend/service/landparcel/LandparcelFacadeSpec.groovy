@@ -145,6 +145,7 @@ class LandparcelFacadeSpec extends Specification {
         Landparcel landparcel = new Landparcel()
         landparcel.setArea(522)
         landparcel.setIsAvailable(true)
+        landparcel.setLandOwnershipStatus(new LandOwnershipStatus(ELandOwnershipStatus.STATUS_PRIVATELY_OWNED))
 
         LandparcelId landparcelId = new LandparcelId(id, farm.getId())
         landparcel.setId(landparcelId)

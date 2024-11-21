@@ -61,7 +61,7 @@ public class FinanceNotificationService {
                 List<User> owners = userService.getAllOwnersForFarm(transaction.getFarm().getId());
                 for (User owner : owners) {
                     if (owner.getIsActive()) {
-                        mainNotificationService.sendNotificationToOwner(owner, message, "Niedługo upływa termin płatności!");
+                        mainNotificationService.sendNotificationToUser(owner, message, "Niedługo upływa termin płatności!");
                         logger.info("Sending payment due notification to owner: {}", owner.getEmail());
                     }
                 }

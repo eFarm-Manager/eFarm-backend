@@ -200,40 +200,7 @@ class LandparcelServiceSpec extends Specification {
         landparcel.getLatitude() == landparcelDTO.getLatitude()
         landparcel.getArea() == landparcelDTO.getArea()
     }
-    /*
-    * createDTOtoDisplay
-    */
 
-    def "should correctly create DTO from Landparcel"() {
-        given:
-        LandparcelId landparcelId = new LandparcelId(1, 1)
-        Landparcel landparcel = new Landparcel()
-        landparcel.setId(landparcelId)
-        landparcel.setLandOwnershipStatus(new LandOwnershipStatus(ELandOwnershipStatus.STATUS_PRIVATELY_OWNED))
-        landparcel.setVoivodeship('Mazowieckie')
-        landparcel.setDistrict('Warszawa')
-        landparcel.setCommune('Mokotów')
-        landparcel.setGeodesyDistrictNumber('XYZ123')
-        landparcel.setLandparcelNumber('LP-001')
-        landparcel.setLongitude(21.0122)
-        landparcel.setLatitude(52.2297)
-        landparcel.setArea(1500.0)
-
-        when:
-        LandparcelDTO landparcelDTO = landparcelService.createDTOtoDisplay(landparcel)
-
-        then:
-        landparcelDTO.getId() == landparcel.getId().getId()
-        landparcelDTO.getLandOwnershipStatus() == landparcel.getLandOwnershipStatus().getOwnershipStatus().toString()
-        landparcelDTO.getVoivodeship() == landparcel.getVoivodeship()
-        landparcelDTO.getDistrict() == landparcel.getDistrict()
-        landparcelDTO.getCommune() == landparcel.getCommune()
-        landparcelDTO.getGeodesyDistrictNumber() == landparcel.getGeodesyDistrictNumber()
-        landparcelDTO.getLandparcelNumber() == landparcel.getLandparcelNumber()
-        landparcelDTO.getLongitude() == landparcel.getLongitude()
-        landparcelDTO.getLatitude() == landparcel.getLatitude()
-        landparcelDTO.getArea() == landparcel.getArea()
-    }
     /*
     * isLandparcelAlreadyExistingByFarm
     */

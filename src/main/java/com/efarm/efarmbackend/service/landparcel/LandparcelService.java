@@ -51,10 +51,6 @@ public class LandparcelService {
         setCommonFields(landparcel, landparcelDTO);
     }
 
-    public LandparcelDTO createDTOtoDisplay(Landparcel landparcel) {
-        return new LandparcelDTO(landparcel);
-    }
-
     public Boolean isLandparcelAlreadyExistingByFarm(LandparcelDTO landparcelDTO, Farm loggedUserFarm) {
         return landparcelRepository.existsByGeodesyLandparcelNumberAndFarm(
                 landparcelDTO.getGeodesyLandparcelNumber(),
