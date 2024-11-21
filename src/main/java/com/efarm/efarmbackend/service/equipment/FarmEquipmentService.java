@@ -1,6 +1,7 @@
 package com.efarm.efarmbackend.service.equipment;
 
 import com.efarm.efarmbackend.model.equipment.FarmEquipment;
+import com.efarm.efarmbackend.model.equipment.FarmEquipmentId;
 import com.efarm.efarmbackend.model.farm.Farm;
 import com.efarm.efarmbackend.payload.request.equipment.AddUpdateFarmEquipmentRequest;
 import com.efarm.efarmbackend.repository.equipment.FarmEquipmentRepository;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class FarmEquipmentService {
@@ -99,5 +101,32 @@ public class FarmEquipmentService {
     public void deleteAllEquipmentForFarm(Farm farm) {
         List<FarmEquipment> equipments = farmEquipmentRepository.findByFarmIdFarm_Id(farm.getId());
         farmEquipmentRepository.deleteAll(equipments);
+    }
+
+    public List<FarmEquipment> getEquipmentByIds(List<Integer> equipmentIds, Farm userFarm) {
+
+        List<FarmEquipmentId> equipmentKeys = equipmentIds.stream()
+                .map(equipmentId -> new FarmEquipmentId(equipmentId, userFarm.getId()))
+                .collect(Collectors.toList());
+        List<FarmEquipment> foundEquipment = farmEquipmentRepository.findAllById(equipmentKeys);
+
+        if (foundEquipment.size() != equipmentIds.size()) {
+            List<Integer> missingIds = equipmentIds.stream()
+                    .filter(id -> foundEquipment.stream()
+                            .noneMatch(equipment -> equipment.getId().getId().equals(id)))
+                    .toList();
+            throw new RuntimeException("Nie znaleziono maszyn o następujących ID: " + missingIds);
+        }
+
+        List<FarmEquipment> inactiveEquipment = foundEquipment.stream()
+                .filter(equipment -> !equipment.getIsAvailable())
+                .toList();
+        if (!inactiveEquipment.isEmpty()) {
+            String inactiveNames = inactiveEquipment.stream()
+                    .map(FarmEquipment::getEquipmentName)
+                    .collect(Collectors.joining(", "));
+            throw new RuntimeException("Niektóre maszyny są nieaktywne: " + inactiveNames);
+        }
+        return foundEquipment;
     }
 }

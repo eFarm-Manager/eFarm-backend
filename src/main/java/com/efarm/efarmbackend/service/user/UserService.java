@@ -2,9 +2,9 @@ package com.efarm.efarmbackend.service.user;
 
 import com.efarm.efarmbackend.model.farm.Farm;
 import com.efarm.efarmbackend.model.user.*;
-import com.efarm.efarmbackend.payload.request.user.ChangeUserPasswordRequest;
 import com.efarm.efarmbackend.payload.request.auth.SignupFarmRequest;
 import com.efarm.efarmbackend.payload.request.auth.SignupUserRequest;
+import com.efarm.efarmbackend.payload.request.user.ChangeUserPasswordRequest;
 import com.efarm.efarmbackend.payload.request.user.UpdateUserRequest;
 import com.efarm.efarmbackend.repository.user.RoleRepository;
 import com.efarm.efarmbackend.repository.user.UserRepository;
@@ -193,6 +193,17 @@ public class UserService {
         userRepository.save(user);
     }
 
+    public List<User> filterOperatorsForHelpNotifications(List<Integer> operatorIds, List<User> activeFarmOperators) {
+        return activeFarmOperators.stream()
+                .filter(operator -> operatorIds.contains(operator.getId()))
+                .toList();
+    }
+
+    public List<User> filterInvalidOperatorsForHelpNotifications(List<Integer> operatorIds, List<User> activeFarmOperators) {
+        return userRepository.findAllById(operatorIds.stream().map(Integer::longValue).toList()).stream()
+                .filter(user -> !activeFarmOperators.contains(user))
+                .toList();
+    }
 
     private List<User> getUsersByFarmId(Integer farmId) {
         return userRepository.findByFarmId(farmId);

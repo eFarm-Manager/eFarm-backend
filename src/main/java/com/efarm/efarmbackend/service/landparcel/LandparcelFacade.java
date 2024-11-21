@@ -64,7 +64,7 @@ public class LandparcelFacade {
         if (!landparcel.getIsAvailable()) {
             throw new Exception("Wybrana działka już nie istnieje");
         }
-        return landparcelService.createDTOtoDisplay(landparcel);
+        return new LandparcelDTO(landparcel);
     }
 
     @Transactional

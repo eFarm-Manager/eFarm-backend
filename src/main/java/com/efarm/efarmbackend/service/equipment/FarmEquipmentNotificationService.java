@@ -54,7 +54,7 @@ public class FarmEquipmentNotificationService {
                 List<User> owners = userService.getAllOwnersForFarm(equipment.getFarmIdFarm().getId());
                 for (User owner : owners) {
                     if (owner.getIsActive()) {
-                        mainNotificationService.sendNotificationToOwner(owner, message, "Ubezpieczenie sprzętu wygasa!");
+                        mainNotificationService.sendNotificationToUser(owner, message, "Ubezpieczenie sprzętu wygasa!");
                         logger.info("Sending insurance expire notification to owner: {}", owner.getEmail());
                     }
                 }
@@ -73,7 +73,7 @@ public class FarmEquipmentNotificationService {
                 );
                 List<User> owners = userService.getAllOwnersForFarm(equipment.getFarmIdFarm().getId());
                 for (User owner : owners) {
-                    mainNotificationService.sendNotificationToOwner(owner, message, "Przegląd techniczny wygasa!");
+                    mainNotificationService.sendNotificationToUser(owner, message, "Przegląd techniczny wygasa!");
                     logger.info("Sending inspection expire notification to owner: {}", owner.getEmail());
                 }
             }

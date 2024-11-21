@@ -60,7 +60,7 @@ public class FarmNotificationService {
                     List<User> owners = userService.getAllOwnersForFarm(farm.getId());
                     for (User owner : owners) {
                         if (owner.getIsActive()) {
-                            mainNotificationService.sendNotificationToOwner(owner, message, "Niedługo wygasa kod aktywacyjny Twojej wirtualnej Farmy!");
+                            mainNotificationService.sendNotificationToUser(owner, message, "Niedługo wygasa kod aktywacyjny Twojej wirtualnej Farmy!");
                             logger.info("Sending expireCode info to owner: {}", owner.getEmail());
                         }
                     }
@@ -84,7 +84,7 @@ public class FarmNotificationService {
                     List<User> owners = userService.getAllOwnersForFarm(farm.getId());
                     for (User owner : owners) {
                         if (owner.getIsActive()) {
-                            mainNotificationService.sendNotificationToOwner(owner, message, "Twoja farma zostanie wkrótce usunięta!"
+                            mainNotificationService.sendNotificationToUser(owner, message, "Twoja farma zostanie wkrótce usunięta!"
                             );
                             logger.info("Notification about farm deletion has been sent to the owner:: {}", owner.getEmail());
                         }

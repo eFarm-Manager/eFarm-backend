@@ -67,8 +67,8 @@ class FarmNotificationServiceSpec extends Specification {
         farmNotificationService.checkActivationCodeDueDateNotifications()
 
         then:
-        1 * mainNotificationService.sendNotificationToOwner(_, _, _)
-        1 * mainNotificationService.sendNotificationToOwner(_, _, _)
+        1 * mainNotificationService.sendNotificationToUser(_, _, _)
+        1 * mainNotificationService.sendNotificationToUser(_, _, _)
     }
 
     /*
@@ -95,7 +95,7 @@ class FarmNotificationServiceSpec extends Specification {
         farmNotificationService.checkAndNotifyForActivationCode(farm, LocalDate.now())
 
         then:
-        1 * mainNotificationService.sendNotificationToOwner(_ as User,
+        1 * mainNotificationService.sendNotificationToUser(_ as User,
          'Termin ważności kodu aktywacyjnego dla Twojej farmy Farm1 upływa za 14 dni.',
          'Niedługo wygasa kod aktywacyjny Twojej wirtualnej Farmy!')
     }
@@ -120,7 +120,7 @@ class FarmNotificationServiceSpec extends Specification {
         farmNotificationService.checkAndNotifyForActivationCode(farm, LocalDate.now())
 
         then:
-        1 * mainNotificationService.sendNotificationToOwner(_ as User,
+        1 * mainNotificationService.sendNotificationToUser(_ as User,
          'Termin ważności kodu aktywacyjnego dla Twojej farmy Farm1 upływa za 5 dni.',
          'Niedługo wygasa kod aktywacyjny Twojej wirtualnej Farmy!')
     }
@@ -145,7 +145,7 @@ class FarmNotificationServiceSpec extends Specification {
         farmNotificationService.checkAndNotifyForActivationCode(farm, LocalDate.now())
 
         then:
-        1 * mainNotificationService.sendNotificationToOwner(_ as User,
+        1 * mainNotificationService.sendNotificationToUser(_ as User,
          'Termin ważności kodu aktywacyjnego dla Twojej farmy Farm1 upływa za 1 dni.',
          'Niedługo wygasa kod aktywacyjny Twojej wirtualnej Farmy!')
     }
@@ -170,7 +170,7 @@ class FarmNotificationServiceSpec extends Specification {
         farmNotificationService.checkAndNotifyForActivationCode(farm, LocalDate.now())
 
         then:
-        0 * mainNotificationService.sendNotificationToOwner(_, _, _)
+        0 * mainNotificationService.sendNotificationToUser(_, _, _)
     }
 
     /*
@@ -197,7 +197,7 @@ class FarmNotificationServiceSpec extends Specification {
         farmNotificationService.checkAndNotifyForFarmDeletion(farm, LocalDate.now())
 
         then:
-        1 * mainNotificationService.sendNotificationToOwner(_ as User,
+        1 * mainNotificationService.sendNotificationToUser(_ as User,
          'Twoja farma Farm1 zostanie trwale usunięta za 3 dni. Zaktualizuj swój kod aktywacyjny, aby temu zapobiec.',
          'Twoja farma zostanie wkrótce usunięta!')
     }
@@ -222,7 +222,7 @@ class FarmNotificationServiceSpec extends Specification {
         farmNotificationService.checkAndNotifyForFarmDeletion(farm, LocalDate.now())
 
         then:
-        1 * mainNotificationService.sendNotificationToOwner(_ as User,
+        1 * mainNotificationService.sendNotificationToUser(_ as User,
          'Twoja farma Farm1 zostanie trwale usunięta za 2 dni. Zaktualizuj swój kod aktywacyjny, aby temu zapobiec.',
          'Twoja farma zostanie wkrótce usunięta!')
     }
@@ -247,7 +247,7 @@ class FarmNotificationServiceSpec extends Specification {
         farmNotificationService.checkAndNotifyForFarmDeletion(farm, LocalDate.now())
 
         then:
-        1 * mainNotificationService.sendNotificationToOwner(_ as User,
+        1 * mainNotificationService.sendNotificationToUser(_ as User,
          'Twoja farma Farm1 zostanie trwale usunięta za 1 dni. Zaktualizuj swój kod aktywacyjny, aby temu zapobiec.',
          'Twoja farma zostanie wkrótce usunięta!')
     }

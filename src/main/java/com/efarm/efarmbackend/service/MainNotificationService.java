@@ -12,9 +12,9 @@ public class MainNotificationService {
     @Autowired
     private JavaMailSender mailSender;
 
-    public void sendNotificationToOwner(User owner, String message, String subject) {
+    public void sendNotificationToUser(User user, String message, String subject) {
         SimpleMailMessage email = new SimpleMailMessage();
-        email.setTo(owner.getEmail());
+        email.setTo(user.getEmail());
         email.setSubject(subject);
         email.setText(message);
         mailSender.send(email);
