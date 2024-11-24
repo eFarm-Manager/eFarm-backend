@@ -32,9 +32,9 @@ class UserServiceSpec extends Specification {
 
     @Subject
     UserService userService = new UserService(
-            userRepository: userRepository,
-            roleRepository: roleRepository,
-            encoder: encoder
+            roleRepository,
+            encoder,
+            userRepository
     )
 
     def setup() {

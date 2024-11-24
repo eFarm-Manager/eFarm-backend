@@ -32,12 +32,12 @@ class AgriculturalRecordServiceSpec extends Specification {
 
     @Subject
     AgriculturalRecordService agriculturalRecordService = new AgriculturalRecordService(
-            agriculturalRecordRepository: agriculturalRecordRepository,
-            cropRepository: cropRepository,
-            landparcelRepository: landparcelRepository,
-            userService: userService,
-            agroActivityService: agroActivityService,
-            agroActivityRepository: agroActivityRepository
+            agriculturalRecordRepository,
+            cropRepository,
+            landparcelRepository,
+            userService,
+            agroActivityService,
+            agroActivityRepository
     )
 
     /*

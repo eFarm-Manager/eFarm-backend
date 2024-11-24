@@ -12,7 +12,7 @@ class EquipmentDisplayDataServiceSpec extends Specification {
 
     @Subject
     EquipmentDisplayDataService equipmentDisplayDataService = new EquipmentDisplayDataService(
-        equipmentCategoryRepository: equipmentCategoryRepository
+        equipmentCategoryRepository
     )
 
     def setup() {

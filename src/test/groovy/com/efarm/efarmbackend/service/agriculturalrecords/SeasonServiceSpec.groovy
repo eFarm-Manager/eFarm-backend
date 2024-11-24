@@ -14,7 +14,7 @@ class SeasonServiceSpec extends Specification {
 
     @Subject
     SeasonService seasonService = new SeasonService(
-        seasonRepository: seasonRepository
+        seasonRepository
     )
 
     def "should get Season by name"() {

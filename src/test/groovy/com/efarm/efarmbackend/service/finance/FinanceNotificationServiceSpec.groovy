@@ -23,11 +23,11 @@ class FinanceNotificationServiceSpec extends Specification {
 
     @Subject
     FinanceNotificationService financeNotificationService = new FinanceNotificationService(
-        transactionRepository: transactionRepository,
-        userService: userService,
-        financialCategoryRepository: financialCategoryRepository,
-        paymentStatusRepository: paymentStatusRepository,
-        mainNotificationService: mainNotificationService
+        transactionRepository,
+        userService,
+        financialCategoryRepository,
+        paymentStatusRepository,
+        mainNotificationService
     )
 
     def "should call checkAndNotifyForPayment for each transaction"() {

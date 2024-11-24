@@ -19,8 +19,8 @@ class FarmEquipmentServiceSpec extends Specification {
 
     @Subject
     FarmEquipmentService farmEquipmentService = new FarmEquipmentService(
-        equipmentDisplayDataService: equipmentDisplayDataService,
-        farmEquipmentRepository: farmEquipmentRepository
+        equipmentDisplayDataService,
+        farmEquipmentRepository
     )
 
     FarmEquipment equipment = Mock(FarmEquipment)

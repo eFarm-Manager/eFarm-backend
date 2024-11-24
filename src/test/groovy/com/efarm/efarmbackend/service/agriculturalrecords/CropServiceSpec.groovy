@@ -14,7 +14,7 @@ class CropServiceSpec extends Specification {
 
     @Subject
     CropService cropService = new CropService(
-        cropRepository: cropRepository
+        cropRepository
     )
 
     def "should return all available crops"() {

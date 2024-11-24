@@ -35,11 +35,11 @@ class FarmFacadeSpec extends Specification {
 
     @Subject
     FarmFacade farmFacade = new FarmFacade(
-            userService: userService,
-            farmService: farmService,
-            activationCodeService: activationCodeService,
-            authService: authService,
-            addressService: addressService
+            userService,
+            farmService,
+            activationCodeService,
+            authService,
+            addressService
     )
 
     def setup() {

@@ -22,10 +22,10 @@ class FarmNotificationServiceSpec extends Specification {
 
     @Subject
     FarmNotificationService farmNotificationService = new FarmNotificationService(
-            userService: userService,
-            farmRepository: farmRepository,
-            activationCodeRepository: activationCodeRepository,
-            mainNotificationService: mainNotificationService
+            userService,
+            farmRepository,
+            activationCodeRepository,
+            mainNotificationService
     )
 
     /*

@@ -10,7 +10,7 @@ class MainNotificationServiceSpec extends Specification {
 
     def mailSender = Mock(JavaMailSender)
     @Subject
-    def mainNotificationService = new MainNotificationService(mailSender: mailSender)
+    def mainNotificationService = new MainNotificationService(mailSender)
 
     def "test sendNotificationToOwner"() {
         given:
