@@ -6,6 +6,7 @@ import com.efarm.efarmbackend.model.farm.Farm;
 import com.efarm.efarmbackend.repository.farm.ActivationCodeRepository;
 import com.efarm.efarmbackend.repository.farm.FarmRepository;
 import com.efarm.efarmbackend.security.services.BruteForceProtectionService;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,16 +19,12 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class ActivationCodeService {
 
-    @Autowired
-    private ActivationCodeRepository activationCodeRepository;
-
-    @Autowired
-    private FarmRepository farmRepository;
-
-    @Autowired
-    private BruteForceProtectionService bruteForceProtectionService;
+    private final ActivationCodeRepository activationCodeRepository;
+    private final FarmRepository farmRepository;
+    private final BruteForceProtectionService bruteForceProtectionService;
 
     @Value("${efarm.app.notification.daysToShowExpireActivationCode}")
     private int daysToShowExpireActivationCodeNotification;

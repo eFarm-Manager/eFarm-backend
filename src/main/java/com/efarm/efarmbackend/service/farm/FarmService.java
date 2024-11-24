@@ -14,6 +14,7 @@ import com.efarm.efarmbackend.service.finance.FinanceService;
 import com.efarm.efarmbackend.service.landparcel.LandparcelService;
 import com.efarm.efarmbackend.service.user.UserService;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,31 +28,17 @@ import java.util.Optional;
 
 
 @Service
+@RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class FarmService {
 
-    @Autowired
-    private FarmRepository farmRepository;
-
-    @Autowired
-    private ActivationCodeRepository activationCodeRepository;
-
-    @Autowired
-    private LandparcelService landparcelService;
-
-    @Autowired
-    private AgriculturalRecordService agriculturalRecordService;
-
-    @Autowired
-    private FinanceService financeService;
-
-    @Autowired
-    private FarmEquipmentService farmEquipmentService;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private AddressRepository addressRepository;
+    private final FarmRepository farmRepository;
+    private final ActivationCodeRepository activationCodeRepository;
+    private final LandparcelService landparcelService;
+    private final AgriculturalRecordService agriculturalRecordService;
+    private final FinanceService financeService;
+    private final FarmEquipmentService farmEquipmentService;
+    private final UserService userService;
+    private final AddressRepository addressRepository;
 
     private static final Logger logger = LoggerFactory.getLogger(FarmService.class);
 

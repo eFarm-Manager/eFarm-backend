@@ -3,16 +3,17 @@ package com.efarm.efarmbackend.service.equipment;
 import com.efarm.efarmbackend.model.equipment.EquipmentCategoryDTO;
 import com.efarm.efarmbackend.repository.equipment.EquipmentCategoryRepository;
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 @Service
+@RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class EquipmentDisplayDataService {
 
-    @Autowired
-    private EquipmentCategoryRepository equipmentCategoryRepository;
+    private final EquipmentCategoryRepository equipmentCategoryRepository;
 
     private final Map<String, List<String>> categoryFieldsCache = new HashMap<>();
     private final List<EquipmentCategoryDTO> cachedCategoryList = new ArrayList<>();

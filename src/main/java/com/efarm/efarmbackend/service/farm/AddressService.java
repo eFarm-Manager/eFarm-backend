@@ -3,13 +3,15 @@ package com.efarm.efarmbackend.service.farm;
 import com.efarm.efarmbackend.model.farm.Address;
 import com.efarm.efarmbackend.payload.request.farm.UpdateFarmDetailsRequest;
 import com.efarm.efarmbackend.repository.farm.AddressRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class AddressService {
-    @Autowired
-    private AddressRepository addressRepository;
+
+    private final AddressRepository addressRepository;
 
     public Address findAddressById(Integer codeId) {
         return addressRepository.findById(codeId)

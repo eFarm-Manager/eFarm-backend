@@ -7,6 +7,7 @@ import com.efarm.efarmbackend.payload.response.MessageResponse;
 import com.efarm.efarmbackend.service.ValidationRequestService;
 import com.efarm.efarmbackend.service.landparcel.LandparcelFacade;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,14 +18,12 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor(onConstructor_ = {@Autowired})
 @RequestMapping("/landparcel")
 public class LandparcelController {
 
-    @Autowired
-    private LandparcelFacade landparcelFacade;
-
-    @Autowired
-    private ValidationRequestService validationRequestService;
+    private final LandparcelFacade landparcelFacade;
+    private final ValidationRequestService validationRequestService;
 
     @PostMapping("/new")
     @PreAuthorize("hasRole('ROLE_FARM_MANAGER') or hasRole('ROLE_FARM_OWNER')")

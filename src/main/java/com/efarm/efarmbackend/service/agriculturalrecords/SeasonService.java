@@ -2,6 +2,7 @@ package com.efarm.efarmbackend.service.agriculturalrecords;
 
 import com.efarm.efarmbackend.model.agriculturalrecords.Season;
 import com.efarm.efarmbackend.repository.agriculturalrecords.SeasonRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,10 +12,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class SeasonService {
 
-    @Autowired
-    private SeasonRepository seasonRepository;
+    private final SeasonRepository seasonRepository;
 
     public Season getSeasonByName(String name) {
         return seasonRepository.findByName(name);
@@ -25,7 +26,7 @@ public class SeasonService {
                 .orElseThrow(() -> new Exception("Nie można automatycznie ustawić obecnego sezonu uprawy"));
     }
 
-    public List<String> getAvailableSeasons(){
+    public List<String> getAvailableSeasons() {
         return seasonRepository.findAll().stream()
                 .map(Season::getName)
                 .collect(Collectors.toList());

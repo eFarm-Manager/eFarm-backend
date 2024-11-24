@@ -4,6 +4,7 @@ import com.efarm.efarmbackend.payload.response.CropStatisticsResponse;
 import com.efarm.efarmbackend.payload.response.LandAreaStatisticsResponse;
 import com.efarm.efarmbackend.payload.response.MessageResponse;
 import com.efarm.efarmbackend.service.farmstatistics.FarmStatisticsService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -15,11 +16,11 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor(onConstructor_ = {@Autowired})
 @RequestMapping("/statistics")
 public class FarmStatisticsController {
 
-    @Autowired
-    private FarmStatisticsService farmStatisticsService;
+    private final FarmStatisticsService farmStatisticsService;
 
     @GetMapping("/land-area")
     @PreAuthorize("hasRole('ROLE_FARM_MANAGER') or hasRole('ROLE_FARM_OWNER')")

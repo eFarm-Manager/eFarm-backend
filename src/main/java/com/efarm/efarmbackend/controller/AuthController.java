@@ -6,7 +6,10 @@ import com.efarm.efarmbackend.exception.UnauthorizedException;
 import com.efarm.efarmbackend.model.farm.Farm;
 import com.efarm.efarmbackend.model.user.Role;
 import com.efarm.efarmbackend.model.user.User;
-import com.efarm.efarmbackend.payload.request.auth.*;
+import com.efarm.efarmbackend.payload.request.auth.LoginRequest;
+import com.efarm.efarmbackend.payload.request.auth.SignupFarmRequest;
+import com.efarm.efarmbackend.payload.request.auth.SignupUserRequest;
+import com.efarm.efarmbackend.payload.request.auth.UpdateActivationCodeRequest;
 import com.efarm.efarmbackend.payload.request.farm.UpdateActivationCodeByLoggedOwnerRequest;
 import com.efarm.efarmbackend.payload.request.user.ChangePasswordRequest;
 import com.efarm.efarmbackend.payload.response.MessageResponse;
@@ -20,6 +23,7 @@ import com.efarm.efarmbackend.service.farm.ActivationCodeService;
 import com.efarm.efarmbackend.service.farm.FarmService;
 import com.efarm.efarmbackend.service.user.UserService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,28 +40,17 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
+@RequiredArgsConstructor(onConstructor_ = {@Autowired})
 @RequestMapping("/auth")
 public class AuthController {
-    @Autowired
-    private AuthFacade authFacade;
 
-    @Autowired
-    private JwtUtils jwtUtils;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private ActivationCodeService activationCodeService;
-
-    @Autowired
-    private FarmService farmService;
-
-    @Autowired
-    private AuthService authService;
-
-    @Autowired
-    private ValidationRequestService validationRequestService;
+    private final AuthFacade authFacade;
+    private final JwtUtils jwtUtils;
+    private final UserService userService;
+    private final ActivationCodeService activationCodeService;
+    private final FarmService farmService;
+    private final AuthService authService;
+    private final ValidationRequestService validationRequestService;
 
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 

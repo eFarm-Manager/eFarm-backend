@@ -10,6 +10,7 @@ import com.efarm.efarmbackend.repository.equipment.EquipmentCategoryRepository;
 import com.efarm.efarmbackend.repository.equipment.FarmEquipmentRepository;
 import com.efarm.efarmbackend.service.user.UserService;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,22 +19,14 @@ import java.util.Locale;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class FarmEquipmentFacade {
 
-    @Autowired
-    private FarmEquipmentRepository farmEquipmentRepository;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private EquipmentDisplayDataService equipmentDisplayDataService;
-
-    @Autowired
-    FarmEquipmentService farmEquipmentService;
-
-    @Autowired
-    private EquipmentCategoryRepository equipmentCategoryRepository;
+    private final FarmEquipmentRepository farmEquipmentRepository;
+    private final UserService userService;
+    private final EquipmentDisplayDataService equipmentDisplayDataService;
+    private final FarmEquipmentService farmEquipmentService;
+    private final EquipmentCategoryRepository equipmentCategoryRepository;
 
     public List<EquipmentSummaryDTO> getFarmEquipment(String searchQuery) {
         List<FarmEquipment> equipmentList = farmEquipmentRepository.findByFarmIdFarm_Id(userService.getLoggedUserFarm().getId());

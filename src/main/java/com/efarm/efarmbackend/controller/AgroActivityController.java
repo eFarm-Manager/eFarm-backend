@@ -12,6 +12,7 @@ import com.efarm.efarmbackend.service.agroactivity.AgroActivityFacade;
 import com.efarm.efarmbackend.service.agroactivity.AgroActivityNotificationService;
 import com.efarm.efarmbackend.service.agroactivity.AgroActivityService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,22 +23,15 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor(onConstructor_ = {@Autowired})
 @RequestMapping("/agro-activities")
 public class AgroActivityController {
 
-    @Autowired
-    private AgroActivityFacade agroActivityFacade;
-
-    @Autowired
-    private ValidationRequestService validationRequestService;
-
-    @Autowired
-    private AgroActivityService agroActivityService;
-
-    @Autowired
-    private ActivityCategoryService activityCategoryService;
-    @Autowired
-    private AgroActivityNotificationService agroActivityNotificationService;
+    private final AgroActivityFacade agroActivityFacade;
+    private final ValidationRequestService validationRequestService;
+    private final AgroActivityService agroActivityService;
+    private final ActivityCategoryService activityCategoryService;
+    private final AgroActivityNotificationService agroActivityNotificationService;
 
     @PostMapping("/new")
     @PreAuthorize("hasRole('ROLE_FARM_MANAGER') or hasRole('ROLE_FARM_OWNER')")

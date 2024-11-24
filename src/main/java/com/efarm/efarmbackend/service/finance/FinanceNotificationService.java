@@ -8,6 +8,7 @@ import com.efarm.efarmbackend.repository.finance.TransactionRepository;
 import com.efarm.efarmbackend.service.MainNotificationService;
 import com.efarm.efarmbackend.service.user.UserService;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,22 +19,14 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class FinanceNotificationService {
 
-    @Autowired
-    private TransactionRepository transactionRepository;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private FinancialCategoryRepository financialCategoryRepository;
-
-    @Autowired
-    private PaymentStatusRepository paymentStatusRepository;
-
-    @Autowired
-    private MainNotificationService mainNotificationService;
+    private final TransactionRepository transactionRepository;
+    private final UserService userService;
+    private final FinancialCategoryRepository financialCategoryRepository;
+    private final PaymentStatusRepository paymentStatusRepository;
+    private final MainNotificationService mainNotificationService;
 
     private static final Logger logger = LoggerFactory.getLogger(FinanceNotificationService.class);
 

@@ -8,6 +8,7 @@ import com.efarm.efarmbackend.payload.response.MessageResponse;
 import com.efarm.efarmbackend.service.ValidationRequestService;
 import com.efarm.efarmbackend.service.finance.FinanceFacade;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,14 +20,12 @@ import java.time.LocalDate;
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor(onConstructor_ = {@Autowired})
 @RequestMapping("/finance")
 public class FinanceController {
 
-    @Autowired
-    private FinanceFacade financeFacade;
-
-    @Autowired
-    private ValidationRequestService validationRequestService;
+    private final FinanceFacade financeFacade;
+    private final ValidationRequestService validationRequestService;
 
     @PostMapping("/new")
     @PreAuthorize("hasRole('ROLE_FARM_OWNER')")

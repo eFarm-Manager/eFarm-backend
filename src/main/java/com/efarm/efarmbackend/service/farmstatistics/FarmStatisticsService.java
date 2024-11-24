@@ -9,6 +9,7 @@ import com.efarm.efarmbackend.repository.agriculturalrecords.AgriculturalRecordR
 import com.efarm.efarmbackend.repository.landparcel.LandparcelRepository;
 import com.efarm.efarmbackend.service.agriculturalrecords.SeasonService;
 import com.efarm.efarmbackend.service.user.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,19 +19,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class FarmStatisticsService {
 
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private LandparcelRepository landparcelRepository;
-
-    @Autowired
-    private AgriculturalRecordRepository agriculturalRecordRepository;
-
-    @Autowired
-    private SeasonService seasonService;
+    private final UserService userService;
+    private final LandparcelRepository landparcelRepository;
+    private final AgriculturalRecordRepository agriculturalRecordRepository;
+    private final SeasonService seasonService;
 
     public LandAreaStatisticsResponse generateLandAreaStatistics() {
         Farm loggedUserFarm = userService.getLoggedUserFarm();

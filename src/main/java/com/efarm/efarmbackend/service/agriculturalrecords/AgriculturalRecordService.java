@@ -16,6 +16,7 @@ import com.efarm.efarmbackend.repository.landparcel.LandparcelRepository;
 import com.efarm.efarmbackend.service.agroactivity.AgroActivityService;
 import com.efarm.efarmbackend.service.user.UserService;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,25 +24,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class AgriculturalRecordService {
 
-    @Autowired
-    private AgriculturalRecordRepository agriculturalRecordRepository;
-
-    @Autowired
-    private CropRepository cropRepository;
-
-    @Autowired
-    private LandparcelRepository landparcelRepository;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private AgroActivityService agroActivityService;
-
-    @Autowired
-    private AgroActivityRepository agroActivityRepository;
+    private final AgriculturalRecordRepository agriculturalRecordRepository;
+    private final CropRepository cropRepository;
+    private final LandparcelRepository landparcelRepository;
+    private final UserService userService;
+    private final AgroActivityService agroActivityService;
+    private final AgroActivityRepository agroActivityRepository;
 
     public List<AgriculturalRecord> filterRecordsBySearchQuery(List<AgriculturalRecord> agriculturalRecords, String searchQuery) {
         if (searchQuery != null && !searchQuery.isEmpty()) {
