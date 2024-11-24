@@ -6,6 +6,7 @@ import com.efarm.efarmbackend.model.farm.Farm;
 import com.efarm.efarmbackend.payload.request.equipment.AddUpdateFarmEquipmentRequest;
 import com.efarm.efarmbackend.repository.equipment.FarmEquipmentRepository;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,13 +14,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class FarmEquipmentService {
 
-    @Autowired
-    private EquipmentDisplayDataService equipmentDisplayDataService;
-
-    @Autowired
-    private FarmEquipmentRepository farmEquipmentRepository;
+    private final EquipmentDisplayDataService equipmentDisplayDataService;
+    private final FarmEquipmentRepository farmEquipmentRepository;
 
     public static AddUpdateFarmEquipmentRequest createFarmEquipmentDTOtoDisplay(FarmEquipment equipment, List<String> fieldsToDisplay) {
         AddUpdateFarmEquipmentRequest equipmentDetailDTO = new AddUpdateFarmEquipmentRequest(

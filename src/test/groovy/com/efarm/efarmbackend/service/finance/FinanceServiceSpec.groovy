@@ -28,9 +28,9 @@ class FinanceServiceSpec extends Specification {
 
     @Subject
     FinanceService financeService = new FinanceService(
-	financialCategoryRepository: financialCategoryRepository,
-	paymentStatusRepository: paymentStatusRepository,
-	transactionRepository: transactionRepository
+	financialCategoryRepository,
+	paymentStatusRepository,
+	transactionRepository
     )
 
 	/*

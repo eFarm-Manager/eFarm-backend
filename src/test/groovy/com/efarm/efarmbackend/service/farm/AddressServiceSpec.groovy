@@ -13,7 +13,7 @@ class AddressServiceSpec extends Specification {
 
     @Subject
     AddressService addressService = new AddressService(
-            addressRepository: addressRepository
+            addressRepository
     )
 
     def "should find address by its id"() {

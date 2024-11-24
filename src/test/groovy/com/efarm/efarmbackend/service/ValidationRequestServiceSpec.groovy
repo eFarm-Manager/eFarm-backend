@@ -7,7 +7,7 @@ import org.springframework.validation.FieldError
 
 class ValidationRequestServiceSpec extends Specification {
 
-        @Subject
+    @Subject
     def validationRequestService = new ValidationRequestService()
 
     def "test validateRequestWithException with errors"() {

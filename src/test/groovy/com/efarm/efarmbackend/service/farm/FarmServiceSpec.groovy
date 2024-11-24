@@ -34,14 +34,14 @@ class FarmServiceSpec extends Specification {
 
     @Subject
     FarmService farmService = new FarmService(
-            farmRepository: farmRepository,
-            activationCodeRepository: activationCodeRepository,
-            landparcelService: landparcelService,
-            agriculturalRecordService: agriculturalRecordService,
-            financeService: financeService,
-            farmEquipmentService: farmEquipmentService,
-            userService: userService,
-            addressRepository: addressRepository
+            farmRepository,
+            activationCodeRepository,
+            landparcelService,
+            agriculturalRecordService,
+            financeService,
+            farmEquipmentService,
+            userService,
+            addressRepository
     )
 
     def setup() {

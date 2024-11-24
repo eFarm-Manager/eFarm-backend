@@ -34,12 +34,12 @@ class AgroActivityFacadeSpec extends Specification {
 
     @Subject
     AgroActivityFacade agroActivityFacade = new AgroActivityFacade(
-        activityCategoryRepository: activityCategoryRepository,
-        userService: userService,
-        agroActivityService: agroActivityService,
-        agriculturalRecordService: agriculturalRecordService,
-        activityHasEquipmentService: activityHasEquipmentService,
-        activityHasOperatorService: activityHasOperatorService
+        activityCategoryRepository,
+        userService,
+        agroActivityService,
+        agriculturalRecordService,
+        activityHasEquipmentService,
+        activityHasOperatorService
     )
 
     /*

@@ -24,9 +24,9 @@ class FarmEquipmentNotificationServiceSpec extends Specification {
     def userService = Mock(UserService)
     @Subject
     FarmEquipmentNotificationService farmEquipmentNotificationService = new FarmEquipmentNotificationService(
-            farmEquipmentRepository: farmEquipmentRepository,
-	        mainNotificationService: mainNotificationService,
-	        userService: userService
+            farmEquipmentRepository,
+	        mainNotificationService,
+	        userService
     )
 
     def "should send notification for insurance expiring in 14 days"() {

@@ -8,6 +8,7 @@ import com.efarm.efarmbackend.repository.agroactivity.ActivityHasOperatorReposit
 import com.efarm.efarmbackend.repository.user.UserRepository;
 import com.efarm.efarmbackend.service.user.UserService;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
@@ -16,19 +17,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class ActivityHasOperatorService {
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private ApplicationContext applicationContext;
-
-    @Autowired
-    private ActivityHasOperatorRepository activityHasOperatorRepository;
+    private final UserRepository userRepository;
+    private final UserService userService;
+    private final ApplicationContext applicationContext;
+    private final ActivityHasOperatorRepository activityHasOperatorRepository;
 
     @Transactional
     public void addOperatorsToActivity(AgroActivity agroActivity, List<Integer> operatorIds, Integer loggedUserFarmId) {

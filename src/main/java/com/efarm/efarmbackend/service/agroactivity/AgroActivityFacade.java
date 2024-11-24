@@ -13,6 +13,7 @@ import com.efarm.efarmbackend.payload.request.agroactivity.UpdateAgroActivityReq
 import com.efarm.efarmbackend.repository.agroactivity.ActivityCategoryRepository;
 import com.efarm.efarmbackend.service.agriculturalrecords.AgriculturalRecordService;
 import com.efarm.efarmbackend.service.user.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,25 +21,15 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class AgroActivityFacade {
 
-    @Autowired
-    private ActivityCategoryRepository activityCategoryRepository;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private AgroActivityService agroActivityService;
-
-    @Autowired
-    private AgriculturalRecordService agriculturalRecordService;
-
-    @Autowired
-    private ActivityHasEquipmentService activityHasEquipmentService;
-
-    @Autowired
-    private ActivityHasOperatorService activityHasOperatorService;
+    private final ActivityCategoryRepository activityCategoryRepository;
+    private final UserService userService;
+    private final AgroActivityService agroActivityService;
+    private final AgriculturalRecordService agriculturalRecordService;
+    private final ActivityHasEquipmentService activityHasEquipmentService;
+    private final ActivityHasOperatorService activityHasOperatorService;
 
     @Transactional
     public void addAgroActivity(NewAgroActivityRequest request) {

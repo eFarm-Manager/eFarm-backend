@@ -13,7 +13,7 @@ class ActivityCategoryServiceSpec extends Specification {
 
     @Subject
     ActivityCategoryService activityCategoryService = new ActivityCategoryService(
-        activityCategoryRepository: activityCategoryRepository
+        activityCategoryRepository
     )
 
     def "should get all available category names"() {

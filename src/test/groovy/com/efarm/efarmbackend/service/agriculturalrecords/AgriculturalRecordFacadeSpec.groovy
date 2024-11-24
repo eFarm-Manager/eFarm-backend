@@ -25,12 +25,12 @@ class AgriculturalRecordFacadeSpec extends Specification {
 
     @Subject
     AgriculturalRecordFacade agriculturalRecordFacade = new AgriculturalRecordFacade(
-        seasonService: seasonService,
-        userService: userService,
-        agriculturalRecordService: agriculturalRecordService,
-        agriculturalRecordRepository: agriculturalRecordRepository,
-        landparcelService: landparcelService,
-        landparcelRepository: landparcelRepository
+        seasonService,
+        userService,
+        agriculturalRecordService,
+        agriculturalRecordRepository,
+        landparcelService,
+        landparcelRepository
     )
 
     /*

@@ -15,6 +15,7 @@ import com.efarm.efarmbackend.repository.agroactivity.ActivityHasOperatorReposit
 import com.efarm.efarmbackend.repository.agroactivity.AgroActivityRepository;
 import com.efarm.efarmbackend.service.user.UserService;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,22 +26,14 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class AgroActivityService {
 
-    @Autowired
-    private ActivityHasOperatorRepository activityHasOperatorRepository;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private ActivityHasEquipmentRepository activityHasEquipmentRepository;
-
-    @Autowired
-    private AgroActivityRepository agroActivityRepository;
-
-    @Autowired
-    private AgriculturalRecordRepository agriculturalRecordRepository;
+    private final ActivityHasOperatorRepository activityHasOperatorRepository;
+    private final UserService userService;
+    private final ActivityHasEquipmentRepository activityHasEquipmentRepository;
+    private final AgroActivityRepository agroActivityRepository;
+    private final AgriculturalRecordRepository agriculturalRecordRepository;
 
     public AgroActivity createNewAgroActivity(NewAgroActivityRequest request, ActivityCategory activityCategory, AgriculturalRecord agriculturalRecord, Integer loggedUserFarmId) {
         AgroActivityId agroActivityId = new AgroActivityId(

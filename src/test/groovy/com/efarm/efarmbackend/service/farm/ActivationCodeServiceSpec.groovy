@@ -22,14 +22,15 @@ class ActivationCodeServiceSpec extends Specification {
 
     @Subject
     ActivationCodeService activationCodeService = new ActivationCodeService(
-            activationCodeRepository: activationCodeRepository,
-            farmRepository: farmRepository,
-            bruteForceProtectionService: bruteForceProtectionService,
-            daysToShowExpireActivationCodeNotification: 14,
+            activationCodeRepository,
+            farmRepository,
+            bruteForceProtectionService
     )
 
     def setup() {
         SecurityContextHolder.clearContext()
+        setField(activationCodeService, "daysToShowExpireActivationCodeNotification", 14)
+
     }
     /*
     * validateActivationCode
@@ -335,4 +336,10 @@ class ActivationCodeServiceSpec extends Specification {
         ex.message == 'Zbyt wiele nieudanych prób logowania! Spróbuj ponownie później'
     }
 
+    //helper functions
+    private void setField(Object target, String fieldName, Object value) {
+        def field = target.getClass().getDeclaredField(fieldName)
+        field.setAccessible(true)
+        field.set(target, value)
+    }
 }

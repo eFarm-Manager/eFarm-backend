@@ -28,11 +28,11 @@ class LandparcelFacadeSpec extends Specification {
 
     @Subject
     LandparcelFacade landparcelFacade = new LandparcelFacade(
-            landparcelService: landparcelService,
-            landparcelRepository: landparcelRepository,
-            userService: userService,
-            agriculturalRecordService: agriculturalRecordService,
-            seasonService: seasonService
+            landparcelService,
+            landparcelRepository,
+            userService,
+            agriculturalRecordService,
+            seasonService
     )
     /*
         addNewLandparcel

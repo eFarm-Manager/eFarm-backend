@@ -9,6 +9,7 @@ import com.efarm.efarmbackend.repository.finance.FinancialCategoryRepository;
 import com.efarm.efarmbackend.repository.finance.PaymentStatusRepository;
 import com.efarm.efarmbackend.repository.finance.TransactionRepository;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,16 +19,12 @@ import java.util.Locale;
 import java.util.Objects;
 
 @Service
+@RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class FinanceService {
 
-    @Autowired
-    private FinancialCategoryRepository financialCategoryRepository;
-
-    @Autowired
-    private PaymentStatusRepository paymentStatusRepository;
-
-    @Autowired
-    private TransactionRepository transactionRepository;
+    private final FinancialCategoryRepository financialCategoryRepository;
+    private final PaymentStatusRepository paymentStatusRepository;
+    private final TransactionRepository transactionRepository;
 
     public Transaction addNewTransactionData(TransactionId transactionId, Farm loggedUserFarm, NewTransactionRequest newTransactionRequest) {
         Transaction transaction = new Transaction(
@@ -37,7 +34,8 @@ public class FinanceService {
                 newTransactionRequest.getTransactionDate(),
                 newTransactionRequest.getPaymentDate(),
                 newTransactionRequest.getAmount(),
-                newTransactionRequest.getDescription());
+                newTransactionRequest.getDescription()
+        );
 
         setNewTransactionPaymentStatus(transaction, newTransactionRequest.getPaymentStatus());
         setNewTransactionFinancialCategory(transaction, newTransactionRequest.getFinancialCategory());

@@ -27,9 +27,9 @@ class FinanceFacadeSpec extends Specification {
 	
     @Subject
     FinanceFacade financeFacade = new FinanceFacade(
-        financeService: financeService,
-        transactionRepository: transactionRepository,
-        userService: userService
+        financeService,
+        transactionRepository,
+        userService
     )
 	/*
 	* The test below is a unit test for the addNewTransaction method in the FinanceFacade class.

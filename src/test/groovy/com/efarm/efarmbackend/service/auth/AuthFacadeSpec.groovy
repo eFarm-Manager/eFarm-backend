@@ -43,15 +43,15 @@ class AuthFacadeSpec extends Specification {
 
     @Subject
     AuthFacade authFacade = new AuthFacade(
-            userRepository: userRepository,
-            farmRepository: farmRepository,
-            addressRepository: addressRepository,
-            activationCodeRepository: activationCodeRepository,
-            authService: authService,
-            userService: userService,
-            activationCodeService: activationCodeService,
-            farmService: farmService,
-            authenticationManager: authenticationManager
+            userRepository,
+            farmRepository,
+            addressRepository,
+            activationCodeRepository,
+            authService,
+            userService,
+            activationCodeService,
+            farmService,
+            authenticationManager
     )
 
     def setup() {

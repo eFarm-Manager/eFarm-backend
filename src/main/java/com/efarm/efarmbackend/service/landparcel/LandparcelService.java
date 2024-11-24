@@ -5,6 +5,7 @@ import com.efarm.efarmbackend.model.landparcel.*;
 import com.efarm.efarmbackend.repository.landparcel.LandOwnershipStatusRepository;
 import com.efarm.efarmbackend.repository.landparcel.LandparcelRepository;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,13 +13,11 @@ import java.util.List;
 import java.util.Locale;
 
 @Service
+@RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class LandparcelService {
 
-    @Autowired
-    private LandOwnershipStatusRepository landOwnershipStatusRepository;
-
-    @Autowired
-    private LandparcelRepository landparcelRepository;
+    private final LandOwnershipStatusRepository landOwnershipStatusRepository;
+    private final LandparcelRepository landparcelRepository;
 
     public void addNewLandparcelData(LandparcelDTO landparcelDTO, Landparcel landparcel) {
         ELandOwnershipStatus ownershipStatusEnum;

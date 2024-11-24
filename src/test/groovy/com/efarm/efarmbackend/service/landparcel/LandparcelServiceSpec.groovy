@@ -18,8 +18,8 @@ class LandparcelServiceSpec extends Specification {
 
     @Subject
     LandparcelService landparcelService = new LandparcelService(
-            landOwnershipStatusRepository: landOwnershipStatusRepository,
-            landparcelRepository: landparcelRepository
+            landOwnershipStatusRepository,
+            landparcelRepository
     )
     /*
     * addNewLandparcelData

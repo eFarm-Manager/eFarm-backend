@@ -9,6 +9,7 @@ import com.efarm.efarmbackend.service.agriculturalrecords.AgriculturalRecordServ
 import com.efarm.efarmbackend.service.agriculturalrecords.CropService;
 import com.efarm.efarmbackend.service.agriculturalrecords.SeasonService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,23 +20,15 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor(onConstructor_ = {@Autowired})
 @RequestMapping("/records")
 public class AgriculturalRecordController {
 
-    @Autowired
-    private AgriculturalRecordFacade agriculturalRecordFacade;
-
-    @Autowired
-    private ValidationRequestService validationRequestService;
-
-    @Autowired
-    private SeasonService seasonService;
-
-    @Autowired
-    private CropService cropService;
-
-    @Autowired
-    private AgriculturalRecordService agriculturalRecordService;
+    private final AgriculturalRecordFacade agriculturalRecordFacade;
+    private final ValidationRequestService validationRequestService;
+    private final SeasonService seasonService;
+    private final CropService cropService;
+    private final AgriculturalRecordService agriculturalRecordService;
 
     @GetMapping("/all")
     @PreAuthorize("hasRole('ROLE_FARM_MANAGER') or hasRole('ROLE_FARM_OWNER') or hasRole('ROLE_FARM_EQUIPMENT_OPERATOR')")

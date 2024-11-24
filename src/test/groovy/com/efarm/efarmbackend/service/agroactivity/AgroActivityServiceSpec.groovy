@@ -32,11 +32,11 @@ class AgroActivityServiceSpec extends Specification {
 
     @Subject
     AgroActivityService agroActivityService = new AgroActivityService(
-        activityHasOperatorRepository: activityHasOperatorRepository,
-        userService: userService,
-        activityHasEquipmentRepository: activityHasEquipmentRepository,
-        agroActivityRepository: agroActivityRepository,
-        agriculturalRecordRepository: agriculturalRecordRepository
+        activityHasOperatorRepository,
+        userService,
+        activityHasEquipmentRepository,
+        agroActivityRepository,
+        agriculturalRecordRepository
     )
 
     /*

@@ -5,7 +5,9 @@ import com.efarm.efarmbackend.model.farm.ActivationCode;
 import com.efarm.efarmbackend.model.farm.Address;
 import com.efarm.efarmbackend.model.farm.Farm;
 import com.efarm.efarmbackend.model.user.User;
-import com.efarm.efarmbackend.payload.request.auth.*;
+import com.efarm.efarmbackend.payload.request.auth.SignupFarmRequest;
+import com.efarm.efarmbackend.payload.request.auth.SignupUserRequest;
+import com.efarm.efarmbackend.payload.request.auth.UpdateActivationCodeRequest;
 import com.efarm.efarmbackend.payload.request.farm.UpdateActivationCodeByLoggedOwnerRequest;
 import com.efarm.efarmbackend.payload.request.user.ChangePasswordRequest;
 import com.efarm.efarmbackend.repository.farm.ActivationCodeRepository;
@@ -17,6 +19,7 @@ import com.efarm.efarmbackend.service.farm.ActivationCodeService;
 import com.efarm.efarmbackend.service.farm.FarmService;
 import com.efarm.efarmbackend.service.user.UserService;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,34 +32,18 @@ import java.util.Objects;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class AuthFacade {
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private FarmRepository farmRepository;
-
-    @Autowired
-    private AddressRepository addressRepository;
-
-    @Autowired
-    private ActivationCodeRepository activationCodeRepository;
-
-    @Autowired
-    private AuthService authService;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private ActivationCodeService activationCodeService;
-
-    @Autowired
-    private FarmService farmService;
-
-    @Autowired
-    AuthenticationManager authenticationManager;
+    private final UserRepository userRepository;
+    private final FarmRepository farmRepository;
+    private final AddressRepository addressRepository;
+    private final ActivationCodeRepository activationCodeRepository;
+    private final AuthService authService;
+    private final UserService userService;
+    private final ActivationCodeService activationCodeService;
+    private final FarmService farmService;
+    final AuthenticationManager authenticationManager;
 
     private static final Logger logger = LoggerFactory.getLogger(AuthFacade.class);
 

@@ -25,9 +25,9 @@ class ActivityHasEquipmentServiceSpec extends Specification {
 
     @Subject
     ActivityHasEquipmentService activityHasEquipmentService = new ActivityHasEquipmentService(
-        farmEquipmentRepository: farmEquipmentRepository,
-        activityHasEquipmentRepository: activityHasEquipmentRepository,
-        applicationContext: applicationContext
+        farmEquipmentRepository,
+        applicationContext,
+        activityHasEquipmentRepository
     )
     /*
     * addEquipmentToActivity

@@ -24,10 +24,10 @@ class ActivityHasOperatorServiceSpec extends Specification {
 
     @Subject
     ActivityHasOperatorService activityHasOperatorService = new ActivityHasOperatorService(
-        userRepository: userRepository,
-        userService: userService,
-        activityHasOperatorRepository: activityHasOperatorRepository,
-        applicationContext: applicationContext
+        userRepository,
+        userService,
+        applicationContext,
+        activityHasOperatorRepository
     )
 
     /*

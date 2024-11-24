@@ -4,6 +4,7 @@ import com.efarm.efarmbackend.service.equipment.FarmEquipmentNotificationService
 import com.efarm.efarmbackend.service.farm.FarmNotificationService;
 import com.efarm.efarmbackend.service.farm.FarmService;
 import com.efarm.efarmbackend.service.finance.FinanceNotificationService;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,19 +12,13 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class ScheduledTasks {
 
-    @Autowired
-    private FarmService farmService;
-
-    @Autowired
-    private FarmEquipmentNotificationService farmEquipmentNotificationService;
-
-    @Autowired
-    private FinanceNotificationService financeNotificationService;
-
-    @Autowired
-    private FarmNotificationService farmNotificationService;
+    private final FarmService farmService;
+    private final FarmEquipmentNotificationService farmEquipmentNotificationService;
+    private final FinanceNotificationService financeNotificationService;
+    private final FarmNotificationService farmNotificationService;
 
     private static final Logger logger = LoggerFactory.getLogger(ScheduledTasks.class);
 

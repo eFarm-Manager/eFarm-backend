@@ -10,12 +10,13 @@ import com.efarm.efarmbackend.service.equipment.FarmEquipmentService;
 import com.efarm.efarmbackend.service.landparcel.LandparcelService;
 import com.efarm.efarmbackend.service.user.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
+@RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class AgroActivityNotificationService {
 
     private final UserService userService;

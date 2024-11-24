@@ -44,13 +44,13 @@ class AuthControllerSpec extends Specification {
 
     @Subject
     AuthController authController = new AuthController(
-            authFacade: authFacade,
-            jwtUtils: jwtUtils,
-            userService: userService,
-            activationCodeService: activationCodeService,
-            farmService: farmService,
-            authService: authService,
-            validationRequestService: validationRequestService
+            authFacade,
+            jwtUtils,
+            userService,
+            activationCodeService,
+            farmService,
+            authService,
+            validationRequestService
     )
 
     def setup() {
