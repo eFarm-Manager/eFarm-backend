@@ -21,8 +21,8 @@ class AuthServiceSpec extends Specification {
 
     @Subject
     AuthService authService = new AuthService(
-            authenticationManager: authenticationManager,
-            bruteForceProtectionService: bruteForceProtectionService
+            authenticationManager,
+            bruteForceProtectionService
     )
 
     def setup() {

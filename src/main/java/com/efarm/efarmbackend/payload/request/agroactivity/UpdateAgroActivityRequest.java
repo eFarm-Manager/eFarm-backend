@@ -16,12 +16,12 @@ public class UpdateAgroActivityRequest {
 
     @NotNull(message = "Kategoria zabiegu nie może być pusta")
     @NotBlank(message = "Kategoria zabiegu nie może być pusta")
-    @Size(max = 45, message = "Nazwa kategorii zabiegu nie może przekraczać 45 znaków.")
+    @Size(max = 45, message = "Nazwa kategorii zabiegu nie może przekraczać 45 znaków")
     private String activityCategoryName;
 
     @NotNull(message = "Kategoria zabiegu nie może być pusta")
     @NotBlank(message = "Nazwa zabiegu nie może być pusta")
-    @Size(max = 45, message = "Nazwa zabiegu nie może przekraczać 45 znaków.")
+    @Size(max = 45, message = "Nazwa zabiegu nie może przekraczać 45 znaków")
     private String name;
 
     private Instant date;

@@ -11,6 +11,7 @@ import com.efarm.efarmbackend.service.agriculturalrecords.AgriculturalRecordServ
 import com.efarm.efarmbackend.service.agriculturalrecords.SeasonService;
 import com.efarm.efarmbackend.service.user.UserService;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,22 +19,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class LandparcelFacade {
 
-    @Autowired
-    private LandparcelService landparcelService;
-
-    @Autowired
-    private LandparcelRepository landparcelRepository;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private AgriculturalRecordService agriculturalRecordService;
-
-    @Autowired
-    private SeasonService seasonService;
+    private final LandparcelService landparcelService;
+    private final LandparcelRepository landparcelRepository;
+    private final UserService userService;
+    private final AgriculturalRecordService agriculturalRecordService;
+    private final SeasonService seasonService;
 
     @Transactional
     public void addNewLandparcel(AddLandparcelRequest addLandparcelRequest) throws Exception {
@@ -43,10 +36,10 @@ public class LandparcelFacade {
 
         LandparcelDTO landparcelDTO = new LandparcelDTO(addLandparcelRequest);
         if (landparcelService.isLandparcelAlreadyExistingByFarm(landparcelDTO, loggedUserFarm)) {
-            throw new Exception("Działka o powyższych danych geodezyjnych już istnieje!");
+            throw new Exception("Działka o powyższych danych geodezyjnych już istnieje");
         }
         if (landparcelService.isLandparcelNameTaken(landparcelDTO.getName(), loggedUserFarm)) {
-            throw new Exception("Działka o podanej nazwie już istnieje!");
+            throw new Exception("Działka o podanej nazwie już istnieje");
         }
 
         landparcelService.addNewLandparcelData(landparcelDTO, landparcel);
@@ -64,7 +57,7 @@ public class LandparcelFacade {
         if (!landparcel.getIsAvailable()) {
             throw new Exception("Wybrana działka już nie istnieje");
         }
-        return landparcelService.createDTOtoDisplay(landparcel);
+        return new LandparcelDTO(landparcel);
     }
 
     @Transactional
@@ -82,7 +75,7 @@ public class LandparcelFacade {
         }
         if (!landparcel.getName().equals(landparcelDTO.getName()) &&
                 landparcelService.isLandparcelNameTaken(landparcelDTO.getName(), loggedUserFarm)) {
-            throw new Exception("Działka o podanej nazwie już istnieje!");
+            throw new Exception("Działka o podanej nazwie już istnieje");
         }
 
         landparcelService.updateLandparcelData(landparcelDTO, landparcel);
@@ -99,7 +92,7 @@ public class LandparcelFacade {
             landparcel.setIsAvailable(false);
             landparcelRepository.save(landparcel);
         } else {
-            throw new Exception("Wybrana działka już nie istnieje!");
+            throw new Exception("Wybrana działka już nie istnieje");
         }
     }
 

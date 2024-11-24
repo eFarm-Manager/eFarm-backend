@@ -25,12 +25,12 @@ class AgriculturalRecordFacadeSpec extends Specification {
 
     @Subject
     AgriculturalRecordFacade agriculturalRecordFacade = new AgriculturalRecordFacade(
-        seasonService: seasonService,
-        userService: userService,
-        agriculturalRecordService: agriculturalRecordService,
-        agriculturalRecordRepository: agriculturalRecordRepository,
-        landparcelService: landparcelService,
-        landparcelRepository: landparcelRepository
+        seasonService,
+        userService,
+        agriculturalRecordService,
+        agriculturalRecordRepository,
+        landparcelService,
+        landparcelRepository
     )
 
     /*
@@ -338,7 +338,7 @@ class AgriculturalRecordFacadeSpec extends Specification {
 
         then:
         Exception e = thrown()
-        e.message == 'Podany sezon nie istnieje.'
+        e.message == 'Podany sezon nie istnieje'
     }
 
     def "should not create records if no active land parcels are available"() {

@@ -20,6 +20,11 @@ public interface AgroActivityRepository extends JpaRepository<AgroActivity, Agro
     List<AgroActivity> findByAgriculturalRecord(AgriculturalRecord agriculturalRecord);
 
     @Query("SELECT a FROM AgroActivity a " +
+            "JOIN ActivityHasOperator o ON o.agroActivity = a " +
+            "WHERE o.user.id = :userId AND a.isCompleted = false")
+    List<AgroActivity> findIncompleteActivitiesAssignedToUser(@Param("userId") Integer userId);
+
+    @Query("SELECT a FROM AgroActivity a " +
             "LEFT JOIN FETCH a.agriculturalRecord l " +
             "LEFT JOIN FETCH a.activityCategory " +
             "WHERE a.id = :id")

@@ -23,11 +23,11 @@ class FinanceNotificationServiceSpec extends Specification {
 
     @Subject
     FinanceNotificationService financeNotificationService = new FinanceNotificationService(
-        transactionRepository: transactionRepository,
-        userService: userService,
-        financialCategoryRepository: financialCategoryRepository,
-        paymentStatusRepository: paymentStatusRepository,
-        mainNotificationService: mainNotificationService
+        transactionRepository,
+        userService,
+        financialCategoryRepository,
+        paymentStatusRepository,
+        mainNotificationService
     )
 
     def "should call checkAndNotifyForPayment for each transaction"() {
@@ -59,8 +59,8 @@ class FinanceNotificationServiceSpec extends Specification {
         financeNotificationService.checkPaymentDueDateNotifications()
 
         then:
-        1 * mainNotificationService.sendNotificationToOwner(_ as User, _, 'Niedługo upływa termin płatności!')
-        1 * mainNotificationService.sendNotificationToOwner(_ as User, _, 'Niedługo upływa termin płatności!')
+        1 * mainNotificationService.sendNotificationToUser(_ as User, _, 'Niedługo upływa termin płatności!')
+        1 * mainNotificationService.sendNotificationToUser(_ as User, _, 'Niedługo upływa termin płatności!')
     }
 
     def "should checkAndNotifyForPayment when payment date is 5 days away"() {
@@ -83,7 +83,7 @@ class FinanceNotificationServiceSpec extends Specification {
         financeNotificationService.checkAndNotifyForPayment(transaction, today)
 
         then:
-        1 * mainNotificationService.sendNotificationToOwner(_ as User, _,'Niedługo upływa termin płatności!')
+        1 * mainNotificationService.sendNotificationToUser(_ as User, _,'Niedługo upływa termin płatności!')
     }
 
     def "should checkAndNotifyForPayment when payment date is 1 day away"() {
@@ -106,7 +106,7 @@ class FinanceNotificationServiceSpec extends Specification {
         financeNotificationService.checkAndNotifyForPayment(transaction, today)
 
         then:
-        1 * mainNotificationService.sendNotificationToOwner(_ as User, _,'Niedługo upływa termin płatności!')
+        1 * mainNotificationService.sendNotificationToUser(_ as User, _,'Niedługo upływa termin płatności!')
     }
 
     def "should checkAndNotifyForPayment when payment date is not 5 or 1 day away"() {
@@ -128,7 +128,7 @@ class FinanceNotificationServiceSpec extends Specification {
         financeNotificationService.checkAndNotifyForPayment(transaction, today)
 
         then:
-        0 * mainNotificationService.sendNotificationToOwner(_ as User, _,'Niedługo upływa termin płatności!')
+        0 * mainNotificationService.sendNotificationToUser(_ as User, _,'Niedługo upływa termin płatności!')
     }
 
     def "should checkAndNotifyForPayment when transaction has no payment date"() {
@@ -150,7 +150,7 @@ class FinanceNotificationServiceSpec extends Specification {
         financeNotificationService.checkAndNotifyForPayment(transaction, today)
 
         then:
-        0 * mainNotificationService.sendNotificationToOwner(_ as User, _,'Niedługo upływa termin płatności!')
+        0 * mainNotificationService.sendNotificationToUser(_ as User, _,'Niedługo upływa termin płatności!')
     }
 
 }

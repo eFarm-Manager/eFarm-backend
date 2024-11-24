@@ -22,14 +22,15 @@ class ActivationCodeServiceSpec extends Specification {
 
     @Subject
     ActivationCodeService activationCodeService = new ActivationCodeService(
-            activationCodeRepository: activationCodeRepository,
-            farmRepository: farmRepository,
-            bruteForceProtectionService: bruteForceProtectionService,
-            daysToShowExpireActivationCodeNotification: 14,
+            activationCodeRepository,
+            farmRepository,
+            bruteForceProtectionService
     )
 
     def setup() {
         SecurityContextHolder.clearContext()
+        setField(activationCodeService, "daysToShowExpireActivationCodeNotification", 14)
+
     }
     /*
     * validateActivationCode
@@ -63,7 +64,7 @@ class ActivationCodeServiceSpec extends Specification {
 
         then:
         RuntimeException ex = thrown()
-        ex.message == 'Podany kod aktywacyjny nie istnieje!'
+        ex.message == 'Podany kod aktywacyjny nie istnieje'
     }
 
     def "should handle expired code"() {
@@ -81,7 +82,7 @@ class ActivationCodeServiceSpec extends Specification {
 
         then:
         RuntimeException ex = thrown()
-        ex.message == 'Kod aktywacyjny wygasł!'
+        ex.message == 'Kod aktywacyjny wygasł'
     }
 
     def "should handle used code"() {
@@ -99,7 +100,7 @@ class ActivationCodeServiceSpec extends Specification {
 
         then:
         RuntimeException ex = thrown()
-        ex.message == 'Podany kod aktywacyjny został już wykorzystany!'
+        ex.message == 'Podany kod aktywacyjny został już wykorzystany'
     }
 
     /*
@@ -156,7 +157,7 @@ class ActivationCodeServiceSpec extends Specification {
         String response = activationCodeService.generateExpireCodeInfo(farm, ['ROLE_FARM_OWNER'])
 
         then:
-        response == 'Kod aktywacyjny wygasa za 1 dni.'
+        response == 'Kod aktywacyjny wygasa za 1 dni'
     }
 
     def "should no info during sign in with expire code for owner when its more than 14 to expire"() {
@@ -317,7 +318,7 @@ class ActivationCodeServiceSpec extends Specification {
 
         then:
         RuntimeException ex = thrown()
-        ex.message == 'Podany kod aktywacyjny został już wykorzystany!'
+        ex.message == 'Podany kod aktywacyjny został już wykorzystany'
     }
 
     def "should block user for too many attempts"() {
@@ -332,7 +333,13 @@ class ActivationCodeServiceSpec extends Specification {
 
         then:
         TooManyRequestsException ex = thrown()
-        ex.message == 'Zbyt wiele nieudanych prób logowania! Spróbuj ponownie później.'
+        ex.message == 'Zbyt wiele nieudanych prób logowania! Spróbuj ponownie później'
     }
 
+    //helper functions
+    private void setField(Object target, String fieldName, Object value) {
+        def field = target.getClass().getDeclaredField(fieldName)
+        field.setAccessible(true)
+        field.set(target, value)
+    }
 }

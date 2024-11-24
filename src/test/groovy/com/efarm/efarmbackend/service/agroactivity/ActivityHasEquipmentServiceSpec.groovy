@@ -21,11 +21,13 @@ class ActivityHasEquipmentServiceSpec extends Specification {
 
     def farmEquipmentRepository = Mock(FarmEquipmentRepository)
     def activityHasEquipmentRepository = Mock(ActivityHasEquipmentRepository)
+    def applicationContext = Mock(org.springframework.context.ApplicationContext)
 
     @Subject
     ActivityHasEquipmentService activityHasEquipmentService = new ActivityHasEquipmentService(
-        farmEquipmentRepository: farmEquipmentRepository,
-        activityHasEquipmentRepository: activityHasEquipmentRepository
+        farmEquipmentRepository,
+        applicationContext,
+        activityHasEquipmentRepository
     )
     /*
     * addEquipmentToActivity
@@ -63,11 +65,11 @@ class ActivityHasEquipmentServiceSpec extends Specification {
 
         FarmEquipment farmEquipment1 = Mock(FarmEquipment) {
             getId() >> new FarmEquipmentId(1, farmId)
-            getIsAvailable() >> true
+            getEquipmentName() >> 'Zetor'
+            getIsAvailable() >> false
         }
         FarmEquipment farmEquipment2 = Mock(FarmEquipment) {
             getId() >> new FarmEquipmentId(2, farmId)
-            getEquipmentName() >> 'Zetor'
             getIsAvailable() >> false
         }
         List<FarmEquipment> farmEquipmentList = [farmEquipment1, farmEquipment2]
@@ -77,12 +79,11 @@ class ActivityHasEquipmentServiceSpec extends Specification {
         activityHasEquipmentService.addEquipmentToActivity(equipmentIds, agroActivity, farmId)
 
         then:
-        1 * activityHasEquipmentRepository.save(_)
         IllegalStateException ex = thrown()
-        ex.message == 'Sprzęt Zetor jest niedostępny!'
+        ex.message == 'Sprzęt Zetor jest niedostępny'
     }
 
-    def "should skip equipment ids if the equipment doesnt exist with that id"(){
+    def "should throw exception when equipment id doesnt exist"(){
         given:
         List<Integer> equipmentIds = [1,2,3]
         AgroActivity agroActivity = Mock(AgroActivity)
@@ -103,7 +104,8 @@ class ActivityHasEquipmentServiceSpec extends Specification {
         activityHasEquipmentService.addEquipmentToActivity(equipmentIds, agroActivity, farmId)
 
         then:
-        2 * activityHasEquipmentRepository.save(_)
+        IllegalArgumentException ex = thrown()
+        ex.message == 'Sprzęty o następujących identyfikatorach nie istnieją: [3]'
     }
 
     /*
@@ -177,8 +179,10 @@ class ActivityHasEquipmentServiceSpec extends Specification {
         List<FarmEquipment> farmEquipmentList = [farmEquipment1, farmEquipment2]
         farmEquipmentRepository.findAllById(_) >> farmEquipmentList
 
+        applicationContext.getBean(ActivityHasEquipmentService.class) >> activityHasEquipmentService
+
         when:
-        activityHasEquipmentService.updateEqipmentInActivity(equipmentIds, agroActivity, farmId)
+        activityHasEquipmentService.updateEquipmentInActivity(equipmentIds, agroActivity, farmId)
 
         then:
         1 * activityHasEquipmentRepository.deleteActivityHasEquipmentsByAgroActivity(agroActivity)

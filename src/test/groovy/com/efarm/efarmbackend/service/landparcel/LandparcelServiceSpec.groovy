@@ -18,8 +18,8 @@ class LandparcelServiceSpec extends Specification {
 
     @Subject
     LandparcelService landparcelService = new LandparcelService(
-            landOwnershipStatusRepository: landOwnershipStatusRepository,
-            landparcelRepository: landparcelRepository
+            landOwnershipStatusRepository,
+            landparcelRepository
     )
     /*
     * addNewLandparcelData
@@ -200,40 +200,7 @@ class LandparcelServiceSpec extends Specification {
         landparcel.getLatitude() == landparcelDTO.getLatitude()
         landparcel.getArea() == landparcelDTO.getArea()
     }
-    /*
-    * createDTOtoDisplay
-    */
 
-    def "should correctly create DTO from Landparcel"() {
-        given:
-        LandparcelId landparcelId = new LandparcelId(1, 1)
-        Landparcel landparcel = new Landparcel()
-        landparcel.setId(landparcelId)
-        landparcel.setLandOwnershipStatus(new LandOwnershipStatus(ELandOwnershipStatus.STATUS_PRIVATELY_OWNED))
-        landparcel.setVoivodeship('Mazowieckie')
-        landparcel.setDistrict('Warszawa')
-        landparcel.setCommune('Mokotów')
-        landparcel.setGeodesyDistrictNumber('XYZ123')
-        landparcel.setLandparcelNumber('LP-001')
-        landparcel.setLongitude(21.0122)
-        landparcel.setLatitude(52.2297)
-        landparcel.setArea(1500.0)
-
-        when:
-        LandparcelDTO landparcelDTO = landparcelService.createDTOtoDisplay(landparcel)
-
-        then:
-        landparcelDTO.getId() == landparcel.getId().getId()
-        landparcelDTO.getLandOwnershipStatus() == landparcel.getLandOwnershipStatus().getOwnershipStatus().toString()
-        landparcelDTO.getVoivodeship() == landparcel.getVoivodeship()
-        landparcelDTO.getDistrict() == landparcel.getDistrict()
-        landparcelDTO.getCommune() == landparcel.getCommune()
-        landparcelDTO.getGeodesyDistrictNumber() == landparcel.getGeodesyDistrictNumber()
-        landparcelDTO.getLandparcelNumber() == landparcel.getLandparcelNumber()
-        landparcelDTO.getLongitude() == landparcel.getLongitude()
-        landparcelDTO.getLatitude() == landparcel.getLatitude()
-        landparcelDTO.getArea() == landparcel.getArea()
-    }
     /*
     * isLandparcelAlreadyExistingByFarm
     */
@@ -308,6 +275,69 @@ class LandparcelServiceSpec extends Specification {
 
         then:
         result == false
+    }
+
+    /*
+    * findlandparcelByFarm
+    */
+
+    def "should find landparcel by current farm"() {
+        given:
+        Integer id = 1
+        Farm farm = Mock(Farm) {
+            getId() >> 1
+        }
+        LandparcelId landparcelId = new LandparcelId(id, farm.getId())
+        Landparcel landparcel = Mock(Landparcel) {
+            getId() >> landparcelId
+        }
+        landparcelRepository.findById(landparcelId) >> Optional.of(landparcel) 
+
+        when:
+        Landparcel result = landparcelService.findlandparcelByFarm(id, farm)
+
+        then:
+        result.getId().getId() == landparcelId.getId()
+        result.getId().getFarmId() == landparcelId.getFarmId()
+    }
+
+    def "should return null when landparcel does not exist"() {
+        given:
+        Integer id = 1
+        Farm farm = Mock(Farm) {
+            getId() >> 1
+        }
+        LandparcelId landparcelId = new LandparcelId(id, farm.getId())
+        landparcelRepository.findById(landparcelId) >> Optional.empty()
+
+        when:
+        Landparcel result = landparcelService.findlandparcelByFarm(id, farm)
+
+        then:
+        Exception e = thrown()
+        e.message == 'Nie znaleziono działki'
+    }
+
+    /*
+    * deleteAllLandparcelsForFarm
+    */
+
+    def "should delete all landparcels for a farm"() {
+        given:
+        Farm farm = Mock(Farm) {
+            getId() >> 1
+        }
+        Landparcel landparcel1 = Mock(Landparcel)
+        Landparcel landparcel2 = Mock(Landparcel)
+        landparcelRepository.findByFarmId(farm.getId()) >> [landparcel1, landparcel2]
+
+        when:
+        landparcelService.deleteAllLandparcelsForFarm(farm)
+
+        then:
+        1 * landparcelRepository.deleteAll({ List<Landparcel> landparcels ->
+            landparcels.contains(landparcel1) && landparcels.contains(landparcel2)
+        })
     }
 
     /*

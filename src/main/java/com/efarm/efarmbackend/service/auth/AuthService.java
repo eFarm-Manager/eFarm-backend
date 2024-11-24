@@ -4,6 +4,7 @@ import com.efarm.efarmbackend.payload.request.auth.LoginRequest;
 import com.efarm.efarmbackend.payload.request.auth.UpdateActivationCodeRequest;
 import com.efarm.efarmbackend.security.services.BruteForceProtectionService;
 import com.efarm.efarmbackend.security.services.UserDetailsImpl;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -12,12 +13,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class AuthService {
-    @Autowired
-    AuthenticationManager authenticationManager;
 
-    @Autowired
-    private BruteForceProtectionService bruteForceProtectionService;
+    final AuthenticationManager authenticationManager;
+    private final BruteForceProtectionService bruteForceProtectionService;
 
     public UserDetailsImpl authenticateUserByLoginRequest(LoginRequest loginRequest) {
 

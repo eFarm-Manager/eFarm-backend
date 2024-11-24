@@ -9,6 +9,7 @@ import com.efarm.efarmbackend.repository.landparcel.LandparcelRepository;
 import com.efarm.efarmbackend.service.landparcel.LandparcelService;
 import com.efarm.efarmbackend.service.user.UserService;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,25 +17,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class AgriculturalRecordFacade {
 
-    @Autowired
-    private SeasonService seasonService;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private AgriculturalRecordService agriculturalRecordService;
-
-    @Autowired
-    private AgriculturalRecordRepository agriculturalRecordRepository;
-
-    @Autowired
-    private LandparcelService landparcelService;
-
-    @Autowired
-    private LandparcelRepository landparcelRepository;
+    private final SeasonService seasonService;
+    private final UserService userService;
+    private final AgriculturalRecordService agriculturalRecordService;
+    private final AgriculturalRecordRepository agriculturalRecordRepository;
+    private final LandparcelService landparcelService;
+    private final LandparcelRepository landparcelRepository;
 
     public List<AgriculturalRecordDTO> getAgriculturalRecords(String seasonName, String searchQuery) throws Exception {
         Farm loggedUserFarm = userService.getLoggedUserFarm();
@@ -61,7 +52,7 @@ public class AgriculturalRecordFacade {
 
         Landparcel landparcel = landparcelService.findlandparcelByFarm(recordRequest.getLandparcelId(), loggedUserFarm);
         if (!landparcel.getIsAvailable()) {
-            throw new Exception("Wybrane pole jest niedostępne!");
+            throw new Exception("Wybrane pole jest niedostępne");
         }
 
         agriculturalRecordService.validateCropArea(landparcel, season, recordRequest);
@@ -88,7 +79,7 @@ public class AgriculturalRecordFacade {
         Farm loggedUserFarm = userService.getLoggedUserFarm();
         Season season = seasonService.getSeasonByName(seasonName);
         if (season == null) {
-            throw new Exception("Podany sezon nie istnieje.");
+            throw new Exception("Podany sezon nie istnieje");
         }
 
         List<Landparcel> activeLandparcels = landparcelRepository.findByFarmIdAndIsAvailableTrue(loggedUserFarm.getId());

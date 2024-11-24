@@ -28,11 +28,11 @@ class LandparcelFacadeSpec extends Specification {
 
     @Subject
     LandparcelFacade landparcelFacade = new LandparcelFacade(
-            landparcelService: landparcelService,
-            landparcelRepository: landparcelRepository,
-            userService: userService,
-            agriculturalRecordService: agriculturalRecordService,
-            seasonService: seasonService
+            landparcelService,
+            landparcelRepository,
+            userService,
+            agriculturalRecordService,
+            seasonService
     )
     /*
         addNewLandparcel
@@ -96,7 +96,7 @@ class LandparcelFacadeSpec extends Specification {
 
         then:
         Exception e = thrown(Exception)
-        e.message == 'Działka o powyższych danych geodezyjnych już istnieje!'
+        e.message == 'Działka o powyższych danych geodezyjnych już istnieje'
 
         0 * landparcelService.addNewLandparcelData(_, _)
         0 * landparcelRepository.save(_)
@@ -129,7 +129,7 @@ class LandparcelFacadeSpec extends Specification {
 
         then:
         Exception e = thrown(Exception)
-        e.message == 'Działka o podanej nazwie już istnieje!'
+        e.message == 'Działka o podanej nazwie już istnieje'
 
         0 * landparcelService.addNewLandparcelData(_, _)
         0 * landparcelRepository.save(_)
@@ -145,6 +145,7 @@ class LandparcelFacadeSpec extends Specification {
         Landparcel landparcel = new Landparcel()
         landparcel.setArea(522)
         landparcel.setIsAvailable(true)
+        landparcel.setLandOwnershipStatus(new LandOwnershipStatus(ELandOwnershipStatus.STATUS_PRIVATELY_OWNED))
 
         LandparcelId landparcelId = new LandparcelId(id, farm.getId())
         landparcel.setId(landparcelId)
@@ -298,7 +299,7 @@ class LandparcelFacadeSpec extends Specification {
 
         then:
         Exception ex = thrown(Exception)
-        ex.message == 'Działka o podanej nazwie już istnieje!'
+        ex.message == 'Działka o podanej nazwie już istnieje'
     }
     /*
         deleteLandparcel
@@ -357,7 +358,7 @@ class LandparcelFacadeSpec extends Specification {
 
         then:
         def ex = thrown(Exception)
-        ex.message == 'Wybrana działka już nie istnieje!'
+        ex.message == 'Wybrana działka już nie istnieje'
     }
     /*
         getLandparcels

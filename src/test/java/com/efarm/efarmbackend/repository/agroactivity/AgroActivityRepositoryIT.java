@@ -92,6 +92,23 @@ public class AgroActivityRepositoryIT {
     }
 
     @Test
+    public void testFindIncompleteActivitiesAssignedToUser() {
+        //given
+        List<AgroActivity> agroActivities = entityManager.getEntityManager().createQuery(
+            "SELECT a FROM AgroActivity a JOIN ActivityHasOperator o ON o.agroActivity = a WHERE o.user.id = :userId AND a.isCompleted = false", AgroActivity.class)
+            .setParameter("userId", 1)
+            .getResultList();
+
+        //when
+        List<AgroActivity> foundAgroActivities = agroActivityRepository.findIncompleteActivitiesAssignedToUser(1);
+
+        //then
+        assertThat(foundAgroActivities, not(empty()));
+        assertThat(foundAgroActivities, everyItem(hasProperty("isCompleted", is(false))));
+        assertThat(foundAgroActivities.size(), is(agroActivities.size()));
+    }
+
+    @Test
     public void testFindWithDetailsById() {
         //given
         AgroActivity agroActivity = entityManager.find(AgroActivity.class, new AgroActivityId(1,1));

@@ -5,10 +5,10 @@ import com.efarm.efarmbackend.model.farm.Address
 import com.efarm.efarmbackend.model.farm.Farm
 import com.efarm.efarmbackend.model.user.User
 import com.efarm.efarmbackend.payload.request.auth.SignupFarmRequest
-import com.efarm.efarmbackend.payload.request.auth.SignupRequest
+import com.efarm.efarmbackend.payload.request.auth.SignupUserRequest
 import com.efarm.efarmbackend.payload.request.auth.UpdateActivationCodeRequest
-import com.efarm.efarmbackend.payload.request.auth.UpdateActivationCodeByLoggedOwnerRequest
-import com.efarm.efarmbackend.payload.request.auth.ChangePasswordRequest
+import com.efarm.efarmbackend.payload.request.farm.UpdateActivationCodeByLoggedOwnerRequest
+import com.efarm.efarmbackend.payload.request.user.ChangePasswordRequest
 import com.efarm.efarmbackend.payload.response.MessageResponse
 import com.efarm.efarmbackend.repository.farm.ActivationCodeRepository
 import com.efarm.efarmbackend.repository.farm.AddressRepository
@@ -43,15 +43,15 @@ class AuthFacadeSpec extends Specification {
 
     @Subject
     AuthFacade authFacade = new AuthFacade(
-            userRepository: userRepository,
-            farmRepository: farmRepository,
-            addressRepository: addressRepository,
-            activationCodeRepository: activationCodeRepository,
-            authService: authService,
-            userService: userService,
-            activationCodeService: activationCodeService,
-            farmService: farmService,
-            authenticationManager: authenticationManager
+            userRepository,
+            farmRepository,
+            addressRepository,
+            activationCodeRepository,
+            authService,
+            userService,
+            activationCodeService,
+            farmService,
+            authenticationManager
     )
 
     def setup() {
@@ -64,7 +64,7 @@ class AuthFacadeSpec extends Specification {
 
     def "should register user successfully"() {
         given:
-        SignupRequest signUpRequest = new SignupRequest(
+        SignupUserRequest signUpRequest = new SignupUserRequest(
                 firstName: 'John',
                 lastName: 'Doe',
                 username: 'user',
@@ -90,7 +90,7 @@ class AuthFacadeSpec extends Specification {
 
     def "should return error if username already exists"() {
         given:
-        SignupRequest signUpRequest = new SignupRequest(
+        SignupUserRequest signUpRequest = new SignupUserRequest(
                 firstName: 'John',
                 lastName: 'Doe',
                 username: 'existingUser',
@@ -106,12 +106,12 @@ class AuthFacadeSpec extends Specification {
 
         then:
         RuntimeException exception = thrown()
-        exception.message == 'Podana nazwa użytkownika jest już zajęta!'
+        exception.message == 'Podana nazwa użytkownika jest już zajęta'
     }
 
     def "should return error if farm retrieval fails"() {
         given:
-        SignupRequest signUpRequest = new SignupRequest(
+        SignupUserRequest signUpRequest = new SignupUserRequest(
                 firstName: 'John',
                 lastName: 'Doe',
                 username: 'newUser',
@@ -191,7 +191,7 @@ class AuthFacadeSpec extends Specification {
 
         then:
         RuntimeException exception = thrown()
-        exception.message == 'Wybrana nazwa użytkownika jest już zajęta!'
+        exception.message == 'Wybrana nazwa użytkownika jest już zajęta'
     }
 
     def "should return bad request when farm name is already taken"() {
@@ -214,7 +214,7 @@ class AuthFacadeSpec extends Specification {
 
         then:
         RuntimeException exception = thrown()
-        exception.message == 'Wybrana nazwa farmy jest już zajęta!'
+        exception.message == 'Wybrana nazwa farmy jest już zajęta'
     }
 
     def "should return bad request when activation code does not exist"() {

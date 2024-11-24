@@ -4,19 +4,20 @@ import com.efarm.efarmbackend.model.farm.Farm;
 import com.efarm.efarmbackend.model.landparcel.*;
 import com.efarm.efarmbackend.repository.landparcel.LandOwnershipStatusRepository;
 import com.efarm.efarmbackend.repository.landparcel.LandparcelRepository;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Locale;
 
 @Service
+@RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class LandparcelService {
 
-    @Autowired
-    private LandOwnershipStatusRepository landOwnershipStatusRepository;
-
-    @Autowired
-    private LandparcelRepository landparcelRepository;
+    private final LandOwnershipStatusRepository landOwnershipStatusRepository;
+    private final LandparcelRepository landparcelRepository;
 
     public void addNewLandparcelData(LandparcelDTO landparcelDTO, Landparcel landparcel) {
         ELandOwnershipStatus ownershipStatusEnum;
@@ -49,10 +50,6 @@ public class LandparcelService {
         setCommonFields(landparcel, landparcelDTO);
     }
 
-    public LandparcelDTO createDTOtoDisplay(Landparcel landparcel) {
-        return new LandparcelDTO(landparcel);
-    }
-
     public Boolean isLandparcelAlreadyExistingByFarm(LandparcelDTO landparcelDTO, Farm loggedUserFarm) {
         return landparcelRepository.existsByGeodesyLandparcelNumberAndFarm(
                 landparcelDTO.getGeodesyLandparcelNumber(),
@@ -67,6 +64,12 @@ public class LandparcelService {
         LandparcelId landparcelId = new LandparcelId(id, loggedUserFarm.getId());
         return landparcelRepository.findById(landparcelId)
                 .orElseThrow(() -> new Exception("Nie znaleziono działki"));
+    }
+
+    @Transactional
+    public void deleteAllLandparcelsForFarm(Farm farm) {
+        List<Landparcel> landparcels = landparcelRepository.findByFarmId(farm.getId());
+        landparcelRepository.deleteAll(landparcels);
     }
 
     private void setCommonFields(Landparcel landparcel, LandparcelDTO landparcelDTO) {

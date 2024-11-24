@@ -3,10 +3,14 @@ package com.efarm.efarmbackend.service.user;
 import com.efarm.efarmbackend.model.farm.Farm;
 import com.efarm.efarmbackend.model.user.*;
 import com.efarm.efarmbackend.payload.request.auth.SignupFarmRequest;
-import com.efarm.efarmbackend.payload.request.auth.SignupRequest;
+import com.efarm.efarmbackend.payload.request.auth.SignupUserRequest;
+import com.efarm.efarmbackend.payload.request.user.ChangeUserPasswordRequest;
+import com.efarm.efarmbackend.payload.request.user.UpdateUserRequest;
 import com.efarm.efarmbackend.repository.user.RoleRepository;
 import com.efarm.efarmbackend.repository.user.UserRepository;
 import com.efarm.efarmbackend.security.services.UserDetailsImpl;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,16 +25,12 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class UserService {
 
-    @Autowired
-    private RoleRepository roleRepository;
-
-    @Autowired
-    private PasswordEncoder encoder;
-
-    @Autowired
-    private UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final PasswordEncoder encoder;
+    private final UserRepository userRepository;
 
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
@@ -44,22 +44,22 @@ public class UserService {
                 signUpFarmRequest.getPhoneNumber()
         );
         Role managerRole = roleRepository.findByName(ERole.ROLE_FARM_OWNER)
-                .orElseThrow(() -> new RuntimeException("Error: Role ROLE_FARM_OWNER is not found."));
+                .orElseThrow(() -> new RuntimeException("Nie znaleziono roli: " + ERole.ROLE_FARM_OWNER));
 
         user.setRole(managerRole);
         return user;
     }
 
-    public User createFarmUser(SignupRequest signUpRequest) {
+    public User createFarmUser(SignupUserRequest signUpUserRequest) {
         User user = new User(
-                signUpRequest.getFirstName(),
-                signUpRequest.getLastName(),
-                signUpRequest.getUsername(),
-                signUpRequest.getEmail(),
-                encoder.encode(signUpRequest.getPassword()),
-                signUpRequest.getPhoneNumber());
+                signUpUserRequest.getFirstName(),
+                signUpUserRequest.getLastName(),
+                signUpUserRequest.getUsername(),
+                signUpUserRequest.getEmail(),
+                encoder.encode(signUpUserRequest.getPassword()),
+                signUpUserRequest.getPhoneNumber());
 
-        Role assignedRole = assignUserRole(signUpRequest.getRole());
+        Role assignedRole = assignUserRole(signUpUserRequest.getRole());
         user.setRole(assignedRole);
         return user;
     }
@@ -69,15 +69,15 @@ public class UserService {
 
         if (authentication == null) {
             logger.error("Authentication object is null. No user is authenticated.");
-            throw new RuntimeException("No authentication found. User may not be logged in.");
+            throw new RuntimeException("Nie znaleziono uwierzytelnienia. Prawdopodobnie nie jesteś zalogowany.");
         }
 
         Object principal = authentication.getPrincipal();
         if (principal instanceof UserDetailsImpl currentUserDetails) {
             return userRepository.findById(Long.valueOf(currentUserDetails.getId()))
-                    .orElseThrow(() -> new RuntimeException("Error: Current user not found."));
+                    .orElseThrow(() -> new RuntimeException("Nie znaleziono użytkownika"));
         } else {
-            throw new RuntimeException("Error: Unexpected principal type.");
+            throw new RuntimeException("Nieoczekiwany typ podmiotu zabezpieczeń");
         }
     }
 
@@ -87,7 +87,7 @@ public class UserService {
 
     public Farm getUserFarmById(Long userId) {
         User currentUser = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Error: User with ID " + userId + " not found."));
+                .orElseThrow(() -> new RuntimeException("Użytkownik o id: " + userId + " nie został znaleziony"));
         return currentUser.getFarm();
     }
 
@@ -114,7 +114,7 @@ public class UserService {
     public Optional<User> getActiveUserById(UserDetailsImpl userDetails) throws RuntimeException {
         Optional<User> loggingUser = userRepository.findById(Long.valueOf(userDetails.getId()));
         if (!loggingUser.isPresent() || !loggingUser.get().getIsActive()) {
-            throw new RuntimeException("Użytkownik jest nieaktywny!");
+            throw new RuntimeException("Użytkownik jest nieaktywny");
         }
         return loggingUser;
     }
@@ -135,6 +135,73 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
+    public void deleteAllUsersForFarm(Farm farm) {
+        List<User> users = getUsersByFarmId(farm.getId());
+        userRepository.deleteAll(users);
+    }
+
+    @Transactional
+    public void toggleUserActiveStatus(Integer userId) {
+        Farm loggedUserFarm = getLoggedUserFarm();
+        User user = userRepository.findByIdAndFarmId(userId, loggedUserFarm.getId())
+                .orElseThrow(() -> new RuntimeException("Wybrany użytkownik nie istnieje"));
+        user.setIsActive(!user.getIsActive());
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void updateUserDetails(Integer userId, UpdateUserRequest updateUserRequest) {
+        Farm loggedUserFarm = getLoggedUserFarm();
+        User user = userRepository.findByIdAndFarmId(userId, loggedUserFarm.getId())
+                .orElseThrow(() -> new RuntimeException("Wybrany użytkownik nie istnieje"));
+
+        updateUserProperties(user, updateUserRequest);
+        userRepository.save(user);
+    }
+
+
+    private void updateUserProperties(User user, UpdateUserRequest updateUserRequest) {
+        if (updateUserRequest.getFirstName() != null) {
+            user.setFirstName(updateUserRequest.getFirstName());
+        }
+        if (updateUserRequest.getLastName() != null) {
+            user.setLastName(updateUserRequest.getLastName());
+        }
+        if (updateUserRequest.getEmail() != null) {
+            user.setEmail(updateUserRequest.getEmail());
+        }
+        if (updateUserRequest.getPhoneNumber() != null) {
+            user.setPhoneNumber(updateUserRequest.getPhoneNumber());
+        }
+        if (updateUserRequest.getRole() != null) {
+            Role newRole = assignUserRole(updateUserRequest.getRole());
+            user.setRole(newRole);
+        }
+    }
+
+    @Transactional
+    public void updateUserPassword(Integer userId, ChangeUserPasswordRequest updatePasswordRequest) {
+        Farm loggedUserFarm = getLoggedUserFarm();
+        User user = userRepository.findByIdAndFarmId(userId, loggedUserFarm.getId())
+                .orElseThrow(() -> new RuntimeException("Wybrany użytkownik nie istnieje"));
+
+        user.setPassword(encoder.encode(updatePasswordRequest.getNewPassword()));
+        userRepository.save(user);
+    }
+
+    public List<User> filterOperatorsForHelpNotifications(List<Integer> operatorIds, List<User> activeFarmOperators) {
+        return activeFarmOperators.stream()
+                .filter(operator -> operatorIds.contains(operator.getId()))
+                .toList();
+    }
+
+    public List<User> filterInvalidOperatorsForHelpNotifications(List<Integer> operatorIds, List<User> activeFarmOperators) {
+        return userRepository.findAllById(operatorIds.stream().map(Integer::longValue).toList()).stream()
+                .filter(user -> !activeFarmOperators.contains(user))
+                .toList();
+    }
+
     private List<User> getUsersByFarmId(Integer farmId) {
         return userRepository.findByFarmId(farmId);
     }
@@ -146,12 +213,11 @@ public class UserService {
     private Role assignUserRole(String strRole) {
         return switch (strRole) {
             case "ROLE_FARM_OWNER" -> roleRepository.findByName(ERole.ROLE_FARM_OWNER)
-                    .orElseThrow(() -> new RuntimeException("Error: Role ROLE_FARM_OWNER is not found."));
+                    .orElseThrow(() -> new RuntimeException("Rola: ROLE_FARM_OWNER nie została znaleziona"));
             case "ROLE_FARM_MANAGER" -> roleRepository.findByName(ERole.ROLE_FARM_MANAGER)
-                    .orElseThrow(() -> new RuntimeException("Error: Role ROLE_FARM_MANAGER is not found."));
+                    .orElseThrow(() -> new RuntimeException("Rola: ROLE_FARM_MANAGER nie została znaleziona"));
             default -> roleRepository.findByName(ERole.ROLE_FARM_EQUIPMENT_OPERATOR)
-                    .orElseThrow(() -> new RuntimeException("Error: Role ROLE_FARM_EQUIPMENT_OPERATOR is not found."));
+                    .orElseThrow(() -> new RuntimeException("Rola: ROLE_FARM_EQUIPMENT_OPERATOR nie została znaleziona"));
         };
     }
 }
-

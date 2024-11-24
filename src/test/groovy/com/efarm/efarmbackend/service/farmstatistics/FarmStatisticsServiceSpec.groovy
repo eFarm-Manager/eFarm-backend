@@ -21,10 +21,10 @@ class FarmStatisticsServiceSpec extends Specification {
 
     @Subject
     FarmStatisticsService farmStatisticsService = new FarmStatisticsService(
-            userService: userService,
-            landparcelRepository: landparcelRepository,
-            agriculturalRecordRepository: agriculturalRecordRepository,
-            seasonService: seasonService
+            userService,
+            landparcelRepository,
+            agriculturalRecordRepository,
+            seasonService
     )
 
     def "should generate land area statistics"() {

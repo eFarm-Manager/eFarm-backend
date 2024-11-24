@@ -8,28 +8,21 @@ import com.efarm.efarmbackend.payload.request.farm.UpdateFarmDetailsRequest;
 import com.efarm.efarmbackend.service.auth.AuthService;
 import com.efarm.efarmbackend.service.user.UserService;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 
 @Service
+@RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class FarmFacade {
 
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private FarmService farmService;
-
-    @Autowired
-    private ActivationCodeService activationCodeService;
-
-    @Autowired
-    private AuthService authService;
-
-    @Autowired
-    private AddressService addressService;
+    private final UserService userService;
+    private final FarmService farmService;
+    private final ActivationCodeService activationCodeService;
+    private final AuthService authService;
+    private final AddressService addressService;
 
     public FarmDTO getFarmDetails() {
         Farm loggedUserFarm = userService.getLoggedUserFarm();

@@ -8,6 +8,8 @@ import com.efarm.efarmbackend.payload.response.BalanceResponse;
 import com.efarm.efarmbackend.repository.finance.FinancialCategoryRepository;
 import com.efarm.efarmbackend.repository.finance.PaymentStatusRepository;
 import com.efarm.efarmbackend.repository.finance.TransactionRepository;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,16 +19,12 @@ import java.util.Locale;
 import java.util.Objects;
 
 @Service
+@RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class FinanceService {
 
-    @Autowired
-    private FinancialCategoryRepository financialCategoryRepository;
-
-    @Autowired
-    private PaymentStatusRepository paymentStatusRepository;
-
-    @Autowired
-    private TransactionRepository transactionRepository;
+    private final FinancialCategoryRepository financialCategoryRepository;
+    private final PaymentStatusRepository paymentStatusRepository;
+    private final TransactionRepository transactionRepository;
 
     public Transaction addNewTransactionData(TransactionId transactionId, Farm loggedUserFarm, NewTransactionRequest newTransactionRequest) {
         Transaction transaction = new Transaction(
@@ -36,7 +34,8 @@ public class FinanceService {
                 newTransactionRequest.getTransactionDate(),
                 newTransactionRequest.getPaymentDate(),
                 newTransactionRequest.getAmount(),
-                newTransactionRequest.getDescription());
+                newTransactionRequest.getDescription()
+        );
 
         setNewTransactionPaymentStatus(transaction, newTransactionRequest.getPaymentStatus());
         setNewTransactionFinancialCategory(transaction, newTransactionRequest.getFinancialCategory());
@@ -95,7 +94,7 @@ public class FinanceService {
 
     public void checkTransactionAlreadyExistsByName(Farm loggedUserFarm, String transactionName) throws Exception {
         if (transactionRepository.existsByTransactionNameAndFarmId(transactionName, loggedUserFarm.getId())) {
-            throw new Exception("Transakcja o podanej nazwie już istnieje!");
+            throw new Exception("Transakcja o podanej nazwie już istnieje");
         }
     }
 
@@ -128,6 +127,12 @@ public class FinanceService {
 
     public List<Transaction> getTransactionsByFarmAndDate(Integer farmId, LocalDate startDate, LocalDate endDate) {
         return transactionRepository.findByFarmAndDate(farmId, startDate, endDate);
+    }
+
+    @Transactional
+    public void deleteAllTransactionsForFarm(Farm farm) {
+        List<Transaction> transactions = transactionRepository.findByFarmId(farm.getId());
+        transactionRepository.deleteAll(transactions);
     }
 
     public BalanceResponse calculateFarmBalance(List<Transaction> transactions) {

@@ -6,6 +6,7 @@ import com.efarm.efarmbackend.repository.equipment.FarmEquipmentRepository;
 import com.efarm.efarmbackend.service.MainNotificationService;
 import com.efarm.efarmbackend.service.user.UserService;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,16 +17,12 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class FarmEquipmentNotificationService {
 
-    @Autowired
-    private FarmEquipmentRepository farmEquipmentRepository;
-
-    @Autowired
-    private MainNotificationService mainNotificationService;
-
-    @Autowired
-    private UserService userService;
+    private final FarmEquipmentRepository farmEquipmentRepository;
+    private final MainNotificationService mainNotificationService;
+    private final UserService userService;
 
     private static final Logger logger = LoggerFactory.getLogger(FarmEquipmentNotificationService.class);
 
@@ -54,7 +51,7 @@ public class FarmEquipmentNotificationService {
                 List<User> owners = userService.getAllOwnersForFarm(equipment.getFarmIdFarm().getId());
                 for (User owner : owners) {
                     if (owner.getIsActive()) {
-                        mainNotificationService.sendNotificationToOwner(owner, message, "Ubezpieczenie sprzętu wygasa!");
+                        mainNotificationService.sendNotificationToUser(owner, message, "Ubezpieczenie sprzętu wygasa!");
                         logger.info("Sending insurance expire notification to owner: {}", owner.getEmail());
                     }
                 }
@@ -73,7 +70,7 @@ public class FarmEquipmentNotificationService {
                 );
                 List<User> owners = userService.getAllOwnersForFarm(equipment.getFarmIdFarm().getId());
                 for (User owner : owners) {
-                    mainNotificationService.sendNotificationToOwner(owner, message, "Przegląd techniczny wygasa!");
+                    mainNotificationService.sendNotificationToUser(owner, message, "Przegląd techniczny wygasa!");
                     logger.info("Sending inspection expire notification to owner: {}", owner.getEmail());
                 }
             }

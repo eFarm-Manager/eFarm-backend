@@ -24,9 +24,9 @@ class FarmEquipmentNotificationServiceSpec extends Specification {
     def userService = Mock(UserService)
     @Subject
     FarmEquipmentNotificationService farmEquipmentNotificationService = new FarmEquipmentNotificationService(
-            farmEquipmentRepository: farmEquipmentRepository,
-	        mainNotificationService: mainNotificationService,
-	        userService: userService
+            farmEquipmentRepository,
+	        mainNotificationService,
+	        userService
     )
 
     def "should send notification for insurance expiring in 14 days"() {
@@ -51,7 +51,7 @@ class FarmEquipmentNotificationServiceSpec extends Specification {
         farmEquipmentNotificationService.checkAndNotifyForInsurance(equipment, today)
 
         then:
-        1 * mainNotificationService.sendNotificationToOwner(owner, "W twoim sprzęcie Tractor polisa ubezpieczeniowa o numerze INS123 wygasa za 14 dni.", "Ubezpieczenie sprzętu wygasa!")
+        1 * mainNotificationService.sendNotificationToUser(owner, "W twoim sprzęcie Tractor polisa ubezpieczeniowa o numerze INS123 wygasa za 14 dni.", "Ubezpieczenie sprzętu wygasa!")
     }
 
     def "should send notification for insurance expiring in 3 days"() {
@@ -76,7 +76,7 @@ class FarmEquipmentNotificationServiceSpec extends Specification {
         farmEquipmentNotificationService.checkAndNotifyForInsurance(equipment, today)
 
         then:
-        1 * mainNotificationService.sendNotificationToOwner(owner,"W twoim sprzęcie Plow polisa ubezpieczeniowa o numerze INS456 wygasa za 3 dni.", "Ubezpieczenie sprzętu wygasa!")
+        1 * mainNotificationService.sendNotificationToUser(owner,"W twoim sprzęcie Plow polisa ubezpieczeniowa o numerze INS456 wygasa za 3 dni.", "Ubezpieczenie sprzętu wygasa!")
     }
 
     def "should send notification for insurance expiring in 1 day"() {
@@ -101,7 +101,7 @@ class FarmEquipmentNotificationServiceSpec extends Specification {
         farmEquipmentNotificationService.checkAndNotifyForInsurance(equipment, today)
 
         then:
-        1 * mainNotificationService.sendNotificationToOwner(owner, "W twoim sprzęcie Seeder polisa ubezpieczeniowa o numerze INS789 wygasa za 1 dni.", "Ubezpieczenie sprzętu wygasa!")
+        1 * mainNotificationService.sendNotificationToUser(owner, "W twoim sprzęcie Seeder polisa ubezpieczeniowa o numerze INS789 wygasa za 1 dni.", "Ubezpieczenie sprzętu wygasa!")
     }
 
     def "should not send notification if insurance is valid for more than 14 days"() {
@@ -115,7 +115,7 @@ class FarmEquipmentNotificationServiceSpec extends Specification {
         farmEquipmentNotificationService.checkAndNotifyForInsurance(equipment, today)
 
         then:
-        0 * mainNotificationService.sendNotificationToOwner(_,_,_)
+        0 * mainNotificationService.sendNotificationToUser(_,_,_)
     }
 
     def "should not send notification if insurance date is null"() {
@@ -129,7 +129,7 @@ class FarmEquipmentNotificationServiceSpec extends Specification {
         farmEquipmentNotificationService.checkAndNotifyForInsurance(equipment, today)
 
         then:
-        0 * mainNotificationService.sendNotificationToOwner(_,_,_)
+        0 * mainNotificationService.sendNotificationToUser(_,_,_)
     }
 
     // insurance
@@ -152,7 +152,7 @@ class FarmEquipmentNotificationServiceSpec extends Specification {
         farmEquipmentNotificationService.checkAndNotifyForInspection(equipment, today)
 
         then:
-        1 * mainNotificationService.sendNotificationToOwner(owner, "W twoim sprzęcie Tractor przegląd techniczny wygasa za 14 dni.", "Przegląd techniczny wygasa!")
+        1 * mainNotificationService.sendNotificationToUser(owner, "W twoim sprzęcie Tractor przegląd techniczny wygasa za 14 dni.", "Przegląd techniczny wygasa!")
     }
 
     def "should send notification for inspection expiring in 3 days"() {
@@ -173,7 +173,7 @@ class FarmEquipmentNotificationServiceSpec extends Specification {
         farmEquipmentNotificationService.checkAndNotifyForInspection(equipment, today)
 
         then:
-        1 * mainNotificationService.sendNotificationToOwner(owner, "W twoim sprzęcie Plow przegląd techniczny wygasa za 3 dni.", "Przegląd techniczny wygasa!")
+        1 * mainNotificationService.sendNotificationToUser(owner, "W twoim sprzęcie Plow przegląd techniczny wygasa za 3 dni.", "Przegląd techniczny wygasa!")
     }
 
     def "should send notification for inspection expiring in 1 day"() {
@@ -194,7 +194,7 @@ class FarmEquipmentNotificationServiceSpec extends Specification {
         farmEquipmentNotificationService.checkAndNotifyForInspection(equipment, today)
 
         then:
-        1 * mainNotificationService.sendNotificationToOwner(owner, "W twoim sprzęcie Seeder przegląd techniczny wygasa za 1 dni.", "Przegląd techniczny wygasa!")
+        1 * mainNotificationService.sendNotificationToUser(owner, "W twoim sprzęcie Seeder przegląd techniczny wygasa za 1 dni.", "Przegląd techniczny wygasa!")
     }
 
     def "should not send notification if inspection is valid for more than 14 days"() {
@@ -208,7 +208,7 @@ class FarmEquipmentNotificationServiceSpec extends Specification {
         farmEquipmentNotificationService.checkAndNotifyForInspection(equipment, today)
 
         then:
-        0 * mainNotificationService.sendNotificationToOwner(_,_,_)
+        0 * mainNotificationService.sendNotificationToUser(_,_,_)
     }
 
     def "should not send notification if inspection date is null"() {
@@ -222,7 +222,7 @@ class FarmEquipmentNotificationServiceSpec extends Specification {
         farmEquipmentNotificationService.checkAndNotifyForInspection(equipment, today)
 
         then:
-        0 * mainNotificationService.sendNotificationToOwner(_,_,_)
+        0 * mainNotificationService.sendNotificationToUser(_,_,_)
     }
 
 }

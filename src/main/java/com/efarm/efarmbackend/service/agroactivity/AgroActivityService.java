@@ -6,6 +6,7 @@ import com.efarm.efarmbackend.model.agroactivity.ActivityCategory;
 import com.efarm.efarmbackend.model.agroactivity.AgroActivity;
 import com.efarm.efarmbackend.model.agroactivity.AgroActivityId;
 import com.efarm.efarmbackend.model.agroactivity.AgroActivitySummaryDTO;
+import com.efarm.efarmbackend.model.user.User;
 import com.efarm.efarmbackend.payload.request.agroactivity.NewAgroActivityRequest;
 import com.efarm.efarmbackend.payload.request.agroactivity.UpdateAgroActivityRequest;
 import com.efarm.efarmbackend.repository.agriculturalrecords.AgriculturalRecordRepository;
@@ -13,31 +14,26 @@ import com.efarm.efarmbackend.repository.agroactivity.ActivityHasEquipmentReposi
 import com.efarm.efarmbackend.repository.agroactivity.ActivityHasOperatorRepository;
 import com.efarm.efarmbackend.repository.agroactivity.AgroActivityRepository;
 import com.efarm.efarmbackend.service.user.UserService;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class AgroActivityService {
 
-    @Autowired
-    private ActivityHasOperatorRepository activityHasOperatorRepository;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private ActivityHasEquipmentRepository activityHasEquipmentRepository;
-
-    @Autowired
-    private AgroActivityRepository agroActivityRepository;
-
-    @Autowired
-    private AgriculturalRecordRepository agriculturalRecordRepository;
+    private final ActivityHasOperatorRepository activityHasOperatorRepository;
+    private final UserService userService;
+    private final ActivityHasEquipmentRepository activityHasEquipmentRepository;
+    private final AgroActivityRepository agroActivityRepository;
+    private final AgriculturalRecordRepository agriculturalRecordRepository;
 
     public AgroActivity createNewAgroActivity(NewAgroActivityRequest request, ActivityCategory activityCategory, AgriculturalRecord agriculturalRecord, Integer loggedUserFarmId) {
         AgroActivityId agroActivityId = new AgroActivityId(
@@ -96,10 +92,37 @@ public class AgroActivityService {
 
     public void deleteAgroActivity(AgroActivityId agroActivityId) {
         AgroActivity agroActivity = agroActivityRepository.findById(agroActivityId)
-                .orElseThrow(() -> new IllegalArgumentException("Nie znaleziono zabiegu agrotechnicznego o ID: " + agroActivityId));
+                .orElseThrow(() -> new IllegalArgumentException("Nie znaleziono zabiegu agrotechnicznego o ID: " + agroActivityId.getId()));
 
         activityHasOperatorRepository.deleteActivityHasOperatorsByAgroActivity(agroActivity);
         activityHasEquipmentRepository.deleteActivityHasEquipmentsByAgroActivity(agroActivity);
         agroActivityRepository.delete(agroActivity);
+    }
+
+    @Transactional
+    public List<AgroActivitySummaryDTO> getAssignedIncompleteActivitiesForLoggedUser() {
+        User loggedUser = userService.getLoggedUser();
+        List<AgroActivity> activities = agroActivityRepository.findIncompleteActivitiesAssignedToUser(loggedUser.getId());
+        return activities.stream()
+                .sorted(Comparator.comparing(AgroActivity::getDate))
+                .map(AgroActivitySummaryDTO::new)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void markActivityAsCompleted(Integer activityId) {
+        AgroActivity activity = agroActivityRepository.findById(new AgroActivityId(activityId, userService.getLoggedUserFarm().getId()))
+                .orElseThrow(() -> new RuntimeException("Nie znaleziono zadania"));
+
+        User loggedUser = userService.getLoggedUser();
+        boolean isAssigned = activityHasOperatorRepository.findActivityHasOperatorsByAgroActivity(activity).stream()
+                .anyMatch(operator -> operator.getUser().getId().equals(loggedUser.getId()));
+
+        if (!isAssigned || activity.getIsCompleted()) {
+            throw new RuntimeException("Nie masz dostępu do tego zadania");
+        }
+
+        activity.setIsCompleted(true);
+        agroActivityRepository.save(activity);
     }
 }

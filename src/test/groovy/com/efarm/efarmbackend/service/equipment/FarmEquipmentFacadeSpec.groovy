@@ -30,11 +30,11 @@ class FarmEquipmentFacadeSpec extends Specification {
 
     @Subject
     FarmEquipmentFacade farmEquipmentFacade = new FarmEquipmentFacade(
-            farmEquipmentRepository: farmEquipmentRepository,
-            userService: userService,
-            equipmentDisplayDataService: equipmentDisplayDataService,
-            farmEquipmentService: farmEquipmentService,
-            equipmentCategoryRepository: equipmentCategoryRepository,
+            farmEquipmentRepository,
+            userService,
+            equipmentDisplayDataService,
+            farmEquipmentService,
+            equipmentCategoryRepository
     )
     /*
         getFarmEquipment

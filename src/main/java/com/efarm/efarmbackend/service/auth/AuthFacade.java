@@ -5,7 +5,11 @@ import com.efarm.efarmbackend.model.farm.ActivationCode;
 import com.efarm.efarmbackend.model.farm.Address;
 import com.efarm.efarmbackend.model.farm.Farm;
 import com.efarm.efarmbackend.model.user.User;
-import com.efarm.efarmbackend.payload.request.auth.*;
+import com.efarm.efarmbackend.payload.request.auth.SignupFarmRequest;
+import com.efarm.efarmbackend.payload.request.auth.SignupUserRequest;
+import com.efarm.efarmbackend.payload.request.auth.UpdateActivationCodeRequest;
+import com.efarm.efarmbackend.payload.request.farm.UpdateActivationCodeByLoggedOwnerRequest;
+import com.efarm.efarmbackend.payload.request.user.ChangePasswordRequest;
 import com.efarm.efarmbackend.repository.farm.ActivationCodeRepository;
 import com.efarm.efarmbackend.repository.farm.AddressRepository;
 import com.efarm.efarmbackend.repository.farm.FarmRepository;
@@ -15,6 +19,7 @@ import com.efarm.efarmbackend.service.farm.ActivationCodeService;
 import com.efarm.efarmbackend.service.farm.FarmService;
 import com.efarm.efarmbackend.service.user.UserService;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,46 +32,30 @@ import java.util.Objects;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class AuthFacade {
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private FarmRepository farmRepository;
-
-    @Autowired
-    private AddressRepository addressRepository;
-
-    @Autowired
-    private ActivationCodeRepository activationCodeRepository;
-
-    @Autowired
-    private AuthService authService;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private ActivationCodeService activationCodeService;
-
-    @Autowired
-    private FarmService farmService;
-
-    @Autowired
-    AuthenticationManager authenticationManager;
+    private final UserRepository userRepository;
+    private final FarmRepository farmRepository;
+    private final AddressRepository addressRepository;
+    private final ActivationCodeRepository activationCodeRepository;
+    private final AuthService authService;
+    private final UserService userService;
+    private final ActivationCodeService activationCodeService;
+    private final FarmService farmService;
+    final AuthenticationManager authenticationManager;
 
     private static final Logger logger = LoggerFactory.getLogger(AuthFacade.class);
 
 
     @Transactional
-    public void registerUser(SignupRequest signUpRequest) throws RuntimeException {
+    public void registerUser(SignupUserRequest signUpUserRequest) throws RuntimeException {
 
-        logger.info("Received signup User request: {}", signUpRequest);
-        if (userRepository.existsByUsername(signUpRequest.getUsername())) {
-            throw new RuntimeException("Podana nazwa użytkownika jest już zajęta!");
+        logger.info("Received signup User request: {}", signUpUserRequest);
+        if (userRepository.existsByUsername(signUpUserRequest.getUsername())) {
+            throw new RuntimeException("Podana nazwa użytkownika jest już zajęta");
         }
-        User user = userService.createFarmUser(signUpRequest);
+        User user = userService.createFarmUser(signUpUserRequest);
         Farm currentUserFarm = userService.getLoggedUserFarm();
         user.setFarm(currentUserFarm);
         userRepository.save(user);
@@ -77,11 +66,11 @@ public class AuthFacade {
 
         logger.info("Received signup Farm request: {}", signUpFarmRequest);
         if (userRepository.existsByUsername(signUpFarmRequest.getUsername())) {
-            throw new RuntimeException("Wybrana nazwa użytkownika jest już zajęta!");
+            throw new RuntimeException("Wybrana nazwa użytkownika jest już zajęta");
         }
 
         if (farmRepository.existsByFarmName(signUpFarmRequest.getFarmName())) {
-            throw new RuntimeException("Wybrana nazwa farmy jest już zajęta!");
+            throw new RuntimeException("Wybrana nazwa farmy jest już zajęta");
         }
 
         User user = userService.createFarmOwner(signUpFarmRequest);
@@ -114,7 +103,7 @@ public class AuthFacade {
     }
 
     @Transactional
-    public void updateActivationCodeByLoggedOwner(UpdateActivationCodeByLoggedOwnerRequest updateActivationCodeByLoggedOwnerRequest) throws Exception {
+    public void updateActivationCodeByLoggedOwner(UpdateActivationCodeByLoggedOwnerRequest updateActivationCodeByLoggedOwnerRequest) throws UnauthorizedException {
         if (userService.isPasswordValidForLoggedUser(updateActivationCodeByLoggedOwnerRequest.getPassword())) {
             activationCodeService.updateActivationCodeForFarm(
                     updateActivationCodeByLoggedOwnerRequest.getNewActivationCode(),

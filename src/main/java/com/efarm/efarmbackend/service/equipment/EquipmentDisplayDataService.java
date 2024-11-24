@@ -2,23 +2,41 @@ package com.efarm.efarmbackend.service.equipment;
 
 import com.efarm.efarmbackend.model.equipment.EquipmentCategoryDTO;
 import com.efarm.efarmbackend.repository.equipment.EquipmentCategoryRepository;
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.*;
 
 @Service
+@RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class EquipmentDisplayDataService {
 
-    @Autowired
-    private EquipmentCategoryRepository equipmentCategoryRepository;
+    private final EquipmentCategoryRepository equipmentCategoryRepository;
+
+    private final Map<String, List<String>> categoryFieldsCache = new HashMap<>();
+    private final List<EquipmentCategoryDTO> cachedCategoryList = new ArrayList<>();
+
+    @PostConstruct
+    public void initializeCache() {
+        List<String> categories = equipmentCategoryRepository.findAllCategoryNames();
+        List<String> commonFields = Arrays.asList("equipmentName", "category", "brand", "model");
+
+        for (String categoryName : categories) {
+            List<String> fields = new ArrayList<>(commonFields);
+            fields.addAll(getFieldsForCategory(categoryName));
+            categoryFieldsCache.put(categoryName, fields);
+        }
+        cachedCategoryList.addAll(
+                categories.stream()
+                        .map(categoryName -> new EquipmentCategoryDTO(categoryName, categoryFieldsCache.get(categoryName)))
+                        .toList()
+        );
+    }
 
     public List<String> getFieldsForCategory(String categoryName) {
         return switch (categoryName) {
-            //Tractors
             case "Ciągniki rolnicze",
                  "Ciągniki sadownicze",
                  "Harwestery",
@@ -28,7 +46,6 @@ public class EquipmentDisplayDataService {
                  "Ładowarki burtowe" ->
                     Arrays.asList("power", "insurancePolicyNumber", "insuranceExpirationDate", "inspectionExpireDate");
 
-            //Trailers
             case "Przyczepy rolnicze",
                  "Przyczepy do transportu bel",
                  "Przyczepy do transportu drewna",
@@ -40,7 +57,6 @@ public class EquipmentDisplayDataService {
                  "Wozy paszowe" ->
                     Arrays.asList("capacity", "insurancePolicyNumber", "insuranceExpirationDate", "inspectionExpireDate");
 
-            //Harvesters
             case "Kombajny zbożowe",
                  "Kombajny do ziemniaków",
                  "Kombajny do buraków cukrowych",
@@ -49,7 +65,6 @@ public class EquipmentDisplayDataService {
                  "Kombajny inne" ->
                     Arrays.asList("power", "capacity", "workingWidth", "insurancePolicyNumber", "insuranceExpirationDate", "inspectionExpireDate");
 
-            //Agricultural machinery
             case "Agregaty ścierniskowe (Grubery)",
                  "Brony mechaniczne",
                  "Brony talerzowe",
@@ -61,9 +76,8 @@ public class EquipmentDisplayDataService {
                  "Maszyny do uprawy winorośli",
                  "Wały uprawowe",
                  "Zgrabiarki",
-                 "Ładowacze czołowe" -> Arrays.asList("workingWidth");
+                 "Ładowacze czołowe" -> List.of("workingWidth");
 
-            //Sprayers, spreaders etc.
             case "Opryskiwacze polowe",
                  "Opryskiwacze sadownicze",
                  "Opryskiwacze samojezdne",
@@ -73,20 +87,12 @@ public class EquipmentDisplayDataService {
                  "Siewniki punktowe",
                  "Siewniki zbożowe",
                  "Zbieracze kamieni" -> Arrays.asList("capacity", "workingWidth");
+
             default -> List.of();
         };
     }
 
     public List<EquipmentCategoryDTO> getAllCategoriesWithFields() {
-        List<String> categories = equipmentCategoryRepository.findAllCategoryNames();
-        List<String> commonFields = Arrays.asList("equipmentName", "category", "brand", "model");
-
-        return categories.stream()
-                .map(categoryName -> {
-                    List<String> fields = new ArrayList<>(commonFields);
-                    fields.addAll(getFieldsForCategory(categoryName));
-                    return new EquipmentCategoryDTO(categoryName, fields);
-                })
-                .collect(Collectors.toList());
+        return new ArrayList<>(cachedCategoryList);
     }
 }

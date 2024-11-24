@@ -5,7 +5,9 @@ import com.efarm.efarmbackend.model.user.ERole
 import com.efarm.efarmbackend.model.user.Role
 import com.efarm.efarmbackend.model.user.User
 import com.efarm.efarmbackend.payload.request.auth.SignupFarmRequest
-import com.efarm.efarmbackend.payload.request.auth.SignupRequest
+import com.efarm.efarmbackend.payload.request.auth.SignupUserRequest
+import com.efarm.efarmbackend.payload.request.user.UpdateUserRequest;
+import com.efarm.efarmbackend.payload.request.user.ChangeUserPasswordRequest;
 import com.efarm.efarmbackend.model.user.*;
 import com.efarm.efarmbackend.repository.user.RoleRepository
 import com.efarm.efarmbackend.repository.user.UserRepository
@@ -30,9 +32,9 @@ class UserServiceSpec extends Specification {
 
     @Subject
     UserService userService = new UserService(
-            userRepository: userRepository,
-            roleRepository: roleRepository,
-            encoder: encoder
+            roleRepository,
+            encoder,
+            userRepository
     )
 
     def setup() {
@@ -91,7 +93,7 @@ class UserServiceSpec extends Specification {
 
     def "should handle create farm user"() {
         given:
-        SignupRequest signUpRequest = new SignupRequest(
+        SignupUserRequest signUpRequest = new SignupUserRequest(
                 firstName: 'John',
                 lastName: 'Doe',
                 username: 'newUser',
@@ -392,7 +394,7 @@ class UserServiceSpec extends Specification {
 
         then:
         RuntimeException ex = thrown(RuntimeException)
-        ex.message == 'Użytkownik jest nieaktywny!'
+        ex.message == 'Użytkownik jest nieaktywny'
     }
 
     def "should throw runtime exception when user not found"() {
@@ -407,7 +409,7 @@ class UserServiceSpec extends Specification {
 
         then:
         RuntimeException ex = thrown(RuntimeException)
-        ex.message == 'Użytkownik jest nieaktywny!'
+        ex.message == 'Użytkownik jest nieaktywny'
     }
 
     /*
@@ -439,9 +441,7 @@ class UserServiceSpec extends Specification {
         user2.getLastName() >> 'Smith'
         user2.getPhoneNumber() >> ''
         user2.getIsActive() >> false
-        user2.getRole() >> Mock(Role) {
-            toString() >> 'ROLE_FARM_EQUIPMENT_OPERATOR'
-        }
+        user2.getRole() >> class_role_operator
         user2.getFarm() >> farm1
 
         User user3 = Mock(User)
@@ -520,6 +520,421 @@ class UserServiceSpec extends Specification {
         response.size() == 1
         response[0].firstName == 'John'
         response[0].lastName == 'Doe'
+    }
+
+    /*
+    * deleteAllUsersForFarm
+    */
+
+    def "should delete all users for a given farm"() {
+        given:
+        Farm farm = Mock(Farm) {
+            getId() >> 1
+        }
+        User user1 = Mock(User) {
+            getFarm() >> farm
+        }
+        User user2 = Mock(User) {
+            getFarm() >> farm
+        }
+        userRepository.findByFarmId(farm.getId()) >> [user1, user2]
+
+        when:
+        userService.deleteAllUsersForFarm(farm)
+
+        then:
+        1 * userRepository.deleteAll({ List<User> users ->
+            users.contains(user1) && users.contains(user2)
+        })
+    }
+
+    /*
+    * toggleUserActiveStatus
+    */
+
+    def "should toggle user active status"() {
+        given:
+        Farm farm = Mock(Farm) {
+            getId() >> 1
+        }
+        User loggedUser = Mock(User) {
+            getId() >> 1
+            getUsername() >> 'user1'
+            getEmail() >> 'test@gmail.com'
+            getPassword() >> 'fwafwafa312z'
+            getRole() >> class_role_manager
+            getIsActive() >> true
+            getFarm() >> farm
+        }
+        User user = Mock(User) {
+            getId() >> 2
+            getIsActive() >> true
+            getFarm() >> farm
+        }
+
+        UserDetailsImpl currentUserDetails = UserDetailsImpl.build(loggedUser)
+
+        Authentication authentication = Mock(Authentication) {
+            getPrincipal() >> currentUserDetails
+        }
+        SecurityContextHolder.getContext().setAuthentication(authentication)
+
+        userRepository.findById(Long.valueOf(loggedUser.getId())) >> Optional.of(loggedUser)
+        userRepository.findByIdAndFarmId(user.getId(), loggedUser.getFarm().getId()) >> Optional.of(user)
+
+        when:
+        userService.toggleUserActiveStatus(user.getId())
+
+        then:
+        1 * user.setIsActive(false)
+        1 * userRepository.save(_ as User)
+    }
+
+        def "should throw runtime exception when user doesnt exist during toggle"() {
+        given:
+        UpdateUserRequest request = new UpdateUserRequest(
+                firstName: 'John',
+                lastName: 'Doe',
+        )
+        Integer userId = 2
+        Farm farm = Mock(Farm) {
+            getId() >> 1
+        }
+        User loggedUser = Mock(User) {
+            getId() >> 1
+            getUsername() >> 'user1'
+            getEmail() >> 'test@gmail.com'
+            getPassword() >> 'fwafwafa312z'
+            getRole() >> class_role_manager
+            getIsActive() >> true
+            getFarm() >> farm
+        }
+        UserDetailsImpl currentUserDetails = UserDetailsImpl.build(loggedUser)
+
+        Authentication authentication = Mock(Authentication) {
+            getPrincipal() >> currentUserDetails
+        }
+        SecurityContextHolder.getContext().setAuthentication(authentication)
+
+        userRepository.findById(Long.valueOf(loggedUser.getId())) >> Optional.of(loggedUser)
+        userRepository.findByIdAndFarmId(userId, loggedUser.getFarm().getId()) >> Optional.empty()
+
+        when:
+        userService.toggleUserActiveStatus(userId)
+
+        then:
+        RuntimeException ex = thrown()
+        ex.message == 'Wybrany użytkownik nie istnieje'
+    }
+
+
+
+    def "should not allow logged in user to toggle status of other user"() {
+        given:
+        Farm farm1 = Mock(Farm) {
+            getId() >> 1
+        }
+        Farm farm2 = Mock(Farm) {
+            getId() >> 2
+        }
+        User loggedUser = Mock(User) {
+            getId() >> 1
+            getUsername() >> 'user1'
+            getEmail() >> 'test@gmail.com'
+            getPassword() >> 'fwafwafa312z'
+            getRole() >> class_role_manager
+            getIsActive() >> true
+            getFarm() >> farm1
+        }
+        User user = Mock(User) {
+            getId() >> 2
+            getIsActive() >> true
+            getFarm() >> farm2
+        }
+
+        UserDetailsImpl currentUserDetails = UserDetailsImpl.build(loggedUser)
+
+        Authentication authentication = Mock(Authentication) {
+            getPrincipal() >> currentUserDetails
+        }
+        SecurityContextHolder.getContext().setAuthentication(authentication)
+
+        userRepository.findById(Long.valueOf(loggedUser.getId())) >> Optional.of(loggedUser)
+        userRepository.findByIdAndFarmId(user.getId(), loggedUser.getFarm().getId()) >> Optional.empty()
+
+        when:
+        userService.toggleUserActiveStatus(user.getId())
+
+        then:
+        RuntimeException ex = thrown()
+        ex.message == 'Wybrany użytkownik nie istnieje'
+    }
+
+    /*
+    * updateUserDetails
+    */
+
+    def "should update user details"() {
+        given:
+        UpdateUserRequest request = new UpdateUserRequest(
+                firstName: 'John',
+                lastName: 'Doe',
+                email: 'email123@gmail.com'
+        )
+        Integer userId = 2
+
+        Farm farm = Mock(Farm) {
+            getId() >> 1
+        }
+        User loggedUser = Mock(User) {
+            getId() >> 1
+            getUsername() >> 'user1'
+            getEmail() >> 'test@gmail.com'
+            getPassword() >> 'fwafwafa312z'
+            getRole() >> class_role_manager
+            getIsActive() >> true
+            getFarm() >> farm
+        }
+        User user = Mock(User) {
+            getId() >> userId
+            getIsActive() >> true
+            getFarm() >> farm
+        }
+
+        UserDetailsImpl currentUserDetails = UserDetailsImpl.build(loggedUser)
+
+        Authentication authentication = Mock(Authentication) {
+            getPrincipal() >> currentUserDetails
+        }
+        SecurityContextHolder.getContext().setAuthentication(authentication)
+
+        userRepository.findById(Long.valueOf(loggedUser.getId())) >> Optional.of(loggedUser)
+        userRepository.findByIdAndFarmId(userId, loggedUser.getFarm().getId()) >> Optional.of(user)
+
+        when:
+        userService.updateUserDetails(userId, request)
+
+        then:
+        1 * user.setFirstName(request.getFirstName())
+        1 * user.setLastName(request.getLastName())
+        1 * user.setEmail(request.getEmail())
+    }
+
+    def "should throw runtime exception when user doesnt exist during update details"() {
+        given:
+        UpdateUserRequest request = new UpdateUserRequest(
+                firstName: 'John',
+                lastName: 'Doe',
+        )
+        Integer userId = 2
+        Farm farm = Mock(Farm) {
+            getId() >> 1
+        }
+        User loggedUser = Mock(User) {
+            getId() >> 1
+            getUsername() >> 'user1'
+            getEmail() >> 'test@gmail.com'
+            getPassword() >> 'fwafwafa312z'
+            getRole() >> class_role_manager
+            getIsActive() >> true
+            getFarm() >> farm
+        }
+        UserDetailsImpl currentUserDetails = UserDetailsImpl.build(loggedUser)
+
+        Authentication authentication = Mock(Authentication) {
+            getPrincipal() >> currentUserDetails
+        }
+        SecurityContextHolder.getContext().setAuthentication(authentication)
+
+        userRepository.findById(Long.valueOf(loggedUser.getId())) >> Optional.of(loggedUser)
+        userRepository.findByIdAndFarmId(userId, loggedUser.getFarm().getId()) >> Optional.empty()
+
+        when:
+        userService.updateUserDetails(userId, request)
+
+        then:
+        RuntimeException ex = thrown()
+        ex.message == 'Wybrany użytkownik nie istnieje'
+    }
+
+    def "should not allow for updating other user details"() {
+        given:
+        UpdateUserRequest request = new UpdateUserRequest(
+                firstName: 'John',
+                lastName: 'Doe',
+        )
+        Integer userId = 2
+
+        Farm farm1 = Mock(Farm) {
+            getId() >> 1
+        }
+        Farm farm2 = Mock(Farm) {
+            getId() >> 2
+        }
+
+        User loggedUser = Mock(User) {
+            getId() >> 1
+            getUsername() >> 'user1'
+            getEmail() >> 'test@gmail.com'
+            getPassword() >> 'fwafwafa312z'
+            getRole() >> class_role_manager
+            getIsActive() >> true
+            getFarm() >> farm1
+        }
+        User user = Mock(User) {
+            getId() >> userId
+            getIsActive() >> true
+            getFarm() >> farm2
+        }
+
+        UserDetailsImpl currentUserDetails = UserDetailsImpl.build(loggedUser)
+
+        Authentication authentication = Mock(Authentication) {
+            getPrincipal() >> currentUserDetails
+        }
+        SecurityContextHolder.getContext().setAuthentication(authentication)
+
+        userRepository.findById(Long.valueOf(loggedUser.getId())) >> Optional.of(loggedUser)
+        userRepository.findByIdAndFarmId(userId, loggedUser.getFarm().getId()) >> Optional.empty()
+
+        when:
+        userService.updateUserDetails(userId, request)
+
+        then:
+        RuntimeException ex = thrown()
+        ex.message == 'Wybrany użytkownik nie istnieje'
+    }
+
+    //skiping updateUserProperties since its just a 1 big setter
+
+    /*
+    * changeUserPassword
+    */
+
+    def "should change user password"() {
+        given:
+        ChangeUserPasswordRequest request = new ChangeUserPasswordRequest(
+                newPassword: 'newPassword'
+        )
+        Integer userId = 2
+        Farm farm = Mock(Farm) {
+            getId() >> 1
+        }
+        User loggedUser = Mock(User) {
+            getId() >> 1
+            getUsername() >> 'user1'
+            getEmail() >> 'test@gmail.com'
+            getPassword() >> 'fwafwafa312z'
+            getRole() >> class_role_manager
+            getIsActive() >> true
+            getFarm() >> farm
+        }
+        User user = Mock(User) {
+            getId() >> userId
+            getIsActive() >> true
+            getFarm() >> farm
+        }
+
+        UserDetailsImpl currentUserDetails = UserDetailsImpl.build(loggedUser)
+
+        Authentication authentication = Mock(Authentication) {
+            getPrincipal() >> currentUserDetails
+        }
+        SecurityContextHolder.getContext().setAuthentication(authentication)
+
+        userRepository.findById(Long.valueOf(loggedUser.getId())) >> Optional.of(loggedUser)
+        userRepository.findByIdAndFarmId(userId, loggedUser.getFarm().getId()) >> Optional.of(user)
+
+        when:
+        userService.updateUserPassword(userId, request)
+
+        then:
+        1 * encoder.encode(request.getNewPassword())
+        1 * user.setPassword(_)
+        1 * userRepository.save(user)
+    }
+
+    def "should throw runtime exception when user doesnt exist during password change"() {
+        given:
+        ChangeUserPasswordRequest request = new ChangeUserPasswordRequest(
+                newPassword: 'newPassword'
+        )
+        Integer userId = 2
+        Farm farm = Mock(Farm) {
+            getId() >> 1
+        }
+        User loggedUser = Mock(User) {
+            getId() >> 1
+            getUsername() >> 'user1'
+            getEmail() >> 'test@gmail.com'
+            getPassword() >> 'fwafwafa312z'
+            getRole() >> class_role_manager
+            getIsActive() >> true
+            getFarm() >> farm
+        }
+        UserDetailsImpl currentUserDetails = UserDetailsImpl.build(loggedUser)
+
+        Authentication authentication = Mock(Authentication) {
+            getPrincipal() >> currentUserDetails
+        }
+        SecurityContextHolder.getContext().setAuthentication(authentication)
+
+        userRepository.findById(Long.valueOf(loggedUser.getId())) >> Optional.of(loggedUser)
+        userRepository.findByIdAndFarmId(userId, loggedUser.getFarm().getId()) >> Optional.empty()
+
+        when:
+        userService.updateUserPassword(userId, request)
+
+        then:
+        RuntimeException ex = thrown()
+        ex.message == 'Wybrany użytkownik nie istnieje'
+    }
+
+    def "should not allow for updating other user details"() {
+        given:
+        ChangeUserPasswordRequest request = new ChangeUserPasswordRequest(
+                newPassword: 'newPassword'
+        )
+        Integer userId = 2
+
+        Farm farm1 = Mock(Farm) {
+            getId() >> 1
+        }
+        Farm farm2 = Mock(Farm) {
+            getId() >> 2
+        }
+
+        User loggedUser = Mock(User) {
+            getId() >> 1
+            getUsername() >> 'user1'
+            getEmail() >> 'test@gmail.com'
+            getPassword() >> 'fwafwafa312z'
+            getRole() >> class_role_manager
+            getIsActive() >> true
+            getFarm() >> farm1
+        }
+        User user = Mock(User) {
+            getId() >> userId
+            getIsActive() >> true
+            getFarm() >> farm2
+        }
+
+        UserDetailsImpl currentUserDetails = UserDetailsImpl.build(loggedUser)
+
+        Authentication authentication = Mock(Authentication) {
+            getPrincipal() >> currentUserDetails
+        }
+        SecurityContextHolder.getContext().setAuthentication(authentication)
+
+        userRepository.findById(Long.valueOf(loggedUser.getId())) >> Optional.of(loggedUser)
+        userRepository.findByIdAndFarmId(userId, loggedUser.getFarm().getId()) >> Optional.empty()
+
+        when:
+        userService.updateUserPassword(userId, request)
+
+        then:
+        RuntimeException ex = thrown()
+        ex.message == 'Wybrany użytkownik nie istnieje'
     }
 
     /*

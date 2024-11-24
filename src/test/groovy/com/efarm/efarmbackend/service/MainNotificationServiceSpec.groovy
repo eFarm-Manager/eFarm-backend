@@ -10,7 +10,7 @@ class MainNotificationServiceSpec extends Specification {
 
     def mailSender = Mock(JavaMailSender)
     @Subject
-    def mainNotificationService = new MainNotificationService(mailSender: mailSender)
+    def mainNotificationService = new MainNotificationService(mailSender)
 
     def "test sendNotificationToOwner"() {
         given:
@@ -19,7 +19,7 @@ class MainNotificationServiceSpec extends Specification {
         String subject = 'Test Subject'
 
         when:
-        mainNotificationService.sendNotificationToOwner(owner, message, subject)
+        mainNotificationService.sendNotificationToUser(owner, message, subject)
 
         then:
         1 * mailSender.send({ SimpleMailMessage email ->

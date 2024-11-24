@@ -18,6 +18,7 @@ import com.efarm.efarmbackend.model.agroactivity.AgroActivity;
 import com.efarm.efarmbackend.model.agroactivity.AgroActivityDetailDTO;
 import com.efarm.efarmbackend.model.agroactivity.AgroActivityId;
 import com.efarm.efarmbackend.model.agroactivity.AgroActivitySummaryDTO;
+import com.efarm.efarmbackend.model.agroactivity.ActivityHasOperator;
 import com.efarm.efarmbackend.model.farm.Farm;
 import com.efarm.efarmbackend.model.user.Role;
 import com.efarm.efarmbackend.model.user.User;
@@ -38,14 +39,18 @@ import java.time.Instant;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.everyItem;
 import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.everyItem;
 import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -104,7 +109,7 @@ public class AgroActivityControllerIT {
             .content(objectMapper.writeValueAsString(request)))
         // then
             .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.message").value("Pomyślnie dodano nowy zabieg agrotechniczny."));
+            .andExpect(jsonPath("$.message").value("Pomyślnie dodano nowy zabieg agrotechniczny"));
 
             AgroActivity agroActivity = entityManager.createQuery(
         "SELECT a FROM AgroActivity a WHERE a.name = :name", AgroActivity.class)
@@ -198,7 +203,6 @@ public class AgroActivityControllerIT {
             .andExpect(jsonPath("$.message").value("Nie znaleziono użytkownika o ID: 999"));
     }
 
-    //TODO: make this test work when validation will be fixed
     @Test
     public void testAddAgroActivityWithNonExistentEquipment() throws Exception {
         //given
@@ -219,10 +223,10 @@ public class AgroActivityControllerIT {
         //when
         mockMvc.perform(post("/agro-activities/new")
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(request)));
+            .content(objectMapper.writeValueAsString(request)))
         // then
-            //.andExpect(status().isBadRequest())
-            //.andExpect(jsonPath("$.message").value("Nie znaleziono sprzętu o ID: 999"));
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.message").value("Sprzęty o następujących identyfikatorach nie istnieją: [999]"));
     }
 
     @Test
@@ -248,7 +252,7 @@ public class AgroActivityControllerIT {
             .content(objectMapper.writeValueAsString(request)))
         // then
             .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.message").value("Użytkownik o ID: 2 nie należy do tej farmy."));
+            .andExpect(jsonPath("$.message").value("Użytkownik o ID: 2 nie należy do tej farmy"));
     }
 
     @Test
@@ -401,7 +405,7 @@ public class AgroActivityControllerIT {
             .content(objectMapper.writeValueAsString(request)))
         // then
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.message").value("Pomyślnie zaktualizowano zabieg agrotechniczny."));
+            .andExpect(jsonPath("$.message").value("Pomyślnie zaktualizowano zabieg agrotechniczny"));
 
         AgroActivity updatedAgroActivity = entityManager.find(AgroActivity.class, new AgroActivityId(1,1));
         assertThat(updatedAgroActivity.getName(), is("Zaktualizowany zabieg"));
@@ -474,7 +478,7 @@ public class AgroActivityControllerIT {
             .contentType(MediaType.APPLICATION_JSON))
         // then
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.message").value("Pomyślnie usunięto zabieg agrotechniczny."));
+            .andExpect(jsonPath("$.message").value("Pomyślnie usunięto zabieg agrotechniczny"));
 
         AgroActivity deletedAgroActivity = entityManager.find(AgroActivity.class, new AgroActivityId(1,1));
         assertThat(deletedAgroActivity, is(nullValue()));
@@ -490,9 +494,124 @@ public class AgroActivityControllerIT {
             .contentType(MediaType.APPLICATION_JSON))
         // then
             .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.message").value(containsString("Nie znaleziono zabiegu agrotechnicznego o ID: ")));
-            //temporalily like that since it exact message wont work
-            //.andExpect(jsonPath("$.message").value("Nie znaleziono zabiegu agrotechnicznego o ID: "));
+            .andExpect(jsonPath("$.message").value("Nie znaleziono zabiegu agrotechnicznego o ID: 999"));
+    }
+
+    /*
+     * GET /assigned
+     */
+
+    @Test
+    public void testGetAssignedIncompleteAgroActivitiesList() throws Exception {
+        //when
+        MvcResult result = mockMvc.perform(get("/agro-activities/assigned")
+            .contentType(MediaType.APPLICATION_JSON))
+        // then
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andReturn();
+
+        String jsonResponse = result.getResponse().getContentAsString();
+        List<AgroActivitySummaryDTO> agroActivities = objectMapper.readValue(jsonResponse, new TypeReference<List<AgroActivitySummaryDTO>>() {});
+        assertThat(agroActivities, is(not(empty())));
+        assertThat(agroActivities.size(), is(greaterThan(0)));
+        assertThat(agroActivities, everyItem(hasProperty("isCompleted", is(false))));
+    }
+
+    /*
+     * PATCH /complete/{activityId}
+     */
+
+    @Test
+    public void testCompleteAgroActivity() throws Exception {
+        //given
+        Integer farmId = 1, userId = 1;
+        AgroActivity incompleteActivity = entityManager.createQuery(
+            "select aa from AgroActivity aa join ActivityHasOperator aho on aa.id = aho.agroActivity.id where aa.id.farmId = :farmId and aa.isCompleted = false and aho.user.id = :userId", AgroActivity.class)
+            .setParameter("farmId", farmId)
+            .setParameter("userId", userId)
+            .setMaxResults(1)
+            .getSingleResult();
+
+        //when
+        mockMvc.perform(patch("/agro-activities/complete/" + incompleteActivity.getId().getId())
+            .contentType(MediaType.APPLICATION_JSON))
+        // then
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value("Zadanie zostało oznaczone jako zakończone"));
+
+        AgroActivity completedActivity = entityManager.find(AgroActivity.class, new AgroActivityId(incompleteActivity.getId().getId(), farmId));
+
+        assertThat(completedActivity.getIsCompleted(), is(true));
+    }
+
+    @Test
+    public void testCompleteAgroActivityWithNonExistentId() throws Exception {
+        //given
+        Integer nonExistentActivityId = 999;
+
+        //when
+        mockMvc.perform(patch("/agro-activities/complete/" + nonExistentActivityId)
+            .contentType(MediaType.APPLICATION_JSON))
+        // then
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.message").value("Nie znaleziono zadania"));
+    }
+
+    @Test
+    public void testCompleteAgroActivityThatDoesntBelongToUser() throws Exception {
+        //given
+        Integer farmId = 1;
+        User user = entityManager.createQuery("select u from User u where u.farm.id = :farmId and u.id != 1", User.class)
+            .setParameter("farmId", farmId)
+            .setMaxResults(1)
+            .getSingleResult();
+        
+        AgroActivity incompleteActivity = new AgroActivity();
+        incompleteActivity.setId(new AgroActivityId(999, farmId));
+        incompleteActivity.setFarm(entityManager.find(Farm.class, farmId));
+        incompleteActivity.setIsCompleted(false);
+        incompleteActivity.setName("Incomplete Activity");
+        incompleteActivity.setDate(Instant.now());
+        incompleteActivity.setActivityCategory(entityManager.find(ActivityCategory.class, 1));
+        incompleteActivity.setAgriculturalRecord(entityManager.find(AgroActivity.class, new AgroActivityId(1, farmId)).getAgriculturalRecord());
+        entityManager.persist(incompleteActivity);
+    
+        // Create an ActivityHasOperator to link the activity to the new user
+        ActivityHasOperator activityHasOperator = new ActivityHasOperator();
+        activityHasOperator.setAgroActivity(incompleteActivity);
+        activityHasOperator.setUser(user);
+        activityHasOperator.setFarmId(farmId);
+        entityManager.persist(activityHasOperator);
+
+        entityManager.flush();
+
+        //when
+        mockMvc.perform(patch("/agro-activities/complete/" + incompleteActivity.getId().getId())
+            .contentType(MediaType.APPLICATION_JSON))
+        // then
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.message").value("Nie masz dostępu do tego zadania"));
+    }
+
+    @Test
+    public void testCompleteAgroActivityThatIsAlreadyCompleted() throws Exception {
+        //given
+        Integer farmId = 1;
+        Integer userId = 1;
+        AgroActivity completedActivity = entityManager.createQuery(
+            "select aa from AgroActivity aa join ActivityHasOperator aho on aa.id = aho.agroActivity.id where aa.id.farmId = :farmId and aa.isCompleted = true and aho.user.id = :userId", AgroActivity.class)
+            .setParameter("farmId", farmId)
+            .setParameter("userId", userId)
+            .setMaxResults(1)
+            .getSingleResult();
+
+        //when
+        mockMvc.perform(patch("/agro-activities/complete/" + completedActivity.getId().getId())
+            .contentType(MediaType.APPLICATION_JSON))
+        // then
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.message").value("Nie masz dostępu do tego zadania"));
     }
 
     /*

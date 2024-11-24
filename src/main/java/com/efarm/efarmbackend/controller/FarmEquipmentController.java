@@ -9,6 +9,7 @@ import com.efarm.efarmbackend.service.ValidationRequestService;
 import com.efarm.efarmbackend.service.equipment.FarmEquipmentFacade;
 import com.efarm.efarmbackend.service.user.UserService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,17 +22,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor(onConstructor_ = {@Autowired})
 @RequestMapping("/equipment")
 public class FarmEquipmentController {
 
-    @Autowired
-    private FarmEquipmentFacade farmEquipmentFacade;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private ValidationRequestService validationRequestService;
+    private final FarmEquipmentFacade farmEquipmentFacade;
+    private final UserService userService;
+    private final ValidationRequestService validationRequestService;
 
     private static final Logger logger = LoggerFactory.getLogger(FarmEquipmentController.class);
 
@@ -61,7 +58,7 @@ public class FarmEquipmentController {
         try {
             validationRequestService.validateRequest(bindingResult);
             farmEquipmentFacade.updateFarmEquipment(equipmentId, addUpdateFarmEquipmentRequest);
-            return ResponseEntity.ok(new MessageResponse("Pomyślnie zaktualizowane dane maszyny."));
+            return ResponseEntity.ok(new MessageResponse("Pomyślnie zaktualizowane dane maszyny"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
         }

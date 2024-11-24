@@ -20,12 +20,14 @@ class ActivityHasOperatorServiceSpec extends Specification {
     def userRepository = Mock(UserRepository)
     def userService = Mock(UserService)
     def activityHasOperatorRepository = Mock(ActivityHasOperatorRepository)
+    def applicationContext = Mock(org.springframework.context.ApplicationContext)
 
     @Subject
     ActivityHasOperatorService activityHasOperatorService = new ActivityHasOperatorService(
-        userRepository: userRepository,
-        userService: userService,
-        activityHasOperatorRepository: activityHasOperatorRepository
+        userRepository,
+        userService,
+        applicationContext,
+        activityHasOperatorRepository
     )
 
     /*
@@ -175,7 +177,7 @@ class ActivityHasOperatorServiceSpec extends Specification {
 
         then:
         IllegalStateException ex = thrown()
-        ex.message == 'Użytkownik o ID: 2 nie należy do tej farmy.'
+        ex.message == 'Użytkownik o ID: 2 nie należy do tej farmy'
     }
 
     /*
@@ -255,6 +257,8 @@ class ActivityHasOperatorServiceSpec extends Specification {
         }
         userRepository.findById(1) >> Optional.of(user1)
         userRepository.findById(2) >> Optional.of(user2)
+
+        applicationContext.getBean(ActivityHasOperatorService.class) >> activityHasOperatorService
 
         when:
         activityHasOperatorService.updateOperatorInActivity(operatorsIds, agroActivity, farmId)
