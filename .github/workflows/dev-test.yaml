@@ -114,12 +114,14 @@ jobs:
       - name: Modify Kustomize image tag
         run: |
           sed -i "s/newTag:.*/newTag: ${{ env.VERSION }}/" kustomize/overlays/dev/kustomization.yaml
+          sed -i "s/newTag:.*/newTag: ${{ env.VERSION }}/" kustomize/overlays/dev-server/kustomization.yaml
 
       - name: Commit and push changes
         run: |
           git config --local user.email "github-actions@github.com"
           git config --local user.name "GitHub Actions"
-          git add kustomize/overlays/dev/kustomization.yaml          
+          git add kustomize/overlays/dev/kustomization.yaml 
+          git add kustomize/overlays/dev-server/kustomization.yaml           
           git commit -m "Update imageTag to ${{ env.VERSION }}"
           git push origin ${{ github.ref }}
 
