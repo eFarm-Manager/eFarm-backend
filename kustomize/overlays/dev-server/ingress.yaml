@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: efarm-backend-ingress
+  namespace: backend
+  annotations:
+    nginx.org/mergeable-ingress-type: "minion"
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+spec:
+  rules:
+    -  http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: efarm-backend-svc
+                port:
+                  number: 8080
