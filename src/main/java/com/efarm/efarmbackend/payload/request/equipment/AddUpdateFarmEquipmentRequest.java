@@ -15,10 +15,9 @@ import java.time.LocalDate;
 public class AddUpdateFarmEquipmentRequest {
     private Integer equipmentId;
 
-    @Size(min = 6, max = 60, message = "Nazwa sprzętu musi zawierać od 6 do 60 znaków")
+    @Size(min = 3, max = 60, message = "Nazwa sprzętu musi zawierać od 3 do 60 znaków")
     private String equipmentName;
 
-    @Size(min = 6, max = 45, message = "Kategoria musi być prawidłowa")
     private String category;
 
     @Size(min = 2, max = 45, message = "Marka musi zawierać od 2 do 45 znaków")
