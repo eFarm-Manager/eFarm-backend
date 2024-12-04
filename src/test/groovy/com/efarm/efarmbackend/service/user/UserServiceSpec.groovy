@@ -570,6 +570,7 @@ class UserServiceSpec extends Specification {
             getId() >> 2
             getIsActive() >> true
             getFarm() >> farm
+            getRole() >> class_role_operator
         }
 
         UserDetailsImpl currentUserDetails = UserDetailsImpl.build(loggedUser)
