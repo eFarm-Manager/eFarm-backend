@@ -96,9 +96,9 @@ public class LandparcelFacade {
         }
     }
 
-    public List<LandparcelDTO> getLandparcels(String searchString, Double minArea, Double maxArea) {
+    public List<LandparcelDTO> getAvailableLandparcels(String searchString, Double minArea, Double maxArea) {
         Farm loggedUserFarm = userService.getLoggedUserFarm();
-        List<Landparcel> landparcels = landparcelRepository.findByFarmId(loggedUserFarm.getId());
+        List<Landparcel> landparcels = landparcelRepository.findByFarmIdAndIsAvailableTrue(loggedUserFarm.getId());
 
         if (searchString != null && searchString.length() >= 3) {
             landparcels = landparcels.stream()
