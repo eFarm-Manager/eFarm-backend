@@ -366,6 +366,7 @@ class FarmEquipmentFacadeSpec extends Specification {
             getWorkingWidth() >> 5.5
         }
         FarmEquipment equipment = Mock(FarmEquipment) {
+            getEquipmentName() >> "Tractor X"
             getIsAvailable() >> true
             getCategory() >> Mock(EquipmentCategory) {
                 getCategoryName() >> "Ciągniki rolnicze"
@@ -414,6 +415,10 @@ class FarmEquipmentFacadeSpec extends Specification {
             getEquipmentName() >> "Tractor X"
         }
         FarmEquipment equipment = Mock(FarmEquipment) {
+            getEquipmentName() >> "Tractor Y"
+            getCategory() >> Mock(EquipmentCategory) {
+                getCategoryName() >> "Ciągniki rolnicze"
+            }
             getIsAvailable() >> true
         }
         FarmEquipmentId farmEquipmentId = new FarmEquipmentId(1, farm.getId())

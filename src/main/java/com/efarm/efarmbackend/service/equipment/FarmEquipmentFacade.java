@@ -85,7 +85,8 @@ public class FarmEquipmentFacade {
                 .orElseThrow(() -> new RuntimeException("Nie znaleziono maszyny o id: " + equipmentId));
 
         if (equipment.getIsAvailable()) {
-            if (farmEquipmentRepository.existsByEquipmentNameAndFarmIdFarm(addUpdateFarmEquipmentRequest.getEquipmentName(), loggedUserFarm)) {
+            if (!equipment.getEquipmentName().equals(addUpdateFarmEquipmentRequest.getEquipmentName()) &&
+                    farmEquipmentRepository.existsByEquipmentNameAndFarmIdFarm(addUpdateFarmEquipmentRequest.getEquipmentName(), loggedUserFarm)) {
                 throw new RuntimeException("Maszyna o podanej nazwie już występuje w gospodarstwie");
             }
             farmEquipmentService.setCommonFieldsForCategory(addUpdateFarmEquipmentRequest, equipment);
