@@ -376,6 +376,7 @@ class LandparcelFacadeSpec extends Specification {
         landparcel1.setCommune('CommuneA')
         landparcel1.setGeodesyDistrictNumber('GRD1')
         landparcel1.setLandparcelNumber('LP1')
+        landparcel1.setIsAvailable(true)
 
         Landparcel landparcel2 = new Landparcel()
         landparcel2.setId(new LandparcelId(2, farm.getId()))
@@ -384,13 +385,14 @@ class LandparcelFacadeSpec extends Specification {
         landparcel2.setCommune('CommuneB')
         landparcel2.setGeodesyDistrictNumber('GRD2')
         landparcel2.setLandparcelNumber('LP2')
+        landparcel2.setIsAvailable(true)
 
         List<Landparcel> landparcelList = [landparcel1, landparcel2]
         userService.getLoggedUserFarm() >> farm
-        landparcelRepository.findByFarmId(farm.getId()) >> landparcelList
+        landparcelRepository.findByFarmIdAndIsAvailableTrue(farm.getId()) >> landparcelList
 
         when:
-        List<LandparcelDTO> result = landparcelFacade.getLandparcels(null, null, null)
+        List<LandparcelDTO> result = landparcelFacade.getAvailableLandparcels(null, null, null)
 
         then:
         result.size() == 2
@@ -411,6 +413,7 @@ class LandparcelFacadeSpec extends Specification {
         landparcel1.setCommune('CommuneA')
         landparcel1.setGeodesyDistrictNumber('GRD1')
         landparcel1.setLandparcelNumber('LP1')
+        landparcel1.setIsAvailable(true)
 
         Landparcel landparcel2 = new Landparcel()
         landparcel2.setId(new LandparcelId(2, farm.getId()))
@@ -419,13 +422,14 @@ class LandparcelFacadeSpec extends Specification {
         landparcel2.setCommune('CommuneB')
         landparcel2.setGeodesyDistrictNumber('GRD2')
         landparcel2.setLandparcelNumber('LP2')
+        landparcel2.setIsAvailable(true)
 
         List<Landparcel> landparcelList = [landparcel1, landparcel2]
         userService.getLoggedUserFarm() >> farm
-        landparcelRepository.findByFarmId(farm.getId()) >> landparcelList
+        landparcelRepository.findByFarmIdAndIsAvailableTrue(farm.getId()) >> landparcelList
 
         when:
-        List<LandparcelDTO> result = landparcelFacade.getLandparcels(searchString, null, null)
+        List<LandparcelDTO> result = landparcelFacade.getAvailableLandparcels(searchString, null, null)
 
         then:
         result.size() == 1
@@ -456,10 +460,10 @@ class LandparcelFacadeSpec extends Specification {
 
         List<Landparcel> landparcelList = [landparcel1, landparcel2]
         userService.getLoggedUserFarm() >> farm
-        landparcelRepository.findByFarmId(farm.getId()) >> landparcelList
+        landparcelRepository.findByFarmIdAndIsAvailableTrue(farm.getId()) >> landparcelList
 
         when:
-        List<LandparcelDTO> result = landparcelFacade.getLandparcels(null, minArea, null)
+        List<LandparcelDTO> result = landparcelFacade.getAvailableLandparcels(null, minArea, null)
 
         then:
         result.size() == 1
@@ -479,6 +483,7 @@ class LandparcelFacadeSpec extends Specification {
         landparcel1.setCommune('CommuneA')
         landparcel1.setGeodesyDistrictNumber('GRD1')
         landparcel1.setLandparcelNumber('LP1')
+        landparcel1.setIsAvailable(true)
 
         Landparcel landparcel2 = new Landparcel()
         landparcel2.setId(new LandparcelId(2, farm.getId()))
@@ -487,13 +492,14 @@ class LandparcelFacadeSpec extends Specification {
         landparcel2.setCommune('CommuneB')
         landparcel2.setGeodesyDistrictNumber('GRD2')
         landparcel2.setLandparcelNumber('LP2')
+        landparcel2.setIsAvailable(true)
 
         List<Landparcel> landparcelList = [landparcel1, landparcel2]
         userService.getLoggedUserFarm() >> farm
-        landparcelRepository.findByFarmId(farm.getId()) >> landparcelList
+        landparcelRepository.findByFarmIdAndIsAvailableTrue(farm.getId()) >> landparcelList
 
         when:
-        List<LandparcelDTO> result = landparcelFacade.getLandparcels(null, null, maxArea)
+        List<LandparcelDTO> result = landparcelFacade.getAvailableLandparcels(null, null, maxArea)
 
         then:
         result.size() == 1
@@ -514,6 +520,7 @@ class LandparcelFacadeSpec extends Specification {
         landparcel1.setCommune('CommuneA')
         landparcel1.setGeodesyDistrictNumber('GRD1')
         landparcel1.setLandparcelNumber('LP1')
+        landparcel1.setIsAvailable(true)
 
         Landparcel landparcel2 = new Landparcel()
         landparcel2.setId(new LandparcelId(2, farm.getId()))
@@ -522,6 +529,7 @@ class LandparcelFacadeSpec extends Specification {
         landparcel2.setCommune('CommuneB')
         landparcel2.setGeodesyDistrictNumber('GRD2')
         landparcel2.setLandparcelNumber('LP2')
+        landparcel2.setIsAvailable(true)
 
         Landparcel landparcel3 = new Landparcel()
         landparcel3.setId(new LandparcelId(3, farm.getId()))
@@ -530,13 +538,14 @@ class LandparcelFacadeSpec extends Specification {
         landparcel3.setCommune('CommuneC')
         landparcel3.setGeodesyDistrictNumber('GRD3')
         landparcel3.setLandparcelNumber('LP3')
+        landparcel3.setIsAvailable(true)
 
         List<Landparcel> landparcelList = [landparcel1, landparcel2, landparcel3]
         userService.getLoggedUserFarm() >> farm
-        landparcelRepository.findByFarmId(farm.getId()) >> landparcelList
+        landparcelRepository.findByFarmIdAndIsAvailableTrue(farm.getId()) >> landparcelList
 
         when:
-        List<LandparcelDTO> result = landparcelFacade.getLandparcels(null, minArea, maxArea)
+        List<LandparcelDTO> result = landparcelFacade.getAvailableLandparcels(null, minArea, maxArea)
 
         then:
         result.size() == 1
@@ -556,6 +565,7 @@ class LandparcelFacadeSpec extends Specification {
         landparcel1.setCommune('CommuneA')
         landparcel1.setGeodesyDistrictNumber('GRD1')
         landparcel1.setLandparcelNumber('LP1')
+        landparcel1.setIsAvailable(true)
 
         Landparcel landparcel2 = new Landparcel()
         landparcel2.setId(new LandparcelId(2, farm.getId()))
@@ -564,13 +574,14 @@ class LandparcelFacadeSpec extends Specification {
         landparcel2.setCommune('CommuneB')
         landparcel2.setGeodesyDistrictNumber('GRD2')
         landparcel2.setLandparcelNumber('LP2')
+        landparcel2.setIsAvailable(true)
 
         List<Landparcel> landparcelList = [landparcel1, landparcel2]
         userService.getLoggedUserFarm() >> farm
-        landparcelRepository.findByFarmId(farm.getId()) >> landparcelList
+        landparcelRepository.findByFarmIdAndIsAvailableTrue(farm.getId()) >> landparcelList
 
         when:
-        List<LandparcelDTO> result = landparcelFacade.getLandparcels(searchString, null, null)
+        List<LandparcelDTO> result = landparcelFacade.getAvailableLandparcels(searchString, null, null)
 
         then:
         result.size() == 2

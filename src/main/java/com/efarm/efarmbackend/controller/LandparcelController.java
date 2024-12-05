@@ -79,6 +79,6 @@ public class LandparcelController {
             @RequestParam(required = false) Double minArea,
             @RequestParam(required = false) Double maxArea) {
 
-        return ResponseEntity.ok(landparcelFacade.getLandparcels(searchString, minArea, maxArea));
+        return ResponseEntity.ok(landparcelFacade.getAvailableLandparcels(searchString, minArea, maxArea));
     }
 }

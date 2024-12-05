@@ -20,15 +20,15 @@ public class AddLandparcelRequest {
     private String voivodeship;
 
     @NotBlank(message = "Powiat nie może być pusty")
-    @Size(min = 3, max = 30, message = "Powiat musi zawierać od 3 do 30 znaków")
+    @Size(min = 3, max = 40, message = "Powiat musi zawierać od 3 do 40 znaków")
     private String district;
 
     @NotBlank(message = "Gmina nie może być pusta")
-    @Size(min = 3, max = 30, message = "Gmina musi zawierać od 3 do 30 znaków")
+    @Size(min = 3, max = 40, message = "Gmina musi zawierać od 3 do 40 znaków")
     private String commune;
 
     @NotBlank(message = "Numer obrębu ewidencyjnego nie może być pusty")
-    @Size(min = 1, max = 10, message = "Numer obrębu ewidencyjnego musi zawierać od 1 do 10 znaków")
+    @Size(min = 1, max = 40, message = "Numer obrębu ewidencyjnego musi zawierać od 1 do 40 znaków")
     private String geodesyDistrictNumber;
 
     @NotBlank(message = "Numer działki nie może być pusty")
