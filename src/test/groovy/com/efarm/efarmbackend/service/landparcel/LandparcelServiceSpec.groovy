@@ -1,11 +1,7 @@
 package com.efarm.efarmbackend.service.landparcel
 
 import com.efarm.efarmbackend.model.farm.Farm
-import com.efarm.efarmbackend.model.landparcel.ELandOwnershipStatus
-import com.efarm.efarmbackend.model.landparcel.LandOwnershipStatus
-import com.efarm.efarmbackend.model.landparcel.Landparcel
-import com.efarm.efarmbackend.model.landparcel.LandparcelId
-import com.efarm.efarmbackend.model.landparcel.LandparcelDTO
+import com.efarm.efarmbackend.model.landparcel.*
 import com.efarm.efarmbackend.repository.landparcel.LandOwnershipStatusRepository
 import com.efarm.efarmbackend.repository.landparcel.LandparcelRepository
 import spock.lang.Specification
@@ -207,7 +203,7 @@ class LandparcelServiceSpec extends Specification {
 
     def "should return true when land parcel already exists"() {
         given:
-        LandparcelDTO landparcelDTO = Mock(LandparcelDTO){
+        LandparcelDTO landparcelDTO = Mock(LandparcelDTO) {
             getDistrict() >> 'District'
             getCommune() >> 'Commune'
             getGeodesyDistrictNumber() >> '987654'
@@ -217,8 +213,8 @@ class LandparcelServiceSpec extends Specification {
 
         Farm farm = Mock(Farm)
         landparcelRepository.existsByGeodesyLandparcelNumberAndFarm(
-            landparcelDTO.getGeodesyLandparcelNumber(),
-            farm
+                landparcelDTO.getGeodesyLandparcelNumber(),
+                farm
         ) >> true
 
         when:
@@ -230,7 +226,7 @@ class LandparcelServiceSpec extends Specification {
 
     def "should return false when land parcel does not exist"() {
         given:
-        LandparcelDTO landparcelDTO = Mock(LandparcelDTO){
+        LandparcelDTO landparcelDTO = Mock(LandparcelDTO) {
             getDistrict() >> 'District'
             getCommune() >> 'Commune'
             getGeodesyDistrictNumber() >> '987654'
@@ -291,7 +287,7 @@ class LandparcelServiceSpec extends Specification {
         Landparcel landparcel = Mock(Landparcel) {
             getId() >> landparcelId
         }
-        landparcelRepository.findById(landparcelId) >> Optional.of(landparcel) 
+        landparcelRepository.findById(landparcelId) >> Optional.of(landparcel)
 
         when:
         Landparcel result = landparcelService.findlandparcelByFarm(id, farm)
@@ -346,7 +342,7 @@ class LandparcelServiceSpec extends Specification {
 
     def "should set common fields when valid values are provided"() {
         given:
-        LandparcelDTO landparcelDTO = Mock(LandparcelDTO){
+        LandparcelDTO landparcelDTO = Mock(LandparcelDTO) {
             getName() >> 'Landparcel'
             getLongitude() >> 21.0122
             getLatitude() >> null
@@ -369,7 +365,7 @@ class LandparcelServiceSpec extends Specification {
 
     def "should set all administrative data when all fields are provided"() {
         given:
-        LandparcelDTO landparcelDTO = Mock(LandparcelDTO){
+        LandparcelDTO landparcelDTO = Mock(LandparcelDTO) {
             getVoivodeship() >> 'Lubelskie'
             getDistrict() >> 'district'
             getCommune() >> null

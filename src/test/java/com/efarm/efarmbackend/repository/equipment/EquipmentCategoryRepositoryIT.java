@@ -1,12 +1,6 @@
 package com.efarm.efarmbackend.repository.equipment;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
-
-import java.util.List;
-
+import com.efarm.efarmbackend.model.equipment.EquipmentCategory;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +9,10 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.efarm.efarmbackend.model.equipment.EquipmentCategory;
+import java.util.List;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 
 @DataJpaTest
@@ -45,7 +42,7 @@ public class EquipmentCategoryRepositoryIT {
 
         //when
         EquipmentCategory foundCategory = equipmentCategoryRepository.findByCategoryName(categoryName);
-        
+
         //then
         assertThat(foundCategory, is(notNullValue()));
         assertThat(foundCategory.getCategoryName(), is("Ciągniki rolnicze"));
@@ -59,10 +56,10 @@ public class EquipmentCategoryRepositoryIT {
 
         //when
         EquipmentCategory foundCategory = equipmentCategoryRepository.findByCategoryName(categoryName);
-        
+
         //then
         assertThat(foundCategory, is(nullValue()));
     }
 
-    
+
 }

@@ -5,12 +5,12 @@ import com.efarm.efarmbackend.payload.request.auth.UpdateActivationCodeRequest
 import com.efarm.efarmbackend.security.services.BruteForceProtectionService
 import com.efarm.efarmbackend.security.services.UserDetailsImpl
 import com.efarm.efarmbackend.service.auth.AuthService
-import org.springframework.security.core.authority.SimpleGrantedAuthority
-import org.springframework.security.core.Authentication
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.authentication.AuthenticationManager
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.authentication.BadCredentialsException
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.Authentication
+import org.springframework.security.core.authority.SimpleGrantedAuthority
+import org.springframework.security.core.context.SecurityContextHolder
 import spock.lang.Specification
 import spock.lang.Subject
 

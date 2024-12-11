@@ -1,9 +1,9 @@
 package com.efarm.efarmbackend.security.services
 
-import com.efarm.efarmbackend.repository.user.UserRepository
-import com.efarm.efarmbackend.model.user.User
-import com.efarm.efarmbackend.model.user.Role
 import com.efarm.efarmbackend.model.user.ERole
+import com.efarm.efarmbackend.model.user.Role
+import com.efarm.efarmbackend.model.user.User
+import com.efarm.efarmbackend.repository.user.UserRepository
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import spock.lang.Specification

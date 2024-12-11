@@ -2,11 +2,10 @@ package com.efarm.efarmbackend.service.agriculturalrecords
 
 import com.efarm.efarmbackend.model.agriculturalrecords.Season
 import com.efarm.efarmbackend.repository.agriculturalrecords.SeasonRepository
-
-import java.util.List
-import java.time.Clock;
 import spock.lang.Specification
 import spock.lang.Subject
+
+import java.time.Clock
 
 class SeasonServiceSpec extends Specification {
 
@@ -14,7 +13,7 @@ class SeasonServiceSpec extends Specification {
 
     @Subject
     SeasonService seasonService = new SeasonService(
-        seasonRepository
+            seasonRepository
     )
 
     def "should get Season by name"() {
@@ -58,8 +57,8 @@ class SeasonServiceSpec extends Specification {
     def "should get all seasons"() {
         given:
         List<Season> seasons = [
-            new Season(name: '2024/2025'),
-            new Season(name: '2025/2026')
+                new Season(name: '2024/2025'),
+                new Season(name: '2025/2026')
         ]
         seasonRepository.findAll() >> seasons
 

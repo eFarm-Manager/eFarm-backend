@@ -3,7 +3,6 @@ package com.efarm.efarmbackend.service
 import com.efarm.efarmbackend.exception.TooManyRequestsException
 import com.efarm.efarmbackend.model.farm.ActivationCode
 import com.efarm.efarmbackend.model.farm.Farm
-import com.efarm.efarmbackend.payload.response.MessageResponse
 import com.efarm.efarmbackend.repository.farm.ActivationCodeRepository
 import com.efarm.efarmbackend.repository.farm.FarmRepository
 import com.efarm.efarmbackend.security.services.BruteForceProtectionService
@@ -288,7 +287,7 @@ class ActivationCodeServiceSpec extends Specification {
 
         bruteForceProtectionService.isBlocked(username) >> false
         activationCodeRepository.findByCode(newActivationCode) >> Optional.of(newActivationCodeEntity)
-        bruteForceProtectionService.loginSucceeded(username) >> { }
+        bruteForceProtectionService.loginSucceeded(username) >> {}
         farmRepository.findById(farm.getId()) >> Optional.of(farm)
         activationCodeRepository.findById(farm.getIdActivationCode()) >> Optional.of(currentCode)
 

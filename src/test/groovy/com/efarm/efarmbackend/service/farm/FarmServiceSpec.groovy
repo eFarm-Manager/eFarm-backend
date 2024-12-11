@@ -2,23 +2,23 @@ package com.efarm.efarmbackend.service
 
 import com.efarm.efarmbackend.model.farm.ActivationCode
 import com.efarm.efarmbackend.model.farm.Farm
-import com.efarm.efarmbackend.model.user.Role
 import com.efarm.efarmbackend.model.user.ERole
-import com.efarm.efarmbackend.repository.farm.ActivationCodeRepository
+import com.efarm.efarmbackend.model.user.Role
 import com.efarm.efarmbackend.payload.request.farm.UpdateFarmDetailsRequest
+import com.efarm.efarmbackend.repository.farm.ActivationCodeRepository
 import com.efarm.efarmbackend.repository.farm.AddressRepository
 import com.efarm.efarmbackend.repository.farm.FarmRepository
 import com.efarm.efarmbackend.service.agriculturalrecords.AgriculturalRecordService
 import com.efarm.efarmbackend.service.equipment.FarmEquipmentService
+import com.efarm.efarmbackend.service.farm.FarmService
 import com.efarm.efarmbackend.service.finance.FinanceService
 import com.efarm.efarmbackend.service.landparcel.LandparcelService
 import com.efarm.efarmbackend.service.user.UserService
-import com.efarm.efarmbackend.service.farm.FarmService
 import org.springframework.security.core.context.SecurityContextHolder
 import spock.lang.Specification
 import spock.lang.Subject
-import java.nio.file.AccessDeniedException
 
+import java.nio.file.AccessDeniedException
 import java.time.LocalDate
 
 class FarmServiceSpec extends Specification {
@@ -138,8 +138,8 @@ class FarmServiceSpec extends Specification {
         farmService.checkFarmDeactivation(userFarm, role_manager)
 
         then:
-	AccessDeniedException ex = thrown()
-	ex.message == "Gospodarstwo jest nieaktywne. Kod aktywacyjny wygasł." 
+        AccessDeniedException ex = thrown()
+        ex.message == "Gospodarstwo jest nieaktywne. Kod aktywacyjny wygasł."
     }
 
     def "should show that farm not active for operator"() {
@@ -154,8 +154,8 @@ class FarmServiceSpec extends Specification {
         farmService.checkFarmDeactivation(userFarm, role_operator)
 
         then:
-	AccessDeniedException ex = thrown()
-	ex.message == "Gospodarstwo jest nieaktywne. Kod aktywacyjny wygasł."
+        AccessDeniedException ex = thrown()
+        ex.message == "Gospodarstwo jest nieaktywne. Kod aktywacyjny wygasł."
     }
 
     def "should not show inactive message because farm is active"() {
@@ -237,7 +237,7 @@ class FarmServiceSpec extends Specification {
         Farm existingFarm = new Farm()
         existingFarm.setId(1)
         existingFarm.setFarmName("New Farm")
-        
+
         Farm farm = new Farm()
         farm.setId(2)
         farm.setFarmName("Old Farm")

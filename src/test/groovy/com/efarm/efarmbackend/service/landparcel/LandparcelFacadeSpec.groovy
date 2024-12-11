@@ -1,22 +1,16 @@
 package com.efarm.efarmbackend.service.landparcel
 
-import com.efarm.efarmbackend.model.farm.Farm
-import com.efarm.efarmbackend.model.landparcel.Landparcel
-import com.efarm.efarmbackend.model.landparcel.LandparcelDTO
-import com.efarm.efarmbackend.model.landparcel.LandparcelId
-import com.efarm.efarmbackend.model.landparcel.ELandOwnershipStatus
-import com.efarm.efarmbackend.model.landparcel.LandOwnershipStatus
 import com.efarm.efarmbackend.model.agriculturalrecords.Season
-import com.efarm.efarmbackend.service.agriculturalrecords.AgriculturalRecordService;
-import com.efarm.efarmbackend.service.agriculturalrecords.SeasonService;
-import com.efarm.efarmbackend.repository.landparcel.LandparcelRepository
+import com.efarm.efarmbackend.model.farm.Farm
+import com.efarm.efarmbackend.model.landparcel.*
 import com.efarm.efarmbackend.payload.request.landparcel.AddLandparcelRequest
 import com.efarm.efarmbackend.payload.request.landparcel.UpdateLandparcelRequest
+import com.efarm.efarmbackend.repository.landparcel.LandparcelRepository
+import com.efarm.efarmbackend.service.agriculturalrecords.AgriculturalRecordService
+import com.efarm.efarmbackend.service.agriculturalrecords.SeasonService
 import com.efarm.efarmbackend.service.user.UserService
-import com.efarm.efarmbackend.service.landparcel.LandparcelService
 import spock.lang.Specification
 import spock.lang.Subject
-import java.util.List
 
 class LandparcelFacadeSpec extends Specification {
 
@@ -50,7 +44,7 @@ class LandparcelFacadeSpec extends Specification {
         addLandparcelRequest.setLongitude(21.0122)
         addLandparcelRequest.setLatitude(52.2297)
         addLandparcelRequest.setArea(100.0)
-	    addLandparcelRequest.setGeodesyLandparcelNumber('25312.05')
+        addLandparcelRequest.setGeodesyLandparcelNumber('25312.05')
 
         Farm farm = Mock(Farm) {
             getId() >> 1
@@ -74,16 +68,16 @@ class LandparcelFacadeSpec extends Specification {
     def "should throw exception when land parcel already exists"() {
         given:
         AddLandparcelRequest addLandparcelRequest = new AddLandparcelRequest(
-            landOwnershipStatus: 'STATUS_PRIVATELY_OWNED',
-            voivodeship: 'Lubelskie',
-            district: 'district',
-            commune: 'commune',
-            geodesyDistrictNumber: 'XYZ123',
-            landparcelNumber: 'LP-001',
-            longitude: 21.0122,
-            latitude: 52.2297,
-            area: 1500.0,
-	        geodesyLandparcelNumber: '25312.05'
+                landOwnershipStatus: 'STATUS_PRIVATELY_OWNED',
+                voivodeship: 'Lubelskie',
+                district: 'district',
+                commune: 'commune',
+                geodesyDistrictNumber: 'XYZ123',
+                landparcelNumber: 'LP-001',
+                longitude: 21.0122,
+                latitude: 52.2297,
+                area: 1500.0,
+                geodesyLandparcelNumber: '25312.05'
         )
         Farm farm = Mock(Farm)
 
@@ -105,16 +99,16 @@ class LandparcelFacadeSpec extends Specification {
     def "should throw exception when landparcel name is already taken"() {
         given:
         AddLandparcelRequest addLandparcelRequest = new AddLandparcelRequest(
-            landOwnershipStatus: 'STATUS_PRIVATELY_OWNED',
-            voivodeship: 'Lubelskie',
-            district: 'district',
-            commune: 'commune',
-            geodesyDistrictNumber: 'XYZ123',
-            landparcelNumber: 'LP-001',
-            longitude: 21.0122,
-            latitude: 52.2297,
-            area: 1500.0,
-	        geodesyLandparcelNumber: '25312.05'
+                landOwnershipStatus: 'STATUS_PRIVATELY_OWNED',
+                voivodeship: 'Lubelskie',
+                district: 'district',
+                commune: 'commune',
+                geodesyDistrictNumber: 'XYZ123',
+                landparcelNumber: 'LP-001',
+                longitude: 21.0122,
+                latitude: 52.2297,
+                area: 1500.0,
+                geodesyLandparcelNumber: '25312.05'
         )
 
         Farm farm = Mock(Farm)
@@ -152,7 +146,7 @@ class LandparcelFacadeSpec extends Specification {
 
         userService.getLoggedUserFarm() >> farm
         landparcelRepository.findById(landparcelId) >> Optional.of(landparcel)
-        LandparcelDTO landparcelDTO = Mock(LandparcelDTO){
+        LandparcelDTO landparcelDTO = Mock(LandparcelDTO) {
             getId() >> id
             getArea() >> landparcel.getArea()
         }
@@ -213,10 +207,10 @@ class LandparcelFacadeSpec extends Specification {
         Integer id = 1
         Farm farm = Mock(Farm)
         UpdateLandparcelRequest updateLandparcelRequest = new UpdateLandparcelRequest(
-            name: 'Landparcel',
-            longitude: 21.0122,
-            latitude: 52.2297,
-            area: 1500.0
+                name: 'Landparcel',
+                longitude: 21.0122,
+                latitude: 52.2297,
+                area: 1500.0
         )
         LandparcelId landparcelId = new LandparcelId(id, farm.getId())
         Landparcel landparcel = new Landparcel()
@@ -279,10 +273,10 @@ class LandparcelFacadeSpec extends Specification {
         Integer id = 1
         Farm farm = Mock(Farm)
         UpdateLandparcelRequest updateLandparcelRequest = new UpdateLandparcelRequest(
-            name: 'Landparcel1',
-            longitude: 21.0122,
-            latitude: 52.2297,
-            area: 1500.0
+                name: 'Landparcel1',
+                longitude: 21.0122,
+                latitude: 52.2297,
+                area: 1500.0
         )
         LandparcelId landparcelId = new LandparcelId(id, farm.getId())
         Landparcel landparcel = new Landparcel()

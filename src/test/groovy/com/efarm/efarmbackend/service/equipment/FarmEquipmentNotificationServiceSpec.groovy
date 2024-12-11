@@ -1,21 +1,15 @@
-package com.efarm.efarmbackend.service.equipment;
+package com.efarm.efarmbackend.service.equipment
 
-import com.efarm.efarmbackend.model.equipment.FarmEquipment;
-import com.efarm.efarmbackend.model.user.User;
+import com.efarm.efarmbackend.model.equipment.FarmEquipment
 import com.efarm.efarmbackend.model.farm.Farm
-import com.efarm.efarmbackend.repository.equipment.FarmEquipmentRepository;
-import com.efarm.efarmbackend.service.user.UserService;
+import com.efarm.efarmbackend.model.user.User
+import com.efarm.efarmbackend.repository.equipment.FarmEquipmentRepository
 import com.efarm.efarmbackend.service.MainNotificationService
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.stereotype.Service;
+import com.efarm.efarmbackend.service.user.UserService
 import spock.lang.Specification
 import spock.lang.Subject
-import java.time.LocalDate;
-import java.util.List;
+
+import java.time.LocalDate
 
 class FarmEquipmentNotificationServiceSpec extends Specification {
 
@@ -25,8 +19,8 @@ class FarmEquipmentNotificationServiceSpec extends Specification {
     @Subject
     FarmEquipmentNotificationService farmEquipmentNotificationService = new FarmEquipmentNotificationService(
             farmEquipmentRepository,
-	        mainNotificationService,
-	        userService
+            mainNotificationService,
+            userService
     )
 
     def "should send notification for insurance expiring in 14 days"() {
@@ -36,15 +30,15 @@ class FarmEquipmentNotificationServiceSpec extends Specification {
             getInsuranceExpirationDate() >> today.plusDays(14)
             getEquipmentName() >> "Tractor"
             getInsurancePolicyNumber() >> "INS123"
-            getFarmIdFarm() >> Mock(Farm) { 
-                getId() >> 1 
+            getFarmIdFarm() >> Mock(Farm) {
+                getId() >> 1
                 getIsActive() >> true
             }
         }
-        User owner = Mock(User) { 
-		getEmail() >> "owner@example.com"
-		getIsActive() >> true
- }
+        User owner = Mock(User) {
+            getEmail() >> "owner@example.com"
+            getIsActive() >> true
+        }
         userService.getAllOwnersForFarm(1) >> [owner]
 
         when:
@@ -61,22 +55,22 @@ class FarmEquipmentNotificationServiceSpec extends Specification {
             getInsuranceExpirationDate() >> today.plusDays(3)
             getEquipmentName() >> "Plow"
             getInsurancePolicyNumber() >> "INS456"
-            getFarmIdFarm() >> Mock(Farm) { 
+            getFarmIdFarm() >> Mock(Farm) {
                 getId() >> 2
                 getIsActive() >> true
             }
         }
-        User owner = Mock(User) { 
-		getEmail() >> "owner@example.com" 
-		getIsActive() >> true
-	}
+        User owner = Mock(User) {
+            getEmail() >> "owner@example.com"
+            getIsActive() >> true
+        }
         userService.getAllOwnersForFarm(2) >> [owner]
 
         when:
         farmEquipmentNotificationService.checkAndNotifyForInsurance(equipment, today)
 
         then:
-        1 * mainNotificationService.sendNotificationToUser(owner,"W twoim sprzęcie Plow polisa ubezpieczeniowa o numerze INS456 wygasa za 3 dni.", "Ubezpieczenie sprzętu wygasa!")
+        1 * mainNotificationService.sendNotificationToUser(owner, "W twoim sprzęcie Plow polisa ubezpieczeniowa o numerze INS456 wygasa za 3 dni.", "Ubezpieczenie sprzętu wygasa!")
     }
 
     def "should send notification for insurance expiring in 1 day"() {
@@ -86,15 +80,15 @@ class FarmEquipmentNotificationServiceSpec extends Specification {
             getInsuranceExpirationDate() >> today.plusDays(1)
             getEquipmentName() >> "Seeder"
             getInsurancePolicyNumber() >> "INS789"
-            getFarmIdFarm() >> Mock(Farm) { 
+            getFarmIdFarm() >> Mock(Farm) {
                 getId() >> 3
                 getIsActive() >> true
             }
         }
-        User owner = Mock(User) { 
-		getEmail() >> "owner@example.com" 
-		getIsActive() >> true
-	}
+        User owner = Mock(User) {
+            getEmail() >> "owner@example.com"
+            getIsActive() >> true
+        }
         userService.getAllOwnersForFarm(3) >> [owner]
 
         when:
@@ -115,7 +109,7 @@ class FarmEquipmentNotificationServiceSpec extends Specification {
         farmEquipmentNotificationService.checkAndNotifyForInsurance(equipment, today)
 
         then:
-        0 * mainNotificationService.sendNotificationToUser(_,_,_)
+        0 * mainNotificationService.sendNotificationToUser(_, _, _)
     }
 
     def "should not send notification if insurance date is null"() {
@@ -129,7 +123,7 @@ class FarmEquipmentNotificationServiceSpec extends Specification {
         farmEquipmentNotificationService.checkAndNotifyForInsurance(equipment, today)
 
         then:
-        0 * mainNotificationService.sendNotificationToUser(_,_,_)
+        0 * mainNotificationService.sendNotificationToUser(_, _, _)
     }
 
     // insurance
@@ -140,8 +134,8 @@ class FarmEquipmentNotificationServiceSpec extends Specification {
         FarmEquipment equipment = Mock(FarmEquipment) {
             getInspectionExpireDate() >> today.plusDays(14)
             getEquipmentName() >> "Tractor"
-            getFarmIdFarm() >> Mock(Farm) { 
-                getId() >> 1 
+            getFarmIdFarm() >> Mock(Farm) {
+                getId() >> 1
                 getIsActive() >> true
             }
         }
@@ -161,7 +155,7 @@ class FarmEquipmentNotificationServiceSpec extends Specification {
         FarmEquipment equipment = Mock(FarmEquipment) {
             getInspectionExpireDate() >> today.plusDays(3)
             getEquipmentName() >> "Plow"
-            getFarmIdFarm() >> Mock(Farm) { 
+            getFarmIdFarm() >> Mock(Farm) {
                 getId() >> 2
                 getIsActive() >> true
             }
@@ -182,7 +176,7 @@ class FarmEquipmentNotificationServiceSpec extends Specification {
         FarmEquipment equipment = Mock(FarmEquipment) {
             getInspectionExpireDate() >> today.plusDays(1)
             getEquipmentName() >> "Seeder"
-            getFarmIdFarm() >> Mock(Farm) { 
+            getFarmIdFarm() >> Mock(Farm) {
                 getId() >> 3
                 getIsActive() >> true
             }
@@ -208,7 +202,7 @@ class FarmEquipmentNotificationServiceSpec extends Specification {
         farmEquipmentNotificationService.checkAndNotifyForInspection(equipment, today)
 
         then:
-        0 * mainNotificationService.sendNotificationToUser(_,_,_)
+        0 * mainNotificationService.sendNotificationToUser(_, _, _)
     }
 
     def "should not send notification if inspection date is null"() {
@@ -222,7 +216,7 @@ class FarmEquipmentNotificationServiceSpec extends Specification {
         farmEquipmentNotificationService.checkAndNotifyForInspection(equipment, today)
 
         then:
-        0 * mainNotificationService.sendNotificationToUser(_,_,_)
+        0 * mainNotificationService.sendNotificationToUser(_, _, _)
     }
 
 }

@@ -33,7 +33,7 @@ public class ActivityHasEquipment {
 
     @Column(name = "Gospodarstwo_idGospodarstwo", nullable = false)
     private Integer farmId;
-    
+
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumnsOrFormulas(value = {

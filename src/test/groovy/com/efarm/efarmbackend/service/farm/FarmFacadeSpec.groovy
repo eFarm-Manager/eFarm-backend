@@ -4,13 +4,9 @@ import com.efarm.efarmbackend.model.farm.ActivationCode
 import com.efarm.efarmbackend.model.farm.Address
 import com.efarm.efarmbackend.model.farm.Farm
 import com.efarm.efarmbackend.model.farm.FarmDTO
-import com.efarm.efarmbackend.model.user.User
-import com.efarm.efarmbackend.model.user.Role
-import com.efarm.efarmbackend.model.user.UserDTO
 import com.efarm.efarmbackend.payload.request.farm.UpdateFarmDetailsRequest
-import com.efarm.efarmbackend.repository.farm.FarmRepository
 import com.efarm.efarmbackend.repository.farm.AddressRepository
-import com.efarm.efarmbackend.service.*
+import com.efarm.efarmbackend.repository.farm.FarmRepository
 import com.efarm.efarmbackend.service.auth.AuthService
 import com.efarm.efarmbackend.service.farm.ActivationCodeService
 import com.efarm.efarmbackend.service.farm.AddressService
@@ -18,8 +14,6 @@ import com.efarm.efarmbackend.service.farm.FarmFacade
 import com.efarm.efarmbackend.service.farm.FarmService
 import com.efarm.efarmbackend.service.user.UserService
 import org.springframework.security.core.context.SecurityContextHolder
-import com.efarm.efarmbackend.payload.response.MessageResponse
-
 import spock.lang.Specification
 import spock.lang.Subject
 
@@ -45,7 +39,6 @@ class FarmFacadeSpec extends Specification {
     def setup() {
         SecurityContextHolder.clearContext()
     }
-
 
 
     def "should return farm details"() {

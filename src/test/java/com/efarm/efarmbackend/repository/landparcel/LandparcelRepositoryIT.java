@@ -17,11 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.everyItem;
-import static org.hamcrest.Matchers.hasProperty;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.*;
 
 @DataJpaTest
 @Transactional
@@ -54,10 +50,10 @@ public class LandparcelRepositoryIT {
     @Test
     public void shouldReturnEmptyListForUnknownFarmId() {
         // When
-        List<Landparcel> result = landparcelRepository.findByFarmId(999); 
+        List<Landparcel> result = landparcelRepository.findByFarmId(999);
 
         // Then
-        assertThat(result.size(),is(0));
+        assertThat(result.size(), is(0));
         assertThat(result, is(empty()));
     }
 
@@ -66,8 +62,8 @@ public class LandparcelRepositoryIT {
         //given
         Farm farm = entityManager.find(Farm.class, 1);
         Landparcel existingLandparcel = entityManager.getEntityManager()
-            .createQuery("SELECT l FROM Landparcel l WHERE l.id.farmId = 1 AND l.id.id = 1", Landparcel.class)
-            .getSingleResult();
+                .createQuery("SELECT l FROM Landparcel l WHERE l.id.farmId = 1 AND l.id.id = 1", Landparcel.class)
+                .getSingleResult();
 
         String geodesyLandparcelNumber = existingLandparcel.getGeodesyLandparcelNumber();
 
@@ -75,14 +71,14 @@ public class LandparcelRepositoryIT {
         Boolean exists = landparcelRepository.existsByGeodesyLandparcelNumberAndFarm(geodesyLandparcelNumber, farm);
 
         // Then
-        assertThat(exists,is(true));
+        assertThat(exists, is(true));
     }
 
     @Test
     public void shouldReturnFalseIfLandparcelDoesNotExistWithGivenParameters() {
         //given
         Farm farm = entityManager.find(Farm.class, 1);
-        
+
         // When
         Boolean exists = landparcelRepository.existsByGeodesyLandparcelNumberAndFarm("geodesyLandparcelNumberUnknown", farm);
 
@@ -95,8 +91,8 @@ public class LandparcelRepositoryIT {
         //given
         Farm farm = entityManager.find(Farm.class, 1);
         Landparcel existingLandparcel = entityManager.getEntityManager()
-            .createQuery("SELECT l FROM Landparcel l WHERE l.id.farmId = 1 AND l.id.id = 1", Landparcel.class)
-            .getSingleResult();
+                .createQuery("SELECT l FROM Landparcel l WHERE l.id.farmId = 1 AND l.id.id = 1", Landparcel.class)
+                .getSingleResult();
 
         String name = existingLandparcel.getName();
 
@@ -111,7 +107,7 @@ public class LandparcelRepositoryIT {
     public void testDoesNotExistsByFarmAndName() {
         //given
         Farm farm = entityManager.find(Farm.class, 1);
-        
+
         // When
         Boolean exists = landparcelRepository.existsByFarmAndName(farm, "nameUnknown");
 
@@ -126,7 +122,7 @@ public class LandparcelRepositoryIT {
         Long countActive = entityManager.getEntityManager()
                 .createQuery("SELECT COUNT(l) FROM Landparcel l WHERE l.id.farmId = 1 AND l.isAvailable = true", Long.class)
                 .getSingleResult();
-        
+
         // When
         List<Landparcel> result = landparcelRepository.findByFarmIdAndIsAvailableTrue(farmId);
 
@@ -139,10 +135,10 @@ public class LandparcelRepositoryIT {
     @Test
     public void testfindByFarmIdAndIsAvailableTrueEmptyForUnknownFarmId() {
         // When
-        List<Landparcel> result = landparcelRepository.findByFarmIdAndIsAvailableTrue(999); 
+        List<Landparcel> result = landparcelRepository.findByFarmIdAndIsAvailableTrue(999);
 
         // Then
-        assertThat(result.size(),is(0));
+        assertThat(result.size(), is(0));
         assertThat(result, is(empty()));
     }
 
@@ -151,15 +147,15 @@ public class LandparcelRepositoryIT {
         //given
         Integer farmId = 1;
         Double sumArea = entityManager.getEntityManager()
-            .createQuery("SELECT SUM(l.area) FROM Landparcel l WHERE " + 
-            "l.farm.id = :farmId AND l.isAvailable = true AND " + 
-            "(l.landOwnershipStatus.ownershipStatus = :privatelyOwnedStatus OR " +
-            "l.landOwnershipStatus.ownershipStatus = :leaseStatus)", 
-        Double.class)
-        .setParameter("farmId", farmId)
-        .setParameter("privatelyOwnedStatus", ELandOwnershipStatus.STATUS_PRIVATELY_OWNED)
-        .setParameter("leaseStatus", ELandOwnershipStatus.STATUS_LEASE)
-        .getSingleResult();
+                .createQuery("SELECT SUM(l.area) FROM Landparcel l WHERE " +
+                                "l.farm.id = :farmId AND l.isAvailable = true AND " +
+                                "(l.landOwnershipStatus.ownershipStatus = :privatelyOwnedStatus OR " +
+                                "l.landOwnershipStatus.ownershipStatus = :leaseStatus)",
+                        Double.class)
+                .setParameter("farmId", farmId)
+                .setParameter("privatelyOwnedStatus", ELandOwnershipStatus.STATUS_PRIVATELY_OWNED)
+                .setParameter("leaseStatus", ELandOwnershipStatus.STATUS_LEASE)
+                .getSingleResult();
 
         // When
         Double result = landparcelRepository.sumAvailableLandArea(farmId);
@@ -174,13 +170,13 @@ public class LandparcelRepositoryIT {
         Integer farmId = 1;
         ELandOwnershipStatus status = ELandOwnershipStatus.STATUS_PRIVATELY_OWNED;
         Double sumArea = entityManager.getEntityManager()
-            .createQuery("SELECT SUM(l.area) FROM Landparcel l WHERE " + 
-            "l.farm.id = :farmId AND l.isAvailable = true AND " + 
-            "l.landOwnershipStatus.ownershipStatus = :status", 
-        Double.class)
-        .setParameter("farmId", farmId)
-        .setParameter("status", status)
-        .getSingleResult();
+                .createQuery("SELECT SUM(l.area) FROM Landparcel l WHERE " +
+                                "l.farm.id = :farmId AND l.isAvailable = true AND " +
+                                "l.landOwnershipStatus.ownershipStatus = :status",
+                        Double.class)
+                .setParameter("farmId", farmId)
+                .setParameter("status", status)
+                .getSingleResult();
 
         // When
         Double result = landparcelRepository.sumAvailableLandAreaByStatus(farmId, status);
@@ -194,8 +190,8 @@ public class LandparcelRepositoryIT {
         //given
         Farm farm = entityManager.find(Farm.class, 1);
         Integer maxIdForFarm = entityManager.getEntityManager()
-            .createQuery("SELECT MAX(l.id.id) FROM Landparcel l WHERE l.id.farmId = 1", Integer.class)
-            .getSingleResult();
+                .createQuery("SELECT MAX(l.id.id) FROM Landparcel l WHERE l.id.farmId = 1", Integer.class)
+                .getSingleResult();
         // When
         Optional<Integer> maxId = landparcelRepository.findMaxIdForFarm(farm.getId());
 
@@ -218,11 +214,11 @@ public class LandparcelRepositoryIT {
         farm.setIdActivationCode(activationCode.getId());
         entityManager.persist(farm);
         entityManager.flush();
-        
+
         //when
         Optional<Integer> maxId = landparcelRepository.findMaxIdForFarm(farm.getId());
         //then
-        assertThat(maxId,is(Optional.empty()));
+        assertThat(maxId, is(Optional.empty()));
     }
 
     @Test
@@ -230,13 +226,13 @@ public class LandparcelRepositoryIT {
         //given
         Farm farm = entityManager.find(Farm.class, 1);
         Integer maxIdForFarm = entityManager.getEntityManager()
-            .createQuery("SELECT MAX(l.id.id) FROM Landparcel l WHERE l.id.farmId = 1", Integer.class)
-            .getSingleResult();
+                .createQuery("SELECT MAX(l.id.id) FROM Landparcel l WHERE l.id.farmId = 1", Integer.class)
+                .getSingleResult();
         // When
         Integer nextFreeId = landparcelRepository.findNextFreeIdForFarm(farm.getId());
 
         // Then
-        assertThat(nextFreeId, is(maxIdForFarm + 1) );
+        assertThat(nextFreeId, is(maxIdForFarm + 1));
     }
 
     @Test
@@ -258,7 +254,7 @@ public class LandparcelRepositoryIT {
         Integer nextFreeId = landparcelRepository.findNextFreeIdForFarm(farm.getId());
 
         // Then
-        assertThat(nextFreeId, is(1)); 
+        assertThat(nextFreeId, is(1));
     }
-    
+
 }

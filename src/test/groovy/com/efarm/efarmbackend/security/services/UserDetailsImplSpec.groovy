@@ -1,11 +1,11 @@
 package com.efarm.efarmbackend.security.services
 
+import com.efarm.efarmbackend.model.user.ERole
 import com.efarm.efarmbackend.model.user.Role
 import com.efarm.efarmbackend.model.user.User
-import com.efarm.efarmbackend.model.user.ERole
-import spock.lang.Specification
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
+import spock.lang.Specification
 
 class UserDetailsImplSpec extends Specification {
 

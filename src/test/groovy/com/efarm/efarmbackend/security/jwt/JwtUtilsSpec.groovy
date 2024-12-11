@@ -1,10 +1,10 @@
-package com.efarm.efarmbackend.security.jwt;
+package com.efarm.efarmbackend.security.jwt
 
-import spock.lang.Specification
+import com.efarm.efarmbackend.security.services.UserDetailsImpl
 import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletRequest
-import com.efarm.efarmbackend.security.services.UserDetailsImpl
 import org.springframework.http.ResponseCookie
+import spock.lang.Specification
 
 class JwtUtilsSpec extends Specification {
 

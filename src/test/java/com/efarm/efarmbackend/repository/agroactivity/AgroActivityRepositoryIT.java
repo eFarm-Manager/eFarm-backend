@@ -1,24 +1,5 @@
 package com.efarm.efarmbackend.repository.agroactivity;
 
-import org.junit.jupiter.api.Test;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.everyItem;
-import static org.hamcrest.Matchers.hasProperty;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.notNullValue;
-
-import java.util.List;
-import java.util.Optional;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.test.context.ActiveProfiles;
-
 import com.efarm.efarmbackend.model.agriculturalrecords.AgriculturalRecord;
 import com.efarm.efarmbackend.model.agriculturalrecords.AgriculturalRecordId;
 import com.efarm.efarmbackend.model.agroactivity.ActivityCategory;
@@ -27,8 +8,19 @@ import com.efarm.efarmbackend.model.agroactivity.AgroActivityId;
 import com.efarm.efarmbackend.model.farm.ActivationCode;
 import com.efarm.efarmbackend.model.farm.Address;
 import com.efarm.efarmbackend.model.farm.Farm;
-
 import jakarta.transaction.Transactional;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.test.context.ActiveProfiles;
+
+import java.util.List;
+import java.util.Optional;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 @DataJpaTest
 @Transactional
@@ -44,7 +36,7 @@ public class AgroActivityRepositoryIT {
     @Test
     public void testFindByAgriculturalRecordById() {
         //given
-        AgriculturalRecord agriculturalRecord = entityManager.find(AgriculturalRecord.class, new AgriculturalRecordId(1,1));
+        AgriculturalRecord agriculturalRecord = entityManager.find(AgriculturalRecord.class, new AgriculturalRecordId(1, 1));
 
         //when
         List<AgroActivity> foundAgroActivity = agroActivityRepository.findByAgriculturalRecordId(agriculturalRecord.getId());
@@ -57,7 +49,7 @@ public class AgroActivityRepositoryIT {
     @Test
     public void testDoesntFindByAgriculturalRecordById() {
         //given
-        AgriculturalRecordId agriculturalRecordId = new AgriculturalRecordId(999,1);
+        AgriculturalRecordId agriculturalRecordId = new AgriculturalRecordId(999, 1);
 
         //when
         List<AgroActivity> foundAgroActivity = agroActivityRepository.findByAgriculturalRecordId(agriculturalRecordId);
@@ -69,7 +61,7 @@ public class AgroActivityRepositoryIT {
     @Test
     public void testFindByAgriculturalRecord() {
         //given
-        AgriculturalRecord agriculturalRecord = entityManager.find(AgriculturalRecord.class, new AgriculturalRecordId(1,1));
+        AgriculturalRecord agriculturalRecord = entityManager.find(AgriculturalRecord.class, new AgriculturalRecordId(1, 1));
 
         //when
         List<AgroActivity> foundAgroActivity = agroActivityRepository.findByAgriculturalRecord(agriculturalRecord);
@@ -82,7 +74,7 @@ public class AgroActivityRepositoryIT {
     @Test
     public void testDoesntFindByAgriculturalRecord() {
         //given
-        AgriculturalRecord agriculturalRecord = entityManager.find(AgriculturalRecord.class, new AgriculturalRecordId(999,1));
+        AgriculturalRecord agriculturalRecord = entityManager.find(AgriculturalRecord.class, new AgriculturalRecordId(999, 1));
 
         //when
         List<AgroActivity> foundAgroActivity = agroActivityRepository.findByAgriculturalRecord(agriculturalRecord);
@@ -95,9 +87,9 @@ public class AgroActivityRepositoryIT {
     public void testFindIncompleteActivitiesAssignedToUser() {
         //given
         List<AgroActivity> agroActivities = entityManager.getEntityManager().createQuery(
-            "SELECT a FROM AgroActivity a JOIN ActivityHasOperator o ON o.agroActivity = a WHERE o.user.id = :userId AND a.isCompleted = false", AgroActivity.class)
-            .setParameter("userId", 1)
-            .getResultList();
+                        "SELECT a FROM AgroActivity a JOIN ActivityHasOperator o ON o.agroActivity = a WHERE o.user.id = :userId AND a.isCompleted = false", AgroActivity.class)
+                .setParameter("userId", 1)
+                .getResultList();
 
         //when
         List<AgroActivity> foundAgroActivities = agroActivityRepository.findIncompleteActivitiesAssignedToUser(1);
@@ -111,7 +103,7 @@ public class AgroActivityRepositoryIT {
     @Test
     public void testFindWithDetailsById() {
         //given
-        AgroActivity agroActivity = entityManager.find(AgroActivity.class, new AgroActivityId(1,1));
+        AgroActivity agroActivity = entityManager.find(AgroActivity.class, new AgroActivityId(1, 1));
         AgriculturalRecord agriculturalRecord = agroActivity.getAgriculturalRecord();
         ActivityCategory activityCategory = agroActivity.getActivityCategory();
 
@@ -132,14 +124,14 @@ public class AgroActivityRepositoryIT {
         Farm farm = entityManager.find(Farm.class, 1);
 
         Integer maxId = entityManager.getEntityManager()
-        .createQuery("SELECT MAX(aa.id.id) FROM AgroActivity aa WHERE aa.id.farmId = 1", Integer.class)
-        .getSingleResult();
+                .createQuery("SELECT MAX(aa.id.id) FROM AgroActivity aa WHERE aa.id.farmId = 1", Integer.class)
+                .getSingleResult();
 
         //when
         Optional<Integer> maxIdFound = agroActivityRepository.findMaxIdForFarm(farm.getId());
 
         //then
-        assertThat(maxIdFound.get(),is(maxId));
+        assertThat(maxIdFound.get(), is(maxId));
     }
 
     @Test
@@ -161,7 +153,7 @@ public class AgroActivityRepositoryIT {
         Optional<Integer> maxIdFound = agroActivityRepository.findMaxIdForFarm(farm.getId());
 
         //then
-        assertThat(maxIdFound,is(Optional.empty()));
+        assertThat(maxIdFound, is(Optional.empty()));
     }
 
     @Test
@@ -170,14 +162,14 @@ public class AgroActivityRepositoryIT {
         Farm farm = entityManager.find(Farm.class, 1);
 
         Integer maxId = entityManager.getEntityManager()
-        .createQuery("SELECT MAX(aa.id.id) FROM AgroActivity aa WHERE aa.id.farmId = 1", Integer.class)
-        .getSingleResult();
+                .createQuery("SELECT MAX(aa.id.id) FROM AgroActivity aa WHERE aa.id.farmId = 1", Integer.class)
+                .getSingleResult();
 
         //when
         Integer maxIdFound = agroActivityRepository.findNextFreeIdForFarm(farm.getId());
 
         //then
-        assertThat(maxIdFound,is(maxId+1));
+        assertThat(maxIdFound, is(maxId + 1));
     }
 
     @Test
@@ -199,6 +191,6 @@ public class AgroActivityRepositoryIT {
         Integer maxIdFound = agroActivityRepository.findNextFreeIdForFarm(farm.getId());
 
         //then
-        assertThat(maxIdFound,is(1));
+        assertThat(maxIdFound, is(1));
     }
 }
