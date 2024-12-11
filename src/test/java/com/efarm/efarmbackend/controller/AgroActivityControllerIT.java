@@ -1,5 +1,16 @@
 package com.efarm.efarmbackend.controller;
 
+import com.efarm.efarmbackend.model.agroactivity.*;
+import com.efarm.efarmbackend.model.farm.Farm;
+import com.efarm.efarmbackend.model.user.Role;
+import com.efarm.efarmbackend.model.user.User;
+import com.efarm.efarmbackend.payload.request.agroactivity.NewAgroActivityRequest;
+import com.efarm.efarmbackend.security.services.UserDetailsImpl;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,49 +24,14 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import com.efarm.efarmbackend.model.agroactivity.ActivityCategory;
-import com.efarm.efarmbackend.model.agroactivity.AgroActivity;
-import com.efarm.efarmbackend.model.agroactivity.AgroActivityDetailDTO;
-import com.efarm.efarmbackend.model.agroactivity.AgroActivityId;
-import com.efarm.efarmbackend.model.agroactivity.AgroActivitySummaryDTO;
-import com.efarm.efarmbackend.model.agroactivity.ActivityHasOperator;
-import com.efarm.efarmbackend.model.farm.Farm;
-import com.efarm.efarmbackend.model.user.Role;
-import com.efarm.efarmbackend.model.user.User;
-import com.efarm.efarmbackend.payload.request.agroactivity.NewAgroActivityRequest;
-import com.efarm.efarmbackend.security.services.UserDetailsImpl;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
+import java.time.Instant;
 import java.util.Arrays;
-
 import java.util.List;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.transaction.Transactional;
-
-import java.time.Instant;
-
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.everyItem;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.everyItem;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.hasProperty;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.hamcrest.Matchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
@@ -63,7 +39,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("integrationtest")
 public class AgroActivityControllerIT {
-    
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -90,7 +66,7 @@ public class AgroActivityControllerIT {
     public void testAddAgroActivity() throws Exception {
         //given
         ActivityCategory activityCategory = entityManager.find(ActivityCategory.class, 1);
-        
+
         NewAgroActivityRequest request = new NewAgroActivityRequest();
         request.setActivityCategoryName(activityCategory.getName());
         request.setName("Nowy zabieg");
@@ -105,14 +81,14 @@ public class AgroActivityControllerIT {
 
         //when
         mockMvc.perform(post("/agro-activities/new")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(request)))
-        // then
-            .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.message").value("Pomyślnie dodano nowy zabieg agrotechniczny"));
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                // then
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.message").value("Pomyślnie dodano nowy zabieg agrotechniczny"));
 
-            AgroActivity agroActivity = entityManager.createQuery(
-        "SELECT a FROM AgroActivity a WHERE a.name = :name", AgroActivity.class)
+        AgroActivity agroActivity = entityManager.createQuery(
+                        "SELECT a FROM AgroActivity a WHERE a.name = :name", AgroActivity.class)
                 .setParameter("name", "Nowy zabieg")
                 .getSingleResult();
 
@@ -141,21 +117,21 @@ public class AgroActivityControllerIT {
         request.setAgriculturalRecordId(1);
         request.setOperatorIds(Arrays.asList(1));
         request.setEquipmentIds(Arrays.asList(1));
-    
+
         //when
         mockMvc.perform(post("/agro-activities/new")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(request)))
-        // then
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.message").value("Nie znaleziono kategorii zabiegu"));
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                // then
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Nie znaleziono kategorii zabiegu"));
     }
 
     @Test
     public void testAddAgroActivityWithNonExistentAgriculturalRecord() throws Exception {
         //given
         ActivityCategory activityCategory = entityManager.find(ActivityCategory.class, 1);
-        
+
         NewAgroActivityRequest request = new NewAgroActivityRequest();
         request.setActivityCategoryName(activityCategory.getName());
         request.setName("Nowy zabieg");
@@ -167,21 +143,21 @@ public class AgroActivityControllerIT {
         request.setAgriculturalRecordId(999); // Non-existent agricultural record ID
         request.setOperatorIds(Arrays.asList(1));
         request.setEquipmentIds(Arrays.asList(1));
-    
+
         //when
         mockMvc.perform(post("/agro-activities/new")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(request)))
-        // then
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.message").value("Nie znaleziono ewidencji"));
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                // then
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Nie znaleziono ewidencji"));
     }
 
     @Test
     public void testAddAgroActivityWithNonExistentOperator() throws Exception {
         //given
         ActivityCategory activityCategory = entityManager.find(ActivityCategory.class, 1);
-        
+
         NewAgroActivityRequest request = new NewAgroActivityRequest();
         request.setActivityCategoryName(activityCategory.getName());
         request.setName("Nowy zabieg");
@@ -193,21 +169,21 @@ public class AgroActivityControllerIT {
         request.setAgriculturalRecordId(1);
         request.setOperatorIds(Arrays.asList(999)); // Non-existent operator ID
         request.setEquipmentIds(Arrays.asList(1));
-    
+
         //when
         mockMvc.perform(post("/agro-activities/new")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(request)))
-        // then
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.message").value("Nie znaleziono użytkownika o ID: 999"));
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                // then
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Nie znaleziono użytkownika o ID: 999"));
     }
 
     @Test
     public void testAddAgroActivityWithNonExistentEquipment() throws Exception {
         //given
         ActivityCategory activityCategory = entityManager.find(ActivityCategory.class, 1);
-        
+
         NewAgroActivityRequest request = new NewAgroActivityRequest();
         request.setActivityCategoryName(activityCategory.getName());
         request.setName("Nowy zabieg");
@@ -217,23 +193,23 @@ public class AgroActivityControllerIT {
         request.setAppliedDose("");
         request.setDescription("");
         request.setAgriculturalRecordId(1);
-        request.setOperatorIds(Arrays.asList(1)); 
+        request.setOperatorIds(Arrays.asList(1));
         request.setEquipmentIds(Arrays.asList(999)); // Non-existent equipment ID
-    
+
         //when
         mockMvc.perform(post("/agro-activities/new")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(request)))
-        // then
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.message").value("Sprzęty o następujących identyfikatorach nie istnieją: [999]"));
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                // then
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Sprzęty o następujących identyfikatorach nie istnieją: [999]"));
     }
 
     @Test
     public void testAddAgroActivityWithOperatorThatDoesntBelongInCurrentFarm() throws Exception {
         //given
         ActivityCategory activityCategory = entityManager.find(ActivityCategory.class, 1);
-        
+
         NewAgroActivityRequest request = new NewAgroActivityRequest();
         request.setActivityCategoryName(activityCategory.getName());
         request.setName("Nowy zabieg");
@@ -245,14 +221,14 @@ public class AgroActivityControllerIT {
         request.setAgriculturalRecordId(1);
         request.setOperatorIds(Arrays.asList(2)); // Operator from different farm
         request.setEquipmentIds(Arrays.asList(1));
-    
+
         //when
         mockMvc.perform(post("/agro-activities/new")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(request)))
-        // then
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.message").value("Użytkownik o ID: 2 nie należy do tej farmy"));
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                // then
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Użytkownik o ID: 2 nie należy do tej farmy"));
     }
 
     @Test
@@ -260,12 +236,12 @@ public class AgroActivityControllerIT {
         //given
         User inactivUser = new User("fisrtName", "lastName", "testInactiveUser", "email@gmai.com", "pass123", "");
         inactivUser.setIsActive(false);
-        inactivUser.setFarm(entityManager.find(Farm.class,1));
+        inactivUser.setFarm(entityManager.find(Farm.class, 1));
         inactivUser.setRole(entityManager.find(Role.class, 1));
         entityManager.persist(inactivUser);
 
         ActivityCategory activityCategory = entityManager.find(ActivityCategory.class, 1);
-        
+
         NewAgroActivityRequest request = new NewAgroActivityRequest();
         request.setActivityCategoryName(activityCategory.getName());
         request.setName("Nowy zabieg");
@@ -277,14 +253,14 @@ public class AgroActivityControllerIT {
         request.setAgriculturalRecordId(1);
         request.setOperatorIds(Arrays.asList(inactivUser.getId())); // Inactive operator
         request.setEquipmentIds(Arrays.asList(1));
-    
+
         //when
         mockMvc.perform(post("/agro-activities/new")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(request)))
-        // then
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.message").value("Użytkownik fisrtName lastName jest niedostępny"));
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                // then
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Użytkownik fisrtName lastName jest niedostępny"));
     }
 
     /*
@@ -294,27 +270,28 @@ public class AgroActivityControllerIT {
     @Test
     public void testGetAgroActivitiesByRecord() throws Exception {
         //given
-        AgroActivity agroActivity = entityManager.find(AgroActivity.class, new AgroActivityId(1,1));
+        AgroActivity agroActivity = entityManager.find(AgroActivity.class, new AgroActivityId(1, 1));
         Integer agriculturalRecordId = agroActivity.getAgriculturalRecord().getId().getId();
 
         //when
         MvcResult result = mockMvc.perform(get("/agro-activities/{id}", agriculturalRecordId)
-            .contentType(MediaType.APPLICATION_JSON))
-        // then
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andReturn();
-            String jsonResponse = result.getResponse().getContentAsString();
-            List<AgroActivitySummaryDTO> agroActivities = objectMapper.readValue(jsonResponse, new TypeReference<List<AgroActivitySummaryDTO>>() {});
+                        .contentType(MediaType.APPLICATION_JSON))
+                // then
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+        String jsonResponse = result.getResponse().getContentAsString();
+        List<AgroActivitySummaryDTO> agroActivities = objectMapper.readValue(jsonResponse, new TypeReference<List<AgroActivitySummaryDTO>>() {
+        });
 
-            assertThat(agroActivities, is(not(empty())));
-            assertThat(agroActivities.size(), is(greaterThan(0)));
+        assertThat(agroActivities, is(not(empty())));
+        assertThat(agroActivities.size(), is(greaterThan(0)));
 
-            AgroActivitySummaryDTO firstActivity = agroActivities.get(0);
-            assertThat(firstActivity.getName(), is(notNullValue()));
-            assertThat(firstActivity.getDate(), is(notNullValue()));
-            assertThat(firstActivity.getIsCompleted(), is(notNullValue()));
-            assertThat(firstActivity.getCategoryName(), is(notNullValue()));
+        AgroActivitySummaryDTO firstActivity = agroActivities.get(0);
+        assertThat(firstActivity.getName(), is(notNullValue()));
+        assertThat(firstActivity.getDate(), is(notNullValue()));
+        assertThat(firstActivity.getIsCompleted(), is(notNullValue()));
+        assertThat(firstActivity.getCategoryName(), is(notNullValue()));
     }
 
     @Test
@@ -324,10 +301,10 @@ public class AgroActivityControllerIT {
 
         //when
         mockMvc.perform(get("/agro-activities/{id}", nonExistentRecordId)
-            .contentType(MediaType.APPLICATION_JSON))
-        // then
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.message").value("Nie znaleziono ewidencji"));
+                        .contentType(MediaType.APPLICATION_JSON))
+                // then
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Nie znaleziono ewidencji"));
     }
 
     /*
@@ -337,20 +314,20 @@ public class AgroActivityControllerIT {
     @Test
     public void testGetAgroActivityDetails() throws Exception {
         //given
-        AgroActivity agroActivity = entityManager.find(AgroActivity.class, new AgroActivityId(1,1));
+        AgroActivity agroActivity = entityManager.find(AgroActivity.class, new AgroActivityId(1, 1));
 
         //when
         MvcResult result = mockMvc.perform(get("/agro-activities/details/{id}", agroActivity.getId().getId())
-            .contentType(MediaType.APPLICATION_JSON))
-        // then
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andReturn();
-        
+                        .contentType(MediaType.APPLICATION_JSON))
+                // then
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+
 
         String jsonResponse = result.getResponse().getContentAsString();
         AgroActivityDetailDTO agroActivityDetail = objectMapper.readValue(jsonResponse, AgroActivityDetailDTO.class);
-        
+
         assertThat(agroActivityDetail.getId(), is(agroActivity.getId().getId()));
         assertThat(agroActivityDetail.getName(), is(agroActivity.getName()));
         assertThat(agroActivityDetail.getDate(), is(agroActivity.getDate()));
@@ -372,10 +349,10 @@ public class AgroActivityControllerIT {
 
         //when
         mockMvc.perform(get("/agro-activities/details/{id}", nonExistentActivityId)
-            .contentType(MediaType.APPLICATION_JSON))
-        // then
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.message").value("Nie znaleziono zabiegu agrotechnicznego"));
+                        .contentType(MediaType.APPLICATION_JSON))
+                // then
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Nie znaleziono zabiegu agrotechnicznego"));
     }
 
     /*
@@ -385,9 +362,9 @@ public class AgroActivityControllerIT {
     @Test
     public void testUpdateAgroActivity() throws Exception {
         //given
-        AgroActivity agroActivity = entityManager.find(AgroActivity.class, new AgroActivityId(1,1));
+        AgroActivity agroActivity = entityManager.find(AgroActivity.class, new AgroActivityId(1, 1));
         ActivityCategory activityCategory = entityManager.find(ActivityCategory.class, 1);
-        
+
         NewAgroActivityRequest request = new NewAgroActivityRequest();
         request.setActivityCategoryName(activityCategory.getName());
         request.setName("Zaktualizowany zabieg");
@@ -401,13 +378,13 @@ public class AgroActivityControllerIT {
 
         //when
         mockMvc.perform(put("/agro-activities/{id}", agroActivity.getId().getId())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(request)))
-        // then
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.message").value("Pomyślnie zaktualizowano zabieg agrotechniczny"));
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                // then
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Pomyślnie zaktualizowano zabieg agrotechniczny"));
 
-        AgroActivity updatedAgroActivity = entityManager.find(AgroActivity.class, new AgroActivityId(1,1));
+        AgroActivity updatedAgroActivity = entityManager.find(AgroActivity.class, new AgroActivityId(1, 1));
         assertThat(updatedAgroActivity.getName(), is("Zaktualizowany zabieg"));
         assertThat(updatedAgroActivity.getActivityCategory().getName(), is(activityCategory.getName()));
         assertThat(updatedAgroActivity.getDate(), is(request.getDate()));
@@ -418,7 +395,7 @@ public class AgroActivityControllerIT {
         //given
         Integer nonExistentActivityId = 999;
         ActivityCategory activityCategory = entityManager.find(ActivityCategory.class, 1);
-        
+
         NewAgroActivityRequest request = new NewAgroActivityRequest();
         request.setActivityCategoryName(activityCategory.getName());
         request.setName("Zaktualizowany zabieg");
@@ -432,9 +409,9 @@ public class AgroActivityControllerIT {
 
         //when
         mockMvc.perform(put("/agro-activities/{id}", nonExistentActivityId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-        //then
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                //then
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Nie znaleziono zabiegu agrotechnicznego"));
     }
@@ -442,8 +419,8 @@ public class AgroActivityControllerIT {
     @Test
     public void testUpdateAgroActivityWithNonExistentCategory() throws Exception {
         //given
-        AgroActivity agroActivity = entityManager.find(AgroActivity.class, new AgroActivityId(1,1));
-        
+        AgroActivity agroActivity = entityManager.find(AgroActivity.class, new AgroActivityId(1, 1));
+
         NewAgroActivityRequest request = new NewAgroActivityRequest();
         request.setActivityCategoryName("NonExistentCategory");
         request.setName("Zaktualizowany zabieg");
@@ -457,11 +434,11 @@ public class AgroActivityControllerIT {
 
         //when
         mockMvc.perform(put("/agro-activities/{id}", agroActivity.getId().getId())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(request)))
-        // then
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.message").value("Nie znaleziono kategorii zabiegu"));
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                // then
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Nie znaleziono kategorii zabiegu"));
     }
 
     /*
@@ -471,16 +448,16 @@ public class AgroActivityControllerIT {
     @Test
     public void testDeleteAgroActivity() throws Exception {
         //given
-        AgroActivity agroActivity = entityManager.find(AgroActivity.class, new AgroActivityId(1,1));
+        AgroActivity agroActivity = entityManager.find(AgroActivity.class, new AgroActivityId(1, 1));
 
         //when
         mockMvc.perform(delete("/agro-activities/{id}", agroActivity.getId().getId())
-            .contentType(MediaType.APPLICATION_JSON))
-        // then
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.message").value("Pomyślnie usunięto zabieg agrotechniczny"));
+                        .contentType(MediaType.APPLICATION_JSON))
+                // then
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Pomyślnie usunięto zabieg agrotechniczny"));
 
-        AgroActivity deletedAgroActivity = entityManager.find(AgroActivity.class, new AgroActivityId(1,1));
+        AgroActivity deletedAgroActivity = entityManager.find(AgroActivity.class, new AgroActivityId(1, 1));
         assertThat(deletedAgroActivity, is(nullValue()));
     }
 
@@ -491,10 +468,10 @@ public class AgroActivityControllerIT {
 
         //when
         mockMvc.perform(delete("/agro-activities/{id}", nonExistentActivityId)
-            .contentType(MediaType.APPLICATION_JSON))
-        // then
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.message").value("Nie znaleziono zabiegu agrotechnicznego o ID: 999"));
+                        .contentType(MediaType.APPLICATION_JSON))
+                // then
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Nie znaleziono zabiegu agrotechnicznego o ID: 999"));
     }
 
     /*
@@ -505,14 +482,15 @@ public class AgroActivityControllerIT {
     public void testGetAssignedIncompleteAgroActivitiesList() throws Exception {
         //when
         MvcResult result = mockMvc.perform(get("/agro-activities/assigned")
-            .contentType(MediaType.APPLICATION_JSON))
-        // then
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andReturn();
+                        .contentType(MediaType.APPLICATION_JSON))
+                // then
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
 
         String jsonResponse = result.getResponse().getContentAsString();
-        List<AgroActivitySummaryDTO> agroActivities = objectMapper.readValue(jsonResponse, new TypeReference<List<AgroActivitySummaryDTO>>() {});
+        List<AgroActivitySummaryDTO> agroActivities = objectMapper.readValue(jsonResponse, new TypeReference<List<AgroActivitySummaryDTO>>() {
+        });
         assertThat(agroActivities, is(not(empty())));
         assertThat(agroActivities.size(), is(greaterThan(0)));
         assertThat(agroActivities, everyItem(hasProperty("isCompleted", is(false))));
@@ -527,18 +505,18 @@ public class AgroActivityControllerIT {
         //given
         Integer farmId = 1, userId = 1;
         AgroActivity incompleteActivity = entityManager.createQuery(
-            "select aa from AgroActivity aa join ActivityHasOperator aho on aa.id = aho.agroActivity.id where aa.id.farmId = :farmId and aa.isCompleted = false and aho.user.id = :userId", AgroActivity.class)
-            .setParameter("farmId", farmId)
-            .setParameter("userId", userId)
-            .setMaxResults(1)
-            .getSingleResult();
+                        "select aa from AgroActivity aa join ActivityHasOperator aho on aa.id = aho.agroActivity.id where aa.id.farmId = :farmId and aa.isCompleted = false and aho.user.id = :userId", AgroActivity.class)
+                .setParameter("farmId", farmId)
+                .setParameter("userId", userId)
+                .setMaxResults(1)
+                .getSingleResult();
 
         //when
         mockMvc.perform(patch("/agro-activities/complete/" + incompleteActivity.getId().getId())
-            .contentType(MediaType.APPLICATION_JSON))
-        // then
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.message").value("Zadanie zostało oznaczone jako zakończone"));
+                        .contentType(MediaType.APPLICATION_JSON))
+                // then
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Zadanie zostało oznaczone jako zakończone"));
 
         AgroActivity completedActivity = entityManager.find(AgroActivity.class, new AgroActivityId(incompleteActivity.getId().getId(), farmId));
 
@@ -552,10 +530,10 @@ public class AgroActivityControllerIT {
 
         //when
         mockMvc.perform(patch("/agro-activities/complete/" + nonExistentActivityId)
-            .contentType(MediaType.APPLICATION_JSON))
-        // then
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.message").value("Nie znaleziono zadania"));
+                        .contentType(MediaType.APPLICATION_JSON))
+                // then
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Nie znaleziono zadania"));
     }
 
     @Test
@@ -563,10 +541,10 @@ public class AgroActivityControllerIT {
         //given
         Integer farmId = 1;
         User user = entityManager.createQuery("select u from User u where u.farm.id = :farmId and u.id != 1", User.class)
-            .setParameter("farmId", farmId)
-            .setMaxResults(1)
-            .getSingleResult();
-        
+                .setParameter("farmId", farmId)
+                .setMaxResults(1)
+                .getSingleResult();
+
         AgroActivity incompleteActivity = new AgroActivity();
         incompleteActivity.setId(new AgroActivityId(999, farmId));
         incompleteActivity.setFarm(entityManager.find(Farm.class, farmId));
@@ -576,7 +554,7 @@ public class AgroActivityControllerIT {
         incompleteActivity.setActivityCategory(entityManager.find(ActivityCategory.class, 1));
         incompleteActivity.setAgriculturalRecord(entityManager.find(AgroActivity.class, new AgroActivityId(1, farmId)).getAgriculturalRecord());
         entityManager.persist(incompleteActivity);
-    
+
         // Create an ActivityHasOperator to link the activity to the new user
         ActivityHasOperator activityHasOperator = new ActivityHasOperator();
         activityHasOperator.setAgroActivity(incompleteActivity);
@@ -588,10 +566,10 @@ public class AgroActivityControllerIT {
 
         //when
         mockMvc.perform(patch("/agro-activities/complete/" + incompleteActivity.getId().getId())
-            .contentType(MediaType.APPLICATION_JSON))
-        // then
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.message").value("Nie masz dostępu do tego zadania"));
+                        .contentType(MediaType.APPLICATION_JSON))
+                // then
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Nie masz dostępu do tego zadania"));
     }
 
     @Test
@@ -600,18 +578,18 @@ public class AgroActivityControllerIT {
         Integer farmId = 1;
         Integer userId = 1;
         AgroActivity completedActivity = entityManager.createQuery(
-            "select aa from AgroActivity aa join ActivityHasOperator aho on aa.id = aho.agroActivity.id where aa.id.farmId = :farmId and aa.isCompleted = true and aho.user.id = :userId", AgroActivity.class)
-            .setParameter("farmId", farmId)
-            .setParameter("userId", userId)
-            .setMaxResults(1)
-            .getSingleResult();
+                        "select aa from AgroActivity aa join ActivityHasOperator aho on aa.id = aho.agroActivity.id where aa.id.farmId = :farmId and aa.isCompleted = true and aho.user.id = :userId", AgroActivity.class)
+                .setParameter("farmId", farmId)
+                .setParameter("userId", userId)
+                .setMaxResults(1)
+                .getSingleResult();
 
         //when
         mockMvc.perform(patch("/agro-activities/complete/" + completedActivity.getId().getId())
-            .contentType(MediaType.APPLICATION_JSON))
-        // then
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.message").value("Nie masz dostępu do tego zadania"));
+                        .contentType(MediaType.APPLICATION_JSON))
+                // then
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Nie masz dostępu do tego zadania"));
     }
 
     /*
@@ -622,19 +600,20 @@ public class AgroActivityControllerIT {
     public void testGetAvailableCategories() throws Exception {
         //given
         Integer expectedCategoriesCount = entityManager.createQuery(
-            "SELECT COUNT(c) FROM ActivityCategory c", Long.class)
-            .getSingleResult()
-            .intValue();
+                        "SELECT COUNT(c) FROM ActivityCategory c", Long.class)
+                .getSingleResult()
+                .intValue();
         //when
         MvcResult result = mockMvc.perform(get("/agro-activities/available-category")
-            .contentType(MediaType.APPLICATION_JSON))
-        // then
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andReturn();
+                        .contentType(MediaType.APPLICATION_JSON))
+                // then
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
 
         String jsonResponse = result.getResponse().getContentAsString();
-        List<String> categoriesList = objectMapper.readValue(jsonResponse, new TypeReference<List<String>>() {});
+        List<String> categoriesList = objectMapper.readValue(jsonResponse, new TypeReference<List<String>>() {
+        });
 
         assertThat(categoriesList.size(), is(expectedCategoriesCount));
     }

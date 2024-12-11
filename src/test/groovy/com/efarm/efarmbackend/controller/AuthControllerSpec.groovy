@@ -1,35 +1,35 @@
 package com.efarm.efarmbackend.controller
 
+import com.efarm.efarmbackend.exception.UnauthorizedException
 import com.efarm.efarmbackend.model.farm.ActivationCode
 import com.efarm.efarmbackend.model.farm.Farm
-import com.efarm.efarmbackend.model.user.Role
 import com.efarm.efarmbackend.model.user.ERole
+import com.efarm.efarmbackend.model.user.Role
 import com.efarm.efarmbackend.model.user.User
 import com.efarm.efarmbackend.payload.request.auth.LoginRequest
 import com.efarm.efarmbackend.security.jwt.JwtUtils
 import com.efarm.efarmbackend.security.services.UserDetailsImpl
+import com.efarm.efarmbackend.service.ValidationRequestService
 import com.efarm.efarmbackend.service.auth.AuthFacade
-import com.efarm.efarmbackend.service.farm.ActivationCodeService
-import org.springframework.security.core.authority.SimpleGrantedAuthority
 import com.efarm.efarmbackend.service.auth.AuthService
+import com.efarm.efarmbackend.service.farm.ActivationCodeService
 import com.efarm.efarmbackend.service.farm.FarmService
 import com.efarm.efarmbackend.service.user.UserService
-import com.efarm.efarmbackend.service.ValidationRequestService
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseCookie
 import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
-import org.springframework.http.ResponseCookie
 import org.springframework.security.core.Authentication
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.validation.BindingResult
 import spock.lang.Specification
 import spock.lang.Subject
-import java.time.LocalDate
+
 import java.nio.file.AccessDeniedException
-import com.efarm.efarmbackend.exception.UnauthorizedException
-import com.efarm.efarmbackend.payload.request.auth.*
 import java.time.Duration
+import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
 class AuthControllerSpec extends Specification {
@@ -86,7 +86,7 @@ class AuthControllerSpec extends Specification {
         user.getRole() >> role
         List<String> roles = ['ROLE_FARM_OWNER']
 
-        validationRequestService.validateRequest(bindingResult) >> { }
+        validationRequestService.validateRequest(bindingResult) >> {}
         authService.authenticateUserByLoginRequest(loginRequest) >> userDetails
         Authentication auth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities())
         SecurityContextHolder.getContext().setAuthentication(auth)
@@ -135,7 +135,7 @@ class AuthControllerSpec extends Specification {
         BindingResult bindingResult = Mock(BindingResult)
         bindingResult.hasErrors() >> false
 
-        validationRequestService.validateRequest(bindingResult) >> { }
+        validationRequestService.validateRequest(bindingResult) >> {}
         authService.authenticateUserByLoginRequest(loginRequest) >> userDetails
         userService.getLoggedUserRoles(userDetails) >> roles
         userService.getActiveUserById(userDetails) >> { throw new RuntimeException('Użytkownik jest nieaktywny!') }
@@ -154,7 +154,7 @@ class AuthControllerSpec extends Specification {
         BindingResult bindingResult = Mock(BindingResult)
         bindingResult.hasErrors() >> false
 
-        validationRequestService.validateRequest(bindingResult) >> { }
+        validationRequestService.validateRequest(bindingResult) >> {}
         authService.authenticateUserByLoginRequest(loginRequest) >> { throw new UnauthorizedException('Nieprawidłowe dane logowania') }
 
         when:
@@ -187,7 +187,7 @@ class AuthControllerSpec extends Specification {
         List<String> roles = ['ROLE_FARM_MANAGER']
         BindingResult bindingResult = Mock(BindingResult)
         bindingResult.hasErrors() >> false
-        validationRequestService.validateRequest(bindingResult) >> { }
+        validationRequestService.validateRequest(bindingResult) >> {}
         authService.authenticateUserByLoginRequest(loginRequest) >> userDetails
         userService.getLoggedUserRoles(userDetails) >> roles
         userService.getActiveUserById(userDetails) >> Optional.of(user)
@@ -231,7 +231,7 @@ class AuthControllerSpec extends Specification {
         ActivationCode activationCode = Mock(ActivationCode)
         activationCode.getExpireDate() >> LocalDate.now().plusDays(5)
 
-        validationRequestService.validateRequest(bindingResult) >> { }
+        validationRequestService.validateRequest(bindingResult) >> {}
         authService.authenticateUserByLoginRequest(loginRequest) >> userDetails
         userService.getLoggedUserRoles(userDetails) >> roles
         userService.getActiveUserById(userDetails) >> Optional.of(user)

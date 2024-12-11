@@ -1,20 +1,17 @@
 package com.efarm.efarmbackend.service
 
 import com.efarm.efarmbackend.model.farm.Farm
-import com.efarm.efarmbackend.model.user.ERole
-import com.efarm.efarmbackend.model.user.Role
-import com.efarm.efarmbackend.model.user.User
+import com.efarm.efarmbackend.model.user.*
 import com.efarm.efarmbackend.payload.request.auth.SignupFarmRequest
 import com.efarm.efarmbackend.payload.request.auth.SignupUserRequest
-import com.efarm.efarmbackend.payload.request.user.UpdateUserRequest;
-import com.efarm.efarmbackend.payload.request.user.ChangeUserPasswordRequest;
-import com.efarm.efarmbackend.model.user.*;
+import com.efarm.efarmbackend.payload.request.user.ChangeUserPasswordRequest
+import com.efarm.efarmbackend.payload.request.user.UpdateUserRequest
 import com.efarm.efarmbackend.repository.user.RoleRepository
 import com.efarm.efarmbackend.repository.user.UserRepository
 import com.efarm.efarmbackend.security.services.UserDetailsImpl
 import com.efarm.efarmbackend.service.user.UserService
-import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.Authentication
+import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.crypto.password.PasswordEncoder
 import spock.lang.Specification
@@ -591,7 +588,7 @@ class UserServiceSpec extends Specification {
         1 * userRepository.save(_ as User)
     }
 
-        def "should throw runtime exception when user doesnt exist during toggle"() {
+    def "should throw runtime exception when user doesnt exist during toggle"() {
         given:
         UpdateUserRequest request = new UpdateUserRequest(
                 firstName: 'John',
@@ -627,7 +624,6 @@ class UserServiceSpec extends Specification {
         RuntimeException ex = thrown()
         ex.message == 'Wybrany użytkownik nie istnieje'
     }
-
 
 
     def "should not allow logged in user to toggle status of other user"() {
@@ -990,7 +986,7 @@ class UserServiceSpec extends Specification {
         user3.getFarm() >> farm2
         user3.getIsActive() >> true
 
-        userRepository.findByFarmIdAndIsActive(farm1.getId(),true) >> [user1]
+        userRepository.findByFarmIdAndIsActive(farm1.getId(), true) >> [user1]
 
         when:
         List<User> usersInFarm1 = userService.getActiveUsersByFarmId(farm1.getId())

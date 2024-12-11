@@ -49,7 +49,7 @@ public class JwtUtils {
                 .maxAge(jwtExpirationMs / 1000)
                 .httpOnly(true)
                 .secure(true)
-                .sameSite("None")
+                .sameSite("Strict")
                 .build();
     }
 
@@ -57,7 +57,7 @@ public class JwtUtils {
         return ResponseCookie.from(jwtCookie, "")
                 .path("/api")
                 .secure(true)
-                .sameSite("None")
+                .sameSite("Strict")
                 .build();
     }
 

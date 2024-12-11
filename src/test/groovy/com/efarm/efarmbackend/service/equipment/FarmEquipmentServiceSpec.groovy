@@ -1,15 +1,16 @@
 package com.efarm.efarmbackend.service
 
-import com.efarm.efarmbackend.model.farm.Farm;
+import com.efarm.efarmbackend.model.equipment.EquipmentCategory
 import com.efarm.efarmbackend.model.equipment.FarmEquipment
 import com.efarm.efarmbackend.model.equipment.FarmEquipmentId
-import com.efarm.efarmbackend.model.equipment.EquipmentCategory
+import com.efarm.efarmbackend.model.farm.Farm
 import com.efarm.efarmbackend.payload.request.equipment.AddUpdateFarmEquipmentRequest
-import com.efarm.efarmbackend.repository.equipment.FarmEquipmentRepository;
-import com.efarm.efarmbackend.service.equipment.FarmEquipmentService
+import com.efarm.efarmbackend.repository.equipment.FarmEquipmentRepository
 import com.efarm.efarmbackend.service.equipment.EquipmentDisplayDataService
+import com.efarm.efarmbackend.service.equipment.FarmEquipmentService
 import spock.lang.Specification
 import spock.lang.Subject
+
 import java.time.LocalDate
 
 class FarmEquipmentServiceSpec extends Specification {
@@ -19,8 +20,8 @@ class FarmEquipmentServiceSpec extends Specification {
 
     @Subject
     FarmEquipmentService farmEquipmentService = new FarmEquipmentService(
-        equipmentDisplayDataService,
-        farmEquipmentRepository
+            equipmentDisplayDataService,
+            farmEquipmentRepository
     )
 
     FarmEquipment equipment = Mock(FarmEquipment)
@@ -184,10 +185,10 @@ class FarmEquipmentServiceSpec extends Specification {
         }
 
         FarmEquipment farmEquipment1 = Mock(FarmEquipment) {
-            getId() >> new FarmEquipmentId(1,farm.getId())
+            getId() >> new FarmEquipmentId(1, farm.getId())
         }
         FarmEquipment farmEquipment2 = Mock(FarmEquipment) {
-            getId() >> new FarmEquipmentId(2,farm.getId())
+            getId() >> new FarmEquipmentId(2, farm.getId())
         }
 
         farmEquipmentRepository.findByFarmIdFarm_Id(farm.getId()) >> [farmEquipment1, farmEquipment2]

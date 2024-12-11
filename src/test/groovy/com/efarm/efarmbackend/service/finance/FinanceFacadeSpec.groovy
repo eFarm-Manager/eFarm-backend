@@ -1,39 +1,32 @@
 package com.efarm.efarmbackend.service.finance
 
-import com.efarm.efarmbackend.model.farm.Farm;
-import com.efarm.efarmbackend.model.finance.*;
-import com.efarm.efarmbackend.payload.request.finance.NewTransactionRequest;
-import com.efarm.efarmbackend.payload.request.finance.UpdateTransactionRequest;
-import com.efarm.efarmbackend.payload.response.BalanceResponse;
-import com.efarm.efarmbackend.repository.finance.TransactionRepository;
-import com.efarm.efarmbackend.service.user.UserService;
-import jakarta.transaction.Transactional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.stream.Collectors;
+import com.efarm.efarmbackend.model.farm.Farm
+import com.efarm.efarmbackend.model.finance.*
+import com.efarm.efarmbackend.payload.request.finance.NewTransactionRequest
+import com.efarm.efarmbackend.payload.request.finance.UpdateTransactionRequest
+import com.efarm.efarmbackend.payload.response.BalanceResponse
+import com.efarm.efarmbackend.repository.finance.TransactionRepository
+import com.efarm.efarmbackend.service.user.UserService
 import spock.lang.Specification
 import spock.lang.Subject
+
+import java.time.LocalDate
 
 class FinanceFacadeSpec extends Specification {
 
     def financeService = Mock(FinanceService)
     def transactionRepository = Mock(TransactionRepository)
     def userService = Mock(UserService)
-	
+
     @Subject
     FinanceFacade financeFacade = new FinanceFacade(
-        financeService,
-        transactionRepository,
-        userService
+            financeService,
+            transactionRepository,
+            userService
     )
-	/*
-	* The test below is a unit test for the addNewTransaction method in the FinanceFacade class.
-	*/
+    /*
+    * The test below is a unit test for the addNewTransaction method in the FinanceFacade class.
+    */
 
     def "should add new transaction"() {
         given:
@@ -44,7 +37,7 @@ class FinanceFacadeSpec extends Specification {
 
         userService.getLoggedUserFarm() >> loggedUserFarm
         transactionRepository.findNextFreeIdForFarm(loggedUserFarm.getId()) >> 1
-        financeService.checkTransactionAlreadyExistsByName(loggedUserFarm, newTransactionRequest.getTransactionName()) >>{ } 
+        financeService.checkTransactionAlreadyExistsByName(loggedUserFarm, newTransactionRequest.getTransactionName()) >> {}
         financeService.addNewTransactionData(transactionId, loggedUserFarm, newTransactionRequest) >> transaction
 
         when:
@@ -60,7 +53,7 @@ class FinanceFacadeSpec extends Specification {
         Farm loggedUserFarm = new Farm(id: 1)
 
         userService.getLoggedUserFarm() >> loggedUserFarm
-        financeService.checkTransactionAlreadyExistsByName(loggedUserFarm, newTransactionRequest.getTransactionName()) >> { throw new Exception() }	
+        financeService.checkTransactionAlreadyExistsByName(loggedUserFarm, newTransactionRequest.getTransactionName()) >> { throw new Exception() }
 
         when:
         financeFacade.addNewTransaction(newTransactionRequest)
@@ -70,9 +63,10 @@ class FinanceFacadeSpec extends Specification {
         0 * transactionRepository.save(_)
     }
 
-	/*
-	* The test below is a unit test for the updateTransaction method in the FinanceFacade class. 
-	*/
+    /*
+    * The test below is a unit test for the updateTransaction method in the FinanceFacade class.
+    */
+
     def "should update transaction"() {
         given:
         Integer id = 1
@@ -82,8 +76,8 @@ class FinanceFacadeSpec extends Specification {
         Transaction transaction = new Transaction(id: transactionId)
         userService.getLoggedUserFarm() >> loggedUserFarm
         transactionRepository.findById(transactionId) >> Optional.of(transaction)
-        financeService.checkTransactionAlreadyExistsByName(loggedUserFarm, updateTransactionRequest.getTransactionName()) >> { }
-        financeService.updateTransactionProperties(transaction, updateTransactionRequest) >> { }
+        financeService.checkTransactionAlreadyExistsByName(loggedUserFarm, updateTransactionRequest.getTransactionName()) >> {}
+        financeService.updateTransactionProperties(transaction, updateTransactionRequest) >> {}
 
         when:
         financeFacade.updateTransaction(id, updateTransactionRequest)
@@ -127,9 +121,9 @@ class FinanceFacadeSpec extends Specification {
         thrown(Exception)
         0 * transactionRepository.save(_)
     }
-	/*
-	* The test below is a unit test for the deleteTransaction method in the FinanceFacade class.
-	*/
+    /*
+    * The test below is a unit test for the deleteTransaction method in the FinanceFacade class.
+    */
 
     def "should delete transaction"() {
         given:
@@ -162,9 +156,9 @@ class FinanceFacadeSpec extends Specification {
         thrown(RuntimeException)
         0 * transactionRepository.delete(_)
     }
-	/*
-	* The test below is a unit test for the getTransactions method in the FinanceFacade class.
-	*/
+    /*
+    * The test below is a unit test for the getTransactions method in the FinanceFacade class.
+    */
 
     def "should get transactions successfully"() {
         given:
@@ -192,68 +186,68 @@ class FinanceFacadeSpec extends Specification {
         then:
         result.size() == 1
         result[0].id == transaction.id.id
-	result[0].amount == transaction.amount
-	result[0].transactionName == transaction.transactionName
-	result[0].financialCategory == transaction.financialCategory.name.toString()
-	result[0].paymentStatus == transaction.paymentStatus.name.toString()
-	result[0].transactionDate == transaction.transactionDate
+        result[0].amount == transaction.amount
+        result[0].transactionName == transaction.transactionName
+        result[0].financialCategory == transaction.financialCategory.name.toString()
+        result[0].paymentStatus == transaction.paymentStatus.name.toString()
+        result[0].transactionDate == transaction.transactionDate
     }
 
-	def "should return empty list when no transactions match criteria"() {
-    given:
-    String searchQuery = "nonexistent"
-    LocalDate minDate = LocalDate.of(2024, 1, 1)
-    LocalDate maxDate = LocalDate.of(2025, 12, 31)
-    String financialCategoryString = "EXPENSE"
-    String paymentStatusString = "PAID"
-    Double minAmount = 100.0
-    Double maxAmount = 1000.0
-    Farm loggedUserFarm = new Farm(id: 1)
-    FinancialCategory financialCategory = new FinancialCategory(name: EFinancialCategory.EXPENSE)
-    PaymentStatus paymentStatus = new PaymentStatus(name: EPaymentStatus.PAID)
+    def "should return empty list when no transactions match criteria"() {
+        given:
+        String searchQuery = "nonexistent"
+        LocalDate minDate = LocalDate.of(2024, 1, 1)
+        LocalDate maxDate = LocalDate.of(2025, 12, 31)
+        String financialCategoryString = "EXPENSE"
+        String paymentStatusString = "PAID"
+        Double minAmount = 100.0
+        Double maxAmount = 1000.0
+        Farm loggedUserFarm = new Farm(id: 1)
+        FinancialCategory financialCategory = new FinancialCategory(name: EFinancialCategory.EXPENSE)
+        PaymentStatus paymentStatus = new PaymentStatus(name: EPaymentStatus.PAID)
 
-    userService.getLoggedUserFarm() >> loggedUserFarm
-    financeService.getFinancialCategoryForFiltering(financialCategoryString) >> financialCategory
-    financeService.getPaymentStatusForFiltering(paymentStatusString) >> paymentStatus
-    transactionRepository.findFilteredTransactions(loggedUserFarm.getId(), searchQuery, minDate, maxDate, financialCategory, paymentStatus, minAmount, maxAmount) >> []
+        userService.getLoggedUserFarm() >> loggedUserFarm
+        financeService.getFinancialCategoryForFiltering(financialCategoryString) >> financialCategory
+        financeService.getPaymentStatusForFiltering(paymentStatusString) >> paymentStatus
+        transactionRepository.findFilteredTransactions(loggedUserFarm.getId(), searchQuery, minDate, maxDate, financialCategory, paymentStatus, minAmount, maxAmount) >> []
 
-    when:
-    List<TransactionDTO> result = financeFacade.getTransactions(searchQuery, minDate, maxDate, financialCategoryString, paymentStatusString, minAmount, maxAmount)
+        when:
+        List<TransactionDTO> result = financeFacade.getTransactions(searchQuery, minDate, maxDate, financialCategoryString, paymentStatusString, minAmount, maxAmount)
 
-    then:
-    result.isEmpty()
-}
+        then:
+        result.isEmpty()
+    }
 
-	def "should handle null filters and return all transactions"() {
-    given:
-    String searchQuery = null
-    LocalDate minDate = null
-    LocalDate maxDate = null
-    String financialCategoryString = null
-    String paymentStatusString = null
-    Double minAmount = null
-    Double maxAmount = null
-    Farm loggedUserFarm = new Farm(id: 1)
-    Transaction transaction1 = new Transaction(id: new TransactionId(1, loggedUserFarm.getId()), transactionName: "Transaction 1", amount: 200.0, transactionDate: LocalDate.of(2024, 6, 1), financialCategory: new FinancialCategory(name: EFinancialCategory.EXPENSE), paymentStatus: new PaymentStatus(name: EPaymentStatus.PAID))
-    Transaction transaction2 = new Transaction(id: new TransactionId(2, loggedUserFarm.getId()), transactionName: "Transaction 2", amount: 300.0, transactionDate: LocalDate.of(2025, 7, 15), financialCategory: new FinancialCategory(name: EFinancialCategory.INCOME), paymentStatus: new PaymentStatus(name: EPaymentStatus.UNPAID))
-    List<Transaction> transactions = [transaction1, transaction2]
+    def "should handle null filters and return all transactions"() {
+        given:
+        String searchQuery = null
+        LocalDate minDate = null
+        LocalDate maxDate = null
+        String financialCategoryString = null
+        String paymentStatusString = null
+        Double minAmount = null
+        Double maxAmount = null
+        Farm loggedUserFarm = new Farm(id: 1)
+        Transaction transaction1 = new Transaction(id: new TransactionId(1, loggedUserFarm.getId()), transactionName: "Transaction 1", amount: 200.0, transactionDate: LocalDate.of(2024, 6, 1), financialCategory: new FinancialCategory(name: EFinancialCategory.EXPENSE), paymentStatus: new PaymentStatus(name: EPaymentStatus.PAID))
+        Transaction transaction2 = new Transaction(id: new TransactionId(2, loggedUserFarm.getId()), transactionName: "Transaction 2", amount: 300.0, transactionDate: LocalDate.of(2025, 7, 15), financialCategory: new FinancialCategory(name: EFinancialCategory.INCOME), paymentStatus: new PaymentStatus(name: EPaymentStatus.UNPAID))
+        List<Transaction> transactions = [transaction1, transaction2]
 
-    userService.getLoggedUserFarm() >> loggedUserFarm
-    financeService.getFinancialCategoryForFiltering(financialCategoryString) >> null
-    financeService.getPaymentStatusForFiltering(paymentStatusString) >> null
-    transactionRepository.findFilteredTransactions(loggedUserFarm.getId(), searchQuery, minDate, maxDate, null, null, minAmount, maxAmount) >> transactions
+        userService.getLoggedUserFarm() >> loggedUserFarm
+        financeService.getFinancialCategoryForFiltering(financialCategoryString) >> null
+        financeService.getPaymentStatusForFiltering(paymentStatusString) >> null
+        transactionRepository.findFilteredTransactions(loggedUserFarm.getId(), searchQuery, minDate, maxDate, null, null, minAmount, maxAmount) >> transactions
 
-    when:
-    List<TransactionDTO> result = financeFacade.getTransactions(searchQuery, minDate, maxDate, financialCategoryString, paymentStatusString, minAmount, maxAmount)
+        when:
+        List<TransactionDTO> result = financeFacade.getTransactions(searchQuery, minDate, maxDate, financialCategoryString, paymentStatusString, minAmount, maxAmount)
 
-    then:
-    result.size() == 2
-    result*.transactionName.containsAll(["Transaction 1", "Transaction 2"])
-}
+        then:
+        result.size() == 2
+        result*.transactionName.containsAll(["Transaction 1", "Transaction 2"])
+    }
 
-	/*
-	* The test below is a unit test for the getBalanceForLastYear method in the FinanceFacade class.
-	*/
+    /*
+    * The test below is a unit test for the getBalanceForLastYear method in the FinanceFacade class.
+    */
 
     def "should get balance for last year successfully"() {
         given:

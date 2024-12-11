@@ -1,6 +1,21 @@
 package com.efarm.efarmbackend.controller;
 
-import org.junit.jupiter.api.*;
+import com.efarm.efarmbackend.model.farm.ActivationCode;
+import com.efarm.efarmbackend.model.farm.Address;
+import com.efarm.efarmbackend.model.farm.Farm;
+import com.efarm.efarmbackend.model.farm.FarmDTO;
+import com.efarm.efarmbackend.model.user.Role;
+import com.efarm.efarmbackend.model.user.User;
+import com.efarm.efarmbackend.payload.request.farm.UpdateFarmDetailsRequest;
+import com.efarm.efarmbackend.security.services.UserDetailsImpl;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -12,33 +27,17 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.nio.charset.StandardCharsets;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-
-import com.efarm.efarmbackend.model.farm.ActivationCode;
-import com.efarm.efarmbackend.model.farm.Address;
-import com.efarm.efarmbackend.model.farm.Farm;
-import com.efarm.efarmbackend.model.farm.FarmDTO;
-import com.efarm.efarmbackend.model.user.Role;
-import com.efarm.efarmbackend.model.user.User;
-import com.efarm.efarmbackend.payload.request.farm.UpdateFarmDetailsRequest;
-import com.efarm.efarmbackend.security.services.UserDetailsImpl;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.transaction.Transactional;
-
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-
-import java.nio.charset.StandardCharsets;
 
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -61,7 +60,7 @@ public class FarmControllerIT {
                 new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authToken);
     }
-    
+
     /*
      * GET /details
      */
@@ -82,7 +81,8 @@ public class FarmControllerIT {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.findAndRegisterModules();
         String jsonResponse = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        FarmDTO farmDTO = objectMapper.readValue(jsonResponse, new TypeReference<FarmDTO>() {});
+        FarmDTO farmDTO = objectMapper.readValue(jsonResponse, new TypeReference<FarmDTO>() {
+        });
 
         assertNotNull(farmDTO);
         assertEquals(userFarm.getFarmName(), farmDTO.getFarmName());
@@ -110,7 +110,7 @@ public class FarmControllerIT {
         Address farmAddress = entityManager.find(Address.class, userFarm.getIdAddress());
         updateFarmDetailsRequest.setFeedNumber(userFarm.getFeedNumber());
         updateFarmDetailsRequest.setZipCode(farmAddress.getZipCode());
-        
+
         //when
         mockMvc.perform(put("/farm/details")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -143,7 +143,7 @@ public class FarmControllerIT {
         ActivationCode activationCode = entityManager.createQuery(
                         "SELECT a FROM ActivationCode a WHERE a.isUsed = :used", ActivationCode.class)
                 .setParameter("used", false)
-                .setMaxResults(1)  
+                .setMaxResults(1)
                 .getSingleResult();
 
         User newUser = new User();
@@ -237,9 +237,9 @@ public class FarmControllerIT {
         mockMvc.perform(put("/farm/details")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(updateFarmDetailsRequest)))
-        //then
-                        .andExpect(status().isBadRequest())
-                        .andExpect(jsonPath("$.message").value("Wybrana nazwa farmy jest zajęta. Spróbuj wybrać inną."));
+                //then
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Wybrana nazwa farmy jest zajęta. Spróbuj wybrać inną."));
     }
 
 }

@@ -1,23 +1,20 @@
 package com.efarm.efarmbackend.service.facades
 
-import com.efarm.efarmbackend.model.equipment.FarmEquipment
-import com.efarm.efarmbackend.payload.request.equipment.AddUpdateFarmEquipmentRequest
-import com.efarm.efarmbackend.model.equipment.FarmEquipmentId
 import com.efarm.efarmbackend.model.equipment.EquipmentCategory
+import com.efarm.efarmbackend.model.equipment.EquipmentSummaryDTO
+import com.efarm.efarmbackend.model.equipment.FarmEquipment
+import com.efarm.efarmbackend.model.equipment.FarmEquipmentId
 import com.efarm.efarmbackend.model.farm.Farm
-import com.efarm.efarmbackend.service.equipment.FarmEquipmentFacade
-import org.springframework.http.HttpStatus
+import com.efarm.efarmbackend.payload.request.equipment.AddUpdateFarmEquipmentRequest
+import com.efarm.efarmbackend.repository.equipment.EquipmentCategoryRepository
 import com.efarm.efarmbackend.repository.equipment.FarmEquipmentRepository
 import com.efarm.efarmbackend.service.equipment.EquipmentDisplayDataService
+import com.efarm.efarmbackend.service.equipment.FarmEquipmentFacade
 import com.efarm.efarmbackend.service.equipment.FarmEquipmentService
-import com.efarm.efarmbackend.repository.equipment.EquipmentCategoryRepository;
-import com.efarm.efarmbackend.model.equipment.EquipmentSummaryDTO;
-import com.efarm.efarmbackend.service.ValidationRequestService;
 import com.efarm.efarmbackend.service.user.UserService
-import org.springframework.http.HttpStatus
-import com.efarm.efarmbackend.payload.response.MessageResponse;
 import spock.lang.Specification
 import spock.lang.Subject
+
 import java.time.LocalDate
 
 class FarmEquipmentFacadeSpec extends Specification {
@@ -39,6 +36,7 @@ class FarmEquipmentFacadeSpec extends Specification {
     /*
         getFarmEquipment
     */
+
     def "should return all without any search query"() {
         given:
         String searchQuery = null
@@ -158,6 +156,7 @@ class FarmEquipmentFacadeSpec extends Specification {
     /*
         getEquipmentDetails
     */
+
     def "should return all tractor details fields"() {
         given:
         Integer farmId = 1
@@ -291,6 +290,7 @@ class FarmEquipmentFacadeSpec extends Specification {
     /*
         addNewFarmEquipment
     */
+
     def "should add new farming equipment"() {
         given:
         Farm farm = Mock(Farm) {
@@ -320,10 +320,10 @@ class FarmEquipmentFacadeSpec extends Specification {
         farmEquipmentService.setSpecificFieldsForCategory(farmEquipmentDTO, equipment, farmEquipmentDTO.getCategory()) >> { /* No-op */ }
 
         when:
-     	farmEquipmentFacade.addNewFarmEquipment(farmEquipmentDTO)
+        farmEquipmentFacade.addNewFarmEquipment(farmEquipmentDTO)
 
         then:
-        1 * farmEquipmentRepository.save(_ as FarmEquipment)   
+        1 * farmEquipmentRepository.save(_ as FarmEquipment)
     }
 
     def "should return error if equipment with the same name already exists"() {
@@ -340,11 +340,11 @@ class FarmEquipmentFacadeSpec extends Specification {
         farmEquipmentRepository.existsByEquipmentNameAndFarmIdFarm(farmEquipmentDTO.getEquipmentName(), farm) >> true
 
         when:
-       	farmEquipmentFacade.addNewFarmEquipment(farmEquipmentDTO)
+        farmEquipmentFacade.addNewFarmEquipment(farmEquipmentDTO)
 
         then:
-	    RuntimeException e = thrown(RuntimeException)
-	    e.message == "Maszyna o podanej nazwie już istnieje"
+        RuntimeException e = thrown(RuntimeException)
+        e.message == "Maszyna o podanej nazwie już istnieje"
         0 * farmEquipmentRepository.save(_)
     }
     /*
@@ -401,8 +401,8 @@ class FarmEquipmentFacadeSpec extends Specification {
         farmEquipmentFacade.updateFarmEquipment(1, Mock(AddUpdateFarmEquipmentRequest))
 
         then:
-	    RuntimeException e = thrown(RuntimeException)
-	    e.message == "Nie znaleziono maszyny o id: 1"
+        RuntimeException e = thrown(RuntimeException)
+        e.message == "Nie znaleziono maszyny o id: 1"
         0 * farmEquipmentRepository.save(_)
     }
 
@@ -431,8 +431,8 @@ class FarmEquipmentFacadeSpec extends Specification {
         farmEquipmentFacade.updateFarmEquipment(1, farmEquipmentDTO)
 
         then:
-	    RuntimeException e = thrown(RuntimeException)
-	    e.message == "Maszyna o podanej nazwie już występuje w gospodarstwie"
+        RuntimeException e = thrown(RuntimeException)
+        e.message == "Maszyna o podanej nazwie już występuje w gospodarstwie"
         0 * farmEquipmentRepository.save(_)
     }
 
@@ -456,8 +456,8 @@ class FarmEquipmentFacadeSpec extends Specification {
         farmEquipmentFacade.updateFarmEquipment(1, farmEquipmentDTO)
 
         then:
-	    RuntimeException e = thrown(RuntimeException)
-	    e.message == "Wybrany sprzęt już nie istnieje"
+        RuntimeException e = thrown(RuntimeException)
+        e.message == "Wybrany sprzęt już nie istnieje"
         0 * farmEquipmentRepository.save(_)
     }
 
@@ -492,19 +492,19 @@ class FarmEquipmentFacadeSpec extends Specification {
             getId() >> 5
         }
         FarmEquipmentId farmEquipmentId = new FarmEquipmentId(1, farm.getId())
-    
+
         userService.getLoggedUserFarm() >> farm
         farmEquipmentRepository.findById(farmEquipmentId) >> Optional.empty()
-    
+
         when:
         farmEquipmentFacade.deleteFarmEquipment(1)
-    
+
         then:
-	    RuntimeException e = thrown(RuntimeException)
-	    e.message == "Nie znaleziono maszyny o id: 1"
+        RuntimeException e = thrown(RuntimeException)
+        e.message == "Nie znaleziono maszyny o id: 1"
         0 * farmEquipmentRepository.save(_)
     }
-    
+
     def "should return error when equipment is already deleted"() {
         given:
         Farm farm = Mock(Farm) {
@@ -514,16 +514,16 @@ class FarmEquipmentFacadeSpec extends Specification {
             getIsAvailable() >> false
         }
         FarmEquipmentId farmEquipmentId = new FarmEquipmentId(1, farm.getId())
-    
+
         userService.getLoggedUserFarm() >> farm
         farmEquipmentRepository.findById(farmEquipmentId) >> Optional.of(equipment)
-    
+
         when:
         farmEquipmentFacade.deleteFarmEquipment(1)
-    
+
         then:
-	    RuntimeException e = thrown(RuntimeException)
-	    e.message == "Wybrana maszyna została już usunięta"
+        RuntimeException e = thrown(RuntimeException)
+        e.message == "Wybrana maszyna została już usunięta"
         0 * farmEquipmentRepository.save(_)
     }
 

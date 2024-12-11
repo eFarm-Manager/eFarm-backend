@@ -7,11 +7,10 @@ import com.efarm.efarmbackend.repository.farm.ActivationCodeRepository
 import com.efarm.efarmbackend.repository.farm.FarmRepository
 import com.efarm.efarmbackend.service.MainNotificationService
 import com.efarm.efarmbackend.service.user.UserService
+import spock.lang.Specification
+import spock.lang.Subject
 
 import java.time.LocalDate
-
-import spock.lang.Subject
-import spock.lang.Specification
 
 class FarmNotificationServiceSpec extends Specification {
 
@@ -96,8 +95,8 @@ class FarmNotificationServiceSpec extends Specification {
 
         then:
         1 * mainNotificationService.sendNotificationToUser(_ as User,
-         'Termin ważności kodu aktywacyjnego dla Twojej farmy Farm1 upływa za 14 dni.',
-         'Niedługo wygasa kod aktywacyjny Twojej wirtualnej Farmy!')
+                'Termin ważności kodu aktywacyjnego dla Twojej farmy Farm1 upływa za 14 dni.',
+                'Niedługo wygasa kod aktywacyjny Twojej wirtualnej Farmy!')
     }
 
     def "should checkAndNotifyForActivationCode when days until expire 5"() {
@@ -121,8 +120,8 @@ class FarmNotificationServiceSpec extends Specification {
 
         then:
         1 * mainNotificationService.sendNotificationToUser(_ as User,
-         'Termin ważności kodu aktywacyjnego dla Twojej farmy Farm1 upływa za 5 dni.',
-         'Niedługo wygasa kod aktywacyjny Twojej wirtualnej Farmy!')
+                'Termin ważności kodu aktywacyjnego dla Twojej farmy Farm1 upływa za 5 dni.',
+                'Niedługo wygasa kod aktywacyjny Twojej wirtualnej Farmy!')
     }
 
     def "should checkAndNotifyForActivationCode when days until expire 1"() {
@@ -146,8 +145,8 @@ class FarmNotificationServiceSpec extends Specification {
 
         then:
         1 * mainNotificationService.sendNotificationToUser(_ as User,
-         'Termin ważności kodu aktywacyjnego dla Twojej farmy Farm1 upływa za 1 dni.',
-         'Niedługo wygasa kod aktywacyjny Twojej wirtualnej Farmy!')
+                'Termin ważności kodu aktywacyjnego dla Twojej farmy Farm1 upływa za 1 dni.',
+                'Niedługo wygasa kod aktywacyjny Twojej wirtualnej Farmy!')
     }
 
     def "should not checkAndNotifyForActivationCode when days until expire are neither 14, 5, nor 1"() {
@@ -198,8 +197,8 @@ class FarmNotificationServiceSpec extends Specification {
 
         then:
         1 * mainNotificationService.sendNotificationToUser(_ as User,
-         'Twoja farma Farm1 zostanie trwale usunięta za 3 dni. Zaktualizuj swój kod aktywacyjny, aby temu zapobiec.',
-         'Twoja farma zostanie wkrótce usunięta!')
+                'Twoja farma Farm1 zostanie trwale usunięta za 3 dni. Zaktualizuj swój kod aktywacyjny, aby temu zapobiec.',
+                'Twoja farma zostanie wkrótce usunięta!')
     }
 
     def "should check and notify for farm deletion when days until deletion 2"() {
@@ -223,8 +222,8 @@ class FarmNotificationServiceSpec extends Specification {
 
         then:
         1 * mainNotificationService.sendNotificationToUser(_ as User,
-         'Twoja farma Farm1 zostanie trwale usunięta za 2 dni. Zaktualizuj swój kod aktywacyjny, aby temu zapobiec.',
-         'Twoja farma zostanie wkrótce usunięta!')
+                'Twoja farma Farm1 zostanie trwale usunięta za 2 dni. Zaktualizuj swój kod aktywacyjny, aby temu zapobiec.',
+                'Twoja farma zostanie wkrótce usunięta!')
     }
 
     def "should check and notify for farm deletion when days until deletion 1"() {
@@ -248,10 +247,9 @@ class FarmNotificationServiceSpec extends Specification {
 
         then:
         1 * mainNotificationService.sendNotificationToUser(_ as User,
-         'Twoja farma Farm1 zostanie trwale usunięta za 1 dni. Zaktualizuj swój kod aktywacyjny, aby temu zapobiec.',
-         'Twoja farma zostanie wkrótce usunięta!')
+                'Twoja farma Farm1 zostanie trwale usunięta za 1 dni. Zaktualizuj swój kod aktywacyjny, aby temu zapobiec.',
+                'Twoja farma zostanie wkrótce usunięta!')
     }
-
 
 
 }

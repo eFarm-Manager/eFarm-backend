@@ -1,26 +1,21 @@
 package com.efarm.efarmbackend.service.agroactivity
 
-import com.efarm.efarmbackend.model.agriculturalrecords.AgriculturalRecord;
-import com.efarm.efarmbackend.model.agriculturalrecords.AgriculturalRecordId;
-import com.efarm.efarmbackend.model.agroactivity.ActivityCategory;
-import com.efarm.efarmbackend.model.agroactivity.AgroActivity;
-import com.efarm.efarmbackend.model.agroactivity.AgroActivityId;
-import com.efarm.efarmbackend.model.agroactivity.AgroActivitySummaryDTO;
-import com.efarm.efarmbackend.model.farm.Farm;
-import com.efarm.efarmbackend.model.user.User;
-import com.efarm.efarmbackend.model.agroactivity.ActivityHasOperator;
-import com.efarm.efarmbackend.payload.request.agroactivity.NewAgroActivityRequest;
-import com.efarm.efarmbackend.payload.request.agroactivity.UpdateAgroActivityRequest;
-import com.efarm.efarmbackend.repository.agriculturalrecords.AgriculturalRecordRepository;
-import com.efarm.efarmbackend.repository.agroactivity.ActivityHasEquipmentRepository;
-import com.efarm.efarmbackend.repository.agroactivity.ActivityHasOperatorRepository;
-import com.efarm.efarmbackend.repository.agroactivity.AgroActivityRepository;
-import com.efarm.efarmbackend.service.user.UserService;
-
-import java.time.Instant;
-import java.util.List
-import spock.lang.Subject
+import com.efarm.efarmbackend.model.agriculturalrecords.AgriculturalRecord
+import com.efarm.efarmbackend.model.agriculturalrecords.AgriculturalRecordId
+import com.efarm.efarmbackend.model.agroactivity.*
+import com.efarm.efarmbackend.model.farm.Farm
+import com.efarm.efarmbackend.model.user.User
+import com.efarm.efarmbackend.payload.request.agroactivity.NewAgroActivityRequest
+import com.efarm.efarmbackend.payload.request.agroactivity.UpdateAgroActivityRequest
+import com.efarm.efarmbackend.repository.agriculturalrecords.AgriculturalRecordRepository
+import com.efarm.efarmbackend.repository.agroactivity.ActivityHasEquipmentRepository
+import com.efarm.efarmbackend.repository.agroactivity.ActivityHasOperatorRepository
+import com.efarm.efarmbackend.repository.agroactivity.AgroActivityRepository
+import com.efarm.efarmbackend.service.user.UserService
 import spock.lang.Specification
+import spock.lang.Subject
+
+import java.time.Instant
 
 class AgroActivityServiceSpec extends Specification {
 
@@ -32,11 +27,11 @@ class AgroActivityServiceSpec extends Specification {
 
     @Subject
     AgroActivityService agroActivityService = new AgroActivityService(
-        activityHasOperatorRepository,
-        userService,
-        activityHasEquipmentRepository,
-        agroActivityRepository,
-        agriculturalRecordRepository
+            activityHasOperatorRepository,
+            userService,
+            activityHasEquipmentRepository,
+            agroActivityRepository,
+            agriculturalRecordRepository
     )
 
     /*
@@ -46,10 +41,10 @@ class AgroActivityServiceSpec extends Specification {
     def "should create new agro activity"() {
         given:
         NewAgroActivityRequest newAgroActivityRequest = new NewAgroActivityRequest(
-            name: "Activity1",
-            description: "Description1",
-            appliedDose: '',
-            usedSubstances: ''
+                name: "Activity1",
+                description: "Description1",
+                appliedDose: '',
+                usedSubstances: ''
         )
         ActivityCategory activityCategory = Mock(ActivityCategory) {
             getName() >> "category1"
@@ -180,7 +175,7 @@ class AgroActivityServiceSpec extends Specification {
         agroActivityRepository.findWithDetailsById(agroActivityId) >> Optional.of(agroActivity)
 
         when:
-        AgroActivity result = agroActivityService.findAgroActivityWithDetails(id,farmId)
+        AgroActivity result = agroActivityService.findAgroActivityWithDetails(id, farmId)
 
         then:
         result.getId().getId() == agroActivity.getId().getId()
@@ -204,7 +199,7 @@ class AgroActivityServiceSpec extends Specification {
         agroActivityRepository.findWithDetailsById(agroActivityId) >> Optional.empty()
 
         when:
-        AgroActivity result = agroActivityService.findAgroActivityWithDetails(id,farmId)
+        AgroActivity result = agroActivityService.findAgroActivityWithDetails(id, farmId)
 
         then:
         RuntimeException ex = thrown()
@@ -218,10 +213,10 @@ class AgroActivityServiceSpec extends Specification {
     def "should update agro activity"() {
         given:
         UpdateAgroActivityRequest updateAgroActivityRequest = new UpdateAgroActivityRequest(
-            name: "Activity1",
-            description: "Description1",
-            appliedDose: '',
-            usedSubstances: ''
+                name: "Activity1",
+                description: "Description1",
+                appliedDose: '',
+                usedSubstances: ''
         )
         AgroActivity agroActivity = Mock(AgroActivity)
         ActivityCategory activityCategory = Mock(ActivityCategory) {

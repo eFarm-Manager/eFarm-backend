@@ -1,27 +1,25 @@
 package com.efarm.efarmbackend.service.agroactivity
 
-import com.efarm.efarmbackend.model.agriculturalrecords.AgriculturalRecord;
-import com.efarm.efarmbackend.model.agriculturalrecords.AgriculturalRecordId;
-import com.efarm.efarmbackend.model.agroactivity.ActivityCategory;
-import com.efarm.efarmbackend.model.agroactivity.AgroActivity;
-import com.efarm.efarmbackend.model.agroactivity.AgroActivityDetailDTO;
-import com.efarm.efarmbackend.model.agroactivity.AgroActivityId;
-import com.efarm.efarmbackend.model.equipment.EquipmentSummaryDTO;
-import com.efarm.efarmbackend.model.landparcel.Landparcel;
-import com.efarm.efarmbackend.model.landparcel.LandparcelId;
-import com.efarm.efarmbackend.model.landparcel.LandparcelSummaryDTO;
-import com.efarm.efarmbackend.model.user.UserSummaryDTO;
-import com.efarm.efarmbackend.model.farm.Farm;
-import com.efarm.efarmbackend.payload.request.agroactivity.NewAgroActivityRequest;
-import com.efarm.efarmbackend.payload.request.agroactivity.UpdateAgroActivityRequest;
-import com.efarm.efarmbackend.repository.agroactivity.ActivityCategoryRepository;
-import com.efarm.efarmbackend.service.agriculturalrecords.AgriculturalRecordService;
-import com.efarm.efarmbackend.service.user.UserService;
+import com.efarm.efarmbackend.model.agriculturalrecords.AgriculturalRecord
+import com.efarm.efarmbackend.model.agriculturalrecords.AgriculturalRecordId
+import com.efarm.efarmbackend.model.agroactivity.ActivityCategory
+import com.efarm.efarmbackend.model.agroactivity.AgroActivity
+import com.efarm.efarmbackend.model.agroactivity.AgroActivityDetailDTO
+import com.efarm.efarmbackend.model.agroactivity.AgroActivityId
+import com.efarm.efarmbackend.model.equipment.EquipmentSummaryDTO
+import com.efarm.efarmbackend.model.farm.Farm
+import com.efarm.efarmbackend.model.landparcel.Landparcel
+import com.efarm.efarmbackend.model.landparcel.LandparcelId
+import com.efarm.efarmbackend.model.user.UserSummaryDTO
+import com.efarm.efarmbackend.payload.request.agroactivity.NewAgroActivityRequest
+import com.efarm.efarmbackend.payload.request.agroactivity.UpdateAgroActivityRequest
+import com.efarm.efarmbackend.repository.agroactivity.ActivityCategoryRepository
+import com.efarm.efarmbackend.service.agriculturalrecords.AgriculturalRecordService
+import com.efarm.efarmbackend.service.user.UserService
+import spock.lang.Specification
+import spock.lang.Subject
 
 import java.time.Instant
-import java.util.List
-import spock.lang.Subject
-import spock.lang.Specification
 
 class AgroActivityFacadeSpec extends Specification {
 
@@ -34,12 +32,12 @@ class AgroActivityFacadeSpec extends Specification {
 
     @Subject
     AgroActivityFacade agroActivityFacade = new AgroActivityFacade(
-        activityCategoryRepository,
-        userService,
-        agroActivityService,
-        agriculturalRecordService,
-        activityHasEquipmentService,
-        activityHasOperatorService
+            activityCategoryRepository,
+            userService,
+            agroActivityService,
+            agriculturalRecordService,
+            activityHasEquipmentService,
+            activityHasOperatorService
     )
 
     /*
@@ -49,12 +47,12 @@ class AgroActivityFacadeSpec extends Specification {
     def "should add agro activity"() {
         given:
         NewAgroActivityRequest request = new NewAgroActivityRequest(
-            name: 'name',
-            date: Instant.now(),
-            description: 'description',
-            activityCategoryName: 'category',
-            operatorIds: [1,2],
-            equipmentIds: [1,2],
+                name: 'name',
+                date: Instant.now(),
+                description: 'description',
+                activityCategoryName: 'category',
+                operatorIds: [1, 2],
+                equipmentIds: [1, 2],
         )
 
         Integer farmId = 1
@@ -84,12 +82,12 @@ class AgroActivityFacadeSpec extends Specification {
     def "should throw runtime exception when activity category is not found"() {
         given:
         NewAgroActivityRequest request = new NewAgroActivityRequest(
-            name: 'name',
-            date: Instant.now(),
-            description: 'description',
-            activityCategoryName: 'category',
-            operatorIds: [1,2],
-            equipmentIds: [1,2],
+                name: 'name',
+                date: Instant.now(),
+                description: 'description',
+                activityCategoryName: 'category',
+                operatorIds: [1, 2],
+                equipmentIds: [1, 2],
         )
 
         Integer farmId = 1
@@ -128,7 +126,7 @@ class AgroActivityFacadeSpec extends Specification {
                     getId() >> new LandparcelId(1, farmId)
                     getName() >> 'name'
                 }
-            getArea() >> 22.0
+                getArea() >> 22.0
             }
             getActivityCategory() >> Mock(ActivityCategory) {
                 getName() >> 'category'
@@ -137,19 +135,19 @@ class AgroActivityFacadeSpec extends Specification {
             getIsCompleted() >> true
         }
         UserSummaryDTO userSummaryDTO = new UserSummaryDTO(
-            id: 1,
-            firstName: 'firstName',
-            lastName: 'lastName',
-            role: 'role'
+                id: 1,
+                firstName: 'firstName',
+                lastName: 'lastName',
+                role: 'role'
         )
         EquipmentSummaryDTO equipmentSummaryDTO = new EquipmentSummaryDTO(
-            equipmentId: 1,
-            equipmentName: 'equipmentName',
-            category: 'category',
-            brand: 'brand',
-            model: 'model'
+                equipmentId: 1,
+                equipmentName: 'equipmentName',
+                category: 'category',
+                brand: 'brand',
+                model: 'model'
         )
-        
+
         userService.getLoggedUserFarm() >> farm
         agroActivityService.findAgroActivityWithDetails(activityId, farmId) >> agroActivity
         activityHasOperatorService.getOperatorsForAgroActivity(agroActivity) >> [userSummaryDTO]
@@ -177,12 +175,12 @@ class AgroActivityFacadeSpec extends Specification {
     def "should update agro activity"() {
         given:
         UpdateAgroActivityRequest request = new UpdateAgroActivityRequest(
-            name: 'name',
-            date: Instant.now(),
-            description: 'description',
-            activityCategoryName: 'category',
-            operatorIds: [1,2],
-            equipmentIds: [1,2],
+                name: 'name',
+                date: Instant.now(),
+                description: 'description',
+                activityCategoryName: 'category',
+                operatorIds: [1, 2],
+                equipmentIds: [1, 2],
         )
         Integer intAgroActivityId = 1
         Integer farmId = 1
@@ -212,12 +210,12 @@ class AgroActivityFacadeSpec extends Specification {
     def "should throw runtime exception when activity category is not found"() {
         given:
         UpdateAgroActivityRequest request = new UpdateAgroActivityRequest(
-            name: 'name',
-            date: Instant.now(),
-            description: 'description',
-            activityCategoryName: 'category',
-            operatorIds: [1,2],
-            equipmentIds: [1,2],
+                name: 'name',
+                date: Instant.now(),
+                description: 'description',
+                activityCategoryName: 'category',
+                operatorIds: [1, 2],
+                equipmentIds: [1, 2],
         )
         Integer intAgroActivityId = 1
         Integer farmId = 1

@@ -4,4 +4,4 @@ public enum EPaymentStatus {
     AWAITING_PAYMENT,
     PAID,
     UNPAID
-    }
+}

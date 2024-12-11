@@ -1,11 +1,9 @@
 package com.efarm.efarmbackend.service.agroactivity
 
-import com.efarm.efarmbackend.model.agroactivity.ActivityCategory;
-import com.efarm.efarmbackend.repository.agroactivity.ActivityCategoryRepository;
-
-import java.util.List
-import spock.lang.Subject
+import com.efarm.efarmbackend.model.agroactivity.ActivityCategory
+import com.efarm.efarmbackend.repository.agroactivity.ActivityCategoryRepository
 import spock.lang.Specification
+import spock.lang.Subject
 
 class ActivityCategoryServiceSpec extends Specification {
 
@@ -13,7 +11,7 @@ class ActivityCategoryServiceSpec extends Specification {
 
     @Subject
     ActivityCategoryService activityCategoryService = new ActivityCategoryService(
-        activityCategoryRepository
+            activityCategoryRepository
     )
 
     def "should get all available category names"() {
@@ -24,13 +22,13 @@ class ActivityCategoryServiceSpec extends Specification {
         ActivityCategory category2 = Mock(ActivityCategory) {
             getName() >> "category2"
         }
-        List<ActivityCategory> categories = [category1,category2]
+        List<ActivityCategory> categories = [category1, category2]
 
         activityCategoryRepository.findAll() >> categories
 
         when:
         List<String> result = activityCategoryService.getAvailableCategoryNames()
-        
+
         then:
         result == categories*.name
     }

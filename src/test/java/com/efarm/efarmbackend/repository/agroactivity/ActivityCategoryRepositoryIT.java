@@ -1,22 +1,19 @@
 package com.efarm.efarmbackend.repository.agroactivity;
 
+import com.efarm.efarmbackend.model.agroactivity.ActivityCategory;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-
-import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.ActiveProfiles;
 
-import com.efarm.efarmbackend.model.agroactivity.ActivityCategory;
+import java.util.Optional;
 
-import jakarta.transaction.Transactional;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 
 @DataJpaTest
 @Transactional

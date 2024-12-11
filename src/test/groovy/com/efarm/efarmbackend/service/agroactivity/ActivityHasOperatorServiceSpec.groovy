@@ -1,19 +1,17 @@
 package com.efarm.efarmbackend.service.agroactivity
 
-import com.efarm.efarmbackend.model.agroactivity.ActivityHasOperator;
-import com.efarm.efarmbackend.model.agroactivity.AgroActivity;
-import com.efarm.efarmbackend.model.farm.Farm;
-import com.efarm.efarmbackend.model.user.User;
-import com.efarm.efarmbackend.model.user.ERole;
-import com.efarm.efarmbackend.model.user.Role;
-import com.efarm.efarmbackend.model.user.UserSummaryDTO;
-import com.efarm.efarmbackend.repository.agroactivity.ActivityHasOperatorRepository;
-import com.efarm.efarmbackend.repository.user.UserRepository;
-import com.efarm.efarmbackend.service.user.UserService;
-
-import java.util.List
-import spock.lang.Subject
+import com.efarm.efarmbackend.model.agroactivity.ActivityHasOperator
+import com.efarm.efarmbackend.model.agroactivity.AgroActivity
+import com.efarm.efarmbackend.model.farm.Farm
+import com.efarm.efarmbackend.model.user.ERole
+import com.efarm.efarmbackend.model.user.Role
+import com.efarm.efarmbackend.model.user.User
+import com.efarm.efarmbackend.model.user.UserSummaryDTO
+import com.efarm.efarmbackend.repository.agroactivity.ActivityHasOperatorRepository
+import com.efarm.efarmbackend.repository.user.UserRepository
+import com.efarm.efarmbackend.service.user.UserService
 import spock.lang.Specification
+import spock.lang.Subject
 
 class ActivityHasOperatorServiceSpec extends Specification {
 
@@ -24,10 +22,10 @@ class ActivityHasOperatorServiceSpec extends Specification {
 
     @Subject
     ActivityHasOperatorService activityHasOperatorService = new ActivityHasOperatorService(
-        userRepository,
-        userService,
-        applicationContext,
-        activityHasOperatorRepository
+            userRepository,
+            userService,
+            applicationContext,
+            activityHasOperatorRepository
     )
 
     /*
@@ -36,7 +34,7 @@ class ActivityHasOperatorServiceSpec extends Specification {
 
     def "should add operators to activity"() {
         given:
-        List<Integer> operatorIds = [1,2]
+        List<Integer> operatorIds = [1, 2]
         AgroActivity agroActivity = Mock(AgroActivity)
         Integer farmId = 1
         Farm farm = Mock(Farm) {
@@ -88,7 +86,7 @@ class ActivityHasOperatorServiceSpec extends Specification {
 
     def "should throw exception when user not found"() {
         given:
-        List<Integer> operatorIds = [1,2]
+        List<Integer> operatorIds = [1, 2]
         AgroActivity agroActivity = Mock(AgroActivity)
         Integer farmId = 1
         Farm farm = Mock(Farm) {
@@ -118,7 +116,7 @@ class ActivityHasOperatorServiceSpec extends Specification {
 
     def "should throw exception when any user is not active"() {
         given:
-        List<Integer> operatorIds = [1,2]
+        List<Integer> operatorIds = [1, 2]
         AgroActivity agroActivity = Mock(AgroActivity)
         Integer farmId = 1
         Farm farm = Mock(Farm) {
@@ -145,12 +143,12 @@ class ActivityHasOperatorServiceSpec extends Specification {
 
         then:
         IllegalStateException ex = thrown()
-        ex.message == 'Użytkownik '+user2.getFirstName() + ' ' + user2.getLastName() + ' jest niedostępny'
+        ex.message == 'Użytkownik ' + user2.getFirstName() + ' ' + user2.getLastName() + ' jest niedostępny'
     }
 
     def "should throw exception when user doesnt belong to current farm"() {
         given:
-        List<Integer> operatorIds = [1,2]
+        List<Integer> operatorIds = [1, 2]
         AgroActivity agroActivity = Mock(AgroActivity)
         Integer farmId = 1
         Farm farm = Mock(Farm) {
@@ -187,7 +185,7 @@ class ActivityHasOperatorServiceSpec extends Specification {
     def "should get operators for agro activity"() {
         given:
         AgroActivity agroActivity = Mock(AgroActivity)
-        
+
         User user1 = Mock(User) {
             getId() >> 1
             getFirstName() >> "John"
@@ -207,12 +205,12 @@ class ActivityHasOperatorServiceSpec extends Specification {
         }
 
         List<ActivityHasOperator> activityHasOperators = [
-            Mock(ActivityHasOperator) {
-                getUser() >> user1
-            },
-            Mock(ActivityHasOperator) {
-                getUser() >> user2
-            }
+                Mock(ActivityHasOperator) {
+                    getUser() >> user1
+                },
+                Mock(ActivityHasOperator) {
+                    getUser() >> user2
+                }
         ]
 
         activityHasOperatorRepository.findActivityHasOperatorsByAgroActivity(agroActivity) >> activityHasOperators
@@ -235,9 +233,10 @@ class ActivityHasOperatorServiceSpec extends Specification {
     /*
     * UpdateOperatorInActivity
     */
+
     def "should update operator in activity"() {
         given:
-        List<Integer> operatorsIds = [1,2]
+        List<Integer> operatorsIds = [1, 2]
         AgroActivity agroActivity = Mock(AgroActivity)
         Integer farmId = 1
 

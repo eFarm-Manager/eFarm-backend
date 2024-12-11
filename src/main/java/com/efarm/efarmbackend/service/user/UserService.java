@@ -147,10 +147,10 @@ public class UserService {
         User userToToggle = userRepository.findByIdAndFarmId(userId, loggedUser.getFarm().getId())
                 .orElseThrow(() -> new RuntimeException("Wybrany użytkownik nie istnieje"));
         if (loggedUser.getRole().getName().equals(ERole.ROLE_FARM_MANAGER) &&
-                userToToggle.getRole().getName().equals(ERole.ROLE_FARM_OWNER)){
+                userToToggle.getRole().getName().equals(ERole.ROLE_FARM_OWNER)) {
             throw new RuntimeException("Nie możesz zmienić statusu aktywności właściciela gospodarstwa");
         }
-        if (loggedUser.equals(userToToggle)){
+        if (loggedUser.equals(userToToggle)) {
             throw new RuntimeException("Nie możesz deaktywować siebie");
         }
         userToToggle.setIsActive(!userToToggle.getIsActive());

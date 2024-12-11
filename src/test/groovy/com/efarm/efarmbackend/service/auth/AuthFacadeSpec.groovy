@@ -1,5 +1,6 @@
 package com.efarm.efarmbackend.service.facades
 
+import com.efarm.efarmbackend.exception.UnauthorizedException
 import com.efarm.efarmbackend.model.farm.ActivationCode
 import com.efarm.efarmbackend.model.farm.Address
 import com.efarm.efarmbackend.model.farm.Farm
@@ -9,25 +10,22 @@ import com.efarm.efarmbackend.payload.request.auth.SignupUserRequest
 import com.efarm.efarmbackend.payload.request.auth.UpdateActivationCodeRequest
 import com.efarm.efarmbackend.payload.request.farm.UpdateActivationCodeByLoggedOwnerRequest
 import com.efarm.efarmbackend.payload.request.user.ChangePasswordRequest
-import com.efarm.efarmbackend.payload.response.MessageResponse
 import com.efarm.efarmbackend.repository.farm.ActivationCodeRepository
 import com.efarm.efarmbackend.repository.farm.AddressRepository
 import com.efarm.efarmbackend.repository.farm.FarmRepository
 import com.efarm.efarmbackend.repository.user.UserRepository
 import com.efarm.efarmbackend.security.services.UserDetailsImpl
 import com.efarm.efarmbackend.service.auth.AuthFacade
-import com.efarm.efarmbackend.service.farm.ActivationCodeService
 import com.efarm.efarmbackend.service.auth.AuthService
+import com.efarm.efarmbackend.service.farm.ActivationCodeService
 import com.efarm.efarmbackend.service.farm.FarmService
 import com.efarm.efarmbackend.service.user.UserService
-import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.core.context.SecurityContextHolder
 import spock.lang.Specification
 import spock.lang.Subject
+
 import java.nio.file.AccessDeniedException
-import com.efarm.efarmbackend.exception.UnauthorizedException
 
 class AuthFacadeSpec extends Specification {
 
@@ -160,9 +158,9 @@ class AuthFacadeSpec extends Specification {
         farmRepository.existsByFarmName(signUpFarmRequest.getFarmName()) >> false
         userService.createFarmOwner(signUpFarmRequest) >> user
         activationCodeRepository.findByCode(signUpFarmRequest.getActivationCode()) >> Optional.of(activationCode)
-        activationCodeService.validateActivationCode(signUpFarmRequest.getActivationCode()) >> { }
+        activationCodeService.validateActivationCode(signUpFarmRequest.getActivationCode()) >> {}
         farmService.createFarm(signUpFarmRequest.getFarmName(), address.getId(), activationCode.getId()) >> farm
-        activationCodeService.markActivationCodeAsUsed(signUpFarmRequest.getActivationCode()) >> { }
+        activationCodeService.markActivationCodeAsUsed(signUpFarmRequest.getActivationCode()) >> {}
 
         when:
         authFacade.registerFarmAndFarmOwner(signUpFarmRequest)
@@ -294,7 +292,7 @@ class AuthFacadeSpec extends Specification {
         farmRepository.existsByFarmName(signUpFarmRequest.getFarmName()) >> false
         userService.createFarmOwner(signUpFarmRequest) >> user
         activationCodeRepository.findByCode(signUpFarmRequest.getActivationCode()) >> Optional.of(activationCode)
-        activationCodeService.validateActivationCode(signUpFarmRequest.getActivationCode()) >> { }
+        activationCodeService.validateActivationCode(signUpFarmRequest.getActivationCode()) >> {}
         farmService.createFarm(signUpFarmRequest.getFarmName(), address.getId(), activationCode.getId()) >> farm
 
         activationCodeService.markActivationCodeAsUsed(signUpFarmRequest.getActivationCode()) >> { throw new RuntimeException('Activation code not found') }
@@ -383,7 +381,7 @@ class AuthFacadeSpec extends Specification {
 
         then:
         RuntimeException exception = thrown()
-        exception.message ==  'Podany kod aktywacyjny nie istnieje!'
+        exception.message == 'Podany kod aktywacyjny nie istnieje!'
     }
     /*
         updateActivationCodeByLoggedOwner
