@@ -33,15 +33,30 @@ public class AgroActivityFacade {
 
     @Transactional
     public void addAgroActivity(NewAgroActivityRequest request) {
-
         Integer loggedUserFarmId = userService.getLoggedUserFarm().getId();
         ActivityCategory activityCategory = activityCategoryRepository.findByName(request.getActivityCategoryName())
                 .orElseThrow(() -> new RuntimeException("Nie znaleziono kategorii zabiegu"));
 
-        AgriculturalRecord agriculturalRecord = agriculturalRecordService.findAgriculturalRecordById(request.getAgriculturalRecordId(), loggedUserFarmId);
-        AgroActivity agroActivity = agroActivityService.createNewAgroActivity(request, activityCategory, agriculturalRecord, loggedUserFarmId);
-        activityHasOperatorService.addOperatorsToActivity(agroActivity, request.getOperatorIds(), loggedUserFarmId);
-        activityHasEquipmentService.addEquipmentToActivity(request.getEquipmentIds(), agroActivity, loggedUserFarmId);
+        AgriculturalRecord agriculturalRecord = agriculturalRecordService.findAgriculturalRecordById(
+                request.getAgriculturalRecordId(),
+                loggedUserFarmId
+        );
+        AgroActivity agroActivity = agroActivityService.createNewAgroActivity(
+                request,
+                activityCategory,
+                agriculturalRecord,
+                loggedUserFarmId
+        );
+        activityHasOperatorService.addOperatorsToActivity(
+                agroActivity,
+                request.getOperatorIds(),
+                loggedUserFarmId
+        );
+        activityHasEquipmentService.addEquipmentToActivity(
+                request.getEquipmentIds(),
+                agroActivity,
+                loggedUserFarmId
+        );
     }
 
     public AgroActivityDetailDTO getAgroActivityDetails(Integer id) {

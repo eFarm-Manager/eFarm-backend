@@ -44,19 +44,23 @@ public class AgriculturalRecordFacade {
 
     @Transactional
     public void addAgriculturalRecord(CreateNewAgriculturalRecordRequest recordRequest) throws Exception {
-
         Farm loggedUserFarm = userService.getLoggedUserFarm();
         Season season = (recordRequest.getSeason() == null || recordRequest.getSeason().isEmpty())
                 ? seasonService.getCurrentSeason()
-                : seasonService.getSeasonByName(recordRequest.getSeason());
-
+                : seasonService.getSeasonByName(recordRequest.getSeason()
+        );
         Landparcel landparcel = landparcelService.findlandparcelByFarm(recordRequest.getLandparcelId(), loggedUserFarm);
         if (!landparcel.getIsAvailable()) {
-            throw new Exception("Wybrane pole jest niedostępne");
+            throw new RuntimeException("Wybrane pole jest niedostępne");
         }
-
         agriculturalRecordService.validateCropArea(landparcel, season, recordRequest);
-        Crop crop = agriculturalRecordService.validateCrop(landparcel, season, recordRequest.getCropName(), true);
+
+        Crop crop = agriculturalRecordService.validateCrop(
+                landparcel,
+                season,
+                recordRequest.getCropName(),
+                true
+        );
         AgriculturalRecordId agriculturalRecordId = new AgriculturalRecordId(
                 agriculturalRecordRepository.findNextFreeIdForFarm(loggedUserFarm.getId()),
                 loggedUserFarm.getId()
@@ -74,14 +78,13 @@ public class AgriculturalRecordFacade {
     }
 
     @Transactional
-    public void createRecordsForNewSeason(String seasonName) throws Exception {
+    public void createRecordsForNewSeason(String seasonName) {
 
         Farm loggedUserFarm = userService.getLoggedUserFarm();
         Season season = seasonService.getSeasonByName(seasonName);
         if (season == null) {
-            throw new Exception("Podany sezon nie istnieje");
+            throw new RuntimeException("Podany sezon nie istnieje");
         }
-
         List<Landparcel> activeLandparcels = landparcelRepository.findByFarmIdAndIsAvailableTrue(loggedUserFarm.getId());
         for (Landparcel landparcel : activeLandparcels) {
             agriculturalRecordService.createAgriculturalRecordForLandparcel(landparcel, loggedUserFarm, season);
