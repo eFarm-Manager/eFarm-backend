@@ -62,35 +62,49 @@ public class FarmEquipmentFacade {
     }
 
     @Transactional
-    public void addNewFarmEquipment(AddUpdateFarmEquipmentRequest addUpdateFarmEquipmentRequest) throws RuntimeException {
-
+    public void addNewFarmEquipment(AddUpdateFarmEquipmentRequest request) throws RuntimeException {
         Farm loggedUserFarm = userService.getLoggedUserFarm();
-        FarmEquipmentId farmEquipmentId = new FarmEquipmentId(farmEquipmentRepository.findNextFreeIdForFarm(loggedUserFarm.getId()), loggedUserFarm.getId());
-        FarmEquipment equipment = new FarmEquipment(farmEquipmentId, equipmentCategoryRepository.findByCategoryName(addUpdateFarmEquipmentRequest.getCategory()), loggedUserFarm);
-
-        if (farmEquipmentRepository.existsByEquipmentNameAndFarmIdFarm(addUpdateFarmEquipmentRequest.getEquipmentName(), loggedUserFarm)) {
+        FarmEquipmentId farmEquipmentId = new FarmEquipmentId(
+                farmEquipmentRepository.findNextFreeIdForFarm(loggedUserFarm.getId()),
+                loggedUserFarm.getId()
+        );
+        FarmEquipment equipment = new FarmEquipment(
+                farmEquipmentId,
+                equipmentCategoryRepository.findByCategoryName(request.getCategory()),
+                loggedUserFarm
+        );
+        if (farmEquipmentRepository.existsByEquipmentNameAndFarmIdFarm(
+                request.getEquipmentName(),
+                loggedUserFarm)) {
             throw new RuntimeException("Maszyna o podanej nazwie już istnieje");
         }
-        farmEquipmentService.setCommonFieldsForCategory(addUpdateFarmEquipmentRequest, equipment);
-        farmEquipmentService.setSpecificFieldsForCategory(addUpdateFarmEquipmentRequest, equipment, addUpdateFarmEquipmentRequest.getCategory());
+        farmEquipmentService.setCommonFieldsForCategory(request, equipment);
+        farmEquipmentService.setSpecificFieldsForCategory(
+                request,
+                equipment,
+                request.getCategory()
+        );
         farmEquipmentRepository.save(equipment);
     }
 
     @Transactional
-    public void updateFarmEquipment(Integer equipmentId, AddUpdateFarmEquipmentRequest addUpdateFarmEquipmentRequest) throws RuntimeException {
+    public void updateFarmEquipment(Integer equipmentId, AddUpdateFarmEquipmentRequest request) throws RuntimeException {
         Farm loggedUserFarm = userService.getLoggedUserFarm();
-        FarmEquipmentId farmEquipmentId = new FarmEquipmentId(equipmentId, loggedUserFarm.getId());
+        FarmEquipmentId farmEquipmentId = new FarmEquipmentId(
+                equipmentId,
+                loggedUserFarm.getId()
+        );
 
         FarmEquipment equipment = farmEquipmentRepository.findById(farmEquipmentId)
                 .orElseThrow(() -> new RuntimeException("Nie znaleziono maszyny o id: " + equipmentId));
 
         if (equipment.getIsAvailable()) {
-            if (!equipment.getEquipmentName().equals(addUpdateFarmEquipmentRequest.getEquipmentName()) &&
-                    farmEquipmentRepository.existsByEquipmentNameAndFarmIdFarm(addUpdateFarmEquipmentRequest.getEquipmentName(), loggedUserFarm)) {
+            if (!equipment.getEquipmentName().equals(request.getEquipmentName()) &&
+                    farmEquipmentRepository.existsByEquipmentNameAndFarmIdFarm(request.getEquipmentName(), loggedUserFarm)) {
                 throw new RuntimeException("Maszyna o podanej nazwie już występuje w gospodarstwie");
             }
-            farmEquipmentService.setCommonFieldsForCategory(addUpdateFarmEquipmentRequest, equipment);
-            farmEquipmentService.setSpecificFieldsForCategory(addUpdateFarmEquipmentRequest, equipment, equipment.getCategory().getCategoryName());
+            farmEquipmentService.setCommonFieldsForCategory(request, equipment);
+            farmEquipmentService.setSpecificFieldsForCategory(request, equipment, equipment.getCategory().getCategoryName());
             farmEquipmentRepository.save(equipment);
         } else {
             throw new RuntimeException("Wybrany sprzęt już nie istnieje");
