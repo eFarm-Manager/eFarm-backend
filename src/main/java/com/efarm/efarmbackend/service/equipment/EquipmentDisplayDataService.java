@@ -30,8 +30,10 @@ public class EquipmentDisplayDataService {
         }
         cachedCategoryList.addAll(
                 categories.stream()
-                        .map(categoryName -> new EquipmentCategoryDTO(categoryName, categoryFieldsCache.get(categoryName)))
-                        .toList()
+                        .map(categoryName -> new EquipmentCategoryDTO(
+                                categoryName,
+                                categoryFieldsCache.get(categoryName))
+                        ).toList()
         );
     }
 

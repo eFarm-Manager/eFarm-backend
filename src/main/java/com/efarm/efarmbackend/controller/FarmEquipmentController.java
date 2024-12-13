@@ -68,10 +68,12 @@ public class FarmEquipmentController {
 
     @PostMapping("/new")
     @PreAuthorize("hasRole('ROLE_FARM_MANAGER') or hasRole('ROLE_FARM_OWNER')")
-    public ResponseEntity<MessageResponse> addNewFarmEquipment(@Valid @RequestBody AddUpdateFarmEquipmentRequest addUpdateFarmEquipmentRequest, BindingResult bindingResult) {
+    public ResponseEntity<MessageResponse> addNewFarmEquipment(
+            @Valid @RequestBody AddUpdateFarmEquipmentRequest request,
+            BindingResult bindingResult) {
         try {
             validationRequestService.validateRequest(bindingResult);
-            farmEquipmentFacade.addNewFarmEquipment(addUpdateFarmEquipmentRequest);
+            farmEquipmentFacade.addNewFarmEquipment(request);
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(new MessageResponse("Pomyślnie dodano nową maszynę"));
         } catch (Exception e) {
