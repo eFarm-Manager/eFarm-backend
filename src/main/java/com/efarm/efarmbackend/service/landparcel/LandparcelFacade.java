@@ -44,7 +44,11 @@ public class LandparcelFacade {
 
         landparcelService.addNewLandparcelData(landparcelDTO, landparcel);
         landparcelRepository.save(landparcel);
-        agriculturalRecordService.createAgriculturalRecordForLandparcel(landparcel, loggedUserFarm, seasonService.getCurrentSeason());
+        agriculturalRecordService.createAgriculturalRecordForLandparcel(
+                landparcel,
+                loggedUserFarm,
+                seasonService.getCurrentSeason()
+        );
     }
 
     public LandparcelDTO getLandparcelDetails(Integer id) throws Exception {
