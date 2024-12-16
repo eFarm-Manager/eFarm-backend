@@ -42,9 +42,14 @@ public class FarmStatisticsService {
     }
 
     public List<CropStatisticsResponse> getCropStatistics(String seasonName) throws Exception {
+        Season season = (seasonName != null)
+                ? seasonService.getSeasonByName(seasonName)
+                : seasonService.getCurrentSeason();
 
-        Season season = (seasonName != null) ? seasonService.getSeasonByName(seasonName) : seasonService.getCurrentSeason();
-        List<Object[]> cropStatistics = agriculturalRecordRepository.findCropStatisticsBySeasonAndFarm(season.getId(), userService.getLoggedUserFarm().getId());
+        List<Object[]> cropStatistics = agriculturalRecordRepository.findCropStatisticsBySeasonAndFarm(
+                season.getId(),
+                userService.getLoggedUserFarm().getId()
+        );
 
         return cropStatistics.stream()
                 .map(result -> new CropStatisticsResponse(

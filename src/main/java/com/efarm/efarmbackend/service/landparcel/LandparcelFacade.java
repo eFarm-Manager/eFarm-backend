@@ -31,17 +31,20 @@ public class LandparcelFacade {
     @Transactional
     public void addNewLandparcel(AddLandparcelRequest addLandparcelRequest) throws Exception {
         Farm loggedUserFarm = userService.getLoggedUserFarm();
-        LandparcelId landparcelId = new LandparcelId(landparcelRepository.findNextFreeIdForFarm(loggedUserFarm.getId()), loggedUserFarm.getId());
-        Landparcel landparcel = new Landparcel(landparcelId, loggedUserFarm);
-
         LandparcelDTO landparcelDTO = new LandparcelDTO(addLandparcelRequest);
+
         if (landparcelService.isLandparcelAlreadyExistingByFarm(landparcelDTO, loggedUserFarm)) {
-            throw new Exception("Działka o powyższych danych geodezyjnych już istnieje");
+            throw new IllegalArgumentException("Działka o powyższych danych geodezyjnych już istnieje");
         }
         if (landparcelService.isLandparcelNameTaken(landparcelDTO.getName(), loggedUserFarm)) {
-            throw new Exception("Działka o podanej nazwie już istnieje");
+            throw new IllegalArgumentException("Działka o podanej nazwie już istnieje");
         }
 
+        LandparcelId landparcelId = new LandparcelId(
+                landparcelRepository.findNextFreeIdForFarm(loggedUserFarm.getId()),
+                loggedUserFarm.getId()
+        );
+        Landparcel landparcel = new Landparcel(landparcelId, loggedUserFarm);
         landparcelService.addNewLandparcelData(landparcelDTO, landparcel);
         landparcelRepository.save(landparcel);
         agriculturalRecordService.createAgriculturalRecordForLandparcel(
@@ -59,7 +62,7 @@ public class LandparcelFacade {
                 .orElseThrow(() -> new Exception("Działka o id: " + landparcelId.getId() + " nie została znaleziona"));
 
         if (!landparcel.getIsAvailable()) {
-            throw new Exception("Wybrana działka już nie istnieje");
+            throw new RuntimeException("Wybrana działka już nie istnieje");
         }
         return new LandparcelDTO(landparcel);
     }
@@ -75,11 +78,11 @@ public class LandparcelFacade {
                 .orElseThrow(() -> new Exception("Działka nie istnieje"));
 
         if (!landparcel.getIsAvailable()) {
-            throw new Exception("Wybrana działka już nie istnieje");
+            throw new RuntimeException("Wybrana działka już nie istnieje");
         }
         if (!landparcel.getName().equals(landparcelDTO.getName()) &&
                 landparcelService.isLandparcelNameTaken(landparcelDTO.getName(), loggedUserFarm)) {
-            throw new Exception("Działka o podanej nazwie już istnieje");
+            throw new IllegalArgumentException("Działka o podanej nazwie już istnieje");
         }
 
         landparcelService.updateLandparcelData(landparcelDTO, landparcel);
