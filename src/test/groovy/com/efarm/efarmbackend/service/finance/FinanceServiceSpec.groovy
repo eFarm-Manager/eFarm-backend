@@ -20,7 +20,7 @@ class FinanceServiceSpec extends Specification {
     def transactionRepository = Mock(TransactionRepository)
 
     @Subject
-    FinanceService financeService = new FinanceService(
+    FinanceServiceimpl financeService = new FinanceServiceimpl(
             financialCategoryRepository,
             paymentStatusRepository,
             transactionRepository

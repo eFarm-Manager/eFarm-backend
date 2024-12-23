@@ -16,10 +16,10 @@ import com.efarm.efarmbackend.repository.farm.FarmRepository
 import com.efarm.efarmbackend.repository.user.UserRepository
 import com.efarm.efarmbackend.security.services.UserDetailsImpl
 import com.efarm.efarmbackend.service.auth.AuthFacade
-import com.efarm.efarmbackend.service.auth.AuthService
-import com.efarm.efarmbackend.service.farm.ActivationCodeService
-import com.efarm.efarmbackend.service.farm.FarmService
-import com.efarm.efarmbackend.service.user.UserService
+import com.efarm.efarmbackend.service.auth.AuthServiceImpl
+import com.efarm.efarmbackend.service.farm.ActivationCodeServiceImpl
+import com.efarm.efarmbackend.service.farm.FarmServiceImpl
+import com.efarm.efarmbackend.service.user.UserServiceImpl
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.core.context.SecurityContextHolder
 import spock.lang.Specification
@@ -33,10 +33,10 @@ class AuthFacadeSpec extends Specification {
     def farmRepository = Mock(FarmRepository)
     def addressRepository = Mock(AddressRepository)
     def activationCodeRepository = Mock(ActivationCodeRepository)
-    def authService = Mock(AuthService)
-    def userService = Mock(UserService)
-    def activationCodeService = Mock(ActivationCodeService)
-    def farmService = Mock(FarmService)
+    def authService = Mock(AuthServiceImpl)
+    def userService = Mock(UserServiceImpl)
+    def activationCodeService = Mock(ActivationCodeServiceImpl)
+    def farmService = Mock(FarmServiceImpl)
     def authenticationManager = Mock(AuthenticationManager)
 
     @Subject

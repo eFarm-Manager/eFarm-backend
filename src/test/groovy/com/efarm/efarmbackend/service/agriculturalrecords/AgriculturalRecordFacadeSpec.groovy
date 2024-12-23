@@ -7,18 +7,18 @@ import com.efarm.efarmbackend.model.landparcel.LandparcelId
 import com.efarm.efarmbackend.payload.request.agriculturalrecord.CreateNewAgriculturalRecordRequest
 import com.efarm.efarmbackend.repository.agriculturalrecords.AgriculturalRecordRepository
 import com.efarm.efarmbackend.repository.landparcel.LandparcelRepository
-import com.efarm.efarmbackend.service.landparcel.LandparcelService
-import com.efarm.efarmbackend.service.user.UserService
+import com.efarm.efarmbackend.service.landparcel.LandparcelServiceImpl
+import com.efarm.efarmbackend.service.user.UserServiceImpl
 import spock.lang.Specification
 import spock.lang.Subject
 
 class AgriculturalRecordFacadeSpec extends Specification {
 
-    SeasonService seasonService = Mock(SeasonService)
-    UserService userService = Mock(UserService)
-    AgriculturalRecordService agriculturalRecordService = Mock(AgriculturalRecordService)
+    SeasonServiceImpl seasonService = Mock(SeasonServiceImpl)
+    UserServiceImpl userService = Mock(UserServiceImpl)
+    AgriculturalRecordServiceImpl agriculturalRecordService = Mock(AgriculturalRecordServiceImpl)
     AgriculturalRecordRepository agriculturalRecordRepository = Mock(AgriculturalRecordRepository)
-    LandparcelService landparcelService = Mock(LandparcelService)
+    LandparcelServiceImpl landparcelService = Mock(LandparcelServiceImpl)
     LandparcelRepository landparcelRepository = Mock(LandparcelRepository)
 
     @Subject

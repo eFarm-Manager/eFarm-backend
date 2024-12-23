@@ -6,8 +6,8 @@ import com.efarm.efarmbackend.model.user.User
 import com.efarm.efarmbackend.repository.finance.FinancialCategoryRepository
 import com.efarm.efarmbackend.repository.finance.PaymentStatusRepository
 import com.efarm.efarmbackend.repository.finance.TransactionRepository
-import com.efarm.efarmbackend.service.MainNotificationService
-import com.efarm.efarmbackend.service.user.UserService
+import com.efarm.efarmbackend.service.MainNotificationServiceImpl
+import com.efarm.efarmbackend.service.user.UserServiceImpl
 import spock.lang.Specification
 import spock.lang.Subject
 
@@ -16,13 +16,13 @@ import java.time.LocalDate
 class FinanceNotificationServiceSpec extends Specification {
 
     def transactionRepository = Mock(TransactionRepository)
-    def userService = Mock(UserService)
+    def userService = Mock(UserServiceImpl)
     def financialCategoryRepository = Mock(FinancialCategoryRepository)
     def paymentStatusRepository = Mock(PaymentStatusRepository)
-    def mainNotificationService = Mock(MainNotificationService)
+    def mainNotificationService = Mock(MainNotificationServiceImpl)
 
     @Subject
-    FinanceNotificationService financeNotificationService = new FinanceNotificationService(
+    FinanceNotificationServiceImpl financeNotificationService = new FinanceNotificationServiceImpl(
             transactionRepository,
             userService,
             financialCategoryRepository,

@@ -9,12 +9,12 @@ import com.efarm.efarmbackend.model.user.User
 import com.efarm.efarmbackend.payload.request.auth.LoginRequest
 import com.efarm.efarmbackend.security.jwt.JwtUtils
 import com.efarm.efarmbackend.security.services.UserDetailsImpl
-import com.efarm.efarmbackend.service.ValidationRequestService
+import com.efarm.efarmbackend.service.ValidationRequestServiceImpl
 import com.efarm.efarmbackend.service.auth.AuthFacade
-import com.efarm.efarmbackend.service.auth.AuthService
-import com.efarm.efarmbackend.service.farm.ActivationCodeService
-import com.efarm.efarmbackend.service.farm.FarmService
-import com.efarm.efarmbackend.service.user.UserService
+import com.efarm.efarmbackend.service.auth.AuthServiceImpl
+import com.efarm.efarmbackend.service.farm.ActivationCodeServiceImpl
+import com.efarm.efarmbackend.service.farm.FarmServiceImpl
+import com.efarm.efarmbackend.service.user.UserServiceImpl
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseCookie
@@ -36,11 +36,11 @@ class AuthControllerSpec extends Specification {
 
     def authFacade = Mock(AuthFacade)
     def jwtUtils = Mock(JwtUtils)
-    def userService = Mock(UserService)
-    def activationCodeService = Mock(ActivationCodeService)
-    def farmService = Mock(FarmService)
-    def authService = Mock(AuthService)
-    def validationRequestService = Mock(ValidationRequestService)
+    def userService = Mock(UserServiceImpl)
+    def activationCodeService = Mock(ActivationCodeServiceImpl)
+    def farmService = Mock(FarmServiceImpl)
+    def authService = Mock(AuthServiceImpl)
+    def validationRequestService = Mock(ValidationRequestServiceImpl)
 
     @Subject
     AuthController authController = new AuthController(

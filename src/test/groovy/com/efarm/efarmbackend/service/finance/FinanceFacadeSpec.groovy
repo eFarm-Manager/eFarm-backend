@@ -6,7 +6,7 @@ import com.efarm.efarmbackend.payload.request.finance.NewTransactionRequest
 import com.efarm.efarmbackend.payload.request.finance.UpdateTransactionRequest
 import com.efarm.efarmbackend.payload.response.BalanceResponse
 import com.efarm.efarmbackend.repository.finance.TransactionRepository
-import com.efarm.efarmbackend.service.user.UserService
+import com.efarm.efarmbackend.service.user.UserServiceImpl
 import spock.lang.Specification
 import spock.lang.Subject
 
@@ -14,9 +14,9 @@ import java.time.LocalDate
 
 class FinanceFacadeSpec extends Specification {
 
-    def financeService = Mock(FinanceService)
+    def financeService = Mock(FinanceServiceimpl)
     def transactionRepository = Mock(TransactionRepository)
-    def userService = Mock(UserService)
+    def userService = Mock(UserServiceImpl)
 
     @Subject
     FinanceFacade financeFacade = new FinanceFacade(

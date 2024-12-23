@@ -13,7 +13,7 @@ class LandparcelServiceSpec extends Specification {
     def landparcelRepository = Mock(LandparcelRepository)
 
     @Subject
-    LandparcelService landparcelService = new LandparcelService(
+    LandparcelServiceImpl landparcelService = new LandparcelServiceImpl(
             landOwnershipStatusRepository,
             landparcelRepository
     )

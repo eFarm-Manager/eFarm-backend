@@ -8,7 +8,7 @@ import spock.lang.Subject
 class ValidationRequestServiceSpec extends Specification {
 
     @Subject
-    def validationRequestService = new ValidationRequestService()
+    def validationRequestService = new ValidationRequestServiceImpl()
 
     def "test validateRequestWithException with errors"() {
         given:

@@ -3,7 +3,7 @@ package com.efarm.efarmbackend.service
 import com.efarm.efarmbackend.model.farm.Address
 import com.efarm.efarmbackend.payload.request.farm.UpdateFarmDetailsRequest
 import com.efarm.efarmbackend.repository.farm.AddressRepository
-import com.efarm.efarmbackend.service.farm.AddressService
+import com.efarm.efarmbackend.service.farm.AddressServiceImpl
 import spock.lang.Specification
 import spock.lang.Subject
 
@@ -12,7 +12,7 @@ class AddressServiceSpec extends Specification {
     def addressRepository = Mock(AddressRepository)
 
     @Subject
-    AddressService addressService = new AddressService(
+    AddressServiceImpl addressService = new AddressServiceImpl(
             addressRepository
     )
 

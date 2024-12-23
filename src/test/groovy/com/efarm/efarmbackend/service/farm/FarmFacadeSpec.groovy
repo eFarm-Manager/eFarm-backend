@@ -7,12 +7,12 @@ import com.efarm.efarmbackend.model.farm.FarmDTO
 import com.efarm.efarmbackend.payload.request.farm.UpdateFarmDetailsRequest
 import com.efarm.efarmbackend.repository.farm.AddressRepository
 import com.efarm.efarmbackend.repository.farm.FarmRepository
-import com.efarm.efarmbackend.service.auth.AuthService
-import com.efarm.efarmbackend.service.farm.ActivationCodeService
-import com.efarm.efarmbackend.service.farm.AddressService
+import com.efarm.efarmbackend.service.auth.AuthServiceImpl
+import com.efarm.efarmbackend.service.farm.ActivationCodeServiceImpl
+import com.efarm.efarmbackend.service.farm.AddressServiceImpl
 import com.efarm.efarmbackend.service.farm.FarmFacade
-import com.efarm.efarmbackend.service.farm.FarmService
-import com.efarm.efarmbackend.service.user.UserService
+import com.efarm.efarmbackend.service.farm.FarmServiceImpl
+import com.efarm.efarmbackend.service.user.UserServiceImpl
 import org.springframework.security.core.context.SecurityContextHolder
 import spock.lang.Specification
 import spock.lang.Subject
@@ -21,11 +21,11 @@ import java.time.LocalDate
 
 class FarmFacadeSpec extends Specification {
 
-    def userService = Mock(UserService)
-    def farmService = Mock(FarmService)
-    def activationCodeService = Mock(ActivationCodeService)
-    def authService = Mock(AuthService)
-    def addressService = Mock(AddressService)
+    def userService = Mock(UserServiceImpl)
+    def farmService = Mock(FarmServiceImpl)
+    def activationCodeService = Mock(ActivationCodeServiceImpl)
+    def authService = Mock(AuthServiceImpl)
+    def addressService = Mock(AddressServiceImpl)
 
     @Subject
     FarmFacade farmFacade = new FarmFacade(

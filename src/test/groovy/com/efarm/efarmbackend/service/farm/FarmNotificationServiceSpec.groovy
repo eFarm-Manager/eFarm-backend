@@ -5,8 +5,8 @@ import com.efarm.efarmbackend.model.farm.Farm
 import com.efarm.efarmbackend.model.user.User
 import com.efarm.efarmbackend.repository.farm.ActivationCodeRepository
 import com.efarm.efarmbackend.repository.farm.FarmRepository
-import com.efarm.efarmbackend.service.MainNotificationService
-import com.efarm.efarmbackend.service.user.UserService
+import com.efarm.efarmbackend.service.MainNotificationServiceImpl
+import com.efarm.efarmbackend.service.user.UserServiceImpl
 import spock.lang.Specification
 import spock.lang.Subject
 
@@ -14,13 +14,13 @@ import java.time.LocalDate
 
 class FarmNotificationServiceSpec extends Specification {
 
-    def userService = Mock(UserService)
+    def userService = Mock(UserServiceImpl)
     def farmRepository = Mock(FarmRepository)
     def activationCodeRepository = Mock(ActivationCodeRepository)
-    def mainNotificationService = Mock(MainNotificationService)
+    def mainNotificationService = Mock(MainNotificationServiceImpl)
 
     @Subject
-    FarmNotificationService farmNotificationService = new FarmNotificationService(
+    FarmNotificationServiceImpl farmNotificationService = new FarmNotificationServiceImpl(
             userService,
             farmRepository,
             activationCodeRepository,

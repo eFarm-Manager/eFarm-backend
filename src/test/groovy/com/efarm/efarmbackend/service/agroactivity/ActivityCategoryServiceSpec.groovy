@@ -10,7 +10,7 @@ class ActivityCategoryServiceSpec extends Specification {
     def activityCategoryRepository = Mock(ActivityCategoryRepository)
 
     @Subject
-    ActivityCategoryService activityCategoryService = new ActivityCategoryService(
+    ActivityCategoryServiceImpl activityCategoryService = new ActivityCategoryServiceImpl(
             activityCategoryRepository
     )
 

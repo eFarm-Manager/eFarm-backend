@@ -7,20 +7,20 @@ import com.efarm.efarmbackend.payload.response.CropStatisticsResponse
 import com.efarm.efarmbackend.payload.response.LandAreaStatisticsResponse
 import com.efarm.efarmbackend.repository.agriculturalrecords.AgriculturalRecordRepository
 import com.efarm.efarmbackend.repository.landparcel.LandparcelRepository
-import com.efarm.efarmbackend.service.agriculturalrecords.SeasonService
-import com.efarm.efarmbackend.service.user.UserService
+import com.efarm.efarmbackend.service.agriculturalrecords.SeasonServiceImpl
+import com.efarm.efarmbackend.service.user.UserServiceImpl
 import spock.lang.Specification
 import spock.lang.Subject
 
 class FarmStatisticsServiceSpec extends Specification {
 
-    def userService = Mock(UserService)
+    def userService = Mock(UserServiceImpl)
     def landparcelRepository = Mock(LandparcelRepository)
     def agriculturalRecordRepository = Mock(AgriculturalRecordRepository)
-    def seasonService = Mock(SeasonService)
+    def seasonService = Mock(SeasonServiceImpl)
 
     @Subject
-    FarmStatisticsService farmStatisticsService = new FarmStatisticsService(
+    FarmStatisticsServiceImpl farmStatisticsService = new FarmStatisticsServiceImpl(
             userService,
             landparcelRepository,
             agriculturalRecordRepository,

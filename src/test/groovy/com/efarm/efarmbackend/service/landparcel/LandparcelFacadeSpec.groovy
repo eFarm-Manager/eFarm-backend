@@ -6,19 +6,19 @@ import com.efarm.efarmbackend.model.landparcel.*
 import com.efarm.efarmbackend.payload.request.landparcel.AddLandparcelRequest
 import com.efarm.efarmbackend.payload.request.landparcel.UpdateLandparcelRequest
 import com.efarm.efarmbackend.repository.landparcel.LandparcelRepository
-import com.efarm.efarmbackend.service.agriculturalrecords.AgriculturalRecordService
-import com.efarm.efarmbackend.service.agriculturalrecords.SeasonService
-import com.efarm.efarmbackend.service.user.UserService
+import com.efarm.efarmbackend.service.agriculturalrecords.AgriculturalRecordServiceImpl
+import com.efarm.efarmbackend.service.agriculturalrecords.SeasonServiceImpl
+import com.efarm.efarmbackend.service.user.UserServiceImpl
 import spock.lang.Specification
 import spock.lang.Subject
 
 class LandparcelFacadeSpec extends Specification {
 
-    def landparcelService = Mock(LandparcelService)
+    def landparcelService = Mock(LandparcelServiceImpl)
     def landparcelRepository = Mock(LandparcelRepository)
-    def userService = Mock(UserService)
-    def agriculturalRecordService = Mock(AgriculturalRecordService)
-    def seasonService = Mock(SeasonService)
+    def userService = Mock(UserServiceImpl)
+    def agriculturalRecordService = Mock(AgriculturalRecordServiceImpl)
+    def seasonService = Mock(SeasonServiceImpl)
 
     @Subject
     LandparcelFacade landparcelFacade = new LandparcelFacade(

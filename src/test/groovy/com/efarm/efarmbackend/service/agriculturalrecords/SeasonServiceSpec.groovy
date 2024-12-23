@@ -12,7 +12,7 @@ class SeasonServiceSpec extends Specification {
     def seasonRepository = Mock(SeasonRepository)
 
     @Subject
-    SeasonService seasonService = new SeasonService(
+    SeasonServiceImpl seasonService = new SeasonServiceImpl(
             seasonRepository
     )
 

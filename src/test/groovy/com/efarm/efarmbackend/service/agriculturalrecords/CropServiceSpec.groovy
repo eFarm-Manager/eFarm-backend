@@ -10,7 +10,7 @@ class CropServiceSpec extends Specification {
     def cropRepository = Mock(CropRepository)
 
     @Subject
-    CropService cropService = new CropService(
+    CropServiceImpl cropService = new CropServiceImpl(
             cropRepository
     )
 

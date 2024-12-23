@@ -8,12 +8,12 @@ import com.efarm.efarmbackend.payload.request.farm.UpdateFarmDetailsRequest
 import com.efarm.efarmbackend.repository.farm.ActivationCodeRepository
 import com.efarm.efarmbackend.repository.farm.AddressRepository
 import com.efarm.efarmbackend.repository.farm.FarmRepository
-import com.efarm.efarmbackend.service.agriculturalrecords.AgriculturalRecordService
-import com.efarm.efarmbackend.service.equipment.FarmEquipmentService
-import com.efarm.efarmbackend.service.farm.FarmService
-import com.efarm.efarmbackend.service.finance.FinanceService
-import com.efarm.efarmbackend.service.landparcel.LandparcelService
-import com.efarm.efarmbackend.service.user.UserService
+import com.efarm.efarmbackend.service.agriculturalrecords.AgriculturalRecordServiceImpl
+import com.efarm.efarmbackend.service.equipment.FarmEquipmentServiceImpl
+import com.efarm.efarmbackend.service.farm.FarmServiceImpl
+import com.efarm.efarmbackend.service.finance.FinanceServiceimpl
+import com.efarm.efarmbackend.service.landparcel.LandparcelServiceImpl
+import com.efarm.efarmbackend.service.user.UserServiceImpl
 import org.springframework.security.core.context.SecurityContextHolder
 import spock.lang.Specification
 import spock.lang.Subject
@@ -25,15 +25,15 @@ class FarmServiceSpec extends Specification {
 
     def farmRepository = Mock(FarmRepository)
     def activationCodeRepository = Mock(ActivationCodeRepository)
-    def landparcelService = Mock(LandparcelService)
-    def agriculturalRecordService = Mock(AgriculturalRecordService)
-    def financeService = Mock(FinanceService)
-    def farmEquipmentService = Mock(FarmEquipmentService)
-    def userService = Mock(UserService)
+    def landparcelService = Mock(LandparcelServiceImpl)
+    def agriculturalRecordService = Mock(AgriculturalRecordServiceImpl)
+    def financeService = Mock(FinanceServiceimpl)
+    def farmEquipmentService = Mock(FarmEquipmentServiceImpl)
+    def userService = Mock(UserServiceImpl)
     def addressRepository = Mock(AddressRepository)
 
     @Subject
-    FarmService farmService = new FarmService(
+    FarmServiceImpl farmService = new FarmServiceImpl(
             farmRepository,
             activationCodeRepository,
             landparcelService,

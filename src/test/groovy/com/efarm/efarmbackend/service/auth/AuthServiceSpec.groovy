@@ -4,7 +4,7 @@ import com.efarm.efarmbackend.payload.request.auth.LoginRequest
 import com.efarm.efarmbackend.payload.request.auth.UpdateActivationCodeRequest
 import com.efarm.efarmbackend.security.services.BruteForceProtectionService
 import com.efarm.efarmbackend.security.services.UserDetailsImpl
-import com.efarm.efarmbackend.service.auth.AuthService
+import com.efarm.efarmbackend.service.auth.AuthServiceImpl
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -20,7 +20,7 @@ class AuthServiceSpec extends Specification {
     def bruteForceProtectionService = Mock(BruteForceProtectionService)
 
     @Subject
-    AuthService authService = new AuthService(
+    AuthServiceImpl authService = new AuthServiceImpl(
             authenticationManager,
             bruteForceProtectionService
     )

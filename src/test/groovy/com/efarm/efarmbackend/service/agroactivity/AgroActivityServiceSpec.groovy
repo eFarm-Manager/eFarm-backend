@@ -11,7 +11,7 @@ import com.efarm.efarmbackend.repository.agriculturalrecords.AgriculturalRecordR
 import com.efarm.efarmbackend.repository.agroactivity.ActivityHasEquipmentRepository
 import com.efarm.efarmbackend.repository.agroactivity.ActivityHasOperatorRepository
 import com.efarm.efarmbackend.repository.agroactivity.AgroActivityRepository
-import com.efarm.efarmbackend.service.user.UserService
+import com.efarm.efarmbackend.service.user.UserServiceImpl
 import spock.lang.Specification
 import spock.lang.Subject
 
@@ -20,13 +20,13 @@ import java.time.Instant
 class AgroActivityServiceSpec extends Specification {
 
     def activityHasOperatorRepository = Mock(ActivityHasOperatorRepository)
-    def userService = Mock(UserService)
+    def userService = Mock(UserServiceImpl)
     def activityHasEquipmentRepository = Mock(ActivityHasEquipmentRepository)
     def agroActivityRepository = Mock(AgroActivityRepository)
     def agriculturalRecordRepository = Mock(AgriculturalRecordRepository)
 
     @Subject
-    AgroActivityService agroActivityService = new AgroActivityService(
+    AgroActivityServiceImpl agroActivityService = new AgroActivityServiceImpl(
             activityHasOperatorRepository,
             userService,
             activityHasEquipmentRepository,
