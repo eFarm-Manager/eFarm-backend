@@ -3,28 +3,20 @@ package com.efarm.efarmbackend.repository.user;
 import com.efarm.efarmbackend.model.farm.Farm;
 import com.efarm.efarmbackend.model.user.Role;
 import com.efarm.efarmbackend.model.user.User;
-
-import java.util.List;
-import java.util.Optional;
-
-import org.junit.jupiter.api.*;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.everyItem;
-import static org.hamcrest.Matchers.hasProperty;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.notNullValue;
-
-
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Optional;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 @DataJpaTest
 @Transactional
@@ -254,8 +246,8 @@ public class UserRepositoryIT {
     public void testFindAllInactiveUsersByFarmId() {
         // Given
         User inactiveUser = entityManager.getEntityManager()
-            .createQuery("SELECT u FROM User u WHERE u.isActive = false", User.class)
-            .getSingleResult();
+                .createQuery("SELECT u FROM User u WHERE u.isActive = false", User.class)
+                .getSingleResult();
         Integer farmId = inactiveUser.getFarm().getId();
 
         // When
@@ -270,12 +262,12 @@ public class UserRepositoryIT {
     @DisplayName("Test finding farm owners by farm ID")
     public void testFindOwnersForFarm() {
         //given
-        User user = entityManager.find(User.class,1);
+        User user = entityManager.find(User.class, 1);
         // When
         List<User> farmOwners = userRepository.findOwnersForFarm(1);
 
         // Then
-        assertThat(farmOwners, hasSize(1)); 
+        assertThat(farmOwners, hasSize(1));
         assertThat(farmOwners.get(0).getUsername(), is(user.getUsername()));
     }
 

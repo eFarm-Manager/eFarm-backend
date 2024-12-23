@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.efarm</groupId>
     <artifactId>eFarm-backend</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.14</version>
     <name>eFarm-backend</name>
     <description>eFarm-backend</description>
     <url/>
@@ -18,13 +18,28 @@
         <license/>
     </licenses>
     <developers>
-        <developer/>
+        <developer>
+            <id>BartoszSkowyra22</id>
+            <name>Bartosz Skowyra</name>
+            <email>skowyrab@gmail.com</email>
+            <roles>
+                <role>Developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>Sprysio*</id>
+            <name>Adrian Spryszak</name>
+            <email>s97742@pollub.edu.pl</email>
+            <roles>
+                <role>Tester</role>
+            </roles>
+        </developer>
     </developers>
     <scm>
         <connection/>
         <developerConnection/>
-        <tag/>
-        <url/>
+        <tag>HEAD</tag>
+        <url>https://github.com/eFarm-Manager/eFarm-backend</url>
     </scm>
 
     <properties>

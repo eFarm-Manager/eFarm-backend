@@ -58,9 +58,9 @@ class FarmStatisticsServiceSpec extends Specification {
         }
 
         List<CropStatisticsResponse> responses = [
-            new CropStatisticsResponse(cropName: 'crop1', totalArea: 50.0),
-            new CropStatisticsResponse(cropName: 'crop2', totalArea: 30.0),
-            new CropStatisticsResponse(cropName: 'crop3', totalArea: 20.0)
+                new CropStatisticsResponse(cropName: 'crop1', totalArea: 50.0),
+                new CropStatisticsResponse(cropName: 'crop2', totalArea: 30.0),
+                new CropStatisticsResponse(cropName: 'crop3', totalArea: 20.0)
         ]
 
         Season season = Mock(Season) {
@@ -71,9 +71,9 @@ class FarmStatisticsServiceSpec extends Specification {
         seasonService.getSeasonByName(season.getName()) >> season
         userService.getLoggedUserFarm() >> farm
         agriculturalRecordRepository.findCropStatisticsBySeasonAndFarm(season.getId(), farm.getId()) >> [
-            ['crop1', 50.0d] as Object[],
-            ['crop2', 30.0d] as Object[],
-            ['crop3', 20.0d] as Object[]
+                ['crop1', 50.0d] as Object[],
+                ['crop2', 30.0d] as Object[],
+                ['crop3', 20.0d] as Object[]
         ]
 
         when:

@@ -1,15 +1,16 @@
-package com.efarm.efarmbackend.security.jwt;
+package com.efarm.efarmbackend.security.jwt
 
-import spock.lang.Specification
+import com.efarm.efarmbackend.security.services.UserDetailsImpl
 import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletRequest
-import com.efarm.efarmbackend.security.services.UserDetailsImpl
 import org.springframework.http.ResponseCookie
+import spock.lang.Specification
 
 class JwtUtilsSpec extends Specification {
 
     String jwtCookie = 'jwtToken'
     String jwtSecret = '123hbfaegi32qgf7r6gh87wefawoyrg763ihr79g37hfo8a73riau'
+    int jwtExpirationMs = 86400000
 
 
     //checking that if cookie is present then the jwt is returned correctly
@@ -70,6 +71,9 @@ class JwtUtilsSpec extends Specification {
         java.lang.reflect.Field fieldSecret = JwtUtils.class.getDeclaredField('jwtSecret')
         fieldSecret.setAccessible(true)
         fieldSecret.set(jwtUtils, jwtSecret)
+        java.lang.reflect.Field fieldExpiration = JwtUtils.class.getDeclaredField('jwtExpirationMs')
+        fieldExpiration.setAccessible(true)
+        fieldExpiration.set(jwtUtils, jwtExpirationMs)
 
         when:
         ResponseCookie cookie = jwtUtils.generateJwtCookie(userPrincipal)

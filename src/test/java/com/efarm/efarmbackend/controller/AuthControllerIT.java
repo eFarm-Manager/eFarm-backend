@@ -1,6 +1,24 @@
 package com.efarm.efarmbackend.controller;
 
-import org.junit.jupiter.api.*;
+import com.efarm.efarmbackend.model.farm.ActivationCode;
+import com.efarm.efarmbackend.model.farm.Farm;
+import com.efarm.efarmbackend.model.user.ERole;
+import com.efarm.efarmbackend.model.user.Role;
+import com.efarm.efarmbackend.model.user.User;
+import com.efarm.efarmbackend.payload.request.auth.LoginRequest;
+import com.efarm.efarmbackend.payload.request.auth.SignupFarmRequest;
+import com.efarm.efarmbackend.payload.request.auth.SignupUserRequest;
+import com.efarm.efarmbackend.payload.request.auth.UpdateActivationCodeRequest;
+import com.efarm.efarmbackend.payload.request.farm.UpdateActivationCodeByLoggedOwnerRequest;
+import com.efarm.efarmbackend.payload.request.user.ChangePasswordRequest;
+import com.efarm.efarmbackend.security.services.UserDetailsImpl;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -13,32 +31,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.efarm.efarmbackend.model.farm.ActivationCode;
-import com.efarm.efarmbackend.model.farm.Farm;
-import com.efarm.efarmbackend.model.user.ERole;
-import com.efarm.efarmbackend.model.user.Role;
-import com.efarm.efarmbackend.model.user.User;
-import com.efarm.efarmbackend.payload.request.user.ChangePasswordRequest;
-import com.efarm.efarmbackend.payload.request.auth.LoginRequest;
-import com.efarm.efarmbackend.payload.request.auth.SignupFarmRequest;
-import com.efarm.efarmbackend.payload.request.auth.SignupUserRequest;
-import com.efarm.efarmbackend.payload.request.farm.UpdateActivationCodeByLoggedOwnerRequest;
-import com.efarm.efarmbackend.payload.request.auth.UpdateActivationCodeRequest;
-import com.efarm.efarmbackend.security.services.UserDetailsImpl;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.transaction.Transactional;
-
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
@@ -62,6 +59,7 @@ public class AuthControllerIT {
     public void clearSecurityContext() {
         SecurityContextHolder.clearContext();
     }
+
     /*
      * Post /signin
      */
@@ -97,7 +95,7 @@ public class AuthControllerIT {
         mockMvc.perform(post("/auth/signin")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
-        // Then
+                // Then
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.username").value(usernameTest))
                 .andExpect(jsonPath("$.email").value(emailTest))
@@ -136,7 +134,7 @@ public class AuthControllerIT {
         mockMvc.perform(post("/auth/signin")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
-        // Then
+                // Then
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.username").value(usernameTest))
                 .andExpect(jsonPath("$.email").value(emailTest))
@@ -174,7 +172,7 @@ public class AuthControllerIT {
         mockMvc.perform(post("/auth/signin")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
-        // Then
+                // Then
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.message").value("Nieprawidłowe dane logowania"));
 
@@ -219,7 +217,7 @@ public class AuthControllerIT {
         mockMvc.perform(post("/auth/signin")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
-        // Then
+                // Then
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.message").value("Zbyt wiele nieudanych prób logowania. Spróbuj ponownie później."));
     }
@@ -236,9 +234,9 @@ public class AuthControllerIT {
 
         //When
         mockMvc.perform(post("/auth/signout"))
-        // Then
+                // Then
                 .andExpect(status().isOk())
-                .andExpect(header().string(HttpHeaders.SET_COOKIE, "jwtToken=; Path=/api; Secure; SameSite=None"))
+                .andExpect(header().string(HttpHeaders.SET_COOKIE, "jwtToken=; Path=/api; Secure; SameSite=Strict"))
                 .andExpect(jsonPath("$.message").value("Wylogowano"));
     }
     /*
@@ -261,7 +259,7 @@ public class AuthControllerIT {
         User currentUser = entityManager.createQuery(
                         "SELECT u FROM User u JOIN u.role r WHERE r.name = :roleName", User.class)
                 .setParameter("roleName", ERole.ROLE_FARM_MANAGER)
-                .setMaxResults(1)  
+                .setMaxResults(1)
                 .getSingleResult();
 
         UserDetailsImpl userDetails = UserDetailsImpl.build(currentUser);
@@ -273,7 +271,7 @@ public class AuthControllerIT {
         mockMvc.perform(post("/auth/signup")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(signUpUserRequest)))
-        // Then
+                // Then
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Pomyślnie zarejestrowano nowego użytkownika"));
 
@@ -281,12 +279,12 @@ public class AuthControllerIT {
                         "SELECT u FROM User u WHERE u.username = :username", User.class)
                 .setParameter("username", signUpUserRequest.getUsername())
                 .getSingleResult();
-        
+
         assertThat(newUser.getRole().getName(), is(ERole.ROLE_FARM_MANAGER));
         assertThat(newUser.getFirstName(), is(signUpUserRequest.getFirstName()));
         assertThat(newUser.getLastName(), is(signUpUserRequest.getLastName()));
         assertThat(newUser.getEmail(), is(signUpUserRequest.getEmail()));
-        assertThat(newUser.getPhoneNumber(),is(signUpUserRequest.getPhoneNumber()));
+        assertThat(newUser.getPhoneNumber(), is(signUpUserRequest.getPhoneNumber()));
     }
 
     @Test
@@ -305,7 +303,7 @@ public class AuthControllerIT {
         User currentUser = entityManager.createQuery(
                         "SELECT u FROM User u JOIN u.role r WHERE r.name = :roleName", User.class)
                 .setParameter("roleName", ERole.ROLE_FARM_EQUIPMENT_OPERATOR)
-                .setMaxResults(1)  
+                .setMaxResults(1)
                 .getSingleResult();
 
         UserDetailsImpl userDetails = UserDetailsImpl.build(currentUser);
@@ -317,7 +315,7 @@ public class AuthControllerIT {
         mockMvc.perform(post("/auth/signup")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(signUpUserRequest)))
-        // Then
+                // Then
                 .andExpect(status().isForbidden());
     }
 
@@ -347,11 +345,12 @@ public class AuthControllerIT {
         mockMvc.perform(post("/auth/signup")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(signUpUserRequest)))
-        // Then
+                // Then
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Podana nazwa użytkownika jest już zajęta"));
 
     }
+
     /*
      * POST /signupfarm
      */
@@ -362,7 +361,7 @@ public class AuthControllerIT {
         ActivationCode activationCode = entityManager.createQuery(
                         "SELECT a FROM ActivationCode a WHERE a.isUsed = :used", ActivationCode.class)
                 .setParameter("used", false)
-                .setMaxResults(1)  
+                .setMaxResults(1)
                 .getSingleResult();
 
         SignupFarmRequest signUpFarmRequest = new SignupFarmRequest();
@@ -379,7 +378,7 @@ public class AuthControllerIT {
         mockMvc.perform(post("/auth/signupfarm")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(signUpFarmRequest)))
-        // Then
+                // Then
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Pomyślnie zarejestrowano nową farmę"));
 
@@ -391,7 +390,7 @@ public class AuthControllerIT {
                         "SELECT a FROM ActivationCode a WHERE a.code = :code", ActivationCode.class)
                 .setParameter("code", activationCode.getCode())
                 .getSingleResult();
-        
+
         assertThat(newUser.getFirstName(), is(signUpFarmRequest.getFirstName()));
         assertThat(newUser.getLastName(), is(signUpFarmRequest.getLastName()));
         assertThat(newUser.getEmail(), is(signUpFarmRequest.getEmail()));
@@ -426,7 +425,7 @@ public class AuthControllerIT {
         mockMvc.perform(post("/auth/signupfarm")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(signUpFarmRequest)))
-        // Then
+                // Then
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Wybrana nazwa użytkownika jest już zajęta"));
 
@@ -457,7 +456,7 @@ public class AuthControllerIT {
         mockMvc.perform(post("/auth/signupfarm")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(signUpFarmRequest)))
-        // Then
+                // Then
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Wybrana nazwa farmy jest już zajęta"));
 
@@ -481,8 +480,8 @@ public class AuthControllerIT {
         mockMvc.perform(post("/auth/signupfarm")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(signUpFarmRequest)))
-        // Then
-                .andExpect(status().isBadRequest())                
+                // Then
+                .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Podany kod aktywacyjny nie istnieje"));
 
     }
@@ -528,7 +527,7 @@ public class AuthControllerIT {
         mockMvc.perform(post("/auth/update-activation-code")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateActivationCodeRequest)))
-        // Then
+                // Then
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Pomyślnie zaktualizowano kod aktywacyjny"));
 
@@ -547,7 +546,7 @@ public class AuthControllerIT {
         mockMvc.perform(post("/auth/update-activation-code")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateActivationCodeRequest)))
-        // Then
+                // Then
                 .andExpect(status().isBadRequest());
     }
 
@@ -589,7 +588,7 @@ public class AuthControllerIT {
         mockMvc.perform(post("/auth/update-activation-code")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateActivationCodeRequest)))
-        // Then
+                // Then
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Brak uprawnień"));
 
@@ -628,7 +627,7 @@ public class AuthControllerIT {
         mockMvc.perform(post("/auth/update-activation-code")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateActivationCodeRequest)))
-        // Then
+                // Then
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Podany kod aktywacyjny nie istnieje"));
 
@@ -679,7 +678,7 @@ public class AuthControllerIT {
         mockMvc.perform(post("/auth/update-activation-code")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateActivationCodeRequest)))
-        // Then
+                // Then
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Zbyt wiele nieudanych prób. Spróbuj ponownie później."));
     }
@@ -727,7 +726,7 @@ public class AuthControllerIT {
         mockMvc.perform(put("/auth/update-activation-code")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateActivationCodeByLoggedOwnerRequest)))
-        // Then
+                // Then
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Pomyślnie zaktualizowano kod aktywacyjny"));
     }
@@ -770,7 +769,7 @@ public class AuthControllerIT {
         mockMvc.perform(put("/auth/update-activation-code")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateActivationCodeByLoggedOwnerRequest)))
-        // Then
+                // Then
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.message").value("Nieprawidłowe hasło"));
     }
@@ -815,7 +814,7 @@ public class AuthControllerIT {
         mockMvc.perform(put("/auth/update-activation-code")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateActivationCodeByLoggedOwnerRequest)))
-        // Then
+                // Then
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Podany kod aktywacyjny został już wykorzystany"));
     }
@@ -861,7 +860,7 @@ public class AuthControllerIT {
         mockMvc.perform(put("/auth/change-password")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(changePasswordRequest)))
-        // Then
+                // Then
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Hasło zostało pomyślnie zmienione"));
     }
@@ -904,7 +903,7 @@ public class AuthControllerIT {
         mockMvc.perform(put("/auth/change-password")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(changePasswordRequest)))
-        // Then
+                // Then
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.message").value("Podano nieprawidłowe aktualne hasło"));
     }
@@ -947,7 +946,7 @@ public class AuthControllerIT {
         mockMvc.perform(put("/auth/change-password")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(changePasswordRequest)))
-        // Then
+                // Then
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Nowe hasło nie może być takie samo jak poprzednie"));
     }

@@ -1,22 +1,16 @@
 package com.efarm.efarmbackend.service.landparcel
 
-import com.efarm.efarmbackend.model.farm.Farm
-import com.efarm.efarmbackend.model.landparcel.Landparcel
-import com.efarm.efarmbackend.model.landparcel.LandparcelDTO
-import com.efarm.efarmbackend.model.landparcel.LandparcelId
-import com.efarm.efarmbackend.model.landparcel.ELandOwnershipStatus
-import com.efarm.efarmbackend.model.landparcel.LandOwnershipStatus
 import com.efarm.efarmbackend.model.agriculturalrecords.Season
-import com.efarm.efarmbackend.service.agriculturalrecords.AgriculturalRecordService;
-import com.efarm.efarmbackend.service.agriculturalrecords.SeasonService;
-import com.efarm.efarmbackend.repository.landparcel.LandparcelRepository
+import com.efarm.efarmbackend.model.farm.Farm
+import com.efarm.efarmbackend.model.landparcel.*
 import com.efarm.efarmbackend.payload.request.landparcel.AddLandparcelRequest
 import com.efarm.efarmbackend.payload.request.landparcel.UpdateLandparcelRequest
+import com.efarm.efarmbackend.repository.landparcel.LandparcelRepository
+import com.efarm.efarmbackend.service.agriculturalrecords.AgriculturalRecordService
+import com.efarm.efarmbackend.service.agriculturalrecords.SeasonService
 import com.efarm.efarmbackend.service.user.UserService
-import com.efarm.efarmbackend.service.landparcel.LandparcelService
 import spock.lang.Specification
 import spock.lang.Subject
-import java.util.List
 
 class LandparcelFacadeSpec extends Specification {
 
@@ -50,7 +44,7 @@ class LandparcelFacadeSpec extends Specification {
         addLandparcelRequest.setLongitude(21.0122)
         addLandparcelRequest.setLatitude(52.2297)
         addLandparcelRequest.setArea(100.0)
-	    addLandparcelRequest.setGeodesyLandparcelNumber('25312.05')
+        addLandparcelRequest.setGeodesyLandparcelNumber('25312.05')
 
         Farm farm = Mock(Farm) {
             getId() >> 1
@@ -74,16 +68,16 @@ class LandparcelFacadeSpec extends Specification {
     def "should throw exception when land parcel already exists"() {
         given:
         AddLandparcelRequest addLandparcelRequest = new AddLandparcelRequest(
-            landOwnershipStatus: 'STATUS_PRIVATELY_OWNED',
-            voivodeship: 'Lubelskie',
-            district: 'district',
-            commune: 'commune',
-            geodesyDistrictNumber: 'XYZ123',
-            landparcelNumber: 'LP-001',
-            longitude: 21.0122,
-            latitude: 52.2297,
-            area: 1500.0,
-	        geodesyLandparcelNumber: '25312.05'
+                landOwnershipStatus: 'STATUS_PRIVATELY_OWNED',
+                voivodeship: 'Lubelskie',
+                district: 'district',
+                commune: 'commune',
+                geodesyDistrictNumber: 'XYZ123',
+                landparcelNumber: 'LP-001',
+                longitude: 21.0122,
+                latitude: 52.2297,
+                area: 1500.0,
+                geodesyLandparcelNumber: '25312.05'
         )
         Farm farm = Mock(Farm)
 
@@ -105,16 +99,16 @@ class LandparcelFacadeSpec extends Specification {
     def "should throw exception when landparcel name is already taken"() {
         given:
         AddLandparcelRequest addLandparcelRequest = new AddLandparcelRequest(
-            landOwnershipStatus: 'STATUS_PRIVATELY_OWNED',
-            voivodeship: 'Lubelskie',
-            district: 'district',
-            commune: 'commune',
-            geodesyDistrictNumber: 'XYZ123',
-            landparcelNumber: 'LP-001',
-            longitude: 21.0122,
-            latitude: 52.2297,
-            area: 1500.0,
-	        geodesyLandparcelNumber: '25312.05'
+                landOwnershipStatus: 'STATUS_PRIVATELY_OWNED',
+                voivodeship: 'Lubelskie',
+                district: 'district',
+                commune: 'commune',
+                geodesyDistrictNumber: 'XYZ123',
+                landparcelNumber: 'LP-001',
+                longitude: 21.0122,
+                latitude: 52.2297,
+                area: 1500.0,
+                geodesyLandparcelNumber: '25312.05'
         )
 
         Farm farm = Mock(Farm)
@@ -152,7 +146,7 @@ class LandparcelFacadeSpec extends Specification {
 
         userService.getLoggedUserFarm() >> farm
         landparcelRepository.findById(landparcelId) >> Optional.of(landparcel)
-        LandparcelDTO landparcelDTO = Mock(LandparcelDTO){
+        LandparcelDTO landparcelDTO = Mock(LandparcelDTO) {
             getId() >> id
             getArea() >> landparcel.getArea()
         }
@@ -213,10 +207,10 @@ class LandparcelFacadeSpec extends Specification {
         Integer id = 1
         Farm farm = Mock(Farm)
         UpdateLandparcelRequest updateLandparcelRequest = new UpdateLandparcelRequest(
-            name: 'Landparcel',
-            longitude: 21.0122,
-            latitude: 52.2297,
-            area: 1500.0
+                name: 'Landparcel',
+                longitude: 21.0122,
+                latitude: 52.2297,
+                area: 1500.0
         )
         LandparcelId landparcelId = new LandparcelId(id, farm.getId())
         Landparcel landparcel = new Landparcel()
@@ -279,10 +273,10 @@ class LandparcelFacadeSpec extends Specification {
         Integer id = 1
         Farm farm = Mock(Farm)
         UpdateLandparcelRequest updateLandparcelRequest = new UpdateLandparcelRequest(
-            name: 'Landparcel1',
-            longitude: 21.0122,
-            latitude: 52.2297,
-            area: 1500.0
+                name: 'Landparcel1',
+                longitude: 21.0122,
+                latitude: 52.2297,
+                area: 1500.0
         )
         LandparcelId landparcelId = new LandparcelId(id, farm.getId())
         Landparcel landparcel = new Landparcel()
@@ -376,6 +370,7 @@ class LandparcelFacadeSpec extends Specification {
         landparcel1.setCommune('CommuneA')
         landparcel1.setGeodesyDistrictNumber('GRD1')
         landparcel1.setLandparcelNumber('LP1')
+        landparcel1.setIsAvailable(true)
 
         Landparcel landparcel2 = new Landparcel()
         landparcel2.setId(new LandparcelId(2, farm.getId()))
@@ -384,13 +379,14 @@ class LandparcelFacadeSpec extends Specification {
         landparcel2.setCommune('CommuneB')
         landparcel2.setGeodesyDistrictNumber('GRD2')
         landparcel2.setLandparcelNumber('LP2')
+        landparcel2.setIsAvailable(true)
 
         List<Landparcel> landparcelList = [landparcel1, landparcel2]
         userService.getLoggedUserFarm() >> farm
-        landparcelRepository.findByFarmId(farm.getId()) >> landparcelList
+        landparcelRepository.findByFarmIdAndIsAvailableTrue(farm.getId()) >> landparcelList
 
         when:
-        List<LandparcelDTO> result = landparcelFacade.getLandparcels(null, null, null)
+        List<LandparcelDTO> result = landparcelFacade.getAvailableLandparcels(null, null, null)
 
         then:
         result.size() == 2
@@ -411,6 +407,7 @@ class LandparcelFacadeSpec extends Specification {
         landparcel1.setCommune('CommuneA')
         landparcel1.setGeodesyDistrictNumber('GRD1')
         landparcel1.setLandparcelNumber('LP1')
+        landparcel1.setIsAvailable(true)
 
         Landparcel landparcel2 = new Landparcel()
         landparcel2.setId(new LandparcelId(2, farm.getId()))
@@ -419,13 +416,14 @@ class LandparcelFacadeSpec extends Specification {
         landparcel2.setCommune('CommuneB')
         landparcel2.setGeodesyDistrictNumber('GRD2')
         landparcel2.setLandparcelNumber('LP2')
+        landparcel2.setIsAvailable(true)
 
         List<Landparcel> landparcelList = [landparcel1, landparcel2]
         userService.getLoggedUserFarm() >> farm
-        landparcelRepository.findByFarmId(farm.getId()) >> landparcelList
+        landparcelRepository.findByFarmIdAndIsAvailableTrue(farm.getId()) >> landparcelList
 
         when:
-        List<LandparcelDTO> result = landparcelFacade.getLandparcels(searchString, null, null)
+        List<LandparcelDTO> result = landparcelFacade.getAvailableLandparcels(searchString, null, null)
 
         then:
         result.size() == 1
@@ -456,10 +454,10 @@ class LandparcelFacadeSpec extends Specification {
 
         List<Landparcel> landparcelList = [landparcel1, landparcel2]
         userService.getLoggedUserFarm() >> farm
-        landparcelRepository.findByFarmId(farm.getId()) >> landparcelList
+        landparcelRepository.findByFarmIdAndIsAvailableTrue(farm.getId()) >> landparcelList
 
         when:
-        List<LandparcelDTO> result = landparcelFacade.getLandparcels(null, minArea, null)
+        List<LandparcelDTO> result = landparcelFacade.getAvailableLandparcels(null, minArea, null)
 
         then:
         result.size() == 1
@@ -479,6 +477,7 @@ class LandparcelFacadeSpec extends Specification {
         landparcel1.setCommune('CommuneA')
         landparcel1.setGeodesyDistrictNumber('GRD1')
         landparcel1.setLandparcelNumber('LP1')
+        landparcel1.setIsAvailable(true)
 
         Landparcel landparcel2 = new Landparcel()
         landparcel2.setId(new LandparcelId(2, farm.getId()))
@@ -487,13 +486,14 @@ class LandparcelFacadeSpec extends Specification {
         landparcel2.setCommune('CommuneB')
         landparcel2.setGeodesyDistrictNumber('GRD2')
         landparcel2.setLandparcelNumber('LP2')
+        landparcel2.setIsAvailable(true)
 
         List<Landparcel> landparcelList = [landparcel1, landparcel2]
         userService.getLoggedUserFarm() >> farm
-        landparcelRepository.findByFarmId(farm.getId()) >> landparcelList
+        landparcelRepository.findByFarmIdAndIsAvailableTrue(farm.getId()) >> landparcelList
 
         when:
-        List<LandparcelDTO> result = landparcelFacade.getLandparcels(null, null, maxArea)
+        List<LandparcelDTO> result = landparcelFacade.getAvailableLandparcels(null, null, maxArea)
 
         then:
         result.size() == 1
@@ -514,6 +514,7 @@ class LandparcelFacadeSpec extends Specification {
         landparcel1.setCommune('CommuneA')
         landparcel1.setGeodesyDistrictNumber('GRD1')
         landparcel1.setLandparcelNumber('LP1')
+        landparcel1.setIsAvailable(true)
 
         Landparcel landparcel2 = new Landparcel()
         landparcel2.setId(new LandparcelId(2, farm.getId()))
@@ -522,6 +523,7 @@ class LandparcelFacadeSpec extends Specification {
         landparcel2.setCommune('CommuneB')
         landparcel2.setGeodesyDistrictNumber('GRD2')
         landparcel2.setLandparcelNumber('LP2')
+        landparcel2.setIsAvailable(true)
 
         Landparcel landparcel3 = new Landparcel()
         landparcel3.setId(new LandparcelId(3, farm.getId()))
@@ -530,13 +532,14 @@ class LandparcelFacadeSpec extends Specification {
         landparcel3.setCommune('CommuneC')
         landparcel3.setGeodesyDistrictNumber('GRD3')
         landparcel3.setLandparcelNumber('LP3')
+        landparcel3.setIsAvailable(true)
 
         List<Landparcel> landparcelList = [landparcel1, landparcel2, landparcel3]
         userService.getLoggedUserFarm() >> farm
-        landparcelRepository.findByFarmId(farm.getId()) >> landparcelList
+        landparcelRepository.findByFarmIdAndIsAvailableTrue(farm.getId()) >> landparcelList
 
         when:
-        List<LandparcelDTO> result = landparcelFacade.getLandparcels(null, minArea, maxArea)
+        List<LandparcelDTO> result = landparcelFacade.getAvailableLandparcels(null, minArea, maxArea)
 
         then:
         result.size() == 1
@@ -556,6 +559,7 @@ class LandparcelFacadeSpec extends Specification {
         landparcel1.setCommune('CommuneA')
         landparcel1.setGeodesyDistrictNumber('GRD1')
         landparcel1.setLandparcelNumber('LP1')
+        landparcel1.setIsAvailable(true)
 
         Landparcel landparcel2 = new Landparcel()
         landparcel2.setId(new LandparcelId(2, farm.getId()))
@@ -564,13 +568,14 @@ class LandparcelFacadeSpec extends Specification {
         landparcel2.setCommune('CommuneB')
         landparcel2.setGeodesyDistrictNumber('GRD2')
         landparcel2.setLandparcelNumber('LP2')
+        landparcel2.setIsAvailable(true)
 
         List<Landparcel> landparcelList = [landparcel1, landparcel2]
         userService.getLoggedUserFarm() >> farm
-        landparcelRepository.findByFarmId(farm.getId()) >> landparcelList
+        landparcelRepository.findByFarmIdAndIsAvailableTrue(farm.getId()) >> landparcelList
 
         when:
-        List<LandparcelDTO> result = landparcelFacade.getLandparcels(searchString, null, null)
+        List<LandparcelDTO> result = landparcelFacade.getAvailableLandparcels(searchString, null, null)
 
         then:
         result.size() == 2

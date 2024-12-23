@@ -1,9 +1,9 @@
 package com.efarm.efarmbackend.service
 
 import org.springframework.validation.BindingResult
+import org.springframework.validation.FieldError
 import spock.lang.Specification
 import spock.lang.Subject
-import org.springframework.validation.FieldError
 
 class ValidationRequestServiceSpec extends Specification {
 
@@ -15,8 +15,8 @@ class ValidationRequestServiceSpec extends Specification {
         def bindingResult = Mock(BindingResult)
         bindingResult.hasErrors() >> true
         bindingResult.getFieldErrors() >> [
-            new FieldError('objectName', 'field1', 'error1'),
-            new FieldError('objectName', 'field2', 'error2')
+                new FieldError('objectName', 'field1', 'error1'),
+                new FieldError('objectName', 'field2', 'error2')
         ]
 
         when:

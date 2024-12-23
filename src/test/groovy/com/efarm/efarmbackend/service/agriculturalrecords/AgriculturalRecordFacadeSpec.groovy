@@ -9,10 +9,8 @@ import com.efarm.efarmbackend.repository.agriculturalrecords.AgriculturalRecordR
 import com.efarm.efarmbackend.repository.landparcel.LandparcelRepository
 import com.efarm.efarmbackend.service.landparcel.LandparcelService
 import com.efarm.efarmbackend.service.user.UserService
-
-import java.util.List
-import spock.lang.Subject
 import spock.lang.Specification
+import spock.lang.Subject
 
 class AgriculturalRecordFacadeSpec extends Specification {
 
@@ -25,17 +23,18 @@ class AgriculturalRecordFacadeSpec extends Specification {
 
     @Subject
     AgriculturalRecordFacade agriculturalRecordFacade = new AgriculturalRecordFacade(
-        seasonService,
-        userService,
-        agriculturalRecordService,
-        agriculturalRecordRepository,
-        landparcelService,
-        landparcelRepository
+            seasonService,
+            userService,
+            agriculturalRecordService,
+            agriculturalRecordRepository,
+            landparcelService,
+            landparcelRepository
     )
 
     /*
     * getAgriculturalRecords
     */
+
     def "should get agricultural records for current season without search query"() {
         given:
         String seasonName = null
@@ -209,10 +208,10 @@ class AgriculturalRecordFacadeSpec extends Specification {
     def "should add new agricultural record"() {
         given:
         CreateNewAgriculturalRecordRequest request = new CreateNewAgriculturalRecordRequest(
-            landparcelId: 1,
-            cropName: 'Wheat',
-            area: 10.0,
-            description: 'Description 1'
+                landparcelId: 1,
+                cropName: 'Wheat',
+                area: 10.0,
+                description: 'Description 1'
         )
         Farm farm = Mock(Farm) {
             getId() >> 1
@@ -229,8 +228,8 @@ class AgriculturalRecordFacadeSpec extends Specification {
         userService.getLoggedUserFarm() >> farm
         seasonService.getCurrentSeason() >> season
         landparcelService.findlandparcelByFarm(request.getLandparcelId(), farm) >> landparcel
-        agriculturalRecordService.validateCropArea(landparcel, season, request) >> { }
-        agriculturalRecordService.validateCrop(landparcel, season, request.getCropName(),true) >> crop
+        agriculturalRecordService.validateCropArea(landparcel, season, request) >> {}
+        agriculturalRecordService.validateCrop(landparcel, season, request.getCropName(), true) >> crop
         agriculturalRecordRepository.findNextFreeIdForFarm(farm.getId()) >> 1
 
         when:
@@ -243,11 +242,11 @@ class AgriculturalRecordFacadeSpec extends Specification {
     def "should add new agricultural record with specified season"() {
         given:
         CreateNewAgriculturalRecordRequest request = new CreateNewAgriculturalRecordRequest(
-            landparcelId: 1,
-            season: '2022/2023',
-            cropName: 'Wheat',
-            area: 10.0,
-            description: 'Description 1'
+                landparcelId: 1,
+                season: '2022/2023',
+                cropName: 'Wheat',
+                area: 10.0,
+                description: 'Description 1'
         )
         Farm farm = Mock(Farm) {
             getId() >> 1
@@ -261,8 +260,8 @@ class AgriculturalRecordFacadeSpec extends Specification {
         userService.getLoggedUserFarm() >> farm
         seasonService.getSeasonByName(request.getSeason()) >> specifiedSeason
         landparcelService.findlandparcelByFarm(request.getLandparcelId(), farm) >> landparcel
-        agriculturalRecordService.validateCropArea(landparcel, specifiedSeason, request) >> { }
-        agriculturalRecordService.validateCrop(landparcel, specifiedSeason, request.getCropName(),true) >> crop
+        agriculturalRecordService.validateCropArea(landparcel, specifiedSeason, request) >> {}
+        agriculturalRecordService.validateCrop(landparcel, specifiedSeason, request.getCropName(), true) >> crop
         agriculturalRecordRepository.findNextFreeIdForFarm(farm.getId()) >> 1
 
         when:
@@ -275,10 +274,10 @@ class AgriculturalRecordFacadeSpec extends Specification {
     def "should throw exception when crop area validation fails"() {
         given:
         CreateNewAgriculturalRecordRequest request = new CreateNewAgriculturalRecordRequest(
-            landparcelId: 1,
-            cropName: 'Wheat',
-            area: 20.0,
-            description: 'Description 1'
+                landparcelId: 1,
+                cropName: 'Wheat',
+                area: 20.0,
+                description: 'Description 1'
         )
         Farm farm = Mock(Farm) {
             getId() >> 1

@@ -1,19 +1,10 @@
 package com.efarm.efarmbackend.repository.finance;
-import org.junit.jupiter.api.*;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.lessThanOrEqualTo;
-import static org.hamcrest.Matchers.hasProperty;
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.containsStringIgnoringCase;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.everyItem;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
-import static org.hamcrest.Matchers.not;
-
-import java.util.List;
-
+import com.efarm.efarmbackend.model.farm.ActivationCode;
+import com.efarm.efarmbackend.model.farm.Address;
+import com.efarm.efarmbackend.model.farm.Farm;
+import com.efarm.efarmbackend.model.finance.*;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -21,18 +12,12 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.efarm.efarmbackend.model.farm.ActivationCode;
-import com.efarm.efarmbackend.model.farm.Address;
-import com.efarm.efarmbackend.model.farm.Farm;
-import com.efarm.efarmbackend.model.finance.EFinancialCategory;
-import com.efarm.efarmbackend.model.finance.EPaymentStatus;
-import com.efarm.efarmbackend.model.finance.FinancialCategory;
-import com.efarm.efarmbackend.model.finance.PaymentStatus;
-import com.efarm.efarmbackend.model.finance.Transaction;
-import com.efarm.efarmbackend.model.finance.TransactionId;
-
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 @DataJpaTest
 @Transactional
@@ -44,7 +29,7 @@ public class TransactionRepositoryIT {
 
     @Autowired
     private TestEntityManager entityManager;
-    
+
     @Test
     public void testFindAllTransactionsByFarmId() throws Exception {
         // given
@@ -64,18 +49,18 @@ public class TransactionRepositoryIT {
     public void testExistsByTransactionNameAndFarmId() throws Exception {
         // given
         Farm farm = entityManager.find(Farm.class, 1);
-        Transaction transaction = entityManager.find(Transaction.class, new TransactionId(1,1));
+        Transaction transaction = entityManager.find(Transaction.class, new TransactionId(1, 1));
         String transactionName = transaction.getTransactionName();
         // when
         boolean exists = transactionRepository.existsByTransactionNameAndFarmId(transactionName, 1);
         // then
         assertThat(exists, is(true));
     }
-    
+
     @Test
     public void testDoesntExistsByTransactionNameAndFarmId() throws Exception {
         // given
-        String transactionName ="nonexistent"; 
+        String transactionName = "nonexistent";
         // when
         boolean exists = transactionRepository.existsByTransactionNameAndFarmId(transactionName, 1);
         // then
@@ -90,13 +75,13 @@ public class TransactionRepositoryIT {
         LocalDate minDate = LocalDate.of(2023, 1, 1);
         LocalDate maxDate = LocalDate.of(2028, 12, 31);
         FinancialCategory financialCategory = entityManager.getEntityManager().createQuery(
-            "SELECT fc FROM FinancialCategory fc WHERE fc.name = :name", FinancialCategory.class)
-            .setParameter("name", EFinancialCategory.EXPENSE)
-            .getSingleResult();
+                        "SELECT fc FROM FinancialCategory fc WHERE fc.name = :name", FinancialCategory.class)
+                .setParameter("name", EFinancialCategory.EXPENSE)
+                .getSingleResult();
         PaymentStatus paymentStatus = entityManager.getEntityManager().createQuery(
-            "SELECT ps FROM PaymentStatus ps WHERE ps.name = :name", PaymentStatus.class)
-            .setParameter("name", EPaymentStatus.AWAITING_PAYMENT)
-            .getSingleResult();
+                        "SELECT ps FROM PaymentStatus ps WHERE ps.name = :name", PaymentStatus.class)
+                .setParameter("name", EPaymentStatus.AWAITING_PAYMENT)
+                .getSingleResult();
         Double minAmount = 10.0;
         Double maxAmount = 10000.0;
         // when
@@ -135,7 +120,7 @@ public class TransactionRepositoryIT {
     public void testFindFilteredTransactionsBySearchQuery() {
         // given
         Integer farmId = 1;
-        Transaction transaction = entityManager.find(Transaction.class, new TransactionId(1,1));
+        Transaction transaction = entityManager.find(Transaction.class, new TransactionId(1, 1));
         String searchQuery = transaction.getTransactionName().substring(0, 5);
         LocalDate minDate = null;
         LocalDate maxDate = null;
@@ -180,7 +165,7 @@ public class TransactionRepositoryIT {
         LocalDate minDate = null;
         LocalDate maxDate = null;
         FinancialCategory financialCategory = entityManager.getEntityManager().createQuery(
-                "SELECT fc FROM FinancialCategory fc WHERE fc.name = :name", FinancialCategory.class)
+                        "SELECT fc FROM FinancialCategory fc WHERE fc.name = :name", FinancialCategory.class)
                 .setParameter("name", EFinancialCategory.EXPENSE)
                 .getSingleResult();
         PaymentStatus paymentStatus = null;
@@ -204,7 +189,7 @@ public class TransactionRepositoryIT {
         LocalDate maxDate = null;
         FinancialCategory financialCategory = null;
         PaymentStatus paymentStatus = entityManager.getEntityManager().createQuery(
-                "SELECT ps FROM PaymentStatus ps WHERE ps.name = :name", PaymentStatus.class)
+                        "SELECT ps FROM PaymentStatus ps WHERE ps.name = :name", PaymentStatus.class)
                 .setParameter("name", EPaymentStatus.PAID)
                 .getSingleResult();
         Double minAmount = null;
@@ -260,37 +245,37 @@ public class TransactionRepositoryIT {
 
     @Test
     public void testFindByFinancialCategoryAndPaymentStatus() {
-	//given
+        //given
         FinancialCategory financialCategory = entityManager.getEntityManager().createQuery(
-                "SELECT fc FROM FinancialCategory fc WHERE fc.name = :name", FinancialCategory.class)
+                        "SELECT fc FROM FinancialCategory fc WHERE fc.name = :name", FinancialCategory.class)
                 .setParameter("name", EFinancialCategory.EXPENSE)
                 .getSingleResult();
         PaymentStatus paymentStatus = entityManager.getEntityManager().createQuery(
-                "SELECT ps FROM PaymentStatus ps WHERE ps.name = :name", PaymentStatus.class)
+                        "SELECT ps FROM PaymentStatus ps WHERE ps.name = :name", PaymentStatus.class)
                 .setParameter("name", EPaymentStatus.PAID)
                 .getSingleResult();
-	//when
+        //when
         List<Transaction> transactions = transactionRepository.findByfinancialCategoryAndPaymentStatus(financialCategory, paymentStatus);
-	//then
+        //then
         assertThat(transactions, not(empty()));
 
         assertThat(transactions, everyItem(hasProperty("financialCategory", hasProperty("name", is(financialCategory.getName())))));
         assertThat(transactions, everyItem(hasProperty("paymentStatus", hasProperty("name", is(paymentStatus.getName())))));
     }
 
-	@Test
-	public void testFindByFarmAndDate() {
-		//given
-		Farm farm = entityManager.find(Farm.class, 1);
-		LocalDate startDate = LocalDate.of(2023, 1, 1);
-		LocalDate endDate = LocalDate.of(2026, 12, 31);
-		//when
-		List<Transaction> transactions = transactionRepository.findByFarmAndDate(farm.getId(), startDate, endDate); 
-		//then
-		assertThat(transactions, not(empty()));
-		
+    @Test
+    public void testFindByFarmAndDate() {
+        //given
+        Farm farm = entityManager.find(Farm.class, 1);
+        LocalDate startDate = LocalDate.of(2023, 1, 1);
+        LocalDate endDate = LocalDate.of(2026, 12, 31);
+        //when
+        List<Transaction> transactions = transactionRepository.findByFarmAndDate(farm.getId(), startDate, endDate);
+        //then
+        assertThat(transactions, not(empty()));
+
         assertThat(transactions, everyItem(hasProperty("transactionDate", allOf(greaterThanOrEqualTo(startDate), lessThanOrEqualTo(endDate)))));
-	}
+    }
 
     @Test
     public void testFindByFarmAndDateNoResults() {
@@ -304,26 +289,26 @@ public class TransactionRepositoryIT {
         assertThat(transactions, empty());
     }
 
-	@Test
-	public void testFindMaxIdForFarm() {
-		//given
-		Farm farm = entityManager.find(Farm.class, 1);
-		Transaction maxTransaction = entityManager.getEntityManager().createQuery(
-				"SELECT t FROM Transaction t WHERE t.farm = :farm ORDER BY t.id DESC", Transaction.class)
-				.setParameter("farm", farm)
-				.setMaxResults(1)
-				.getSingleResult();
-		//when
-		Optional<Integer> maxId = transactionRepository.findMaxIdForFarm(farm.getId());
-		//then
-		assertThat(maxId.isPresent(), is(true));
-		assertThat(maxId.get(), is(maxTransaction.getId().getId()));
-	}
+    @Test
+    public void testFindMaxIdForFarm() {
+        //given
+        Farm farm = entityManager.find(Farm.class, 1);
+        Transaction maxTransaction = entityManager.getEntityManager().createQuery(
+                        "SELECT t FROM Transaction t WHERE t.farm = :farm ORDER BY t.id DESC", Transaction.class)
+                .setParameter("farm", farm)
+                .setMaxResults(1)
+                .getSingleResult();
+        //when
+        Optional<Integer> maxId = transactionRepository.findMaxIdForFarm(farm.getId());
+        //then
+        assertThat(maxId.isPresent(), is(true));
+        assertThat(maxId.get(), is(maxTransaction.getId().getId()));
+    }
 
 
-	@Test
-	public void testDoesntFindMaxIdForFarm() {
-	        //given
+    @Test
+    public void testDoesntFindMaxIdForFarm() {
+        //given
         Address address = new Address();
         entityManager.persist(address);
         entityManager.flush();
@@ -335,12 +320,12 @@ public class TransactionRepositoryIT {
         farm.setIdActivationCode(activationCode.getId());
         entityManager.persist(farm);
         entityManager.flush();
-	//when
-	Optional<Integer> maxIdFound = transactionRepository.findMaxIdForFarm(farm.getId());
+        //when
+        Optional<Integer> maxIdFound = transactionRepository.findMaxIdForFarm(farm.getId());
 
         //then
-        assertThat(maxIdFound,is(Optional.empty()));
-	}
+        assertThat(maxIdFound, is(Optional.empty()));
+    }
 
 
     @Test
@@ -349,14 +334,14 @@ public class TransactionRepositoryIT {
         Farm farm = entityManager.find(Farm.class, 1);
 
         Integer maxId = entityManager.getEntityManager()
-        .createQuery("SELECT MAX(t.id.id) FROM Transaction t WHERE t.id.farmId = 1", Integer.class)
-        .getSingleResult();
+                .createQuery("SELECT MAX(t.id.id) FROM Transaction t WHERE t.id.farmId = 1", Integer.class)
+                .getSingleResult();
 
         //when
-        Integer maxIdFound = transactionRepository.findNextFreeIdForFarm(farm.getId()); 
+        Integer maxIdFound = transactionRepository.findNextFreeIdForFarm(farm.getId());
 
         //then
-        assertThat(maxIdFound,is(maxId+1));
+        assertThat(maxIdFound, is(maxId + 1));
     }
 
     @Test
@@ -375,10 +360,10 @@ public class TransactionRepositoryIT {
         entityManager.flush();
 
         //when
-        Integer maxIdFound = transactionRepository.findNextFreeIdForFarm(farm.getId()); 
+        Integer maxIdFound = transactionRepository.findNextFreeIdForFarm(farm.getId());
 
         //then
-        assertThat(maxIdFound,is(1));
+        assertThat(maxIdFound, is(1));
     }
 
 }

@@ -4,22 +4,20 @@ import com.efarm.efarmbackend.model.agriculturalrecords.AgriculturalRecord
 import com.efarm.efarmbackend.model.agriculturalrecords.AgriculturalRecordId
 import com.efarm.efarmbackend.model.agriculturalrecords.Crop
 import com.efarm.efarmbackend.model.agriculturalrecords.Season
+import com.efarm.efarmbackend.model.agroactivity.AgroActivity
+import com.efarm.efarmbackend.model.agroactivity.AgroActivityId
 import com.efarm.efarmbackend.model.farm.Farm
 import com.efarm.efarmbackend.model.landparcel.Landparcel
-import com.efarm.efarmbackend.model.agroactivity.AgroActivity;
-import com.efarm.efarmbackend.model.agroactivity.AgroActivityId;
-import com.efarm.efarmbackend.repository.agroactivity.AgroActivityRepository;
-import com.efarm.efarmbackend.repository.landparcel.LandparcelRepository;
-import com.efarm.efarmbackend.service.agroactivity.AgroActivityService;
 import com.efarm.efarmbackend.payload.request.agriculturalrecord.CreateNewAgriculturalRecordRequest
 import com.efarm.efarmbackend.payload.request.agriculturalrecord.UpdateAgriculturalRecordRequest
 import com.efarm.efarmbackend.repository.agriculturalrecords.AgriculturalRecordRepository
 import com.efarm.efarmbackend.repository.agriculturalrecords.CropRepository
+import com.efarm.efarmbackend.repository.agroactivity.AgroActivityRepository
+import com.efarm.efarmbackend.repository.landparcel.LandparcelRepository
+import com.efarm.efarmbackend.service.agroactivity.AgroActivityService
 import com.efarm.efarmbackend.service.user.UserService
-
-import java.util.List
-import spock.lang.Subject
 import spock.lang.Specification
+import spock.lang.Subject
 
 class AgriculturalRecordServiceSpec extends Specification {
 
@@ -358,7 +356,7 @@ class AgriculturalRecordServiceSpec extends Specification {
         agriculturalRecordRepository.findByLandparcelAndSeasonAndCrop(landparcel, season, crop) >> []
 
         when:
-        Crop validatedCrop = agriculturalRecordService.validateCrop(landparcel, season, cropName,showAdditionalInfo)
+        Crop validatedCrop = agriculturalRecordService.validateCrop(landparcel, season, cropName, showAdditionalInfo)
 
         then:
         validatedCrop == crop
@@ -391,7 +389,7 @@ class AgriculturalRecordServiceSpec extends Specification {
         Landparcel landparcel = Mock(Landparcel)
         Season season = Mock(Season)
 
-        cropRepository.findByName(cropName) >> crop 
+        cropRepository.findByName(cropName) >> crop
         agriculturalRecordRepository.findByLandparcelAndSeasonAndCrop(landparcel, season, crop) >> [Mock(AgriculturalRecord)]
 
         when:
@@ -412,7 +410,7 @@ class AgriculturalRecordServiceSpec extends Specification {
         Landparcel landparcel = Mock(Landparcel)
         Season season = Mock(Season)
 
-        cropRepository.findByName(cropName) >> crop 
+        cropRepository.findByName(cropName) >> crop
         agriculturalRecordRepository.findByLandparcelAndSeasonAndCrop(landparcel, season, crop) >> [Mock(AgriculturalRecord)]
 
         when:
@@ -433,11 +431,11 @@ class AgriculturalRecordServiceSpec extends Specification {
         }
         Season season = Mock(Season)
         CreateNewAgriculturalRecordRequest request = new CreateNewAgriculturalRecordRequest(
-            landparcelId: 1,
-            season: '',
-            cropName: 'Wheat',
-            area: 10.0,
-            description: ''
+                landparcelId: 1,
+                season: '',
+                cropName: 'Wheat',
+                area: 10.0,
+                description: ''
         )
 
         agriculturalRecordRepository.findByLandparcelAndSeason(landparcel, season) >> []
@@ -456,17 +454,17 @@ class AgriculturalRecordServiceSpec extends Specification {
         }
         Season season = Mock(Season)
         CreateNewAgriculturalRecordRequest request = new CreateNewAgriculturalRecordRequest(
-            landparcelId: 1,
-            season: '',
-            cropName: 'Wheat',
-            area: 25.0,
-            description: ''
+                landparcelId: 1,
+                season: '',
+                cropName: 'Wheat',
+                area: 25.0,
+                description: ''
         )
 
         agriculturalRecordRepository.findByLandparcelAndSeason(landparcel, season) >>
-            [Mock(AgriculturalRecord) {
-                getArea() >> 10.0
-            }]
+                [Mock(AgriculturalRecord) {
+                    getArea() >> 10.0
+                }]
 
         when:
         agriculturalRecordService.validateCropArea(landparcel, season, request)
@@ -483,17 +481,17 @@ class AgriculturalRecordServiceSpec extends Specification {
         }
         Season season = Mock(Season)
         CreateNewAgriculturalRecordRequest request = new CreateNewAgriculturalRecordRequest(
-            landparcelId: 1,
-            season: '',
-            cropName: 'Wheat',
-            area: 20.0,
-            description: ''
+                landparcelId: 1,
+                season: '',
+                cropName: 'Wheat',
+                area: 20.0,
+                description: ''
         )
 
         agriculturalRecordRepository.findByLandparcelAndSeason(landparcel, season) >>
-            [Mock(AgriculturalRecord) {
-                getArea() >> 10.0
-            }]
+                [Mock(AgriculturalRecord) {
+                    getArea() >> 10.0
+                }]
 
         when:
         agriculturalRecordService.validateCropArea(landparcel, season, request)
@@ -509,11 +507,11 @@ class AgriculturalRecordServiceSpec extends Specification {
         }
         Season season = Mock(Season)
         CreateNewAgriculturalRecordRequest request = new CreateNewAgriculturalRecordRequest(
-            landparcelId: 1,
-            season: '',
-            cropName: 'Wheat',
-            area: 15.0,
-            description: ''
+                landparcelId: 1,
+                season: '',
+                cropName: 'Wheat',
+                area: 15.0,
+                description: ''
         )
 
         AgriculturalRecord existingRecord1 = Mock(AgriculturalRecord) {
@@ -524,7 +522,7 @@ class AgriculturalRecordServiceSpec extends Specification {
         }
 
         agriculturalRecordRepository.findByLandparcelAndSeason(landparcel, season) >>
-            [existingRecord1, existingRecord2]
+                [existingRecord1, existingRecord2]
 
         when:
         agriculturalRecordService.validateCropArea(landparcel, season, request)
@@ -550,7 +548,7 @@ class AgriculturalRecordServiceSpec extends Specification {
         agriculturalRecordRepository.findById(agriculturalRecordId) >> Optional.of(agriculturalRecord)
 
         when:
-        AgriculturalRecord foundRecord = agriculturalRecordService.findAgriculturalRecordById(agriculturalRecordId.getId(),farm.getId())
+        AgriculturalRecord foundRecord = agriculturalRecordService.findAgriculturalRecordById(agriculturalRecordId.getId(), farm.getId())
 
         then:
         foundRecord == agriculturalRecord
@@ -566,7 +564,7 @@ class AgriculturalRecordServiceSpec extends Specification {
         agriculturalRecordRepository.findById(agriculturalRecordId) >> Optional.empty()
 
         when:
-        agriculturalRecordService.findAgriculturalRecordById(agriculturalRecordId.getId(),farm.getId())
+        agriculturalRecordService.findAgriculturalRecordById(agriculturalRecordId.getId(), farm.getId())
 
         then:
         RuntimeException exception = thrown(RuntimeException)
@@ -598,9 +596,9 @@ class AgriculturalRecordServiceSpec extends Specification {
             }
         }
         UpdateAgriculturalRecordRequest request = new UpdateAgriculturalRecordRequest(
-            cropName: 'Corn',
-            area: 15.0,
-            description: ''
+                cropName: 'Corn',
+                area: 15.0,
+                description: ''
         )
 
         userService.getLoggedUserFarm() >> farm
@@ -632,9 +630,9 @@ class AgriculturalRecordServiceSpec extends Specification {
         agriculturalRecordRepository.findById(agriculturalRecordId) >> Optional.empty()
 
         UpdateAgriculturalRecordRequest request = new UpdateAgriculturalRecordRequest(
-            cropName: 'Corn',
-            area: 15.0,
-            description: ''
+                cropName: 'Corn',
+                area: 15.0,
+                description: ''
         )
 
         when:
@@ -664,9 +662,9 @@ class AgriculturalRecordServiceSpec extends Specification {
             }
         }
         UpdateAgriculturalRecordRequest request = new UpdateAgriculturalRecordRequest(
-            cropName: 'Corn',
-            area: 15.0,
-            description: ''
+                cropName: 'Corn',
+                area: 15.0,
+                description: ''
         )
 
         userService.getLoggedUserFarm() >> farm
@@ -703,9 +701,9 @@ class AgriculturalRecordServiceSpec extends Specification {
             }
         }
         UpdateAgriculturalRecordRequest request = new UpdateAgriculturalRecordRequest(
-            cropName: 'Corn',
-            area: 15.0,
-            description: ''
+                cropName: 'Corn',
+                area: 15.0,
+                description: ''
         )
 
         userService.getLoggedUserFarm() >> farm
@@ -745,9 +743,9 @@ class AgriculturalRecordServiceSpec extends Specification {
             getArea() >> 10.0
         }
         UpdateAgriculturalRecordRequest request = new UpdateAgriculturalRecordRequest(
-            cropName: 'Corn',
-            area: 15.0,
-            description: ''
+                cropName: 'Corn',
+                area: 15.0,
+                description: ''
         )
 
         agriculturalRecordRepository.findByLandparcelAndSeason(landparcel, season) >> []
@@ -773,16 +771,16 @@ class AgriculturalRecordServiceSpec extends Specification {
             getArea() >> 10.0
         }
         UpdateAgriculturalRecordRequest request = new UpdateAgriculturalRecordRequest(
-            cropName: 'Corn',
-            area: 15.0,
-            description: ''
+                cropName: 'Corn',
+                area: 15.0,
+                description: ''
         )
 
         agriculturalRecordRepository.findByLandparcelAndSeason(landparcel, season) >> [
-            Mock(AgriculturalRecord) {
-                getId() >> new AgriculturalRecordId(2, 1)
-                getArea() >> 6.0
-            }
+                Mock(AgriculturalRecord) {
+                    getId() >> new AgriculturalRecordId(2, 1)
+                    getArea() >> 6.0
+                }
         ]
 
         when:
@@ -807,20 +805,20 @@ class AgriculturalRecordServiceSpec extends Specification {
             getArea() >> 5.0
         }
         UpdateAgriculturalRecordRequest request = new UpdateAgriculturalRecordRequest(
-            cropName: 'Corn',
-            area: 15.0,
-            description: ''
+                cropName: 'Corn',
+                area: 15.0,
+                description: ''
         )
 
         agriculturalRecordRepository.findByLandparcelAndSeason(landparcel, season) >> [
-            Mock(AgriculturalRecord) {
-                getId() >> new AgriculturalRecordId(1, 1) 
-                getArea() >> 5.0
-            },
-            Mock(AgriculturalRecord) {
-                getId() >> new AgriculturalRecordId(2, 1)
-                getArea() >> 10.0
-            }
+                Mock(AgriculturalRecord) {
+                    getId() >> new AgriculturalRecordId(1, 1)
+                    getArea() >> 5.0
+                },
+                Mock(AgriculturalRecord) {
+                    getId() >> new AgriculturalRecordId(2, 1)
+                    getArea() >> 10.0
+                }
         ]
 
         when:

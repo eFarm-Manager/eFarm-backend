@@ -136,7 +136,7 @@ public class AgriculturalRecordService {
                 agriculturalRecordRepository.findNextFreeIdForFarm(loggedUserFarm.getId()),
                 loggedUserFarm.getId()
         );
-        AgriculturalRecord agriculturalRecord = new AgriculturalRecord(
+        AgriculturalRecord agriculturalRecord = new AgriculturalRecord (
                 agriculturalRecordId,
                 season,
                 landparcel,

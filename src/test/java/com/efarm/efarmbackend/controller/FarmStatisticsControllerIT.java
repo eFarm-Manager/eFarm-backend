@@ -49,7 +49,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("integrationtest")
 public class FarmStatisticsControllerIT {
-    
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -64,7 +64,7 @@ public class FarmStatisticsControllerIT {
 
     @BeforeEach
     public void setupTestUserAndFarm() {
-        if (testUser == null) { 
+        if (testUser == null) {
             Address testAddress = new Address();
 
             entityManager.persist(testAddress);
@@ -85,12 +85,12 @@ public class FarmStatisticsControllerIT {
             testUser.setLastName("test last name");
             testUser.setEmail("testEmail@gmail.com");
             testUser.setUsername("test_user");
-            testUser.setPassword("test_password"); 
+            testUser.setPassword("test_password");
             testUser.setFarm(testFarm);
 
             Role ownerRole = entityManager.createQuery("select r from Role r where r.name = :name", Role.class)
-            .setParameter("name", ERole.ROLE_FARM_OWNER)
-            .getSingleResult();
+                    .setParameter("name", ERole.ROLE_FARM_OWNER)
+                    .getSingleResult();
             testUser.setRole(ownerRole);
 
             entityManager.persist(testUser);
@@ -112,7 +112,7 @@ public class FarmStatisticsControllerIT {
                 .getSingleResult();
 
         LandparcelId landparcelId1 = new LandparcelId(1, managedFarm.getId());
-        Landparcel parcel1 = new Landparcel(landparcelId1,managedFarm);
+        Landparcel parcel1 = new Landparcel(landparcelId1, managedFarm);
         parcel1.setArea(50.258);
         parcel1.setLatitude(50.258);
         parcel1.setLongitude(50.258);
@@ -132,7 +132,7 @@ public class FarmStatisticsControllerIT {
         entityManager.persist(parcel1);
 
         LandparcelId landparcelId2 = new LandparcelId(2, managedFarm.getId());
-        Landparcel parcel2 = new Landparcel(landparcelId2,managedFarm);
+        Landparcel parcel2 = new Landparcel(landparcelId2, managedFarm);
         parcel2.setArea(3.362);
         parcel2.setLatitude(3.362);
         parcel2.setLongitude(3.362);
@@ -143,15 +143,15 @@ public class FarmStatisticsControllerIT {
         parcel2.setGeodesyDistrictNumber("456");
         parcel2.setLandparcelNumber("456");
         parcel2.setGeodesyLandparcelNumber("456");
-        
+
         LandOwnershipStatus ownershipStatusLeased = entityManager.createQuery("select os from LandOwnershipStatus os where os.ownershipStatus = :ownershipStatus", LandOwnershipStatus.class)
-        .setParameter("ownershipStatus", ELandOwnershipStatus.STATUS_LEASE)
-        .getSingleResult();
+                .setParameter("ownershipStatus", ELandOwnershipStatus.STATUS_LEASE)
+                .getSingleResult();
 
         parcel2.setLandOwnershipStatus(ownershipStatusLeased);
         entityManager.persist(parcel2);
 
-        entityManager.flush(); 
+        entityManager.flush();
     }
 
     private void createAgriculturalRecordsForFarm(String farmName) {
@@ -168,29 +168,29 @@ public class FarmStatisticsControllerIT {
                 .setParameter("name", "2024/2025")
                 .getSingleResult();
 
-        double area1 = parcel1.getArea()*2/3;
-        double area2 = parcel1.getArea()/3;
+        double area1 = parcel1.getArea() * 2 / 3;
+        double area2 = parcel1.getArea() / 3;
         Crop currentCrop1 = entityManager.find(Crop.class, 1);
         Crop currentCrop2 = entityManager.find(Crop.class, 2);
         AgriculturalRecord agriculturalRecord1 = new AgriculturalRecord(
-            recordId1,
-            season,
-            parcel1,
-            currentCrop1,
-            area1,
-            managedFarm,
-            null
+                recordId1,
+                season,
+                parcel1,
+                currentCrop1,
+                area1,
+                managedFarm,
+                null
         );
         entityManager.persist(agriculturalRecord1);
 
         AgriculturalRecord agriculturalRecord2 = new AgriculturalRecord(
-            recordId2,
-            season,
-            parcel1,
-            currentCrop2,
-            area2,
-            managedFarm,
-            null
+                recordId2,
+                season,
+                parcel1,
+                currentCrop2,
+                area2,
+                managedFarm,
+                null
         );
         entityManager.persist(agriculturalRecord2);
 
@@ -210,12 +210,12 @@ public class FarmStatisticsControllerIT {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andReturn();
-        
+
         //then
         String content = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         LandAreaStatisticsResponse response = objectMapper.readValue(content, LandAreaStatisticsResponse.class);
         assertThat(response.getTotalAvailableArea(), is(53.62)); // 50.258 + 3.362
-        assertThat(response.getPrivatelyOwnedArea(), is(50.258)); 
+        assertThat(response.getPrivatelyOwnedArea(), is(50.258));
         assertThat(response.getLeaseArea(), is(3.362));
     }
 
@@ -232,10 +232,11 @@ public class FarmStatisticsControllerIT {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andReturn();
-        
+
         //then
         String content = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        List<CropStatisticsResponse> response = objectMapper.readValue(content, new TypeReference<List<CropStatisticsResponse>>() {});
+        List<CropStatisticsResponse> response = objectMapper.readValue(content, new TypeReference<List<CropStatisticsResponse>>() {
+        });
         assertThat(response.size(), is(2));
         assertThat(response.get(0).getCropName(), notNullValue());
         assertThat(response.get(0).getTotalArea(), is(33.5053)); // 50.258*2/3 + ToFourDecimal

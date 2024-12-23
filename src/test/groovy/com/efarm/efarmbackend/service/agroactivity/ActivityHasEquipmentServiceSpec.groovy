@@ -1,21 +1,16 @@
 package com.efarm.efarmbackend.service.agroactivity
 
-import com.efarm.efarmbackend.model.agroactivity.ActivityCategory
+
+import com.efarm.efarmbackend.model.agroactivity.ActivityHasEquipment
 import com.efarm.efarmbackend.model.agroactivity.AgroActivity
+import com.efarm.efarmbackend.model.equipment.EquipmentCategory
+import com.efarm.efarmbackend.model.equipment.EquipmentSummaryDTO
+import com.efarm.efarmbackend.model.equipment.FarmEquipment
+import com.efarm.efarmbackend.model.equipment.FarmEquipmentId
 import com.efarm.efarmbackend.repository.agroactivity.ActivityHasEquipmentRepository
 import com.efarm.efarmbackend.repository.equipment.FarmEquipmentRepository
-import com.efarm.efarmbackend.model.agroactivity.ActivityHasEquipment;
-import com.efarm.efarmbackend.model.agroactivity.AgroActivity;
-import com.efarm.efarmbackend.model.equipment.FarmEquipment;
-import com.efarm.efarmbackend.model.equipment.EquipmentCategory
-import com.efarm.efarmbackend.model.equipment.FarmEquipmentId;
-import com.efarm.efarmbackend.model.equipment.EquipmentSummaryDTO;
-import com.efarm.efarmbackend.repository.agroactivity.ActivityHasEquipmentRepository;
-import com.efarm.efarmbackend.repository.equipment.FarmEquipmentRepository;
-
-import java.util.List
-import spock.lang.Subject
 import spock.lang.Specification
+import spock.lang.Subject
 
 class ActivityHasEquipmentServiceSpec extends Specification {
 
@@ -25,9 +20,9 @@ class ActivityHasEquipmentServiceSpec extends Specification {
 
     @Subject
     ActivityHasEquipmentService activityHasEquipmentService = new ActivityHasEquipmentService(
-        farmEquipmentRepository,
-        applicationContext,
-        activityHasEquipmentRepository
+            farmEquipmentRepository,
+            applicationContext,
+            activityHasEquipmentRepository
     )
     /*
     * addEquipmentToActivity
@@ -35,7 +30,7 @@ class ActivityHasEquipmentServiceSpec extends Specification {
 
     def "should add equipment to activity"() {
         given:
-        List<Integer> equipmentIds = [1,2]
+        List<Integer> equipmentIds = [1, 2]
         AgroActivity agroActivity = Mock(AgroActivity)
         Integer farmId = 1
 
@@ -59,7 +54,7 @@ class ActivityHasEquipmentServiceSpec extends Specification {
 
     def "should throw illegal state exception when any equipment is not available"() {
         given:
-        List<Integer> equipmentIds = [1,2]
+        List<Integer> equipmentIds = [1, 2]
         AgroActivity agroActivity = Mock(AgroActivity)
         Integer farmId = 1
 
@@ -83,9 +78,9 @@ class ActivityHasEquipmentServiceSpec extends Specification {
         ex.message == 'Sprzęt Zetor jest niedostępny'
     }
 
-    def "should throw exception when equipment id doesnt exist"(){
+    def "should throw exception when equipment id doesnt exist"() {
         given:
-        List<Integer> equipmentIds = [1,2,3]
+        List<Integer> equipmentIds = [1, 2, 3]
         AgroActivity agroActivity = Mock(AgroActivity)
         Integer farmId = 1
 
@@ -118,7 +113,7 @@ class ActivityHasEquipmentServiceSpec extends Specification {
         FarmEquipment farmEquipment1 = Mock(FarmEquipment) {
             getId() >> new FarmEquipmentId(1, 1)
             getEquipmentName() >> 'Zetor'
-            getCategory() >> Mock(EquipmentCategory){
+            getCategory() >> Mock(EquipmentCategory) {
                 getCategoryName() >> 'Ciągniki rolnicze'
             }
             getBrand() >> ''
@@ -126,18 +121,18 @@ class ActivityHasEquipmentServiceSpec extends Specification {
         FarmEquipment farmEquipment2 = Mock(FarmEquipment) {
             getId() >> new FarmEquipmentId(2, 1)
             getEquipmentName() >> 'Lamborghini'
-            getCategory() >> Mock(EquipmentCategory){
+            getCategory() >> Mock(EquipmentCategory) {
                 getCategoryName() >> 'Przyczepy'
             }
             getModel() >> 'Model 1'
         }
         List<ActivityHasEquipment> activityHasEquipmentList = [
-            Mock(ActivityHasEquipment) {
-                getFarmEquipment() >> farmEquipment1
-            },
-            Mock(ActivityHasEquipment) {
-                getFarmEquipment() >> farmEquipment2
-            }
+                Mock(ActivityHasEquipment) {
+                    getFarmEquipment() >> farmEquipment1
+                },
+                Mock(ActivityHasEquipment) {
+                    getFarmEquipment() >> farmEquipment2
+                }
         ]
         activityHasEquipmentRepository.findActivityHasEquipmentsByAgroActivity(agroActivity) >> activityHasEquipmentList
 
@@ -164,7 +159,7 @@ class ActivityHasEquipmentServiceSpec extends Specification {
 
     def "should update equipment in activity"() {
         given:
-        List<Integer> equipmentIds = [1,2]
+        List<Integer> equipmentIds = [1, 2]
         AgroActivity agroActivity = Mock(AgroActivity)
         Integer farmId = 1
 

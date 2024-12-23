@@ -1,6 +1,21 @@
 package com.efarm.efarmbackend.controller;
 
-import org.junit.jupiter.api.*;
+import com.efarm.efarmbackend.model.farm.Farm;
+import com.efarm.efarmbackend.model.user.ERole;
+import com.efarm.efarmbackend.model.user.User;
+import com.efarm.efarmbackend.model.user.UserDTO;
+import com.efarm.efarmbackend.model.user.UserSummaryDTO;
+import com.efarm.efarmbackend.payload.request.user.ChangeUserPasswordRequest;
+import com.efarm.efarmbackend.payload.request.user.UpdateUserRequest;
+import com.efarm.efarmbackend.security.services.UserDetailsImpl;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -12,44 +27,15 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import com.efarm.efarmbackend.repository.user.RoleRepository;
+import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-
-import com.efarm.efarmbackend.model.farm.ActivationCode;
-import com.efarm.efarmbackend.model.farm.Address;
-import com.efarm.efarmbackend.model.farm.Farm;
-import com.efarm.efarmbackend.model.farm.FarmDTO;
-import com.efarm.efarmbackend.model.user.ERole;
-import com.efarm.efarmbackend.model.user.Role;
-import com.efarm.efarmbackend.model.user.User;
-import com.efarm.efarmbackend.model.user.UserDTO;
-import com.efarm.efarmbackend.model.user.UserSummaryDTO;
-import com.efarm.efarmbackend.payload.request.farm.UpdateFarmDetailsRequest;
-import com.efarm.efarmbackend.payload.request.user.ChangeUserPasswordRequest;
-import com.efarm.efarmbackend.payload.request.user.UpdateUserRequest;
-import com.efarm.efarmbackend.security.services.UserDetailsImpl;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.transaction.Transactional;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Optional;
 
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -138,7 +124,7 @@ public class UserControllerIT {
     public void testToggleUserStatus() throws Exception {
         // Given
         User user = entityManager.createQuery(
-                "select u from User u where u.farm.id = 1 and u.role.name != :ownerRole and u.isActive = true", User.class)
+                        "select u from User u where u.farm.id = 1 and u.role.name != :ownerRole and u.isActive = true", User.class)
                 .setParameter("ownerRole", ERole.ROLE_FARM_OWNER)
                 .setMaxResults(1)
                 .getSingleResult();
@@ -163,22 +149,22 @@ public class UserControllerIT {
         // When
         mockMvc.perform(patch("/users/toggle-active/{userId}", userId))
                 .andExpect(status().isBadRequest())
-        //then
+                //then
                 .andExpect(jsonPath("$.message").value("Wybrany użytkownik nie istnieje"));
     }
 
-    @Test 
+    @Test
     public void testCantToggleUserStatusFromDifferentFarm() throws Exception {
         // Given
         User user = entityManager.createQuery(
-                "select u from User u where u.farm.id != 1 and u.isActive = true", User.class)
+                        "select u from User u where u.farm.id != 1 and u.isActive = true", User.class)
                 .setMaxResults(1)
                 .getSingleResult();
 
         // When
         mockMvc.perform(patch("/users/toggle-active/{userId}", user.getId()))
                 .andExpect(status().isBadRequest())
-        //then
+                //then
                 .andExpect(jsonPath("$.message").value("Wybrany użytkownik nie istnieje"));
     }
 
@@ -190,7 +176,7 @@ public class UserControllerIT {
     public void testUpdateUserDetails() throws Exception {
         // Given
         User user = entityManager.createQuery(
-                "select u from User u where u.farm.id = 1 and u.role.name != :ownerRole and u.isActive = true", User.class)
+                        "select u from User u where u.farm.id = 1 and u.role.name != :ownerRole and u.isActive = true", User.class)
                 .setParameter("ownerRole", ERole.ROLE_FARM_OWNER)
                 .setMaxResults(1)
                 .getSingleResult();
@@ -199,17 +185,17 @@ public class UserControllerIT {
         updateUserRequest.setFirstName("NewFirstName");
         updateUserRequest.setLastName("NewLastName");
         updateUserRequest.setEmail("newEmail@gmial.com");
-        updateUserRequest.setPhoneNumber(""); 
+        updateUserRequest.setPhoneNumber("");
         updateUserRequest.setRole("ROLE_FARM_OWNER");
 
         // When
         mockMvc.perform(put("/users/update/{userId}", user.getId())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(new ObjectMapper().writeValueAsString(updateUserRequest)))
-        // Then
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(updateUserRequest)))
+                // Then
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Zaktualizowano dane użytkownika"));
-        
+
         User updatedUser = entityManager.find(User.class, user.getId());
         assertThat(updatedUser.getFirstName(), is(updateUserRequest.getFirstName()));
         assertThat(updatedUser.getLastName(), is(updateUserRequest.getLastName()));
@@ -226,14 +212,14 @@ public class UserControllerIT {
         updateUserRequest.setFirstName("NewFirstName");
         updateUserRequest.setLastName("NewLastName");
         updateUserRequest.setEmail("newEmail@gmial.com");
-        updateUserRequest.setPhoneNumber(""); 
+        updateUserRequest.setPhoneNumber("");
         updateUserRequest.setRole("ROLE_FARM_OWNER");
 
         // When
         mockMvc.perform(put("/users/update/{userId}", userId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(new ObjectMapper().writeValueAsString(updateUserRequest)))
-        // Then
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(updateUserRequest)))
+                // Then
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Wybrany użytkownik nie istnieje"));
     }
@@ -242,7 +228,7 @@ public class UserControllerIT {
     public void testCantUpdateUserDetailsFromDifferentFarm() throws Exception {
         // Given
         User user = entityManager.createQuery(
-                "select u from User u where u.farm.id != 1 and u.isActive = true", User.class)
+                        "select u from User u where u.farm.id != 1 and u.isActive = true", User.class)
                 .setMaxResults(1)
                 .getSingleResult();
 
@@ -255,13 +241,13 @@ public class UserControllerIT {
 
         // When
         mockMvc.perform(put("/users/update/{userId}", user.getId())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(new ObjectMapper().writeValueAsString(updateUserRequest)))
-        // Then
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(updateUserRequest)))
+                // Then
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Wybrany użytkownik nie istnieje"));
     }
-    
+
     /*
      * PUT /update-password/{userId}
      */
@@ -270,7 +256,7 @@ public class UserControllerIT {
     public void testUpdateUserPassword() throws Exception {
         // Given
         User user = entityManager.createQuery(
-                "select u from User u where u.farm.id = 1 and u.role.name != :ownerRole and u.isActive = true", User.class)
+                        "select u from User u where u.farm.id = 1 and u.role.name != :ownerRole and u.isActive = true", User.class)
                 .setParameter("ownerRole", ERole.ROLE_FARM_OWNER)
                 .setMaxResults(1)
                 .getSingleResult();
@@ -281,9 +267,9 @@ public class UserControllerIT {
 
         // When
         mockMvc.perform(put("/users/update-password/{userId}", user.getId())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(new ObjectMapper().writeValueAsString(request)))
-        // Then
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(request)))
+                // Then
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Zmieniono hasło użytkownika"));
 
@@ -301,9 +287,9 @@ public class UserControllerIT {
 
         // When
         mockMvc.perform(put("/users/update-password/{userId}", userId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(new ObjectMapper().writeValueAsString(request)))
-        // Then
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(request)))
+                // Then
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Wybrany użytkownik nie istnieje"));
     }
@@ -312,7 +298,7 @@ public class UserControllerIT {
     public void testCantUpdatePasswordForUserFromDifferentFarm() throws Exception {
         // Given
         User user = entityManager.createQuery(
-                "select u from User u where u.farm.id != 1 and u.isActive = true", User.class)
+                        "select u from User u where u.farm.id != 1 and u.isActive = true", User.class)
                 .setMaxResults(1)
                 .getSingleResult();
 
@@ -321,9 +307,9 @@ public class UserControllerIT {
 
         // When
         mockMvc.perform(put("/users/update-password/{userId}", user.getId())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(new ObjectMapper().writeValueAsString(request)))
-        // Then
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(request)))
+                // Then
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Wybrany użytkownik nie istnieje"));
     }

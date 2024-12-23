@@ -1,8 +1,8 @@
 package com.efarm.efarmbackend.service
 
-import com.efarm.efarmbackend.service.equipment.EquipmentDisplayDataService
 import com.efarm.efarmbackend.model.equipment.EquipmentCategoryDTO
 import com.efarm.efarmbackend.repository.equipment.EquipmentCategoryRepository
+import com.efarm.efarmbackend.service.equipment.EquipmentDisplayDataService
 import spock.lang.Specification
 import spock.lang.Subject
 
@@ -12,7 +12,7 @@ class EquipmentDisplayDataServiceSpec extends Specification {
 
     @Subject
     EquipmentDisplayDataService equipmentDisplayDataService = new EquipmentDisplayDataService(
-        equipmentCategoryRepository
+            equipmentCategoryRepository
     )
 
     def setup() {
@@ -41,7 +41,7 @@ class EquipmentDisplayDataServiceSpec extends Specification {
         categoryList.any { it.categoryName == 'Ciągniki rolnicze' && it.fields == ['equipmentName', 'category', 'brand', 'model', 'power', 'insurancePolicyNumber', 'insuranceExpirationDate', 'inspectionExpireDate'] }
         categoryList.any { it.categoryName == 'Kosiarki' && it.fields == ['equipmentName', 'category', 'brand', 'model', 'workingWidth'] }
     }
-    
+
 
     def "should return correct fields for tractors"() {
         given:

@@ -1,20 +1,4 @@
 package com.efarm.efarmbackend.repository.agriculturalrecords;
-import java.util.List;
-import java.util.Optional;
-
-import org.junit.jupiter.api.Test;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.everyItem;
-import static org.hamcrest.Matchers.hasProperty;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.test.context.ActiveProfiles;
 
 import com.efarm.efarmbackend.model.agriculturalrecords.AgriculturalRecord;
 import com.efarm.efarmbackend.model.agriculturalrecords.AgriculturalRecordId;
@@ -24,8 +8,19 @@ import com.efarm.efarmbackend.model.farm.ActivationCode;
 import com.efarm.efarmbackend.model.farm.Address;
 import com.efarm.efarmbackend.model.farm.Farm;
 import com.efarm.efarmbackend.model.landparcel.Landparcel;
-
 import jakarta.transaction.Transactional;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.test.context.ActiveProfiles;
+
+import java.util.List;
+import java.util.Optional;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 @DataJpaTest
 @Transactional
@@ -40,8 +35,8 @@ public class AgriculturalRecordRepositoryIT {
 
     @Test
     public void testFindByLandparcelAndSeason() {
-       //given
-        AgriculturalRecord agriculturalRecord = entityManager.find(AgriculturalRecord.class, new AgriculturalRecordId(1,1));
+        //given
+        AgriculturalRecord agriculturalRecord = entityManager.find(AgriculturalRecord.class, new AgriculturalRecordId(1, 1));
         Landparcel landparcelTest = agriculturalRecord.getLandparcel();
         Season seasonTest = agriculturalRecord.getSeason();
         Long count = entityManager.getEntityManager()
@@ -63,7 +58,7 @@ public class AgriculturalRecordRepositoryIT {
     @Test
     public void testFindByLandparcelAndSeasonAndCrop() {
         //given
-        AgriculturalRecord agriculturalRecord = entityManager.find(AgriculturalRecord.class, new AgriculturalRecordId(1,1));
+        AgriculturalRecord agriculturalRecord = entityManager.find(AgriculturalRecord.class, new AgriculturalRecordId(1, 1));
         Landparcel landparcelTest = agriculturalRecord.getLandparcel();
         Season seasonTest = agriculturalRecord.getSeason();
         Crop cropTest = agriculturalRecord.getCrop();
@@ -159,11 +154,11 @@ public class AgriculturalRecordRepositoryIT {
         farm.setIdActivationCode(activationCode.getId());
         entityManager.persist(farm);
         entityManager.flush();
-        
+
         //when
         Optional<Integer> maxId = agriculturalRecordRepository.findMaxIdForFarm(farm.getId());
         //then
-        assertThat(maxId,is(Optional.empty()));
+        assertThat(maxId, is(Optional.empty()));
     }
 
     @Test
@@ -171,13 +166,13 @@ public class AgriculturalRecordRepositoryIT {
         //given
         Farm farm = entityManager.find(Farm.class, 1);
         Integer maxIdForFarm = entityManager.getEntityManager()
-            .createQuery("SELECT MAX(ar.id.id) FROM AgriculturalRecord ar WHERE ar.id.farmId = 1", Integer.class)
-            .getSingleResult();
+                .createQuery("SELECT MAX(ar.id.id) FROM AgriculturalRecord ar WHERE ar.id.farmId = 1", Integer.class)
+                .getSingleResult();
         // When
         Integer nextFreeId = agriculturalRecordRepository.findNextFreeIdForFarm(farm.getId());
 
         // Then
-        assertThat(nextFreeId, is(maxIdForFarm + 1) ); 
+        assertThat(nextFreeId, is(maxIdForFarm + 1));
     }
 
     @Test
@@ -199,6 +194,6 @@ public class AgriculturalRecordRepositoryIT {
         Integer nextFreeId = agriculturalRecordRepository.findNextFreeIdForFarm(farm.getId());
 
         // Then
-        assertThat(nextFreeId, is(1)); 
+        assertThat(nextFreeId, is(1));
     }
 }

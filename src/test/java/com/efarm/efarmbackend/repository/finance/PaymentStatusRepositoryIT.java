@@ -1,16 +1,17 @@
 package com.efarm.efarmbackend.repository.finance;
-import org.junit.jupiter.api.*;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import com.efarm.efarmbackend.model.finance.EPaymentStatus;
+import com.efarm.efarmbackend.model.finance.PaymentStatus;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
-import com.efarm.efarmbackend.model.finance.EPaymentStatus;
-import com.efarm.efarmbackend.model.finance.PaymentStatus;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 @DataJpaTest
 @Transactional
@@ -23,30 +24,30 @@ public class PaymentStatusRepositoryIT {
     @Autowired
     private TestEntityManager entityManager;
 
-	@Test
-	public void testFindAwaitingPayment() {
-		// when
-		PaymentStatus found = paymentStatusRepository.findByName(EPaymentStatus.AWAITING_PAYMENT);
+    @Test
+    public void testFindAwaitingPayment() {
+        // when
+        PaymentStatus found = paymentStatusRepository.findByName(EPaymentStatus.AWAITING_PAYMENT);
 
-		// then
-		assertThat(found.getName(), is(EPaymentStatus.AWAITING_PAYMENT)); 
-	}
-	
-	@Test
-	public void testFindPaid() {
-		// when
-		PaymentStatus found = paymentStatusRepository.findByName(EPaymentStatus.PAID);
+        // then
+        assertThat(found.getName(), is(EPaymentStatus.AWAITING_PAYMENT));
+    }
 
-		// then
-		assertThat(found.getName(), is(EPaymentStatus.PAID)); 
-	}
+    @Test
+    public void testFindPaid() {
+        // when
+        PaymentStatus found = paymentStatusRepository.findByName(EPaymentStatus.PAID);
 
-	@Test
-	public void testFindUnpaid() {
-		// when
-		PaymentStatus found = paymentStatusRepository.findByName(EPaymentStatus.UNPAID);
+        // then
+        assertThat(found.getName(), is(EPaymentStatus.PAID));
+    }
 
-		// then
-		assertThat(found.getName(), is(EPaymentStatus.UNPAID)); 
-	}
+    @Test
+    public void testFindUnpaid() {
+        // when
+        PaymentStatus found = paymentStatusRepository.findByName(EPaymentStatus.UNPAID);
+
+        // then
+        assertThat(found.getName(), is(EPaymentStatus.UNPAID));
+    }
 }

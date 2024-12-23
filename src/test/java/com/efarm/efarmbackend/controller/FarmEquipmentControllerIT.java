@@ -1,6 +1,18 @@
 package com.efarm.efarmbackend.controller;
 
 
+import com.efarm.efarmbackend.model.equipment.EquipmentSummaryDTO;
+import com.efarm.efarmbackend.model.equipment.FarmEquipment;
+import com.efarm.efarmbackend.model.equipment.FarmEquipmentId;
+import com.efarm.efarmbackend.model.farm.Farm;
+import com.efarm.efarmbackend.model.user.User;
+import com.efarm.efarmbackend.payload.request.equipment.AddUpdateFarmEquipmentRequest;
+import com.efarm.efarmbackend.security.services.UserDetailsImpl;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,38 +27,16 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import com.efarm.efarmbackend.model.equipment.FarmEquipment;
-import com.efarm.efarmbackend.payload.request.equipment.AddUpdateFarmEquipmentRequest;
-import com.efarm.efarmbackend.model.equipment.FarmEquipmentId;
-import com.efarm.efarmbackend.model.farm.Farm;
-import com.efarm.efarmbackend.model.user.User;
-import com.efarm.efarmbackend.security.services.UserDetailsImpl;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.efarm.efarmbackend.model.agroactivity.AgroActivity;
-import com.efarm.efarmbackend.model.equipment.EquipmentSummaryDTO;
-
-import java.util.List;
-
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.transaction.Transactional;
-import jakarta.validation.constraints.Future;
-import jakarta.validation.constraints.Size;
-
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -74,7 +64,7 @@ public class FarmEquipmentControllerIT {
         SecurityContextHolder.getContext().setAuthentication(authToken);
     }
     /*
-      *  GET /all
+     *  GET /all
      */
 
     @Test
@@ -132,7 +122,7 @@ public class FarmEquipmentControllerIT {
     }
     /*
      *  GET /{equipmentId}
-    */
+     */
 
     @Test
     @DisplayName("Test return equipment from farm with details")
@@ -167,13 +157,13 @@ public class FarmEquipmentControllerIT {
 
         //when
         mockMvc.perform(put("/equipment/{equipmentId}", equipmentId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(addUpdateFarmEquipmentRequest)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(addUpdateFarmEquipmentRequest)))
                 .andDo(print())
-        //then
+                //then
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Pomyślnie zaktualizowane dane maszyny"));
-        
+
         FarmEquipment updatedFarmEquipment = entityManager.find(FarmEquipment.class, new FarmEquipmentId(equipmentId, 1));
         assertThat(updatedFarmEquipment.getEquipmentName(), is(addUpdateFarmEquipmentRequest.getEquipmentName()));
     }
@@ -182,52 +172,52 @@ public class FarmEquipmentControllerIT {
     @DisplayName("Test updating farm equipment that does not exist")
     public void testUpdateFarmEquipmentNotFound() throws Exception {
         // Given
-        Integer equipmentId = 999; 
+        Integer equipmentId = 999;
         AddUpdateFarmEquipmentRequest addUpdateFarmEquipmentRequest = new AddUpdateFarmEquipmentRequest();
         addUpdateFarmEquipmentRequest.setEquipmentName("Updated Name");
-    
+
         // When
         mockMvc.perform(put("/equipment/{equipmentId}", equipmentId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(addUpdateFarmEquipmentRequest)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(addUpdateFarmEquipmentRequest)))
                 .andDo(print())
-        //then
-                .andExpect(status().isBadRequest()) 
+                //then
+                .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Nie znaleziono maszyny o id: " + equipmentId));
     }
-    
+
     @Test
     @DisplayName("Test updating already deleted farm equipment")
     public void testUpdateDeletedFarmEquipment() throws Exception {
         // Given
         FarmEquipment farmEquipment = entityManager.createQuery(
-                "SELECT e from FarmEquipment e WHERE e.isAvailable = :available", FarmEquipment.class)
-        .setParameter("available", false)
-        .getSingleResult();
+                        "SELECT e from FarmEquipment e WHERE e.isAvailable = :available", FarmEquipment.class)
+                .setParameter("available", false)
+                .getSingleResult();
         AddUpdateFarmEquipmentRequest addUpdateFarmEquipmentRequest = new AddUpdateFarmEquipmentRequest();
         addUpdateFarmEquipmentRequest.setEquipmentName("Updated Name");
         SecurityContextHolder.clearContext();
 
         Farm farm = entityManager.find(Farm.class, farmEquipment.getId().getFarmId());
         User currentUser = entityManager.createQuery(
-                "SELECT u FROM User u WHERE u.farm.id = :farmId AND u.role.id = :roleId", User.class)
+                        "SELECT u FROM User u WHERE u.farm.id = :farmId AND u.role.id = :roleId", User.class)
                 .setParameter("farmId", farm.getId())
-                .setParameter("roleId", 3)  
+                .setParameter("roleId", 3)
                 .getSingleResult();
 
-        
+
         UserDetailsImpl userDetails = UserDetailsImpl.build(currentUser);
         UsernamePasswordAuthenticationToken authToken =
                 new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authToken);
-    
+
         // When
         mockMvc.perform(put("/equipment/{equipmentId}", farmEquipment.getId().getId())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(addUpdateFarmEquipmentRequest)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(addUpdateFarmEquipmentRequest)))
                 .andDo(print())
-        //then
-                .andExpect(status().isBadRequest()) 
+                //then
+                .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Wybrany sprzęt już nie istnieje"));
     }
 
@@ -238,12 +228,12 @@ public class FarmEquipmentControllerIT {
     @DisplayName("Test deleting farm equipment successfully")
     public void testDeleteFarmEquipmentSuccess() throws Exception {
         // Given
-        Integer equipmentId = 1;      
+        Integer equipmentId = 1;
         // When 
         mockMvc.perform(delete("/equipment/{equipmentId}", equipmentId)
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
-        //then
+                //then
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Pomyślnie usunięto maszynę"));
     }
@@ -253,33 +243,33 @@ public class FarmEquipmentControllerIT {
     public void testDeleteDeletedFarmEquipment() throws Exception {
         // Given
         FarmEquipment farmEquipment = entityManager.createQuery(
-                "SELECT e from FarmEquipment e WHERE e.isAvailable = :available", FarmEquipment.class)
-        .setParameter("available", false)
-        .getSingleResult();
+                        "SELECT e from FarmEquipment e WHERE e.isAvailable = :available", FarmEquipment.class)
+                .setParameter("available", false)
+                .getSingleResult();
         AddUpdateFarmEquipmentRequest addUpdateFarmEquipmentRequest = new AddUpdateFarmEquipmentRequest();
         addUpdateFarmEquipmentRequest.setEquipmentName("Updated Name");
         SecurityContextHolder.clearContext();
 
         Farm farm = entityManager.find(Farm.class, farmEquipment.getId().getFarmId());
         User currentUser = entityManager.createQuery(
-                "SELECT u FROM User u WHERE u.farm.id = :farmId AND u.role.id = :roleId", User.class)
+                        "SELECT u FROM User u WHERE u.farm.id = :farmId AND u.role.id = :roleId", User.class)
                 .setParameter("farmId", farm.getId())
-                .setParameter("roleId", 3)  
+                .setParameter("roleId", 3)
                 .getSingleResult();
 
-        
+
         UserDetailsImpl userDetails = UserDetailsImpl.build(currentUser);
         UsernamePasswordAuthenticationToken authToken =
                 new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authToken);
-    
-        
+
+
         // When
         mockMvc.perform(delete("/equipment/{equipmentId}", farmEquipment.getId().getId())
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
-        //then
-                .andExpect(status().isBadRequest()) 
+                //then
+                .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Wybrana maszyna została już usunięta"));
     }
 
@@ -287,14 +277,14 @@ public class FarmEquipmentControllerIT {
     @DisplayName("Test deleting non-existent farm equipment")
     public void testDeleteNonExistentFarmEquipment() throws Exception {
         // Given
-        Integer nonExistentEquipmentId = 9999; 
-        
+        Integer nonExistentEquipmentId = 9999;
+
         // When 
         mockMvc.perform(delete("/equipment/{equipmentId}", nonExistentEquipmentId)
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
-        //then
-                .andExpect(status().isBadRequest()) 
+                //then
+                .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Nie znaleziono maszyny o id: " + nonExistentEquipmentId));
     }
     /*
@@ -317,18 +307,18 @@ public class FarmEquipmentControllerIT {
         request.setInsurancePolicyNumber("1234567890");
         request.setInsuranceExpirationDate(LocalDate.now().plusDays(10));
         request.setInspectionExpireDate(LocalDate.now().plusDays(20));
-    
+
         // When
         mockMvc.perform(post("/equipment/new")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
                 .andDo(print())
-        //then
+                //then
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.message").value("Pomyślnie dodano nową maszynę"));
-        
+
         FarmEquipment createdFarmEquipment = entityManager.createQuery(
-        "SELECT fe FROM FarmEquipment fe WHERE fe.equipmentName = :name AND fe.id.farmId =:farmId", FarmEquipment.class)
+                        "SELECT fe FROM FarmEquipment fe WHERE fe.equipmentName = :name AND fe.id.farmId =:farmId", FarmEquipment.class)
                 .setParameter("name", "Tractor X Test")
                 .setParameter("farmId", 1)
                 .getSingleResult();
@@ -340,43 +330,44 @@ public class FarmEquipmentControllerIT {
         assertThat(createdFarmEquipment.getModel(), is(request.getModel()));
         assertThat(createdFarmEquipment.getPower(), is(request.getPower()));
         //assertThat(createdFarmEquipment.getCapacity(), is(request.getCapacity()));
-        assertThat(createdFarmEquipment.getInsurancePolicyNumber(),is(request.getInsurancePolicyNumber()));
+        assertThat(createdFarmEquipment.getInsurancePolicyNumber(), is(request.getInsurancePolicyNumber()));
         assertThat(createdFarmEquipment.getInsuranceExpirationDate(), is(request.getInsuranceExpirationDate()));
         //assertThat(createdFarmEquipment.getWorkingWidth(), is(request.getWorkingWidth()));
 
 
-    }  
+    }
 
     @Test
     @DisplayName("Test adding farm equipment with duplicate name")
     public void testAddFarmEquipmentDuplicateName() throws Exception {
         // Given
         AddUpdateFarmEquipmentRequest addUpdateFarmEquipmentRequest = new AddUpdateFarmEquipmentRequest();
-        FarmEquipmentId farmEquipmentId = new FarmEquipmentId(1,1);
-        FarmEquipment farmEquipment = entityManager.find(FarmEquipment.class,farmEquipmentId );
+        FarmEquipmentId farmEquipmentId = new FarmEquipmentId(1, 1);
+        FarmEquipment farmEquipment = entityManager.find(FarmEquipment.class, farmEquipmentId);
         addUpdateFarmEquipmentRequest.setEquipmentName(farmEquipment.getEquipmentName());
         addUpdateFarmEquipmentRequest.setCategory("Ciągniki rolnicze");
-        
+
         // When 
         mockMvc.perform(post("/equipment/new")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(addUpdateFarmEquipmentRequest)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(addUpdateFarmEquipmentRequest)))
                 .andDo(print())
-        //then
+                //then
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Maszyna o podanej nazwie już istnieje"));
     }
+
     /*
      *  GET /categories
      */
-    @Test 
+    @Test
     @DisplayName("Test retrieving all equipment categories without manually checking every category")
-    public void testGetAllCategoriesWithFieldsLargeList() throws Exception { 
+    public void testGetAllCategoriesWithFieldsLargeList() throws Exception {
         mockMvc.perform(get("/equipment/categories")
-              .contentType(MediaType.APPLICATION_JSON))   
-              .andDo(print())
-              .andExpect(status().isOk()) 
-              .andExpect(jsonPath("$.length()").value(61));
-}
-    
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(61));
+    }
+
 }

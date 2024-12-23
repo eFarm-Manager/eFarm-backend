@@ -1,16 +1,16 @@
 package com.efarm.efarmbackend.service.finance
 
+import com.efarm.efarmbackend.model.farm.Farm
 import com.efarm.efarmbackend.model.finance.*
 import com.efarm.efarmbackend.model.user.User
-import com.efarm.efarmbackend.model.farm.Farm
 import com.efarm.efarmbackend.repository.finance.FinancialCategoryRepository
 import com.efarm.efarmbackend.repository.finance.PaymentStatusRepository
 import com.efarm.efarmbackend.repository.finance.TransactionRepository
-import com.efarm.efarmbackend.service.user.UserService
 import com.efarm.efarmbackend.service.MainNotificationService
-
+import com.efarm.efarmbackend.service.user.UserService
 import spock.lang.Specification
 import spock.lang.Subject
+
 import java.time.LocalDate
 
 class FinanceNotificationServiceSpec extends Specification {
@@ -23,11 +23,11 @@ class FinanceNotificationServiceSpec extends Specification {
 
     @Subject
     FinanceNotificationService financeNotificationService = new FinanceNotificationService(
-        transactionRepository,
-        userService,
-        financialCategoryRepository,
-        paymentStatusRepository,
-        mainNotificationService
+            transactionRepository,
+            userService,
+            financialCategoryRepository,
+            paymentStatusRepository,
+            mainNotificationService
     )
 
     def "should call checkAndNotifyForPayment for each transaction"() {
@@ -51,7 +51,7 @@ class FinanceNotificationServiceSpec extends Specification {
         financialCategoryRepository.findByName(EFinancialCategory.EXPENSE) >> financialCategory
         paymentStatusRepository.findByName(EPaymentStatus.UNPAID) >> paymentStatus
         transactionRepository.findByfinancialCategoryAndPaymentStatus(financialCategory, paymentStatus) >>
-        [transaction1, transaction2]
+                [transaction1, transaction2]
 
         userService.getAllOwnersForFarm(1) >> [Mock(User) { getIsActive() >> true }]
 
@@ -83,7 +83,7 @@ class FinanceNotificationServiceSpec extends Specification {
         financeNotificationService.checkAndNotifyForPayment(transaction, today)
 
         then:
-        1 * mainNotificationService.sendNotificationToUser(_ as User, _,'Niedługo upływa termin płatności!')
+        1 * mainNotificationService.sendNotificationToUser(_ as User, _, 'Niedługo upływa termin płatności!')
     }
 
     def "should checkAndNotifyForPayment when payment date is 1 day away"() {
@@ -106,7 +106,7 @@ class FinanceNotificationServiceSpec extends Specification {
         financeNotificationService.checkAndNotifyForPayment(transaction, today)
 
         then:
-        1 * mainNotificationService.sendNotificationToUser(_ as User, _,'Niedługo upływa termin płatności!')
+        1 * mainNotificationService.sendNotificationToUser(_ as User, _, 'Niedługo upływa termin płatności!')
     }
 
     def "should checkAndNotifyForPayment when payment date is not 5 or 1 day away"() {
@@ -128,7 +128,7 @@ class FinanceNotificationServiceSpec extends Specification {
         financeNotificationService.checkAndNotifyForPayment(transaction, today)
 
         then:
-        0 * mainNotificationService.sendNotificationToUser(_ as User, _,'Niedługo upływa termin płatności!')
+        0 * mainNotificationService.sendNotificationToUser(_ as User, _, 'Niedługo upływa termin płatności!')
     }
 
     def "should checkAndNotifyForPayment when transaction has no payment date"() {
@@ -150,7 +150,7 @@ class FinanceNotificationServiceSpec extends Specification {
         financeNotificationService.checkAndNotifyForPayment(transaction, today)
 
         then:
-        0 * mainNotificationService.sendNotificationToUser(_ as User, _,'Niedługo upływa termin płatności!')
+        0 * mainNotificationService.sendNotificationToUser(_ as User, _, 'Niedługo upływa termin płatności!')
     }
 
 }
