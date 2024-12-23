@@ -8,10 +8,10 @@ import com.efarm.efarmbackend.model.farm.Farm
 import com.efarm.efarmbackend.payload.request.equipment.AddUpdateFarmEquipmentRequest
 import com.efarm.efarmbackend.repository.equipment.EquipmentCategoryRepository
 import com.efarm.efarmbackend.repository.equipment.FarmEquipmentRepository
-import com.efarm.efarmbackend.service.equipment.EquipmentDisplayDataService
+import com.efarm.efarmbackend.service.equipment.EquipmentDisplayDataServiceImpl
 import com.efarm.efarmbackend.service.equipment.FarmEquipmentFacade
-import com.efarm.efarmbackend.service.equipment.FarmEquipmentService
-import com.efarm.efarmbackend.service.user.UserService
+import com.efarm.efarmbackend.service.equipment.FarmEquipmentServiceImpl
+import com.efarm.efarmbackend.service.user.UserServiceImpl
 import spock.lang.Specification
 import spock.lang.Subject
 
@@ -20,9 +20,9 @@ import java.time.LocalDate
 class FarmEquipmentFacadeSpec extends Specification {
 
     def farmEquipmentRepository = Mock(FarmEquipmentRepository)
-    def userService = Mock(UserService)
-    def equipmentDisplayDataService = Mock(EquipmentDisplayDataService)
-    def farmEquipmentService = Mock(FarmEquipmentService)
+    def userService = Mock(UserServiceImpl)
+    def equipmentDisplayDataService = Mock(EquipmentDisplayDataServiceImpl)
+    def farmEquipmentService = Mock(FarmEquipmentServiceImpl)
     def equipmentCategoryRepository = Mock(EquipmentCategoryRepository)
 
     @Subject

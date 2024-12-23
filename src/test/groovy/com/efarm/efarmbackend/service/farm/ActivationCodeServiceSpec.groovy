@@ -6,7 +6,7 @@ import com.efarm.efarmbackend.model.farm.Farm
 import com.efarm.efarmbackend.repository.farm.ActivationCodeRepository
 import com.efarm.efarmbackend.repository.farm.FarmRepository
 import com.efarm.efarmbackend.security.services.BruteForceProtectionService
-import com.efarm.efarmbackend.service.farm.ActivationCodeService
+import com.efarm.efarmbackend.service.farm.ActivationCodeServiceImpl
 import org.springframework.security.core.context.SecurityContextHolder
 import spock.lang.Specification
 import spock.lang.Subject
@@ -20,7 +20,7 @@ class ActivationCodeServiceSpec extends Specification {
     def bruteForceProtectionService = Mock(BruteForceProtectionService)
 
     @Subject
-    ActivationCodeService activationCodeService = new ActivationCodeService(
+    ActivationCodeServiceImpl activationCodeService = new ActivationCodeServiceImpl(
             activationCodeRepository,
             farmRepository,
             bruteForceProtectionService

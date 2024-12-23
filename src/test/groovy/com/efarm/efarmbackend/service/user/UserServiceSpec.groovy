@@ -9,7 +9,7 @@ import com.efarm.efarmbackend.payload.request.user.UpdateUserRequest
 import com.efarm.efarmbackend.repository.user.RoleRepository
 import com.efarm.efarmbackend.repository.user.UserRepository
 import com.efarm.efarmbackend.security.services.UserDetailsImpl
-import com.efarm.efarmbackend.service.user.UserService
+import com.efarm.efarmbackend.service.user.UserServiceImpl
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
@@ -28,7 +28,7 @@ class UserServiceSpec extends Specification {
     Role class_role_owner
 
     @Subject
-    UserService userService = new UserService(
+    UserServiceImpl userService = new UserServiceImpl(
             roleRepository,
             encoder,
             userRepository

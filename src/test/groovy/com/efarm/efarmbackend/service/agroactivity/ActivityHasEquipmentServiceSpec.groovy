@@ -19,7 +19,7 @@ class ActivityHasEquipmentServiceSpec extends Specification {
     def applicationContext = Mock(org.springframework.context.ApplicationContext)
 
     @Subject
-    ActivityHasEquipmentService activityHasEquipmentService = new ActivityHasEquipmentService(
+    ActivityHasEquipmentServiceImpl activityHasEquipmentService = new ActivityHasEquipmentServiceImpl(
             farmEquipmentRepository,
             applicationContext,
             activityHasEquipmentRepository
@@ -174,7 +174,7 @@ class ActivityHasEquipmentServiceSpec extends Specification {
         List<FarmEquipment> farmEquipmentList = [farmEquipment1, farmEquipment2]
         farmEquipmentRepository.findAllById(_) >> farmEquipmentList
 
-        applicationContext.getBean(ActivityHasEquipmentService.class) >> activityHasEquipmentService
+        applicationContext.getBean(ActivityHasEquipmentServiceImpl.class) >> activityHasEquipmentService
 
         when:
         activityHasEquipmentService.updateEquipmentInActivity(equipmentIds, agroActivity, farmId)

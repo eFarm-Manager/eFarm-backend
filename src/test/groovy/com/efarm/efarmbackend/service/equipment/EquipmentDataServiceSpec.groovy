@@ -2,7 +2,7 @@ package com.efarm.efarmbackend.service
 
 import com.efarm.efarmbackend.model.equipment.EquipmentCategoryDTO
 import com.efarm.efarmbackend.repository.equipment.EquipmentCategoryRepository
-import com.efarm.efarmbackend.service.equipment.EquipmentDisplayDataService
+import com.efarm.efarmbackend.service.equipment.EquipmentDisplayDataServiceImpl
 import spock.lang.Specification
 import spock.lang.Subject
 
@@ -11,7 +11,7 @@ class EquipmentDisplayDataServiceSpec extends Specification {
     def equipmentCategoryRepository = Mock(EquipmentCategoryRepository)
 
     @Subject
-    EquipmentDisplayDataService equipmentDisplayDataService = new EquipmentDisplayDataService(
+    EquipmentDisplayDataServiceImpl equipmentDisplayDataService = new EquipmentDisplayDataServiceImpl(
             equipmentCategoryRepository
     )
 

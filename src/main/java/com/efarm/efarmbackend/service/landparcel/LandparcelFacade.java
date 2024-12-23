@@ -9,7 +9,7 @@ import com.efarm.efarmbackend.payload.request.landparcel.UpdateLandparcelRequest
 import com.efarm.efarmbackend.repository.landparcel.LandparcelRepository;
 import com.efarm.efarmbackend.service.agriculturalrecords.AgriculturalRecordService;
 import com.efarm.efarmbackend.service.agriculturalrecords.SeasonService;
-import com.efarm.efarmbackend.service.user.UserService;
+import com.efarm.efarmbackend.service.user.UserAuthenticationService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +24,7 @@ public class LandparcelFacade {
 
     private final LandparcelService landparcelService;
     private final LandparcelRepository landparcelRepository;
-    private final UserService userService;
+    private final UserAuthenticationService userService;
     private final AgriculturalRecordService agriculturalRecordService;
     private final SeasonService seasonService;
 

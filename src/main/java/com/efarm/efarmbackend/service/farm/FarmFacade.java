@@ -6,7 +6,7 @@ import com.efarm.efarmbackend.model.farm.Farm;
 import com.efarm.efarmbackend.model.farm.FarmDTO;
 import com.efarm.efarmbackend.payload.request.farm.UpdateFarmDetailsRequest;
 import com.efarm.efarmbackend.service.auth.AuthService;
-import com.efarm.efarmbackend.service.user.UserService;
+import com.efarm.efarmbackend.service.user.UserAuthenticationService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,14 +18,14 @@ import java.time.LocalDate;
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class FarmFacade {
 
-    private final UserService userService;
+    private final UserAuthenticationService userAuthenticationService;
     private final FarmService farmService;
     private final ActivationCodeService activationCodeService;
     private final AuthService authService;
     private final AddressService addressService;
 
     public FarmDTO getFarmDetails() {
-        Farm loggedUserFarm = userService.getLoggedUserFarm();
+        Farm loggedUserFarm = userAuthenticationService.getLoggedUserFarm();
         Address address = addressService.findAddressById(loggedUserFarm.getId());
         ActivationCode activationCode = activationCodeService.findActivationCodeById(loggedUserFarm.getIdActivationCode());
         LocalDate expireDate = authService.hasCurrentUserRole("ROLE_FARM_OWNER") ? activationCode.getExpireDate() : null;
@@ -34,7 +34,7 @@ public class FarmFacade {
 
     @Transactional
     public void updateFarmDetails(UpdateFarmDetailsRequest updateFarmDetailsRequest) {
-        Farm loggedUserFarm = userService.getLoggedUserFarm();
+        Farm loggedUserFarm = userAuthenticationService.getLoggedUserFarm();
         farmService.updateFarmDetails(loggedUserFarm, updateFarmDetailsRequest);
         Address address = addressService.findAddressById(loggedUserFarm.getIdAddress());
         addressService.updateFarmAddress(address, updateFarmDetailsRequest);

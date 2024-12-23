@@ -6,8 +6,8 @@ import com.efarm.efarmbackend.model.equipment.FarmEquipmentId
 import com.efarm.efarmbackend.model.farm.Farm
 import com.efarm.efarmbackend.payload.request.equipment.AddUpdateFarmEquipmentRequest
 import com.efarm.efarmbackend.repository.equipment.FarmEquipmentRepository
-import com.efarm.efarmbackend.service.equipment.EquipmentDisplayDataService
-import com.efarm.efarmbackend.service.equipment.FarmEquipmentService
+import com.efarm.efarmbackend.service.equipment.EquipmentDisplayDataServiceImpl
+import com.efarm.efarmbackend.service.equipment.FarmEquipmentServiceImpl
 import spock.lang.Specification
 import spock.lang.Subject
 
@@ -15,11 +15,11 @@ import java.time.LocalDate
 
 class FarmEquipmentServiceSpec extends Specification {
 
-    def equipmentDisplayDataService = Mock(EquipmentDisplayDataService)
+    def equipmentDisplayDataService = Mock(EquipmentDisplayDataServiceImpl)
     def farmEquipmentRepository = Mock(FarmEquipmentRepository)
 
     @Subject
-    FarmEquipmentService farmEquipmentService = new FarmEquipmentService(
+    FarmEquipmentServiceImpl farmEquipmentService = new FarmEquipmentServiceImpl(
             equipmentDisplayDataService,
             farmEquipmentRepository
     )

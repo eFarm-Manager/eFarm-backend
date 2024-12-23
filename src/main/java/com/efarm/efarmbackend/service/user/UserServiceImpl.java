@@ -26,14 +26,15 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
-public class UserService {
+public class UserServiceImpl implements UserManagementService, UserAuthenticationService, UserNotificationService {
 
     private final RoleRepository roleRepository;
     private final PasswordEncoder encoder;
     private final UserRepository userRepository;
 
-    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
+    private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
+    @Override
     public User createFarmOwner(SignupFarmRequest signUpFarmRequest) {
         User user = new User(
                 signUpFarmRequest.getFirstName(),
@@ -50,6 +51,7 @@ public class UserService {
         return user;
     }
 
+    @Override
     public User createFarmUser(SignupUserRequest signUpUserRequest) {
         User user = new User(
                 signUpUserRequest.getFirstName(),
@@ -64,6 +66,7 @@ public class UserService {
         return user;
     }
 
+    @Override
     public User getLoggedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
@@ -81,36 +84,43 @@ public class UserService {
         }
     }
 
+    @Override
     public Farm getLoggedUserFarm() {
         return getLoggedUser().getFarm();
     }
 
+    @Override
     public Farm getUserFarmById(Long userId) {
         User currentUser = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Użytkownik o id: " + userId + " nie został znaleziony"));
         return currentUser.getFarm();
     }
 
+    @Override
     public List<String> getLoggedUserRoles(UserDetailsImpl userDetails) {
         return userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
     }
 
+    @Override
     public Boolean isPasswordValidForLoggedUser(String providedPassword) {
         return encoder.matches(providedPassword, getLoggedUser().getPassword());
     }
 
+    @Override
     public void updatePasswordForLoggedUser(String newPassword) {
         User loggedUser = getLoggedUser();
         loggedUser.setPassword(encoder.encode(newPassword));
         userRepository.save(loggedUser);
     }
 
+    @Override
     public List<User> getAllOwnersForFarm(Integer farmId) {
         return userRepository.findOwnersForFarm(farmId);
     }
 
+    @Override
     public Optional<User> getActiveUserById(UserDetailsImpl userDetails) throws RuntimeException {
         Optional<User> loggingUser = userRepository.findById(Long.valueOf(userDetails.getId()));
         if (!loggingUser.isPresent() || !loggingUser.get().getIsActive()) {
@@ -119,6 +129,7 @@ public class UserService {
         return loggingUser;
     }
 
+    @Override
     public List<UserDTO> getFarmUsersByFarmId() {
         Farm loggedUserFarm = getLoggedUserFarm();
         List<User> users = getUsersByFarmId(loggedUserFarm.getId());
@@ -127,6 +138,7 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
+    @Override
     public List<UserSummaryDTO> getActiveFarmUsersByFarmId() {
         Farm loggedUserFarm = getLoggedUserFarm();
         List<User> users = getActiveUsersByFarmId(loggedUserFarm.getId());
@@ -135,12 +147,14 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
+    @Override
     @Transactional
     public void deleteAllUsersForFarm(Farm farm) {
         List<User> users = getUsersByFarmId(farm.getId());
         userRepository.deleteAll(users);
     }
 
+    @Override
     @Transactional
     public void toggleUserActiveStatus(Integer userId) {
         User loggedUser = getLoggedUser();
@@ -157,6 +171,7 @@ public class UserService {
         userRepository.save(userToToggle);
     }
 
+    @Override
     @Transactional
     public void updateUserDetails(Integer userId, UpdateUserRequest updateUserRequest) {
         Farm loggedUserFarm = getLoggedUserFarm();
@@ -167,8 +182,33 @@ public class UserService {
         userRepository.save(user);
     }
 
+    @Override
+    @Transactional
+    public void updateUserPassword(Integer userId, ChangeUserPasswordRequest updatePasswordRequest) {
+        Farm loggedUserFarm = getLoggedUserFarm();
+        User user = userRepository.findByIdAndFarmId(userId, loggedUserFarm.getId())
+                .orElseThrow(() -> new RuntimeException("Wybrany użytkownik nie istnieje"));
 
-    private void updateUserProperties(User user, UpdateUserRequest updateUserRequest) {
+        user.setPassword(encoder.encode(updatePasswordRequest.getNewPassword()));
+        userRepository.save(user);
+    }
+
+    @Override
+    public List<User> filterOperatorsForHelpNotifications(List<Integer> operatorIds, List<User> activeFarmOperators) {
+        return activeFarmOperators.stream()
+                .filter(operator -> operatorIds.contains(operator.getId()))
+                .toList();
+    }
+
+    @Override
+    public List<User> filterInvalidOperatorsForHelpNotifications(List<Integer> operatorIds, List<User> activeFarmOperators) {
+        return userRepository.findAllById(operatorIds.stream().map(Integer::longValue).toList()).stream()
+                .filter(user -> !activeFarmOperators.contains(user))
+                .toList();
+    }
+
+    @Override
+    public void updateUserProperties(User user, UpdateUserRequest updateUserRequest) {
         if (updateUserRequest.getFirstName() != null) {
             user.setFirstName(updateUserRequest.getFirstName());
         }
@@ -187,37 +227,18 @@ public class UserService {
         }
     }
 
-    @Transactional
-    public void updateUserPassword(Integer userId, ChangeUserPasswordRequest updatePasswordRequest) {
-        Farm loggedUserFarm = getLoggedUserFarm();
-        User user = userRepository.findByIdAndFarmId(userId, loggedUserFarm.getId())
-                .orElseThrow(() -> new RuntimeException("Wybrany użytkownik nie istnieje"));
-
-        user.setPassword(encoder.encode(updatePasswordRequest.getNewPassword()));
-        userRepository.save(user);
-    }
-
-    public List<User> filterOperatorsForHelpNotifications(List<Integer> operatorIds, List<User> activeFarmOperators) {
-        return activeFarmOperators.stream()
-                .filter(operator -> operatorIds.contains(operator.getId()))
-                .toList();
-    }
-
-    public List<User> filterInvalidOperatorsForHelpNotifications(List<Integer> operatorIds, List<User> activeFarmOperators) {
-        return userRepository.findAllById(operatorIds.stream().map(Integer::longValue).toList()).stream()
-                .filter(user -> !activeFarmOperators.contains(user))
-                .toList();
-    }
-
-    private List<User> getUsersByFarmId(Integer farmId) {
+    @Override
+    public List<User> getUsersByFarmId(Integer farmId) {
         return userRepository.findByFarmId(farmId);
     }
 
-    private List<User> getActiveUsersByFarmId(Integer farmId) {
+    @Override
+    public List<User> getActiveUsersByFarmId(Integer farmId) {
         return userRepository.findByFarmIdAndIsActive(farmId, true);
     }
 
-    private Role assignUserRole(String strRole) {
+    @Override
+    public Role assignUserRole(String strRole) {
         return switch (strRole) {
             case "ROLE_FARM_OWNER" -> roleRepository.findByName(ERole.ROLE_FARM_OWNER)
                     .orElseThrow(() -> new RuntimeException("Rola: ROLE_FARM_OWNER nie została znaleziona"));

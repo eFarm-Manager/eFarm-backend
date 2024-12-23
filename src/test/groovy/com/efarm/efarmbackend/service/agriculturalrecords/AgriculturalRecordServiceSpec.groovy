@@ -14,8 +14,8 @@ import com.efarm.efarmbackend.repository.agriculturalrecords.AgriculturalRecordR
 import com.efarm.efarmbackend.repository.agriculturalrecords.CropRepository
 import com.efarm.efarmbackend.repository.agroactivity.AgroActivityRepository
 import com.efarm.efarmbackend.repository.landparcel.LandparcelRepository
-import com.efarm.efarmbackend.service.agroactivity.AgroActivityService
-import com.efarm.efarmbackend.service.user.UserService
+import com.efarm.efarmbackend.service.agroactivity.AgroActivityServiceImpl
+import com.efarm.efarmbackend.service.user.UserServiceImpl
 import spock.lang.Specification
 import spock.lang.Subject
 
@@ -24,12 +24,12 @@ class AgriculturalRecordServiceSpec extends Specification {
     def agriculturalRecordRepository = Mock(AgriculturalRecordRepository)
     def cropRepository = Mock(CropRepository)
     def landparcelRepository = Mock(LandparcelRepository)
-    def userService = Mock(UserService)
-    def agroActivityService = Mock(AgroActivityService)
+    def userService = Mock(UserServiceImpl)
+    def agroActivityService = Mock(AgroActivityServiceImpl)
     def agroActivityRepository = Mock(AgroActivityRepository)
 
     @Subject
-    AgriculturalRecordService agriculturalRecordService = new AgriculturalRecordService(
+    AgriculturalRecordServiceImpl agriculturalRecordService = new AgriculturalRecordServiceImpl(
             agriculturalRecordRepository,
             cropRepository,
             landparcelRepository,

@@ -12,7 +12,7 @@ import com.efarm.efarmbackend.payload.request.agroactivity.NewAgroActivityReques
 import com.efarm.efarmbackend.payload.request.agroactivity.UpdateAgroActivityRequest;
 import com.efarm.efarmbackend.repository.agroactivity.ActivityCategoryRepository;
 import com.efarm.efarmbackend.service.agriculturalrecords.AgriculturalRecordService;
-import com.efarm.efarmbackend.service.user.UserService;
+import com.efarm.efarmbackend.service.user.UserAuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,7 +25,7 @@ import java.util.List;
 public class AgroActivityFacade {
 
     private final ActivityCategoryRepository activityCategoryRepository;
-    private final UserService userService;
+    private final UserAuthenticationService userAuthenticationService;
     private final AgroActivityService agroActivityService;
     private final AgriculturalRecordService agriculturalRecordService;
     private final ActivityHasEquipmentService activityHasEquipmentService;
@@ -33,7 +33,7 @@ public class AgroActivityFacade {
 
     @Transactional
     public void addAgroActivity(NewAgroActivityRequest request) {
-        Integer loggedUserFarmId = userService.getLoggedUserFarm().getId();
+        Integer loggedUserFarmId = userAuthenticationService.getLoggedUserFarm().getId();
         ActivityCategory activityCategory = activityCategoryRepository.findByName(request.getActivityCategoryName())
                 .orElseThrow(() -> new RuntimeException("Nie znaleziono kategorii zabiegu"));
 
@@ -61,7 +61,7 @@ public class AgroActivityFacade {
 
     public AgroActivityDetailDTO getAgroActivityDetails(Integer id) {
 
-        Integer loggedUserFarmId = userService.getLoggedUserFarm().getId();
+        Integer loggedUserFarmId = userAuthenticationService.getLoggedUserFarm().getId();
         AgroActivity agroActivity = agroActivityService.findAgroActivityWithDetails(id, loggedUserFarmId);
         LandparcelSummaryDTO landparcelSummaryDTO = new LandparcelSummaryDTO(agroActivity);
         List<UserSummaryDTO> operators = activityHasOperatorService.getOperatorsForAgroActivity(agroActivity);
@@ -72,7 +72,7 @@ public class AgroActivityFacade {
 
     @Transactional
     public void updateAgroActivity(Integer agroActivityId, UpdateAgroActivityRequest request) {
-        Integer loggedUserFarmId = userService.getLoggedUserFarm().getId();
+        Integer loggedUserFarmId = userAuthenticationService.getLoggedUserFarm().getId();
 
         AgroActivity agroActivity = agroActivityService.findAgroActivityWithDetails(agroActivityId, loggedUserFarmId);
         ActivityCategory activityCategory = activityCategoryRepository.findByName(request.getActivityCategoryName())
@@ -85,7 +85,7 @@ public class AgroActivityFacade {
 
     @Transactional
     public void deleteAgroActivity(Integer id) {
-        Integer loggedUserFarmId = userService.getLoggedUserFarm().getId();
+        Integer loggedUserFarmId = userAuthenticationService.getLoggedUserFarm().getId();
         AgroActivityId agroActivityId = new AgroActivityId(id, loggedUserFarmId);
         agroActivityService.deleteAgroActivity(agroActivityId);
     }

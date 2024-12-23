@@ -16,10 +16,11 @@ import com.efarm.efarmbackend.repository.farm.FarmRepository
 import com.efarm.efarmbackend.repository.user.UserRepository
 import com.efarm.efarmbackend.security.services.UserDetailsImpl
 import com.efarm.efarmbackend.service.auth.AuthFacade
-import com.efarm.efarmbackend.service.auth.AuthService
-import com.efarm.efarmbackend.service.farm.ActivationCodeService
-import com.efarm.efarmbackend.service.farm.FarmService
-import com.efarm.efarmbackend.service.user.UserService
+import com.efarm.efarmbackend.service.auth.AuthServiceImpl
+import com.efarm.efarmbackend.service.farm.ActivationCodeServiceImpl
+import com.efarm.efarmbackend.service.farm.FarmServiceImpl
+import com.efarm.efarmbackend.service.user.UserAuthenticationService
+import com.efarm.efarmbackend.service.user.UserManagementService
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.core.context.SecurityContextHolder
 import spock.lang.Specification
@@ -33,10 +34,11 @@ class AuthFacadeSpec extends Specification {
     def farmRepository = Mock(FarmRepository)
     def addressRepository = Mock(AddressRepository)
     def activationCodeRepository = Mock(ActivationCodeRepository)
-    def authService = Mock(AuthService)
-    def userService = Mock(UserService)
-    def activationCodeService = Mock(ActivationCodeService)
-    def farmService = Mock(FarmService)
+    def authService = Mock(AuthServiceImpl)
+    def userAuthenticationService = Mock(UserAuthenticationService)
+    def userManagementService = Mock(UserManagementService)
+    def activationCodeService = Mock(ActivationCodeServiceImpl)
+    def farmService = Mock(FarmServiceImpl)
     def authenticationManager = Mock(AuthenticationManager)
 
     @Subject
@@ -46,7 +48,8 @@ class AuthFacadeSpec extends Specification {
             addressRepository,
             activationCodeRepository,
             authService,
-            userService,
+            userAuthenticationService,
+            userManagementService,
             activationCodeService,
             farmService,
             authenticationManager
@@ -76,8 +79,8 @@ class AuthFacadeSpec extends Specification {
         Farm farm = Mock(Farm)
 
         userRepository.existsByUsername(signUpRequest.getUsername()) >> false
-        userService.createFarmUser(signUpRequest) >> user
-        userService.getLoggedUserFarm() >> farm
+        userManagementService.createFarmUser(signUpRequest) >> user
+        userAuthenticationService.getLoggedUserFarm() >> farm
 
         when:
         authFacade.registerUser(signUpRequest)
@@ -121,8 +124,8 @@ class AuthFacadeSpec extends Specification {
         User user = Mock(User)
 
         userRepository.existsByUsername(signUpRequest.getUsername()) >> false
-        userService.createFarmUser(signUpRequest) >> user
-        userService.getLoggedUserFarm() >> { throw new RuntimeException('Farm not found') }
+        userManagementService.createFarmUser(signUpRequest) >> user
+        userAuthenticationService.getLoggedUserFarm() >> { throw new RuntimeException('Farm not found') }
 
         when:
         authFacade.registerUser(signUpRequest)
@@ -156,7 +159,7 @@ class AuthFacadeSpec extends Specification {
 
         userRepository.existsByUsername(signUpFarmRequest.getUsername()) >> false
         farmRepository.existsByFarmName(signUpFarmRequest.getFarmName()) >> false
-        userService.createFarmOwner(signUpFarmRequest) >> user
+        userManagementService.createFarmOwner(signUpFarmRequest) >> user
         activationCodeRepository.findByCode(signUpFarmRequest.getActivationCode()) >> Optional.of(activationCode)
         activationCodeService.validateActivationCode(signUpFarmRequest.getActivationCode()) >> {}
         farmService.createFarm(signUpFarmRequest.getFarmName(), address.getId(), activationCode.getId()) >> farm
@@ -290,7 +293,7 @@ class AuthFacadeSpec extends Specification {
 
         userRepository.existsByUsername(signUpFarmRequest.getUsername()) >> false
         farmRepository.existsByFarmName(signUpFarmRequest.getFarmName()) >> false
-        userService.createFarmOwner(signUpFarmRequest) >> user
+        userManagementService.createFarmOwner(signUpFarmRequest) >> user
         activationCodeRepository.findByCode(signUpFarmRequest.getActivationCode()) >> Optional.of(activationCode)
         activationCodeService.validateActivationCode(signUpFarmRequest.getActivationCode()) >> {}
         farmService.createFarm(signUpFarmRequest.getFarmName(), address.getId(), activationCode.getId()) >> farm
@@ -323,8 +326,8 @@ class AuthFacadeSpec extends Specification {
         farm.getId() >> 1
 
         authService.authenticateUserByUpdateCodeRequest(updateActivationCodeRequest) >> userDetails
-        userService.getLoggedUserRoles(userDetails) >> roles
-        userService.getUserFarmById(Long.valueOf(userDetails.getId())) >> farm
+        userAuthenticationService.getLoggedUserRoles(userDetails) >> roles
+        userManagementService.getUserFarmById(Long.valueOf(userDetails.getId())) >> farm
 
         when:
         authFacade.updateActivationCode(updateActivationCodeRequest)
@@ -345,7 +348,7 @@ class AuthFacadeSpec extends Specification {
         userDetails.getId() >> 1
 
         authService.authenticateUserByUpdateCodeRequest(updateActivationCodeRequest) >> userDetails
-        userService.getLoggedUserRoles(userDetails) >> roles
+        userAuthenticationService.getLoggedUserRoles(userDetails) >> roles
 
         when:
         authFacade.updateActivationCode(updateActivationCodeRequest)
@@ -370,8 +373,8 @@ class AuthFacadeSpec extends Specification {
         farm.getId() >> 1
 
         authService.authenticateUserByUpdateCodeRequest(updateActivationCodeRequest) >> userDetails
-        userService.getLoggedUserRoles(userDetails) >> roles
-        userService.getUserFarmById(Long.valueOf(userDetails.getId())) >> farm
+        userAuthenticationService.getLoggedUserRoles(userDetails) >> roles
+        userManagementService.getUserFarmById(Long.valueOf(userDetails.getId())) >> farm
         activationCodeService.updateActivationCodeForFarm(updateActivationCodeRequest.getNewActivationCode(), farm.getId(), userDetails.getUsername()) >> {
             throw new RuntimeException('Podany kod aktywacyjny nie istnieje!')
         }
@@ -397,9 +400,9 @@ class AuthFacadeSpec extends Specification {
         String username = 'loggedOwner'
         Farm farm = Mock(Farm) { getId() >> farmId }
 
-        userService.isPasswordValidForLoggedUser(request.getPassword()) >> true
-        userService.getLoggedUserFarm() >> farm
-        userService.getLoggedUser() >> Mock(User) { getUsername() >> username }
+        userAuthenticationService.isPasswordValidForLoggedUser(request.getPassword()) >> true
+        userAuthenticationService.getLoggedUserFarm() >> farm
+        userAuthenticationService.getLoggedUser() >> Mock(User) { getUsername() >> username }
 
         when:
         authFacade.updateActivationCodeByLoggedOwner(request)
@@ -415,7 +418,7 @@ class AuthFacadeSpec extends Specification {
             getNewActivationCode() >> 'newActivationCode123'
         }
 
-        userService.isPasswordValidForLoggedUser(request.getPassword()) >> false
+        userAuthenticationService.isPasswordValidForLoggedUser(request.getPassword()) >> false
 
         when:
         authFacade.updateActivationCodeByLoggedOwner(request)
@@ -438,13 +441,13 @@ class AuthFacadeSpec extends Specification {
             getNewPassword() >> newPassword
         }
 
-        userService.isPasswordValidForLoggedUser(currentPassword) >> true
+        userAuthenticationService.isPasswordValidForLoggedUser(currentPassword) >> true
 
         when:
         authFacade.changePassword(request)
 
         then:
-        1 * userService.updatePasswordForLoggedUser(request.getNewPassword())
+        1 * userAuthenticationService.updatePasswordForLoggedUser(request.getNewPassword())
     }
 
     def "should return unauthorized if current password is invalid"() {
@@ -455,7 +458,7 @@ class AuthFacadeSpec extends Specification {
             getCurrentPassword() >> currentPassword
             getNewPassword() >> newPassword
         }
-        userService.isPasswordValidForLoggedUser(currentPassword) >> false
+        userAuthenticationService.isPasswordValidForLoggedUser(currentPassword) >> false
 
         when:
         authFacade.changePassword(request)
@@ -474,7 +477,7 @@ class AuthFacadeSpec extends Specification {
             getNewPassword() >> newPassword
         }
 
-        userService.isPasswordValidForLoggedUser(currentPassword) >> true
+        userAuthenticationService.isPasswordValidForLoggedUser(currentPassword) >> true
 
         when:
         authFacade.changePassword(request)

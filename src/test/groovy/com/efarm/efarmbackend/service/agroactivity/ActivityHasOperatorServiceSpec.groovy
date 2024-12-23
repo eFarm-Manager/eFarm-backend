@@ -9,19 +9,19 @@ import com.efarm.efarmbackend.model.user.User
 import com.efarm.efarmbackend.model.user.UserSummaryDTO
 import com.efarm.efarmbackend.repository.agroactivity.ActivityHasOperatorRepository
 import com.efarm.efarmbackend.repository.user.UserRepository
-import com.efarm.efarmbackend.service.user.UserService
+import com.efarm.efarmbackend.service.user.UserServiceImpl
 import spock.lang.Specification
 import spock.lang.Subject
 
 class ActivityHasOperatorServiceSpec extends Specification {
 
     def userRepository = Mock(UserRepository)
-    def userService = Mock(UserService)
+    def userService = Mock(UserServiceImpl)
     def activityHasOperatorRepository = Mock(ActivityHasOperatorRepository)
     def applicationContext = Mock(org.springframework.context.ApplicationContext)
 
     @Subject
-    ActivityHasOperatorService activityHasOperatorService = new ActivityHasOperatorService(
+    ActivityHasOperatorServiceImpl activityHasOperatorService = new ActivityHasOperatorServiceImpl(
             userRepository,
             userService,
             applicationContext,
@@ -257,7 +257,7 @@ class ActivityHasOperatorServiceSpec extends Specification {
         userRepository.findById(1) >> Optional.of(user1)
         userRepository.findById(2) >> Optional.of(user2)
 
-        applicationContext.getBean(ActivityHasOperatorService.class) >> activityHasOperatorService
+        applicationContext.getBean(ActivityHasOperatorServiceImpl.class) >> activityHasOperatorService
 
         when:
         activityHasOperatorService.updateOperatorInActivity(operatorsIds, agroActivity, farmId)

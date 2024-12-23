@@ -8,7 +8,7 @@ import com.efarm.efarmbackend.model.farm.Farm;
 import com.efarm.efarmbackend.payload.request.equipment.AddUpdateFarmEquipmentRequest;
 import com.efarm.efarmbackend.repository.equipment.EquipmentCategoryRepository;
 import com.efarm.efarmbackend.repository.equipment.FarmEquipmentRepository;
-import com.efarm.efarmbackend.service.user.UserService;
+import com.efarm.efarmbackend.service.user.UserAuthenticationService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,13 +23,13 @@ import java.util.stream.Collectors;
 public class FarmEquipmentFacade {
 
     private final FarmEquipmentRepository farmEquipmentRepository;
-    private final UserService userService;
+    private final UserAuthenticationService userAuthenticationService;
     private final EquipmentDisplayDataService equipmentDisplayDataService;
     private final FarmEquipmentService farmEquipmentService;
     private final EquipmentCategoryRepository equipmentCategoryRepository;
 
     public List<EquipmentSummaryDTO> getFarmEquipment(String searchQuery) {
-        List<FarmEquipment> equipmentList = farmEquipmentRepository.findByFarmIdFarm_Id(userService.getLoggedUserFarm().getId());
+        List<FarmEquipment> equipmentList = farmEquipmentRepository.findByFarmIdFarm_Id(userAuthenticationService.getLoggedUserFarm().getId());
 
         return equipmentList.stream()
                 .filter(equipment -> (searchQuery == null || searchQuery.isBlank() ||
@@ -43,15 +43,14 @@ public class FarmEquipmentFacade {
     }
 
     public AddUpdateFarmEquipmentRequest getEquipmentDetails(Integer equipmentId) throws RuntimeException {
-        Farm currentUserFarm = userService.getLoggedUserFarm();
+        Farm currentUserFarm = userAuthenticationService.getLoggedUserFarm();
         FarmEquipmentId farmEquipmentId = new FarmEquipmentId(equipmentId, currentUserFarm.getId());
         FarmEquipment equipment = farmEquipmentRepository.findById(farmEquipmentId)
                 .orElseThrow(() -> new RuntimeException("Nie znaleziono maszyny o id: " + farmEquipmentId.getId()));
 
         if (equipment.getIsAvailable()) {
             List<String> fieldsToDisplay = equipmentDisplayDataService.getFieldsForCategory(equipment.getCategory().getCategoryName());
-
-            return FarmEquipmentService.createFarmEquipmentDTOtoDisplay(equipment, fieldsToDisplay);
+            return farmEquipmentService.createFarmEquipmentDTOtoDisplay(equipment, fieldsToDisplay);
         } else {
             throw new RuntimeException("Sprzęt jest niedostępny");
         }
@@ -63,7 +62,7 @@ public class FarmEquipmentFacade {
 
     @Transactional
     public void addNewFarmEquipment(AddUpdateFarmEquipmentRequest request) throws RuntimeException {
-        Farm loggedUserFarm = userService.getLoggedUserFarm();
+        Farm loggedUserFarm = userAuthenticationService.getLoggedUserFarm();
         if (farmEquipmentRepository.existsByEquipmentNameAndFarmIdFarm(
                 request.getEquipmentName(),
                 loggedUserFarm)) {
@@ -89,7 +88,7 @@ public class FarmEquipmentFacade {
 
     @Transactional
     public void updateFarmEquipment(Integer equipmentId, AddUpdateFarmEquipmentRequest request) throws RuntimeException {
-        Farm loggedUserFarm = userService.getLoggedUserFarm();
+        Farm loggedUserFarm = userAuthenticationService.getLoggedUserFarm();
         FarmEquipmentId farmEquipmentId = new FarmEquipmentId(
                 equipmentId,
                 loggedUserFarm.getId()
@@ -112,7 +111,7 @@ public class FarmEquipmentFacade {
     }
 
     public void deleteFarmEquipment(Integer equipmentId) {
-        FarmEquipmentId farmEquipmentId = new FarmEquipmentId(equipmentId, userService.getLoggedUserFarm().getId());
+        FarmEquipmentId farmEquipmentId = new FarmEquipmentId(equipmentId, userAuthenticationService.getLoggedUserFarm().getId());
         FarmEquipment equipment = farmEquipmentRepository.findById(farmEquipmentId)
                 .orElseThrow(() -> new RuntimeException("Nie znaleziono maszyny o id: " + equipmentId));
 

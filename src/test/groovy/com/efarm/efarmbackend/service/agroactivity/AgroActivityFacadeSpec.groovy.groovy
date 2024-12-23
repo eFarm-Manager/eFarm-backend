@@ -14,8 +14,8 @@ import com.efarm.efarmbackend.model.user.UserSummaryDTO
 import com.efarm.efarmbackend.payload.request.agroactivity.NewAgroActivityRequest
 import com.efarm.efarmbackend.payload.request.agroactivity.UpdateAgroActivityRequest
 import com.efarm.efarmbackend.repository.agroactivity.ActivityCategoryRepository
-import com.efarm.efarmbackend.service.agriculturalrecords.AgriculturalRecordService
-import com.efarm.efarmbackend.service.user.UserService
+import com.efarm.efarmbackend.service.agriculturalrecords.AgriculturalRecordServiceImpl
+import com.efarm.efarmbackend.service.user.UserServiceImpl
 import spock.lang.Specification
 import spock.lang.Subject
 
@@ -24,11 +24,11 @@ import java.time.Instant
 class AgroActivityFacadeSpec extends Specification {
 
     def activityCategoryRepository = Mock(ActivityCategoryRepository)
-    def userService = Mock(UserService)
-    def agroActivityService = Mock(AgroActivityService)
-    def agriculturalRecordService = Mock(AgriculturalRecordService)
-    def activityHasEquipmentService = Mock(ActivityHasEquipmentService)
-    def activityHasOperatorService = Mock(ActivityHasOperatorService)
+    def userService = Mock(UserServiceImpl)
+    def agroActivityService = Mock(AgroActivityServiceImpl)
+    def agriculturalRecordService = Mock(AgriculturalRecordServiceImpl)
+    def activityHasEquipmentService = Mock(ActivityHasEquipmentServiceImpl)
+    def activityHasOperatorService = Mock(ActivityHasOperatorServiceImpl)
 
     @Subject
     AgroActivityFacade agroActivityFacade = new AgroActivityFacade(
