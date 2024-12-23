@@ -14,7 +14,8 @@ import com.efarm.efarmbackend.service.auth.AuthFacade
 import com.efarm.efarmbackend.service.auth.AuthServiceImpl
 import com.efarm.efarmbackend.service.farm.ActivationCodeServiceImpl
 import com.efarm.efarmbackend.service.farm.FarmServiceImpl
-import com.efarm.efarmbackend.service.user.UserServiceImpl
+import com.efarm.efarmbackend.service.user.UserAuthenticationService
+import com.efarm.efarmbackend.service.user.UserManagementService
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseCookie
@@ -36,7 +37,8 @@ class AuthControllerSpec extends Specification {
 
     def authFacade = Mock(AuthFacade)
     def jwtUtils = Mock(JwtUtils)
-    def userService = Mock(UserServiceImpl)
+    def userAuthenticationService = Mock(UserAuthenticationService)
+    def userManagementService = Mock(UserManagementService)
     def activationCodeService = Mock(ActivationCodeServiceImpl)
     def farmService = Mock(FarmServiceImpl)
     def authService = Mock(AuthServiceImpl)
@@ -46,7 +48,8 @@ class AuthControllerSpec extends Specification {
     AuthController authController = new AuthController(
             authFacade,
             jwtUtils,
-            userService,
+            userAuthenticationService,
+            userManagementService,
             activationCodeService,
             farmService,
             authService,
@@ -90,9 +93,9 @@ class AuthControllerSpec extends Specification {
         authService.authenticateUserByLoginRequest(loginRequest) >> userDetails
         Authentication auth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities())
         SecurityContextHolder.getContext().setAuthentication(auth)
-        userService.getLoggedUserRoles(userDetails) >> roles
-        userService.getActiveUserById(userDetails) >> Optional.of(user)
-        userService.getUserFarmById(Long.valueOf(userDetails.getId())) >> farm
+        userAuthenticationService.getLoggedUserRoles(userDetails) >> roles
+        userAuthenticationService.getActiveUserById(userDetails) >> Optional.of(user)
+        userManagementService.getUserFarmById(Long.valueOf(userDetails.getId())) >> farm
 
         farmService.checkFarmDeactivation(farm, role) >> null
         activationCodeService.generateExpireCodeInfo(userDetails, farm, roles) >> null
@@ -137,8 +140,8 @@ class AuthControllerSpec extends Specification {
 
         validationRequestService.validateRequest(bindingResult) >> {}
         authService.authenticateUserByLoginRequest(loginRequest) >> userDetails
-        userService.getLoggedUserRoles(userDetails) >> roles
-        userService.getActiveUserById(userDetails) >> { throw new RuntimeException('Użytkownik jest nieaktywny!') }
+        userAuthenticationService.getLoggedUserRoles(userDetails) >> roles
+        userAuthenticationService.getActiveUserById(userDetails) >> { throw new RuntimeException('Użytkownik jest nieaktywny!') }
 
         when:
         ResponseEntity<?> response = authController.authenticateUser(loginRequest, bindingResult)
@@ -189,9 +192,9 @@ class AuthControllerSpec extends Specification {
         bindingResult.hasErrors() >> false
         validationRequestService.validateRequest(bindingResult) >> {}
         authService.authenticateUserByLoginRequest(loginRequest) >> userDetails
-        userService.getLoggedUserRoles(userDetails) >> roles
-        userService.getActiveUserById(userDetails) >> Optional.of(user)
-        userService.getUserFarmById(Long.valueOf(userDetails.getId())) >> farm
+        userAuthenticationService.getLoggedUserRoles(userDetails) >> roles
+        userAuthenticationService.getActiveUserById(userDetails) >> Optional.of(user)
+        userManagementService.getUserFarmById(Long.valueOf(userDetails.getId())) >> farm
 
         farmService.checkFarmDeactivation(farm, role) >> { throw new AccessDeniedException('Gospodarstwo jest nieaktywne. Kod aktywacyjny wygasł.') }
 
@@ -233,9 +236,9 @@ class AuthControllerSpec extends Specification {
 
         validationRequestService.validateRequest(bindingResult) >> {}
         authService.authenticateUserByLoginRequest(loginRequest) >> userDetails
-        userService.getLoggedUserRoles(userDetails) >> roles
-        userService.getActiveUserById(userDetails) >> Optional.of(user)
-        userService.getUserFarmById(Long.valueOf(userDetails.getId())) >> farm
+        userAuthenticationService.getLoggedUserRoles(userDetails) >> roles
+        userAuthenticationService.getActiveUserById(userDetails) >> Optional.of(user)
+        userManagementService.getUserFarmById(Long.valueOf(userDetails.getId())) >> farm
         farmService.checkFarmDeactivation(farm, role) >> null
 
         ResponseCookie jwtCookie = ResponseCookie.from('jwtTokenName', 'jwtTokenString')
