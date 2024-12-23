@@ -64,16 +64,23 @@ public class FarmEquipmentNotificationServiceImpl implements FarmEquipmentNotifi
     @Override
     public void checkAndNotifyForInspection(FarmEquipment equipment, LocalDate today) {
         if (equipment.getInspectionExpireDate() != null) {
-            long daysUntilExpiry = ChronoUnit.DAYS.between(today, equipment.getInspectionExpireDate());
-
-            if ((daysUntilExpiry == 14 || daysUntilExpiry == 3 || daysUntilExpiry == 1) && equipment.getFarmIdFarm().getIsActive()) {
+            long daysUntilExpiry = ChronoUnit.DAYS.between(
+                    today,
+                    equipment.getInspectionExpireDate()
+            );
+            if ((daysUntilExpiry == 14 || daysUntilExpiry == 3 || daysUntilExpiry == 1)
+                    && equipment.getFarmIdFarm().getIsActive()) {
                 String message = String.format(
                         "W twoim sprzęcie %s przegląd techniczny wygasa za %d dni.",
                         equipment.getEquipmentName(), daysUntilExpiry
                 );
                 List<User> owners = userManagementService.getAllOwnersForFarm(equipment.getFarmIdFarm().getId());
                 for (User owner : owners) {
-                    mainNotificationService.sendNotificationToUser(owner, message, "Przegląd techniczny wygasa!");
+                    mainNotificationService.sendNotificationToUser(
+                            owner,
+                            message,
+                            "Przegląd techniczny wygasa!"
+                    );
                     logger.info("Sending inspection expire notification to owner: {}", owner.getEmail());
                 }
             }
