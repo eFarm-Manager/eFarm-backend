@@ -13,10 +13,4 @@ public interface SeasonService {
     List<String> getAvailableSeasons();
 
     Integer getCurrentSeasonId(Clock clock);
-
-    default Integer calculateSeasonId(int startingYear) {
-        int baseYear = 2023;
-        int baseId = 2;
-        return baseId + (startingYear - baseYear);
-    }
 }

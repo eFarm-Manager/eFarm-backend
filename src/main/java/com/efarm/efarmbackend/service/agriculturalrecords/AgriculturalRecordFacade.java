@@ -7,7 +7,7 @@ import com.efarm.efarmbackend.payload.request.agriculturalrecord.CreateNewAgricu
 import com.efarm.efarmbackend.repository.agriculturalrecords.AgriculturalRecordRepository;
 import com.efarm.efarmbackend.repository.landparcel.LandparcelRepository;
 import com.efarm.efarmbackend.service.landparcel.LandparcelService;
-import com.efarm.efarmbackend.service.user.UserService;
+import com.efarm.efarmbackend.service.user.UserAuthenticationService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,14 +21,14 @@ import java.util.stream.Collectors;
 public class AgriculturalRecordFacade {
 
     private final SeasonService seasonService;
-    private final UserService userService;
+    private final UserAuthenticationService userAuthenticationService;
     private final AgriculturalRecordService agriculturalRecordService;
     private final AgriculturalRecordRepository agriculturalRecordRepository;
     private final LandparcelService landparcelService;
     private final LandparcelRepository landparcelRepository;
 
     public List<AgriculturalRecordDTO> getAgriculturalRecords(String seasonName, String searchQuery) throws Exception {
-        Farm loggedUserFarm = userService.getLoggedUserFarm();
+        Farm loggedUserFarm = userAuthenticationService.getLoggedUserFarm();
 
         Season season = (seasonName == null || seasonName.isEmpty())
                 ? seasonService.getCurrentSeason()
@@ -44,7 +44,7 @@ public class AgriculturalRecordFacade {
 
     @Transactional
     public void addAgriculturalRecord(CreateNewAgriculturalRecordRequest recordRequest) throws Exception {
-        Farm loggedUserFarm = userService.getLoggedUserFarm();
+        Farm loggedUserFarm = userAuthenticationService.getLoggedUserFarm();
         Season season = (recordRequest.getSeason() == null || recordRequest.getSeason().isEmpty())
                 ? seasonService.getCurrentSeason()
                 : seasonService.getSeasonByName(recordRequest.getSeason()
@@ -80,7 +80,7 @@ public class AgriculturalRecordFacade {
     @Transactional
     public void createRecordsForNewSeason(String seasonName) {
 
-        Farm loggedUserFarm = userService.getLoggedUserFarm();
+        Farm loggedUserFarm = userAuthenticationService.getLoggedUserFarm();
         Season season = seasonService.getSeasonByName(seasonName);
         if (season == null) {
             throw new RuntimeException("Podany sezon nie istnieje");

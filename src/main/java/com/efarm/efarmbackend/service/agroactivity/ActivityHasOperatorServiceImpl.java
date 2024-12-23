@@ -6,7 +6,7 @@ import com.efarm.efarmbackend.model.user.User;
 import com.efarm.efarmbackend.model.user.UserSummaryDTO;
 import com.efarm.efarmbackend.repository.agroactivity.ActivityHasOperatorRepository;
 import com.efarm.efarmbackend.repository.user.UserRepository;
-import com.efarm.efarmbackend.service.user.UserService;
+import com.efarm.efarmbackend.service.user.UserAuthenticationService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 public class ActivityHasOperatorServiceImpl implements ActivityHasOperatorService {
 
     private final UserRepository userRepository;
-    private final UserService userService;
+    private final UserAuthenticationService userAuthenticationService;
     private final ApplicationContext applicationContext;
     private final ActivityHasOperatorRepository activityHasOperatorRepository;
 
@@ -44,7 +44,7 @@ public class ActivityHasOperatorServiceImpl implements ActivityHasOperatorServic
                     })
                     .collect(Collectors.toList());
         } else {
-            operators = List.of(userService.getLoggedUser());
+            operators = List.of(userAuthenticationService.getLoggedUser());
         }
 
         for (User operator : operators) {

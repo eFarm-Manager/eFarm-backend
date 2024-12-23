@@ -6,7 +6,7 @@ import com.efarm.efarmbackend.repository.finance.FinancialCategoryRepository;
 import com.efarm.efarmbackend.repository.finance.PaymentStatusRepository;
 import com.efarm.efarmbackend.repository.finance.TransactionRepository;
 import com.efarm.efarmbackend.service.MainNotificationService;
-import com.efarm.efarmbackend.service.user.UserService;
+import com.efarm.efarmbackend.service.user.UserManagementService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -23,7 +23,7 @@ import java.util.List;
 public class FinanceNotificationServiceImpl implements FinanceNotificationService {
 
     private final TransactionRepository transactionRepository;
-    private final UserService userService;
+    private final UserManagementService userManagementService;
     private final FinancialCategoryRepository financialCategoryRepository;
     private final PaymentStatusRepository paymentStatusRepository;
     private final MainNotificationService mainNotificationService;
@@ -53,7 +53,7 @@ public class FinanceNotificationServiceImpl implements FinanceNotificationServic
                         transaction.getTransactionName(), transaction.getAmount(), daysUntilPayment
                 );
 
-                List<User> owners = userService.getAllOwnersForFarm(transaction.getFarm().getId());
+                List<User> owners = userManagementService.getAllOwnersForFarm(transaction.getFarm().getId());
                 for (User owner : owners) {
                     if (owner.getIsActive()) {
                         mainNotificationService.sendNotificationToUser(owner, message, "Niedługo upływa termin płatności!");

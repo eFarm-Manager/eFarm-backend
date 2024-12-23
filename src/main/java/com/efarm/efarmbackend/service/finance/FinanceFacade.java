@@ -6,7 +6,7 @@ import com.efarm.efarmbackend.payload.request.finance.NewTransactionRequest;
 import com.efarm.efarmbackend.payload.request.finance.UpdateTransactionRequest;
 import com.efarm.efarmbackend.payload.response.BalanceResponse;
 import com.efarm.efarmbackend.repository.finance.TransactionRepository;
-import com.efarm.efarmbackend.service.user.UserService;
+import com.efarm.efarmbackend.service.user.UserAuthenticationService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,11 +22,11 @@ public class FinanceFacade {
 
     private final FinanceService financeService;
     private final TransactionRepository transactionRepository;
-    private final UserService userService;
+    private final UserAuthenticationService userAuthenticationService;
 
     @Transactional
     public void addNewTransaction(NewTransactionRequest newTransactionRequest) throws Exception {
-        Farm loggedUserFarm = userService.getLoggedUserFarm();
+        Farm loggedUserFarm = userAuthenticationService.getLoggedUserFarm();
         TransactionId transactionId = new TransactionId(transactionRepository.findNextFreeIdForFarm(loggedUserFarm.getId()), loggedUserFarm.getId());
 
         financeService.checkTransactionAlreadyExistsByName(loggedUserFarm, newTransactionRequest.getTransactionName());
@@ -36,7 +36,7 @@ public class FinanceFacade {
 
     @Transactional
     public void updateTransaction(Integer id, UpdateTransactionRequest updateTransactionRequest) throws Exception {
-        Farm loggedUserFarm = userService.getLoggedUserFarm();
+        Farm loggedUserFarm = userAuthenticationService.getLoggedUserFarm();
         TransactionId transactionId = new TransactionId(id, loggedUserFarm.getId());
 
         Transaction transaction = transactionRepository.findById(transactionId)
@@ -48,7 +48,7 @@ public class FinanceFacade {
     }
 
     public void deleteTransaction(Integer id) {
-        Farm loggedUserFarm = userService.getLoggedUserFarm();
+        Farm loggedUserFarm = userAuthenticationService.getLoggedUserFarm();
         TransactionId transactionId = new TransactionId(id, loggedUserFarm.getId());
 
         Transaction transaction = transactionRepository.findById(transactionId)
@@ -60,7 +60,7 @@ public class FinanceFacade {
                                                 String financialCategoryString, String paymentStatusString,
                                                 Double minAmount, Double maxAmount) {
 
-        Farm loggedUserFarm = userService.getLoggedUserFarm();
+        Farm loggedUserFarm = userAuthenticationService.getLoggedUserFarm();
         FinancialCategory financialCategory = financeService.getFinancialCategoryForFiltering(financialCategoryString);
         PaymentStatus paymentStatus = financeService.getPaymentStatusForFiltering(paymentStatusString);
         List<Transaction> transactions = transactionRepository.findFilteredTransactions(
@@ -72,7 +72,7 @@ public class FinanceFacade {
     }
 
     public BalanceResponse getBalanceForLastYear() {
-        Integer farmId = userService.getLoggedUserFarm().getId();
+        Integer farmId = userAuthenticationService.getLoggedUserFarm().getId();
         LocalDate oneYearAgo = LocalDate.now().minusYears(1);
         List<Transaction> transactions = financeService.getTransactionsByFarmAndDate(farmId, oneYearAgo, LocalDate.now());
         return financeService.calculateFarmBalance(transactions);

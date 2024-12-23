@@ -21,7 +21,8 @@ import com.efarm.efarmbackend.service.auth.AuthFacade;
 import com.efarm.efarmbackend.service.auth.AuthService;
 import com.efarm.efarmbackend.service.farm.ActivationCodeService;
 import com.efarm.efarmbackend.service.farm.FarmService;
-import com.efarm.efarmbackend.service.user.UserService;
+import com.efarm.efarmbackend.service.user.UserAuthenticationService;
+import com.efarm.efarmbackend.service.user.UserManagementService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -46,7 +47,8 @@ public class AuthController {
 
     private final AuthFacade authFacade;
     private final JwtUtils jwtUtils;
-    private final UserService userService;
+    private final UserAuthenticationService userAuthenticationService;
+    private final UserManagementService userManagementService;
     private final ActivationCodeService activationCodeService;
     private final FarmService farmService;
     private final AuthService authService;
@@ -60,10 +62,10 @@ public class AuthController {
         try {
             validationRequestService.validateRequest(bindingResult);
             UserDetailsImpl userDetails = authService.authenticateUserByLoginRequest(loginRequest);
-            List<String> roles = userService.getLoggedUserRoles(userDetails);
+            List<String> roles = userAuthenticationService.getLoggedUserRoles(userDetails);
 
-            Optional<User> loggingUser = userService.getActiveUserById(userDetails);
-            Farm userFarm = userService.getUserFarmById(Long.valueOf(userDetails.getId()));
+            Optional<User> loggingUser = userAuthenticationService.getActiveUserById(userDetails);
+            Farm userFarm = userManagementService.getUserFarmById(Long.valueOf(userDetails.getId()));
             Role role = loggingUser.get().getRole();
 
             farmService.checkFarmDeactivation(userFarm, role);
@@ -87,7 +89,7 @@ public class AuthController {
             authFacade.registerUser(signUpUserRequest);
             return ResponseEntity.ok(new MessageResponse("Pomyślnie zarejestrowano nowego użytkownika"));
         } catch (Exception e) {
-            Farm farm = userService.getLoggedUserFarm();
+            Farm farm = userAuthenticationService.getLoggedUserFarm();
             logger.error("Can not create user for farm: {}", farm.getId());
             return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
         }

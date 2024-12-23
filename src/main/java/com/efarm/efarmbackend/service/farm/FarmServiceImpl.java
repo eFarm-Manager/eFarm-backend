@@ -12,7 +12,7 @@ import com.efarm.efarmbackend.service.agriculturalrecords.AgriculturalRecordServ
 import com.efarm.efarmbackend.service.equipment.FarmEquipmentService;
 import com.efarm.efarmbackend.service.finance.FinanceService;
 import com.efarm.efarmbackend.service.landparcel.LandparcelService;
-import com.efarm.efarmbackend.service.user.UserService;
+import com.efarm.efarmbackend.service.user.UserManagementService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -37,7 +37,7 @@ public class FarmServiceImpl implements FarmService {
     private final AgriculturalRecordService agriculturalRecordService;
     private final FinanceService financeService;
     private final FarmEquipmentService farmEquipmentService;
-    private final UserService userService;
+    private final UserManagementService userManagementService;
     private final AddressRepository addressRepository;
 
     private static final Logger logger = LoggerFactory.getLogger(FarmServiceImpl.class);
@@ -124,7 +124,7 @@ public class FarmServiceImpl implements FarmService {
             landparcelService.deleteAllLandparcelsForFarm(farm);
             farmEquipmentService.deleteAllEquipmentForFarm(farm);
             financeService.deleteAllTransactionsForFarm(farm);
-            userService.deleteAllUsersForFarm(farm);
+            userManagementService.deleteAllUsersForFarm(farm);
             Integer farmId = farm.getId();
             Integer idAddress = farm.getIdAddress();
             Integer idActivationCode = farm.getIdActivationCode();

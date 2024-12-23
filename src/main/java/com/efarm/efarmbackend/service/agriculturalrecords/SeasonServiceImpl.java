@@ -47,4 +47,9 @@ public class SeasonServiceImpl implements SeasonService {
             return calculateSeasonId(year - 1);
         }
     }
+    private Integer calculateSeasonId(int startingYear) {
+        int baseYear = 2023;
+        int baseId = 2;
+        return baseId + (startingYear - baseYear);
+    }
 }

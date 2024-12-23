@@ -17,7 +17,8 @@ import com.efarm.efarmbackend.repository.user.UserRepository;
 import com.efarm.efarmbackend.security.services.UserDetailsImpl;
 import com.efarm.efarmbackend.service.farm.ActivationCodeService;
 import com.efarm.efarmbackend.service.farm.FarmService;
-import com.efarm.efarmbackend.service.user.UserService;
+import com.efarm.efarmbackend.service.user.UserAuthenticationService;
+import com.efarm.efarmbackend.service.user.UserManagementService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -40,7 +41,8 @@ public class AuthFacade {
     private final AddressRepository addressRepository;
     private final ActivationCodeRepository activationCodeRepository;
     private final AuthService authService;
-    private final UserService userService;
+    private final UserAuthenticationService userAuthenticationService;
+    private final UserManagementService userManagementService;
     private final ActivationCodeService activationCodeService;
     private final FarmService farmService;
     final AuthenticationManager authenticationManager;
@@ -55,8 +57,8 @@ public class AuthFacade {
         if (userRepository.existsByUsername(signUpUserRequest.getUsername())) {
             throw new RuntimeException("Podana nazwa użytkownika jest już zajęta");
         }
-        User user = userService.createFarmUser(signUpUserRequest);
-        Farm currentUserFarm = userService.getLoggedUserFarm();
+        User user = userManagementService.createFarmUser(signUpUserRequest);
+        Farm currentUserFarm = userAuthenticationService.getLoggedUserFarm();
         user.setFarm(currentUserFarm);
         userRepository.save(user);
     }
@@ -73,7 +75,7 @@ public class AuthFacade {
             throw new RuntimeException("Wybrana nazwa farmy jest już zajęta");
         }
 
-        User user = userService.createFarmOwner(signUpFarmRequest);
+        User user = userManagementService.createFarmOwner(signUpFarmRequest);
         Optional<ActivationCode> activationCodeOpt = activationCodeRepository.findByCode(signUpFarmRequest.getActivationCode());
         activationCodeService.validateActivationCode(signUpFarmRequest.getActivationCode());
         Address address = new Address();
@@ -88,10 +90,10 @@ public class AuthFacade {
     @Transactional
     public void updateActivationCode(UpdateActivationCodeRequest updateActivationCodeRequest) throws Exception {
         UserDetailsImpl userDetails = authService.authenticateUserByUpdateCodeRequest(updateActivationCodeRequest);
-        List<String> roles = userService.getLoggedUserRoles(userDetails);
+        List<String> roles = userAuthenticationService.getLoggedUserRoles(userDetails);
 
         if (roles.contains("ROLE_FARM_OWNER")) {
-            Farm userFarm = userService.getUserFarmById(Long.valueOf(userDetails.getId()));
+            Farm userFarm = userManagementService.getUserFarmById(Long.valueOf(userDetails.getId()));
             activationCodeService.updateActivationCodeForFarm(
                     updateActivationCodeRequest.getNewActivationCode(),
                     userFarm.getId(),
@@ -104,11 +106,11 @@ public class AuthFacade {
 
     @Transactional
     public void updateActivationCodeByLoggedOwner(UpdateActivationCodeByLoggedOwnerRequest updateActivationCodeByLoggedOwnerRequest) throws UnauthorizedException {
-        if (userService.isPasswordValidForLoggedUser(updateActivationCodeByLoggedOwnerRequest.getPassword())) {
+        if (userAuthenticationService.isPasswordValidForLoggedUser(updateActivationCodeByLoggedOwnerRequest.getPassword())) {
             activationCodeService.updateActivationCodeForFarm(
                     updateActivationCodeByLoggedOwnerRequest.getNewActivationCode(),
-                    userService.getLoggedUserFarm().getId(),
-                    userService.getLoggedUser().getUsername()
+                    userAuthenticationService.getLoggedUserFarm().getId(),
+                    userAuthenticationService.getLoggedUser().getUsername()
             );
         } else {
             throw new UnauthorizedException("Nieprawidłowe hasło");
@@ -118,12 +120,12 @@ public class AuthFacade {
     @Transactional
     public void changePassword(ChangePasswordRequest changePasswordRequest) {
 
-        boolean isPasswordValid = userService.isPasswordValidForLoggedUser(changePasswordRequest.getCurrentPassword());
+        boolean isPasswordValid = userAuthenticationService.isPasswordValidForLoggedUser(changePasswordRequest.getCurrentPassword());
         if (!isPasswordValid) {
             throw new UnauthorizedException("Podano nieprawidłowe aktualne hasło");
         }
         if (!Objects.equals(changePasswordRequest.getCurrentPassword(), changePasswordRequest.getNewPassword())) {
-            userService.updatePasswordForLoggedUser(changePasswordRequest.getNewPassword());
+            userAuthenticationService.updatePasswordForLoggedUser(changePasswordRequest.getNewPassword());
         } else {
             throw new RuntimeException("Nowe hasło nie może być takie samo jak poprzednie");
         }

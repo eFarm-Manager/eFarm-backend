@@ -4,7 +4,7 @@ import com.efarm.efarmbackend.model.equipment.FarmEquipment;
 import com.efarm.efarmbackend.model.user.User;
 import com.efarm.efarmbackend.repository.equipment.FarmEquipmentRepository;
 import com.efarm.efarmbackend.service.MainNotificationService;
-import com.efarm.efarmbackend.service.user.UserService;
+import com.efarm.efarmbackend.service.user.UserManagementService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -22,7 +22,7 @@ public class FarmEquipmentNotificationServiceImpl implements FarmEquipmentNotifi
 
     private final FarmEquipmentRepository farmEquipmentRepository;
     private final MainNotificationService mainNotificationService;
-    private final UserService userService;
+    private final UserManagementService userManagementService;
 
     private static final Logger logger = LoggerFactory.getLogger(FarmEquipmentNotificationServiceImpl.class);
 
@@ -50,7 +50,7 @@ public class FarmEquipmentNotificationServiceImpl implements FarmEquipmentNotifi
                         "W twoim sprzęcie %s polisa ubezpieczeniowa o numerze %s wygasa za %d dni.",
                         equipment.getEquipmentName(), equipment.getInsurancePolicyNumber(), daysUntilExpiry
                 );
-                List<User> owners = userService.getAllOwnersForFarm(equipment.getFarmIdFarm().getId());
+                List<User> owners = userManagementService.getAllOwnersForFarm(equipment.getFarmIdFarm().getId());
                 for (User owner : owners) {
                     if (owner.getIsActive()) {
                         mainNotificationService.sendNotificationToUser(owner, message, "Ubezpieczenie sprzętu wygasa!");
@@ -71,7 +71,7 @@ public class FarmEquipmentNotificationServiceImpl implements FarmEquipmentNotifi
                         "W twoim sprzęcie %s przegląd techniczny wygasa za %d dni.",
                         equipment.getEquipmentName(), daysUntilExpiry
                 );
-                List<User> owners = userService.getAllOwnersForFarm(equipment.getFarmIdFarm().getId());
+                List<User> owners = userManagementService.getAllOwnersForFarm(equipment.getFarmIdFarm().getId());
                 for (User owner : owners) {
                     mainNotificationService.sendNotificationToUser(owner, message, "Przegląd techniczny wygasa!");
                     logger.info("Sending inspection expire notification to owner: {}", owner.getEmail());

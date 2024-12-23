@@ -13,7 +13,7 @@ import com.efarm.efarmbackend.repository.agriculturalrecords.AgriculturalRecordR
 import com.efarm.efarmbackend.repository.agroactivity.ActivityHasEquipmentRepository;
 import com.efarm.efarmbackend.repository.agroactivity.ActivityHasOperatorRepository;
 import com.efarm.efarmbackend.repository.agroactivity.AgroActivityRepository;
-import com.efarm.efarmbackend.service.user.UserService;
+import com.efarm.efarmbackend.service.user.UserAuthenticationService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 public class AgroActivityServiceImpl implements AgroActivityService {
 
     private final ActivityHasOperatorRepository activityHasOperatorRepository;
-    private final UserService userService;
+    private final UserAuthenticationService userAuthenticationService;
     private final ActivityHasEquipmentRepository activityHasEquipmentRepository;
     private final AgroActivityRepository agroActivityRepository;
     private final AgriculturalRecordRepository agriculturalRecordRepository;
@@ -50,7 +50,7 @@ public class AgroActivityServiceImpl implements AgroActivityService {
 
     @Override
     public List<AgroActivitySummaryDTO> getAgroActivitiesByAgriculturalRecord(Integer id) {
-        Integer farmId = userService.getLoggedUserFarm().getId();
+        Integer farmId = userAuthenticationService.getLoggedUserFarm().getId();
         AgriculturalRecordId agriculturalRecordId = new AgriculturalRecordId(id, farmId);
         AgriculturalRecord agriculturalRecord = agriculturalRecordRepository.findById(agriculturalRecordId)
                 .orElseThrow(() -> new RuntimeException("Nie znaleziono ewidencji"));
@@ -107,7 +107,7 @@ public class AgroActivityServiceImpl implements AgroActivityService {
     @Override
     @Transactional
     public List<AgroActivitySummaryDTO> getAssignedIncompleteActivitiesForLoggedUser() {
-        User loggedUser = userService.getLoggedUser();
+        User loggedUser = userAuthenticationService.getLoggedUser();
         List<AgroActivity> activities = agroActivityRepository.findIncompleteActivitiesAssignedToUser(loggedUser.getId());
         return activities.stream()
                 .sorted(Comparator.comparing(AgroActivity::getDate))
@@ -118,10 +118,10 @@ public class AgroActivityServiceImpl implements AgroActivityService {
     @Override
     @Transactional
     public void markActivityAsCompleted(Integer activityId) {
-        AgroActivity activity = agroActivityRepository.findById(new AgroActivityId(activityId, userService.getLoggedUserFarm().getId()))
+        AgroActivity activity = agroActivityRepository.findById(new AgroActivityId(activityId, userAuthenticationService.getLoggedUserFarm().getId()))
                 .orElseThrow(() -> new RuntimeException("Nie znaleziono zadania"));
 
-        User loggedUser = userService.getLoggedUser();
+        User loggedUser = userAuthenticationService.getLoggedUser();
         boolean isAssigned = activityHasOperatorRepository.findActivityHasOperatorsByAgroActivity(activity).stream()
                 .anyMatch(operator -> operator.getUser().getId().equals(loggedUser.getId()));
 

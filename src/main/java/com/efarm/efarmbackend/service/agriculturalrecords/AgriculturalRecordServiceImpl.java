@@ -14,7 +14,7 @@ import com.efarm.efarmbackend.repository.agriculturalrecords.CropRepository;
 import com.efarm.efarmbackend.repository.agroactivity.AgroActivityRepository;
 import com.efarm.efarmbackend.repository.landparcel.LandparcelRepository;
 import com.efarm.efarmbackend.service.agroactivity.AgroActivityService;
-import com.efarm.efarmbackend.service.user.UserService;
+import com.efarm.efarmbackend.service.user.UserAuthenticationService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +30,7 @@ public class AgriculturalRecordServiceImpl implements AgriculturalRecordService 
     private final AgriculturalRecordRepository agriculturalRecordRepository;
     private final CropRepository cropRepository;
     private final LandparcelRepository landparcelRepository;
-    private final UserService userService;
+    private final UserAuthenticationService userAuthenticationService;
     private final AgroActivityService agroActivityService;
     private final AgroActivityRepository agroActivityRepository;
 
@@ -94,7 +94,7 @@ public class AgriculturalRecordServiceImpl implements AgriculturalRecordService 
     @Transactional
     public void updateAgriculturalRecord(Integer id, UpdateAgriculturalRecordRequest updateRequest) throws Exception {
 
-        Farm loggedUserFarm = userService.getLoggedUserFarm();
+        Farm loggedUserFarm = userAuthenticationService.getLoggedUserFarm();
         AgriculturalRecordId agriculturalRecordId = new AgriculturalRecordId(id, loggedUserFarm.getId());
         AgriculturalRecord recordToUpdate = agriculturalRecordRepository.findById(agriculturalRecordId)
                 .orElseThrow(() -> new Exception("Nie znaleziono ewidencji"));
@@ -159,7 +159,7 @@ public class AgriculturalRecordServiceImpl implements AgriculturalRecordService 
     @Override
     @Transactional
     public void deleteAgriculturalRecord(Integer id) throws Exception {
-        Farm loggedUserFarm = userService.getLoggedUserFarm();
+        Farm loggedUserFarm = userAuthenticationService.getLoggedUserFarm();
         AgriculturalRecordId agriculturalRecordId = new AgriculturalRecordId(id, loggedUserFarm.getId());
         if (agriculturalRecordRepository.existsById(agriculturalRecordId)) {
             List<AgroActivity> agroActivities = agroActivityRepository.findByAgriculturalRecordId(agriculturalRecordId);

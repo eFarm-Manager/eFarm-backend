@@ -6,7 +6,8 @@ import com.efarm.efarmbackend.payload.request.user.ChangeUserPasswordRequest;
 import com.efarm.efarmbackend.payload.request.user.UpdateUserRequest;
 import com.efarm.efarmbackend.payload.response.MessageResponse;
 import com.efarm.efarmbackend.service.ValidationRequestService;
-import com.efarm.efarmbackend.service.user.UserService;
+import com.efarm.efarmbackend.service.user.UserAuthenticationService;
+import com.efarm.efarmbackend.service.user.UserManagementService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,26 +23,27 @@ import java.util.List;
 @RequestMapping("/users")
 public class UserController {
 
-    private final UserService userService;
+    private final UserAuthenticationService userAuthenticationService;
+    private final UserManagementService userManagementService;
     private final ValidationRequestService validationRequestService;
 
     @GetMapping("/all")
     @PreAuthorize("hasRole('ROLE_FARM_MANAGER') or hasRole('ROLE_FARM_OWNER')")
     public ResponseEntity<List<UserDTO>> getFarmUsersByFarmId() {
-        return ResponseEntity.ok(userService.getFarmUsersByFarmId());
+        return ResponseEntity.ok(userManagementService.getFarmUsersByFarmId());
     }
 
     @GetMapping("/active")
     @PreAuthorize("hasRole('ROLE_FARM_MANAGER') or hasRole('ROLE_FARM_OWNER')")
     public ResponseEntity<List<UserSummaryDTO>> getActiveFarmUsersByFarmId() {
-        return ResponseEntity.ok(userService.getActiveFarmUsersByFarmId());
+        return ResponseEntity.ok(userManagementService.getActiveFarmUsersByFarmId());
     }
 
     @PatchMapping("/toggle-active/{userId}")
     @PreAuthorize("hasRole('ROLE_FARM_MANAGER') or hasRole('ROLE_FARM_OWNER')")
     public ResponseEntity<MessageResponse> toggleUserStatus(@PathVariable Integer userId) {
         try {
-            userService.toggleUserActiveStatus(userId);
+            userManagementService.toggleUserActiveStatus(userId);
             return ResponseEntity.ok(new MessageResponse("Zmieniono status"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
@@ -53,7 +55,7 @@ public class UserController {
     public ResponseEntity<MessageResponse> updateUserDetails(@PathVariable Integer userId, @Valid @RequestBody UpdateUserRequest updateUserRequest, BindingResult bindingResult) {
         try {
             validationRequestService.validateRequest(bindingResult);
-            userService.updateUserDetails(userId, updateUserRequest);
+            userManagementService.updateUserDetails(userId, updateUserRequest);
             return ResponseEntity.ok(new MessageResponse("Zaktualizowano dane użytkownika"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
@@ -65,7 +67,7 @@ public class UserController {
     public ResponseEntity<MessageResponse> updateUserPassword(@PathVariable Integer userId, @RequestBody @Valid ChangeUserPasswordRequest request, BindingResult bindingResult) {
         try {
             validationRequestService.validateRequest(bindingResult);
-            userService.updateUserPassword(userId, request);
+            userAuthenticationService.updateUserPassword(userId, request);
             return ResponseEntity.ok(new MessageResponse("Zmieniono hasło użytkownika"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));

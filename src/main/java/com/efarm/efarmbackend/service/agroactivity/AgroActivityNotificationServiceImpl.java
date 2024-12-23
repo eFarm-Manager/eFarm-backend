@@ -8,7 +8,8 @@ import com.efarm.efarmbackend.repository.user.UserRepository;
 import com.efarm.efarmbackend.service.MainNotificationService;
 import com.efarm.efarmbackend.service.equipment.FarmEquipmentService;
 import com.efarm.efarmbackend.service.landparcel.LandparcelService;
-import com.efarm.efarmbackend.service.user.UserService;
+import com.efarm.efarmbackend.service.user.UserAuthenticationService;
+import com.efarm.efarmbackend.service.user.UserNotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,7 +20,8 @@ import java.util.List;
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class AgroActivityNotificationServiceImpl implements AgroActivityNotificationService {
 
-    private final UserService userService;
+    private final UserAuthenticationService userAuthenticationService;
+    private final UserNotificationService userNotificationService;
     private final LandparcelService landparcelService;
     private final FarmEquipmentService farmEquipmentService;
     private final UserRepository userRepository;
@@ -27,12 +29,12 @@ public class AgroActivityNotificationServiceImpl implements AgroActivityNotifica
 
     @Override
     public void handleHelpRequest(NeededHelpRequest request) throws Exception {
-        User loggedUser = userService.getLoggedUser();
+        User loggedUser = userAuthenticationService.getLoggedUser();
         Landparcel landparcel = landparcelService.findlandparcelByFarm(request.getLandparcelId(), loggedUser.getFarm());
         List<FarmEquipment> equipmentList = farmEquipmentService.getEquipmentByIds(request.getEquipmentIds(), loggedUser.getFarm());
         List<User> activeFarmOperators = userRepository.findByFarmIdAndIsActive(loggedUser.getFarm().getId(), true);
-        List<User> selectedOperators = userService.filterOperatorsForHelpNotifications(request.getOperatorIds(), activeFarmOperators);
-        List<User> excludedOperators = userService.filterInvalidOperatorsForHelpNotifications(request.getOperatorIds(), selectedOperators);
+        List<User> selectedOperators = userNotificationService.filterOperatorsForHelpNotifications(request.getOperatorIds(), activeFarmOperators);
+        List<User> excludedOperators = userNotificationService.filterInvalidOperatorsForHelpNotifications(request.getOperatorIds(), selectedOperators);
 
         if (!excludedOperators.isEmpty()) {
             StringBuilder errorMessage = new StringBuilder("Nie udało się wysłać prośby o pomoc: ");
@@ -53,4 +55,28 @@ public class AgroActivityNotificationServiceImpl implements AgroActivityNotifica
         }
     }
 
+    private String buildHelpRequestEmailMessage(NeededHelpRequest request, Landparcel landParcel, List<FarmEquipment> equipmentList, User sender) {
+        StringBuilder content = new StringBuilder();
+
+        content.append("Pracownik ")
+                .append(sender.getFirstName()).append(" ").append(sender.getLastName())
+                .append(" potrzebuje Twojej pomocy: \n").append(request.getName())
+                .append("\n\n");
+
+        content.append("Opis: \n").append(request.getDescription()).append("\n\n");
+
+        content.append("Działka: \n");
+        content.append(" - Nazwa: ").append(landParcel.getName()).append("\n");
+        content.append(" - Współrzędne: ")
+                .append("Lat: ").append(landParcel.getLatitude())
+                .append(", Long: ").append(landParcel.getLongitude())
+                .append("\n\n");
+
+        content.append("Wymagane maszyny: \n");
+        for (FarmEquipment equipment : equipmentList) {
+            content.append(" - ").append(equipment.getCategory().getCategoryName())
+                    .append(": ").append(equipment.getEquipmentName()).append("\n");
+        }
+        return content.toString();
+    }
 }

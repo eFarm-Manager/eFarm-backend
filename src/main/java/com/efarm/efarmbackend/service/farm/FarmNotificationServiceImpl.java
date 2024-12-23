@@ -6,7 +6,7 @@ import com.efarm.efarmbackend.model.user.User;
 import com.efarm.efarmbackend.repository.farm.ActivationCodeRepository;
 import com.efarm.efarmbackend.repository.farm.FarmRepository;
 import com.efarm.efarmbackend.service.MainNotificationService;
-import com.efarm.efarmbackend.service.user.UserService;
+import com.efarm.efarmbackend.service.user.UserManagementService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +22,7 @@ import java.util.Optional;
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class FarmNotificationServiceImpl implements FarmNotificationService {
 
-    private final UserService userService;
+    private final UserManagementService userManagementService;
     private final FarmRepository farmRepository;
     private final ActivationCodeRepository activationCodeRepository;
     private final MainNotificationService mainNotificationService;
@@ -54,7 +54,7 @@ public class FarmNotificationServiceImpl implements FarmNotificationService {
                             "Termin ważności kodu aktywacyjnego dla Twojej farmy %s upływa za %d dni.", farm.getFarmName(), daysUntilExpire
                     );
 
-                    List<User> owners = userService.getAllOwnersForFarm(farm.getId());
+                    List<User> owners = userManagementService.getAllOwnersForFarm(farm.getId());
                     for (User owner : owners) {
                         if (owner.getIsActive()) {
                             mainNotificationService.sendNotificationToUser(owner, message, "Niedługo wygasa kod aktywacyjny Twojej wirtualnej Farmy!");
@@ -79,7 +79,7 @@ public class FarmNotificationServiceImpl implements FarmNotificationService {
                             farm.getFarmName(), daysUntilDeletion
                     );
 
-                    List<User> owners = userService.getAllOwnersForFarm(farm.getId());
+                    List<User> owners = userManagementService.getAllOwnersForFarm(farm.getId());
                     for (User owner : owners) {
                         if (owner.getIsActive()) {
                             mainNotificationService.sendNotificationToUser(owner, message, "Twoja farma zostanie wkrótce usunięta!"

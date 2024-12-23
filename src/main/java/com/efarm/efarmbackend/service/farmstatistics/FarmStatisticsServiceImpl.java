@@ -8,11 +8,13 @@ import com.efarm.efarmbackend.payload.response.LandAreaStatisticsResponse;
 import com.efarm.efarmbackend.repository.agriculturalrecords.AgriculturalRecordRepository;
 import com.efarm.efarmbackend.repository.landparcel.LandparcelRepository;
 import com.efarm.efarmbackend.service.agriculturalrecords.SeasonService;
-import com.efarm.efarmbackend.service.user.UserService;
+import com.efarm.efarmbackend.service.user.UserAuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,14 +22,14 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class FarmStatisticsServiceImpl implements FarmStatisticsService {
 
-    private final UserService userService;
+    private final UserAuthenticationService userAuthenticationService;
     private final LandparcelRepository landparcelRepository;
     private final AgriculturalRecordRepository agriculturalRecordRepository;
     private final SeasonService seasonService;
 
     @Override
     public LandAreaStatisticsResponse generateLandAreaStatistics() {
-        Farm loggedUserFarm = userService.getLoggedUserFarm();
+        Farm loggedUserFarm = userAuthenticationService.getLoggedUserFarm();
 
         Double totalAvailableArea = landparcelRepository.sumAvailableLandArea(loggedUserFarm.getId());
         Double privatelyOwnedAvailableArea = landparcelRepository.sumAvailableLandAreaByStatus(loggedUserFarm.getId(), ELandOwnershipStatus.STATUS_PRIVATELY_OWNED);
@@ -48,7 +50,7 @@ public class FarmStatisticsServiceImpl implements FarmStatisticsService {
 
         List<Object[]> cropStatistics = agriculturalRecordRepository.findCropStatisticsBySeasonAndFarm(
                 season.getId(),
-                userService.getLoggedUserFarm().getId()
+                userAuthenticationService.getLoggedUserFarm().getId()
         );
 
         return cropStatistics.stream()
@@ -58,5 +60,14 @@ public class FarmStatisticsServiceImpl implements FarmStatisticsService {
                 ))
                 .sorted((a, b) -> b.getTotalArea().compareTo(a.getTotalArea()))
                 .collect(Collectors.toList());
+    }
+
+    private Double roundToFourDecimalPlaces(Double value) {
+        if (value == null) {
+            return null;
+        }
+        return BigDecimal.valueOf(value)
+                .setScale(4, RoundingMode.HALF_UP)
+                .doubleValue();
     }
 }

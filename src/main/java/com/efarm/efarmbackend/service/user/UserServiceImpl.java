@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl implements UserManagementService, UserAuthenticationService, UserNotificationService {
 
     private final RoleRepository roleRepository;
     private final PasswordEncoder encoder;
