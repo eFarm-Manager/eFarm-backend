@@ -50,8 +50,7 @@ public class FarmEquipmentFacade {
 
         if (equipment.getIsAvailable()) {
             List<String> fieldsToDisplay = equipmentDisplayDataService.getFieldsForCategory(equipment.getCategory().getCategoryName());
-
-            return FarmEquipmentService.createFarmEquipmentDTOtoDisplay(equipment, fieldsToDisplay);
+            return farmEquipmentService.createFarmEquipmentDTOtoDisplay(equipment, fieldsToDisplay);
         } else {
             throw new RuntimeException("Sprzęt jest niedostępny");
         }
