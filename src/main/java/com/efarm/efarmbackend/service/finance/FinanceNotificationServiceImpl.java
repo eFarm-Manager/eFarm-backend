@@ -36,7 +36,10 @@ public class FinanceNotificationServiceImpl implements FinanceNotificationServic
         LocalDate today = LocalDate.now();
         FinancialCategory financialCategory = financialCategoryRepository.findByName(EFinancialCategory.EXPENSE);
         PaymentStatus paymentStatus = paymentStatusRepository.findByName(EPaymentStatus.UNPAID);
-        List<Transaction> transactions = transactionRepository.findByfinancialCategoryAndPaymentStatus(financialCategory, paymentStatus);
+        List<Transaction> transactions = transactionRepository.findByfinancialCategoryAndPaymentStatus(
+                financialCategory,
+                paymentStatus
+        );
         for (Transaction transaction : transactions) {
             checkAndNotifyForPayment(transaction, today);
         }

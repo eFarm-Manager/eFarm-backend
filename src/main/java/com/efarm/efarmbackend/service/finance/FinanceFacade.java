@@ -74,7 +74,11 @@ public class FinanceFacade {
     public BalanceResponse getBalanceForLastYear() {
         Integer farmId = userAuthenticationService.getLoggedUserFarm().getId();
         LocalDate oneYearAgo = LocalDate.now().minusYears(1);
-        List<Transaction> transactions = financeService.getTransactionsByFarmAndDate(farmId, oneYearAgo, LocalDate.now());
+        List<Transaction> transactions = financeService.getTransactionsByFarmAndDate(
+                farmId,
+                oneYearAgo,
+                LocalDate.now()
+        );
         return financeService.calculateFarmBalance(transactions);
     }
 }

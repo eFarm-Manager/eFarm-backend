@@ -76,9 +76,15 @@ public class FinanceController {
             @RequestParam(required = false) Double minAmount,
             @RequestParam(required = false) Double maxAmount) {
 
-        List<TransactionDTO> transactions = financeFacade.getTransactions(searchQuery, minDate, maxDate,
-                financialCategory, paymentStatus, minAmount, maxAmount);
-
+        List<TransactionDTO> transactions = financeFacade.getTransactions(
+                searchQuery,
+                minDate,
+                maxDate,
+                financialCategory,
+                paymentStatus,
+                minAmount,
+                maxAmount
+        );
         return ResponseEntity.ok(transactions);
     }
 

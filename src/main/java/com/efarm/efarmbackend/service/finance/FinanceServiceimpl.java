@@ -27,19 +27,22 @@ public class FinanceServiceimpl implements FinanceService {
     private final TransactionRepository transactionRepository;
 
     @Override
-    public Transaction addNewTransactionData(TransactionId transactionId, Farm loggedUserFarm, NewTransactionRequest newTransactionRequest) {
+    public Transaction addNewTransactionData(TransactionId transactionId,
+                                             Farm loggedUserFarm,
+                                             NewTransactionRequest request) {
         Transaction transaction = new Transaction(
                 transactionId,
                 loggedUserFarm,
-                newTransactionRequest.getTransactionName(),
-                newTransactionRequest.getTransactionDate(),
-                newTransactionRequest.getPaymentDate(),
-                newTransactionRequest.getAmount(),
-                newTransactionRequest.getDescription()
+                request
         );
-
-        setNewTransactionPaymentStatus(transaction, newTransactionRequest.getPaymentStatus());
-        setNewTransactionFinancialCategory(transaction, newTransactionRequest.getFinancialCategory());
+        setNewTransactionPaymentStatus(
+                transaction,
+                request.getPaymentStatus()
+        );
+        setNewTransactionFinancialCategory(
+                transaction,
+                request.getFinancialCategory()
+        );
         return transaction;
     }
 

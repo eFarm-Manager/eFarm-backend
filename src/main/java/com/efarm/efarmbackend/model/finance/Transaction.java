@@ -1,6 +1,7 @@
 package com.efarm.efarmbackend.model.finance;
 
 import com.efarm.efarmbackend.model.farm.Farm;
+import com.efarm.efarmbackend.payload.request.finance.NewTransactionRequest;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -53,14 +54,14 @@ public class Transaction {
     @Column(name = "opis", length = 500)
     private String description;
 
-    public Transaction(TransactionId id, Farm farm, String transactionName, LocalDate transactionDate, LocalDate paymentDate, Double amount, String description) {
+    public Transaction(TransactionId id, Farm farm, NewTransactionRequest request) {
         this.id = id;
         this.farm = farm;
-        this.transactionName = transactionName;
-        this.transactionDate = transactionDate;
-        this.paymentDate = paymentDate;
-        this.amount = amount;
-        this.description = description;
+        this.transactionName = request.getTransactionName();
+        this.transactionDate = request.getTransactionDate();
+        this.paymentDate = request.getPaymentDate();
+        this.amount = request.getAmount();
+        this.description = request.getDescription();
     }
 
     public TransactionId getId() {
